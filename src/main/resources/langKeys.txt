@@ -1,0 +1,6 @@
+en>en,English,(en),English [en],[en]
+fr>fr,French,français,(fr),Français [fr],[fr]
+el>el,Greek,ελληνικά,(el),[el]
+de>de,German,Deutsch,(de),Deutsch [de],[de]
+it>it,Italian,italiano,(it),[it]
+es>es,Spanish,español,(es),Español [es],[es]

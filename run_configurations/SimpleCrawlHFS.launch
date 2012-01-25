@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/ilsp-fmc-bixo/src/main/java/gr/ilsp/fmc/main/SimpleCrawlHFS.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gr.ilsp.fmc.main.SimpleCrawlHFS"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -a test1 -n 3 -f -k -lang en;fr -t 10 -of ${project_loc}/test_crawls/output_test_legis -tc ${project_loc}/test_crawls/ENV_EN_FR_topic_bilin.txt -u  ${project_loc}/test_crawls/ENV_EN_FR_seed_bilin.txt -type p -filter europa.eu/legislation_summaries/environment/"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ilsp-fmc-bixo"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.sourcepathProvider"/>
+</launchConfiguration>
