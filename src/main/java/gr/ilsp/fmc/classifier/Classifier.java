@@ -75,7 +75,8 @@ public class Classifier implements Serializable{
 		Map<String,String> metaMap = parsedDatum.getParsedMeta();
 		String keywords = "";
 		String meta = "";
-		String content = parsedDatum.getParsedText();
+		//vpapa
+		String content = parsedDatum.getParsedText().toLowerCase();
 		if (_keepBoiler) content = cleanContent(content);
 		String url = parsedDatum.getUrl();
 		//		for (String s:metaMap.keySet()){
@@ -94,7 +95,7 @@ public class Classifier implements Serializable{
 		if (_targetLanguage!=null){
 			LanguageIdentifier LangI=new LanguageIdentifier(content); 
 			langIdentified = LangI.getLanguage();
-
+			//System.out.println(langIdentified);
 			String[] langs = _targetLanguage.split(";");
 			boolean match = false;
 			//vpapa
@@ -122,7 +123,8 @@ public class Classifier implements Serializable{
 					}
 				}				
 			}*/
-			if (!match) return null;
+			if (!match)
+				return null;
 		}
 		if (_topic==null){
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0);
@@ -538,7 +540,7 @@ public class Classifier implements Serializable{
 				}
 				if (type==1){
 					//link's text implies that the link points to candidate translation
-					score +=50*_thres;
+					score +=100*_thres;
 					return score;
 				}
 			}
@@ -580,7 +582,9 @@ public class Classifier implements Serializable{
 	private boolean containLangKeys(String text, int m) {
 		boolean result = false;
 		String[] keys= _targetlangKeys[m].split(",");
-		String[] words= text.split(" ");
+		String[] words= text.toLowerCase().split(" ");
+		if (words.length>10)
+			return result;
 		for (int ii=0;ii<keys.length;ii++){
 			for (int jj=0;jj<words.length;jj++){
 				if (keys[ii].equals(words[jj])){

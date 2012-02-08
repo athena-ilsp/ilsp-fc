@@ -99,6 +99,7 @@ public class SimpleCrawlHFS {
 	public static CompositeConfiguration config;
 	private static int PAGES_STORED = 0;
 	private static int PAGES_VISITED = 0;
+	private static String fs1 = System.getProperty("file.separator");
 	public static JobConf conf = null;
 
 	private static String operation = "crawlandexport";
@@ -125,6 +126,7 @@ public class SimpleCrawlHFS {
 		}
 	}
 
+	
 	private static void importOneDomain(String targetDomain, Path crawlDbPath, JobConf conf) throws IOException {
 		try {
 			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
@@ -165,10 +167,37 @@ public class SimpleCrawlHFS {
 			throw e;
 		}
 	}
+	//vpapa
+	private static void importURLOneDomain(String urls, Path crawlDbPath, JobConf conf) throws IOException {
+		try {
+			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
+			TupleEntryCollector writer = urlSink.openForWrite(conf);			
+			SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
+			//CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize("http://" + targetDomain), 0, 0, UrlStatus.UNFETCHED, 0,0.0);
+			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
+			String line = "";
+			while ((line=rdr.readLine())!=null){
+				byte[] bts = line.getBytes("UTF-8");
+				if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
+					byte[] bts2 = new byte[bts.length-3];
+					for (int i = 3; i<bts.length;i++)
+						bts2[i-3]=bts[i];
+					line = new String(bts2);
+				}
+				if (line.equals("")) continue;
+				CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize(line), 0, 0, 
+						UrlStatus.UNFETCHED, 0,0.0);
+				writer.add(datum.getTuple());
+			}
+			rdr.close();
+			writer.close();
+		} catch (IOException e) {
+			throw e;
+		}
+	}
+	
 
 	public static void main(String[] args) {
-
-
 		if (args.length==0){LOGGER.info("Usage: SimpleCrawlHFS [crawl|export|config]");
 		System.exit(-1);
 		}
@@ -232,7 +261,10 @@ public class SimpleCrawlHFS {
 		String urls = null;
 		boolean isDomainFile = true;
 		Path dompath = null;
-		if (domain==null) {urls = options.getUrls();isDomainFile = false;}
+		if (domain==null) {
+			urls = options.getUrls();
+			isDomainFile = false;
+		}
 		else {
 			dompath = new Path(domain);
 			try {
@@ -249,6 +281,9 @@ public class SimpleCrawlHFS {
 				e.printStackTrace();
 			}
 		}		
+		//vpapa
+		if (options.getType().equals("p"))
+			urls = options.getUrls();
 		//Used only with the langdetect.jar
 		//URL profiles = Detector.class.getResource("/profiles");
 		String path = "profs/";
@@ -308,7 +343,8 @@ public class SimpleCrawlHFS {
 		if (options.isDebug()) {
 			System.setProperty("fmc.root.level", "DEBUG");            
 		} else {
-			System.setProperty("fmc.root.level", "INFO");            
+			//System.setProperty("fmc.root.level", "INFO");
+			System.setProperty("fmc.root.level", "ERROR");
 		}
 
 		if (options.getLoggingAppender() != null) {
@@ -330,16 +366,29 @@ public class SimpleCrawlHFS {
 			//If the outputPath does not exist, it is created. Seed URL list (or domain) is imported
 			//into the hfs.
 			if (!fs.exists(outputPath)) {
-				LOGGER.info("Creating path: " +outputPath);
+				//vpapa
+				LOGGER.info("Creating path: " +outputPath.toString());
 				fs.mkdirs(outputPath);
-
+		
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, 0);
 				String curLoopDirName = curLoopDir.toUri().toString();
-				if (curLoopDirName.startsWith("file:/")) curLoopDirName = curLoopDirName.substring(6);
+				if (curLoopDirName.startsWith("file:/")){
+					//vpapa 6->5
+					curLoopDirName = curLoopDirName.substring(5);
+					//System.out.println("curLoopDirName: "+curLoopDirName);
+				}//else{
+				//	curLoopDirName=fs1+curLoopDirName;
+				//}
+					
 				setLoopLoggerFile(curLoopDirName, 0);
 				Path crawlDbPath = new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME);
-				if (domain!=null && !isDomainFile){						
-					importOneDomain(domain,crawlDbPath , conf);
+				if (domain!=null && !isDomainFile){	
+					//vpapa
+					if (urls!=null){
+						importURLOneDomain(urls,crawlDbPath , conf);
+					}else{
+						importOneDomain(domain,crawlDbPath , conf);
+					}
 				}
 				else
 					importUrlList(urls,crawlDbPath, conf);
@@ -427,7 +476,13 @@ public class SimpleCrawlHFS {
 				//topic and classes arrays, the term threshold and the crawl options
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, curLoop);
 				String curLoopDirName = curLoopDir.toUri().toString();
-				if (curLoopDirName.startsWith("file:/")) curLoopDirName = curLoopDirName.substring(6);
+				if (curLoopDirName.startsWith("file:/")){
+					//vpapa 6->5
+					curLoopDirName = curLoopDirName.substring(5);
+					//System.out.println("curLoopDirName: "+curLoopDirName);
+				}//else{
+				//	curLoopDirName =fs1+curLoopDirName;
+				//}
 				setLoopLoggerFile(curLoopDirName, curLoop);	
 				Flow flow = SimpleCrawlHFSWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlFilter, 
 						classes, topic, thres,min_uniq_terms,max_depth,options);							
@@ -466,11 +521,14 @@ public class SimpleCrawlHFS {
 			if (options.getType().equals("p")){	
 				String[][] AAA;
 				try {
-					File xmldir = new File(options.getOutputDir()+"/xml");
+					File xmldir = new File(options.getOutputDir()+fs1+"xml");
 					AAA = Bitexts.representXML(xmldir);
 					//System.out.println("Files found: "+AAA.length);
 					if (AAA.length<2){
 						LOGGER.info("Only 1 file found; Detection of pairs is stopped.");
+						File out_temp=new File(options.getOutputFile());
+						if (out_temp.exists())
+							out_temp.delete();
 						System.exit(0);
 					}
 					int l1=0, l2=0;
@@ -478,24 +536,47 @@ public class SimpleCrawlHFS {
 					for (int jj=0;jj<AAA.length;jj++){
 						if (AAA[jj][1].equals(lang[0]))
 							l1++;
-						else
-							l2++;
+						else{
+							if (AAA[jj][1].equals(lang[1]))
+								l2++;
+						}
 					}
 					LOGGER.info(l1 + " documents in "+lang[0]+ " . "+ l2 +" documents in "+lang[1]+ " .");
-					double[][] sv=Bitexts.readRes("SVs19.txt");
-					double[][] b=Bitexts.readRes("B19.txt");
-					double[][] w=Bitexts.readRes("Ws19.txt");
-					ArrayList<String[]> pairs = Bitexts.findpairsXML_SVM(xmldir,AAA,sv,w,b);
-					ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM(pairs);
+					if (l1==0){
+						LOGGER.info("No file found in " + lang[0]+"; Detection of pairs is stopped.");
+						File out_temp=new File(options.getOutputFile());
+						if (out_temp.exists())
+							out_temp.delete();
+						System.exit(0);
+					}
+					if (l2==0){
+						LOGGER.info("No file found in " + lang[1]+"; Detection of pairs is stopped.");
+						File out_temp=new File(options.getOutputFile());
+						if (out_temp.exists())
+							out_temp.delete();
+						System.exit(0);
+					}
+					//double[][] sv=Bitexts.readRes("SVs19.txt");
+					//double[][] b=Bitexts.readRes("B19.txt");
+					//double[][] w=Bitexts.readRes("Ws19.txt");
 					
+					double[][] sv=Bitexts.readRes("SVs19_last.txt");
+					double[][] b=Bitexts.readRes("B19_last.txt");
+					double[][] w=Bitexts.readRes("Ws19_last.txt");
+					
+					ArrayList<String[]> pairs = Bitexts.findpairsXML_SVM(xmldir,AAA,sv,w,b);
+					//ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM(pairs);
+					ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM_NEW(pairs);
 					if (bitexts.size()>0){
-						Bitexts.writeXMLs(outputDirName,bitexts);
-						Bitexts.writeOutList(outputDirName,options.getOutputFile());
+						Bitexts.writeXMLs(outputDirName,bitexts,options.getAlign());
+						bitexts = Bitexts.sortbyLength(bitexts);
+						Bitexts.writeOutList(outputDirName,options.getOutputFile(),bitexts);
 						//System.out.println("Pairs found :"+bitexts.size());
 						LOGGER.info("Pairs found: "+bitexts.size() );
 					}
 					else{
 						LOGGER.info("No pairs found");
+						Bitexts.writeOutList(outputDirName,options.getOutputFile());
 					}
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
@@ -520,7 +601,7 @@ public class SimpleCrawlHFS {
 			}
 			//vpapa
 			//crawl for comparable
-			if (options.getType().equals("c")){
+			if (options.getType().equals("q")){
 			//put Nikos module based on aligned topics
 			}
 			
@@ -537,6 +618,8 @@ public class SimpleCrawlHFS {
 			System.exit(-1);
 		}
 	} 
+	
+
 	//vpapa
 	private static boolean check_evol(ArrayList<int[]> storVis) {
 		boolean to_continue = false;

@@ -2,6 +2,7 @@ package gr.ilsp.fmc.main;
 //vpapa
 
 //import java.io.BufferedInputStream;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,6 +27,7 @@ import java.util.Arrays;
 //import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
+import org.apache.hadoop.fs.Path;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
@@ -42,12 +44,14 @@ public class Bitexts {
 	private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static String cesNameSpace = "http://www.w3.org/1999/xlink";
+	private static String cesNameSpace1 = "http://www.xces.org/schema/2003";
+	private static String cesNameSpace2 = "http://www.w3.org/2001/XMLSchema-instance";
 	private static String fs = System.getProperty("file.separator");
 	//private final static String appendXmlExt = ".xml";
 	//private final static double term_thresh=0.5;
 	private static final String URL_ELE = "eAddress";
 	//private static int diagonal_beam=5;
-	private static double text_thres=0.3;
+	private static double text_thres=0.4;
 	private static double length_thres=0.4;
 	private static double pars_thres=0.4;
 		
@@ -197,11 +201,21 @@ public class Bitexts {
 		};
 		String[] files= xmldir.list(filter);
 		for (int ii=0; ii<files.length ; ii++){
+			if (Bitexts.readlist(xmldir.getPath()+ "/"+files[ii]+".txt")==null){
+				AAA[ii][0]="";
+			}
+		}
+		for (int ii=0; ii<files.length ; ii++){
 			if (AAA[ii][0].isEmpty())
 				continue;
 			String sf = files[ii].substring(0, files[ii].indexOf("."));
 			int sf_level = Integer.parseInt(AAA[ii][0]);
-			int[] sl =readlist(xmldir.getPath()+ "/"+sf+".xml.txt");
+			int[] sl =readlist(xmldir.getPath()+ fs+sf+".xml.txt");
+			int sflength =0;
+			for (int mm=0;mm<sl.length;mm++){
+				if (sl[mm]>0)
+				sflength = sflength+sl[mm];
+			}
 			double sl_length = Double.parseDouble(Integer.toString(sl.length));
 			double sl_par = Double.parseDouble(AAA[ii][2]);
 			String filepair="";
@@ -215,7 +229,7 @@ public class Bitexts {
 				double tl_par = Double.parseDouble(AAA[jj][2]);
 				if (!AAA[ii][1].equals(AAA[jj][1]) & Math.abs(sf_level-Integer.parseInt(AAA[jj][0]))<2 
 						& (Math.abs(sl_par-tl_par)/Math.max(sl_par, tl_par))<pars_thres) {
-					int[] tl =readlist(xmldir.getPath()+ "/"+tf+".xml.txt");
+					int[] tl =readlist(xmldir.getPath()+ fs+tf+".xml.txt");
 					double tl_length = Double.parseDouble(Integer.toString(tl.length));
 					if (Math.abs(sl_length-tl_length)/Math.min(sl_length,tl_length)<=length_thres
 							|| (Math.abs(sl_length-tl_length)<10)){
@@ -234,13 +248,27 @@ public class Bitexts {
 						}else{
 							f2=tl_par/sl_par;
 						}
-						res=SVM_test(f1,f2,f3,sv,w,b,19.0);
+						if (f3>=0.30 || f1<=0.7 || f2<=0.7)
+							res=-1;
+						else
+							res=SVM_test(f1,f2,f3,sv,w,b,19.0);
+						//res=SVM_test(f1,f2,f3,sv,w,b,19.0);
 						if (res>0){
-							filepair=sf+"_"+tf;
+							//filepair=sf+"_"+tf;
 							double inv_res=1/res;
-							langpair = AAA[ii][1]+"_"+AAA[jj][1];
-							pairs.add(new String[] {filepair,langpair,Double.toString(inv_res)});
-							//System.out.println(sf+"_"+tf+" dist:"+inv_res);
+							//langpair = AAA[ii][1]+"_"+AAA[jj][1];
+							//pairs.add(new String[] {filepair,langpair,Double.toString(inv_res)});
+							//pairs.add(new String[] {filepair,langpair,Double.toString(res)});
+							/*File sftemp =new File(xmldir+fs+files[ii]);
+							File tftemp =new File(xmldir+fs+files[jj]);
+							String pairlength = Double.toString(sftemp.length()+tftemp.length());*/
+							int tflength =0;
+							for (int mm=0;mm<tl.length;mm++){
+								if (tl[mm]>0)
+								tflength = tflength+tl[mm];
+							}
+							String pairlength = Integer.toString(tflength+sflength);
+							pairs.add(new String[] {sf,tf,AAA[ii][1],AAA[jj][1],Double.toString(inv_res),pairlength});
 						}
 					}
 				}
@@ -270,7 +298,7 @@ public class Bitexts {
 	public static ArrayList<String[]> findBestPairs_SVM(ArrayList<String[]> pairs) {
 		ArrayList<String[]> bitexts=new ArrayList<String[]>();
 		Double[] new_temp1 = new Double[pairs.size()];
-		String[][] pairlist = new String[pairs.size()][4];
+		String[][] pairlist = new String[pairs.size()][5];
 		Double[] editdist =  new Double[pairs.size()];
 		for (int i = 0; i < new_temp1.length; i++){
 			new_temp1[i] =Double.parseDouble(pairs.get(i)[2]);
@@ -281,6 +309,8 @@ public class Bitexts {
 			int ind1 = pairs.get(i)[1].indexOf("_");
 			pairlist[i][2]=pairs.get(i)[1].substring(0, ind1);
 			pairlist[i][3]=pairs.get(i)[1].substring(ind1+1);
+			pairlist[i][4]=pairs.get(i)[3];
+			
 		}
 		Arrays.sort(new_temp1);
 		int kk = 0;
@@ -300,8 +330,8 @@ public class Bitexts {
 						String f2 = pairlist[j][1];
 						String l1 = pairlist[j][2];
 						String l2 = pairlist[j][3];
-						//System.out.print("FOUND: "+f1 +" and "+ f2+" | ");
-						bitexts.add(new String[] {f1, f2,l1,l2});
+						//System.out.println("FOUND: "+f1 +" and "+ f2+"___"+pairlist[j][4]);
+						bitexts.add(new String[] {f1, f2,l1,l2,"",pairlist[j][4]});
 						for(int k=0; k<pairlist.length;k++){
 							if (pairlist[k][0].equals(f1) | pairlist[k][0].equals(f2))
 								pairlist[k][0]="";		
@@ -317,31 +347,162 @@ public class Bitexts {
 		return bitexts;
 	}
 	
+	
+	public static ArrayList<String[]> findBestPairs_SVM_NEW(ArrayList<String[]> pairs) {
+		ArrayList<String[]> bitexts=new ArrayList<String[]>();
+		int[][] counts=new int[pairs.size()][2]; 
+		for (int ii=0;ii<pairs.size();ii++){
+			for (int jj=0;jj<pairs.size();jj++){
+				if (pairs.get(ii)[0].equals(pairs.get(jj)[0]) | pairs.get(ii)[0].equals(pairs.get(jj)[1]) ){
+					counts[ii][0] = counts[ii][0]+1;
+				}
+				if (pairs.get(ii)[1].equals(pairs.get(jj)[0]) | pairs.get(ii)[1].equals(pairs.get(jj)[1]) ){
+					counts[ii][1] = counts[ii][1]+1;
+				}
+			}
+		}
+		int[] flags=new int[counts.length];
+		//int limit = maxArray(counts)/2;
+		String temp="";
+		double dist, dist1;
+		//for (int ii=0;ii<limit;ii++){
+		//for (int ii=0;ii<2;ii++){
+			for (int jj=0;jj<pairs.size();jj++){
+				if (counts[jj][0]==1 & counts[jj][1]==1 & flags[jj]==0){
+					//System.out.println(pairs.get(jj)[0]+"_"+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
+					bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],"high",pairs.get(jj)[5]});
+					flags[jj]=1;
+					//counts[jj][0]=counts[jj][0]-1;
+					//counts[jj][1]=counts[jj][1]-1;
+				}
+			}
+			//System.out.println("END OF pairs of type1");
+			for (int jj=0;jj<pairs.size();jj++){
+				if (counts[jj][0]==1 & counts[jj][1]==2 & flags[jj]==0){
+					temp =pairs.get(jj)[1]; 
+					dist = Double.parseDouble(pairs.get(jj)[4]);
+					dist1=0.0;
+					int ind=-1;
+					for (int kk=0;kk<pairs.size();kk++){
+						if (pairs.get(kk)[1].equals(pairs.get(jj)[1]) & kk!=jj)
+							ind=1;
+						if (pairs.get(kk)[0].equals(pairs.get(jj)[1]) & kk!=jj)
+							ind=0;
+						if (ind>-1){
+							dist1 = Double.parseDouble(pairs.get(kk)[4]);
+							if (dist<dist1){
+								//System.out.println(pairs.get(jj)[0]+"_"+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
+								bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],"medium",pairs.get(jj)[5]});
+								//counts[jj][0]=0;
+								//counts[jj][1]=0;
+								counts[kk][ind]=0;
+								flags[jj]=2;
+								flags[kk]=-1;
+							}else{
+								flags[jj]=-1;
+								counts[kk][ind]=counts[kk][ind]-1;
+							}
+							break;
+						}
+					}
+				}
+			}
+			for (int jj=0;jj<pairs.size();jj++){
+				if (counts[jj][0]==2 & counts[jj][1]==1 & flags[jj]==0){
+					temp =pairs.get(jj)[0]; 
+					dist = Double.parseDouble(pairs.get(jj)[4]);
+					dist1=0.0;
+					for (int kk=0;kk<pairs.size();kk++){
+						if (pairs.get(kk)[0].equals(pairs.get(jj)[0]) & kk!=jj){
+							dist1 = Double.parseDouble(pairs.get(kk)[4]);
+							if (dist<dist1){
+								//System.out.println(pairs.get(jj)[0]+"_"+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
+								bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],"medium",pairs.get(jj)[5]});
+								//counts[jj][0]=0;
+								//counts[jj][1]=0;
+								counts[kk][0]=0;
+								flags[jj]=2;
+								flags[kk]=-1;
+							}else{
+								flags[jj]=-1;
+								counts[kk][0]=counts[kk][0]-1;
+							}
+							break;
+						}
+					}
+				}
+			}
+		//}
+		//System.out.println("END OF pairs of type 2");
+		ArrayList<String[]> new_pairs=new ArrayList<String[]>();
+		for (int ii=0;ii<pairs.size();ii++){
+			if (flags[ii]==0){
+				new_pairs.add(new String[] {pairs.get(ii)[0]+"_"+pairs.get(ii)[1],pairs.get(ii)[2]+"_"+pairs.get(ii)[3],pairs.get(ii)[4],pairs.get(ii)[5]});
+			}
+		}
+		ArrayList<String[]> new_bitexts=new ArrayList<String[]>();
+		new_bitexts=findBestPairs_SVM(new_pairs);
+		for (int ii=0;ii<new_bitexts.size();ii++){
+			bitexts.add(new String[] {new_bitexts.get(ii)[0], 
+					new_bitexts.get(ii)[1],new_bitexts.get(ii)[2],new_bitexts.get(ii)[3],"low",new_bitexts.get(ii)[5]});
+		}
+		
+		return bitexts;
+	}
+
+	private static int maxArray(int[][] num) {
+		int res=0;
+		for (int ii=0;ii<num.length;ii++){
+			res=Math.max(res, num[ii][0]);
+		}
+		for (int ii=0;ii<num.length;ii++){
+			res=Math.max(res, num[ii][1]);
+		}
+		return res;
+	}
+	
+	
 	@SuppressWarnings("restriction")
-	public static void writeXMLs(String outdir,ArrayList<String[]> bitexts) throws UnsupportedEncodingException, FileNotFoundException, XMLStreamException{
+	public static void writeXMLs(String outdir,ArrayList<String[]> bitexts, boolean cesAlign) throws UnsupportedEncodingException, FileNotFoundException, XMLStreamException{
 		for (int ii=0;ii<bitexts.size();ii++){
 			String f1=bitexts.get(ii)[0];
 			String f2=bitexts.get(ii)[1];
 			String l1=bitexts.get(ii)[2];
 			String l2=bitexts.get(ii)[3];
+			String confid=bitexts.get(ii)[4];
+			Path outdir1 = new Path(outdir);
+			//String f11="", f22="";
 			//String ff1 = f1.substring(f1.lastIndexOf("/")+1, f1.lastIndexOf("."));
 			//String ff2 = f2.substring(f2.lastIndexOf("/")+1, f2.lastIndexOf("."));
 			//String curXMLName=f1.substring(0, f1.lastIndexOf("/"))+"/"+ff1+"_"+ff2+".xml";
-			String curXMLName= outdir+fs+"xml"+fs+f1+"_"+f2+".xml";
+			String curXMLName= outdir+fs+"xml"+fs+f1+"_"+f2+"_"+confid.substring(0, 1)+".xml";
 
 			XMLOutputFactory2 xof = (XMLOutputFactory2) XMLOutputFactory2.newInstance();
 			OutputStreamWriter wrt = new OutputStreamWriter(new FileOutputStream(curXMLName),"UTF-8");
 			XMLStreamWriter2 xtw = (XMLStreamWriter2) xof.createXMLStreamWriter(wrt);
 			//System.err.println("Attempting to write "+curXMLName);
-			f1 = outdir+fs+"xml"+fs+f1+".xml";
-			f2 = outdir+fs+"xml"+fs+f2+".xml";
+			f1 = outdir1.toString()+fs+"xml"+fs+f1+".xml";
+			f2 = outdir1.toString()+fs+"xml"+fs+f2+".xml";
+			//String v1 =outdir.replace(VAR_RES_CACHE,HTTP_PATH);
 			f1 = f1.replace(VAR_RES_CACHE,HTTP_PATH);
 			f2 = f2.replace(VAR_RES_CACHE,HTTP_PATH);
+			//vpapa added this just for development on windows
+			f1 = f1.substring(f1.indexOf("http:"));
+			f2 = f2.substring(f2.indexOf("http:"));
 			xtw.writeStartDocument();
+			if (cesAlign){
+				xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
+				//xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
+				//xtw.writeProcessingInstruction("xml-stylesheet", "href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
+			}
 			xtw.writeStartElement("cesAlign");
 			xtw.writeAttribute("version", "1.0");
+			xtw.writeAttribute("xmlns:xlink", cesNameSpace );
+			xtw.writeAttribute("xmlns", cesNameSpace1 );
+			xtw.writeAttribute("xmlns:xsi", cesNameSpace2 );
+
 			//xtw.writeAttribute("xmlns", "http://www.xces.org/schema/2003");
-			createHeader(xtw, f1, f2, l1, l2);
+			createHeader(xtw, f1, f2, l1, l2,confid,cesAlign);
 			xtw.writeEndDocument();
 			xtw.flush();
 			xtw.close();
@@ -413,27 +574,41 @@ public class Bitexts {
 		String[] patterns = new String[kk];
 		System.arraycopy(patterns1.toArray(), 0, patterns, 0, kk);
 		int[] patt_int = new int[kk];
-		for (int i=0; i<kk; i++)
+		//for (int i=0; i<kk; i++)
+		//	patt_int[i]=Integer.parseInt(patterns[i]);
+		//return patt_int;
+				
+		int num_of_text_par=0;
+		for (int i=0; i<kk; i++){
 			patt_int[i]=Integer.parseInt(patterns[i]);
-		return patt_int;
+			if (Integer.parseInt(patterns[i])>0)
+				num_of_text_par++;
+		}
+		if (num_of_text_par>5)
+			return patt_int;
+		else
+			return null;
+		
+		
 	}
 
 	@SuppressWarnings("restriction")
-	private static void createHeader(XMLStreamWriter2 xtw, String f1, String f2,String l1, String l2) throws XMLStreamException {
+	private static void createHeader(XMLStreamWriter2 xtw, String f1, 
+			String f2,String l1, String l2, String confid, boolean cesAlign) throws XMLStreamException {
 		xtw.writeStartElement("cesHeader");
 		xtw.writeAttribute("version", cesDocVersion);
-		xtw.writeAttribute("xmlns:xlink", cesNameSpace );
 		xtw.writeStartElement("profileDesc");
 		xtw.writeStartElement("translations");
+		//xtw.writeAttribute("confidence",confid );
 		xtw.writeStartElement("translation");
 		xtw.writeAttribute("trans.loc", f1);
-		xtw.writeAttribute("lang", l1);
+		xtw.writeAttribute("xml:lang", l1);
 		xtw.writeAttribute("wsd", "UTF-8");
 		xtw.writeAttribute("n", "1");
 		xtw.writeEndElement();//translation
 		xtw.writeStartElement("translation");
 		xtw.writeAttribute("trans.loc", f2);
-		xtw.writeAttribute("lang", l2);
+		xtw.writeAttribute("xml:lang", l2);
 		xtw.writeAttribute("wsd", "UTF-8");
 		xtw.writeAttribute("n", "2");
 		xtw.writeEndElement(); //translations
@@ -453,10 +628,17 @@ public class Bitexts {
 		try {
 			//FileWriter outFile = new FileWriter(outputFile);
 			//PrintWriter out = new PrintWriter(outFile);
+			Path outputDirName1=new Path(outputDirName);
 			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
 			for (int ii=0; ii<files.length ; ii++){
-				temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
-				out.write(temp+fs+files[ii]+"\n");
+				//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
+				//out.write(temp+fs+files[ii]+"\n");
+				
+				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+				ttt=ttt.substring(ttt.indexOf("http:"));
+				out.write(ttt+"\n");
+				
+				
 			}
 			out.close();
 		} catch (IOException e){
@@ -464,6 +646,73 @@ public class Bitexts {
 		    e.printStackTrace();
 		}
 	}
+	
+	public static String readFileAsString(String filePath) throws java.io.IOException{
+		byte[] buffer = new byte[(int) new File(filePath).length()];
+		BufferedInputStream f = new BufferedInputStream(new FileInputStream(filePath));
+		f.read(buffer);
+		return new String(buffer);
+	}
+
+	public static ArrayList<String[]> sortbyLength(ArrayList<String[]> bitexts) {
+		ArrayList<String[]> new_bitexts=new ArrayList<String[]>();
+		int[] new_temp1 = new int[bitexts.size()];
+		
+		for (int i = 0; i < new_temp1.length; i++){
+			new_temp1[i] =Integer.parseInt(bitexts.get(i)[5]);
+		}
+		Arrays.sort(new_temp1);
+		int kk = 0;
+		for (int i = 0; i < new_temp1.length; i++){
+			if (i > 0 && new_temp1[i]==new_temp1[i -1])
+				continue;
+			new_temp1[kk++] = new_temp1[i];
+		}
+		int[] new_temp = new int[kk];
+		System.arraycopy(new_temp1, 0, new_temp, 0, kk);
+		for (int i=0; i<new_temp.length; i++){
+			for (int jj=0;jj<bitexts.size();jj++){
+				if (Integer.parseInt(bitexts.get(jj)[5])==new_temp[i]){
+					new_bitexts.add(new String[] {bitexts.get(jj)[0], 
+					bitexts.get(jj)[1],bitexts.get(jj)[2],bitexts.get(jj)[3],bitexts.get(jj)[4]});
+				}
+			}
+		}
+		return new_bitexts;
+		
+	}
+
+	public static void writeOutList(String outputDirName, String outputFile,ArrayList<String[]> bitexts) {
+		
+		
+		//File xmldir=new File(outputDirName+fs+"xml");
+		//String[] files= xmldir.list(filter);
+		//String temp="";
+		try {
+			//FileWriter outFile = new FileWriter(outputFile);
+			//PrintWriter out = new PrintWriter(outFile);
+			Path outputDirName1=new Path(outputDirName);
+			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
+			String[] files=new String[bitexts.size()];
+			for (int ii=bitexts.size()-1;ii>-1;ii--){
+				files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
+			//}
+			//for (int ii=0; ii<files.length ; ii++){
+				//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
+				//out.write(temp+fs+files[ii]+"\n");
+				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+				ttt=ttt.substring(ttt.indexOf("http:"));
+				out.write(ttt+"\n");
+			}
+			out.close();
+		} catch (IOException e){
+			System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
+		    e.printStackTrace();
+		}
+			
+	}
+
+	
 	
 	/*@SuppressWarnings("restriction")
 	public static String[][] representXML_old(File xmldir) throws FileNotFoundException, XMLStreamException {

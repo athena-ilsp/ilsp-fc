@@ -4,8 +4,8 @@
 	<groupId>gr.ilsp</groupId>
 	<artifactId>ilsp-fmc-bixo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ILSP Focused Monolingual Crawler based on Bixo</name>
-	<description>A focused monolingual crawler (bixo-based)</description>
+	<name>ILSP Focused Crawler based on Bixo</name>
+	<description>A focused crawler (bixo-based)</description>
 	<repositories>
 		<repository>
 			<id>Bixo</id>

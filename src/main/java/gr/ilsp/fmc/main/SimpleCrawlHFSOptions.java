@@ -6,6 +6,7 @@ import java.io.File;
 //import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 //import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class SimpleCrawlHFSOptions {
 	private  final String APPNAME = "SimpleCrawlHFS crawl";
 	private  Options options;
 	private  String _domain=null;
+	private  String _descr="test";
 	private  String _filter=null;
 	private  boolean _debug = false;
 	private  String _loggingAppender = null;
@@ -41,11 +43,14 @@ public class SimpleCrawlHFSOptions {
 	private String _language;
 	private String[] _langKeys;
 	private String _urls;
-	private boolean _keepBoiler = false;
+	//changed to true 
+	private boolean _keepBoiler = true;
+	private boolean _cesAlign = false;
 	private boolean _force = false;
 	private String _config;
 	private int _length = 10;
 	private static final Logger LOGGER = Logger.getLogger(SimpleCrawlHFSOptions.class);
+	private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
 	
 	
 	
@@ -55,7 +60,13 @@ public class SimpleCrawlHFSOptions {
 	@SuppressWarnings("static-access")
 	private  Options createOptions() {
 		options = new Options();
-		options.addOption( OptionBuilder.withLongOpt("domain")
+		
+		options.addOption( OptionBuilder.withLongOpt( "crawlDescription" )
+				.withDescription( "A descriptive title for the job" )
+				.hasArg()
+				.create("dom") );
+		
+		options.addOption( OptionBuilder.withLongOpt("hostdomain")
 				.withDescription( "domain to crawl (e.g. cnn.com) or path to file " +
 						"with domains to crawl. Use for crawling ONLY inside specific domain(s)" )
 				.hasArg()
@@ -125,14 +136,26 @@ public class SimpleCrawlHFSOptions {
 				.create("len") );
 		//vpapa
 		options.addOption( OptionBuilder.withLongOpt( "type" )
-				.withDescription( "Crawling for m onolingual, p arallel, c omparable" )	
+				.withDescription( "Crawling for monolingual (m), parallel (p), comparable (q)" )	
 				.hasArg()
 				.create("type") );
-		options.addOption( OptionBuilder.withLongOpt( "special filter" )
-				.withDescription( "use this special filter for filter urls in order to stay in sub webdomains." )	
+		options.addOption( OptionBuilder.withLongOpt( "specialFilter" )
+				.withDescription( "Use this special filter for filter urls in order to stay in sub webdomains." )	
 				.hasArg()
 				.create("filter") );
-		
+		options.addOption( OptionBuilder.withLongOpt( "language1" )
+				.withDescription( "Target language1.")
+				.hasArg()
+				.create("l1") );
+		options.addOption( OptionBuilder.withLongOpt( "language2" )
+				.withDescription( "Target language2.")
+				.hasArg()
+				.create("l2") );
+		//vpapa
+		options.addOption( OptionBuilder.withLongOpt( "cesAlignPreview" )
+				.withDescription( "Preview cesAlign docs.")
+				.create("xslt") );
+				
 		return options;
 	}
     
@@ -157,7 +180,7 @@ public class SimpleCrawlHFSOptions {
 				_urls = line.getOptionValue("u");
 				File f = new File(_urls);
 				if (f.exists()==false){
-					LOGGER.error("The topic file does not exist.");
+					LOGGER.error("The seed file does not exist.");
 					help();
 				}
 			}
@@ -174,11 +197,17 @@ public class SimpleCrawlHFSOptions {
 				_outputFile = _outputDir + System.getProperty("file.separator") + "outputlist.txt";					
 			} else if (line.hasOption( "of")) {
 				File of = new File(line.getOptionValue("of"));
-				 //System.err.println(of.getAbsolutePath());
-				_outputFile = of.getAbsolutePath();
-				File outputDir = new File("/var/lib/tomcat6/webapps/soaplab2-results/" + UUID.randomUUID().toString());
+				//System.out.println("of: "+of.getAbsolutePath());
+				//_outputFile = of.getAbsolutePath();
+				//File outputDir = new File("/var/lib/tomcat6/webapps/soaplab2-results/" + UUID.randomUUID().toString());
+				File outputDir = new File(ws_dir + UUID.randomUUID().toString());
+				
 				_outputDir = outputDir.getAbsolutePath();
-				// System.err.println(outputDir.getAbsolutePath());
+				//System.out.println("_outputDir: "+_outputDir);
+				//_outputFile = outputDir.getAbsolutePath()+System.getProperty("file.separator")+of.getName();
+				//_outputFile = "/var/lib/tomcat6/webapps/soaplab2-results/"+of.getName();
+				//_outputFile = ws_dir+of.getName();
+				_outputFile = of.getAbsolutePath();
 				//help();
 			}
 			else help();
@@ -200,9 +229,30 @@ public class SimpleCrawlHFSOptions {
 			}			
 			if(line.hasOption( "lang")) {
 				_language = line.getOptionValue("lang");
+				String[] langs=_language.split(";");
+				if (langs.length>2){
+					LOGGER.error("The targeted languages are more than 2.");
+					help();
+				}
+				if (langs.length==2){
+					if (langs[0].equals(langs[1])){
+						LOGGER.error("The targeted languages are the same:"+langs[0]);
+						help();
+					}
+					
+				}
 				//vpapa
 				_langKeys = findKeys4lang(_language);
-			}						
+			}else{
+				//vpapa for bilingual web service
+				if(line.hasOption("l1") & line.hasOption("l2")) {
+					_language = line.getOptionValue("l1")+";"+line.getOptionValue("l2");
+					_langKeys = findKeys4lang(_language);
+				}else{
+					LOGGER.error("Only 1 language has been defined.");
+				}
+			}
+			
 			if(line.hasOption( "cfg")) {
 				_config = line.getOptionValue("cfg");
 			}		
@@ -216,12 +266,38 @@ public class SimpleCrawlHFSOptions {
 				_length = Integer.parseInt(line.getOptionValue("len"));
 			} 
 			//vpapa
+			if(line.hasOption( "xslt")) 
+				_cesAlign  = true;
+			else	
+				_cesAlign  = false;
+			
 			if(line.hasOption( "type")) {
 				_type = line.getOptionValue("type");
-				if ((_type.equals("p") | _type.equals("c"))& !_language.contains(";")){
+				if ((_type.equals("p") | _type.equals("q"))& !_language.contains(";")){
 					LOGGER.error("You crawl for parallel or comparable but only 1 language has been defined.");
 		            //printUsageAndExit(parser);
 		            help();
+				}
+				if (_type.equals("p")){
+					URL url;
+					try {
+						String temp=Bitexts.readFileAsString(_urls);
+						url = new URL(temp);
+						String host = url.getHost();
+						//System.out.println(host.substring(0, 2));
+						if (host.substring(0, 3).equals("www")){
+							host=host.substring(4);
+						}
+						_domain=host;
+					} catch (MalformedURLException e) {
+						LOGGER.error("Seed URL is not valid.");
+						help();
+						//e.printStackTrace();
+					} catch (IOException e) {
+						LOGGER.error("The seed URL file does not exist.");
+						help();
+						//e.printStackTrace();
+					}
 				}
 			}else{
 				if (_language.contains(";")){
@@ -230,9 +306,12 @@ public class SimpleCrawlHFSOptions {
 		            help();
 				}
 			}
-			if(line.hasOption( "filter")) {
+			if (line.hasOption( "filter")) {
 				_filter = line.getOptionValue("filter");
 			} 
+			if (line.hasOption( "dom")) {
+				_descr = line.getOptionValue("dom");
+			}
 			
 		} catch( ParseException exp ) {
 			// oops, something went wrong
@@ -290,9 +369,13 @@ public class SimpleCrawlHFSOptions {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp( program, options );
 	}
-	public String getLanguage() { return _language;}
+	public String getLanguage() { 
+		return _language;
+	}
 	//vpapa
-	public String[] getLangKeys() { return _langKeys;}
+	public String[] getLangKeys() {
+		return _langKeys;
+	}
 	
 	public String getTopic() { return _topic;}
 	public  String getDomain() {
@@ -345,5 +428,11 @@ public class SimpleCrawlHFSOptions {
 	}
 	public String getFilter() {
 		return _filter;
+	}
+	public boolean getAlign() {
+		return _cesAlign;
+	}
+	public String getDesc() {
+		return _descr;
 	}
 }

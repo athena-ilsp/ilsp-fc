@@ -28,6 +28,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -80,6 +81,9 @@ public class SimpleCrawlHFSWorkflow {
 	private static long _numSelected = 0;
 	//vpapa
 	private static String _subfilter;
+	private static String _inithost;
+	private static String _targlang;
+	private static String _type;
 	//hostsMap and newHostsMap represent the pairs of hosts-occurences globally and per-run respectively
 	private static HashMap<Integer,Integer> hostsMap = new HashMap<Integer,Integer>();
 	private static HashMap<Integer,Integer> hostsIpMap = new HashMap<Integer,Integer>();
@@ -120,6 +124,30 @@ public class SimpleCrawlHFSWorkflow {
 			try {
 				url = new URL(datum.getUrl());
 				host = url.getHost();
+				//vpapa added this to force crawler stay in web site 
+				if (_type.equals("p")){
+					String temp1 = url.getAuthority()+url.getFile();
+					if (temp1.substring(0, 3).equals("www")){
+						temp1=temp1.substring(4);
+					}
+					int ind2=temp1.toString().indexOf(_inithost);
+					if (ind2>3)
+						return false;
+					if (ind2>0){
+						String temp2=temp1.substring(0, ind2);
+						String[] langs=_targlang.split(";");
+						boolean match=false;
+						for (int mm=0;mm<langs.length;mm++){
+							if (temp2.contains(langs[mm])){
+								match=true;
+								break;
+							}
+						}
+						if (!match){
+							return false;
+						}
+					}
+				}
 				//vpapa
 				if (_subfilter!=null){
 					String temp = url.getAuthority()+url.getFile();
@@ -213,8 +241,12 @@ public class SimpleCrawlHFSWorkflow {
 		boolean keepBoiler = options.keepBoiler();
 		//vpapa
 		String subfilter = options.getFilter();
+		String initial_host = options.getDomain();
 		_subfilter=subfilter;
+		_inithost = initial_host;
 		String language = options.getLanguage();
+		_targlang = language;
+		_type =options.getType();
 		String[] langKeys = options.getLangKeys();
 		JobConf conf = SimpleCrawlHFS.conf;
 		//conf.setJarByClass(SimpleCrawlHFS.class);
@@ -222,6 +254,7 @@ public class SimpleCrawlHFSWorkflow {
 		//conf.set("hadoop.tmp.dir", "hadoop-temp");
 		int numReducers = conf.getNumReduceTasks() * HadoopUtils.getTaskTrackers(conf);
 		Properties props = HadoopUtils.getDefaultProperties(SimpleCrawlWorkflow.class, debug, conf);
+		
 		FileSystem fs = curWorkingDirPath.getFileSystem(conf);
 		
 		if (!fs.exists(crawlDbPath)) {
