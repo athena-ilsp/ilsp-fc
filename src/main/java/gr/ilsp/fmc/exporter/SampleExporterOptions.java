@@ -19,10 +19,11 @@ public class SampleExporterOptions {
 	private String _topic;
 	private String _negwords = "";
 	private String _outputdir = "";
+	
 	private String APPNAME = "SimpleCrawlHFS export";
 	private int _length;
 	private boolean _textexport=false;
-	
+	private boolean _cesdoc=false;
 	
 	
 	public SampleExporterOptions() {
@@ -64,6 +65,10 @@ public class SampleExporterOptions {
 				.withDescription( "Help" )
 				.hasArg()
 				.create("h") );
+		//vpapa
+		options.addOption( OptionBuilder.withLongOpt( "style" )
+				.withDescription( "add stylesheet" )				
+				.create("ces") );
 		return options;
 	}
     
@@ -99,7 +104,10 @@ public class SampleExporterOptions {
 			if(line.hasOption( "o")) {
 				_outputdir = line.getOptionValue("o");;
 			} else help();						
-			
+			//vpapa
+			if(line.hasOption( "ces")) {
+				_cesdoc = true;
+			} 
 		} catch( ParseException exp ) {
 			// oops, something went wrong
 			System.err.println( "Parsing options failed.  Reason: " + exp.getMessage() );			
@@ -140,5 +148,9 @@ public class SampleExporterOptions {
 	}
 	public boolean get_textexport(){
 		return _textexport;
+	}
+	//vpapa
+	public boolean get_style(){
+		return _cesdoc;
 	}
  }

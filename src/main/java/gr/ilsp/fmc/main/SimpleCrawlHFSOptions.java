@@ -38,7 +38,7 @@ public class SimpleCrawlHFSOptions {
 	private  String _agentName;
 	private  int _threads = 10;
 	private  int _numLoops = 1;
-	private  int _crawlDuration = 0;	
+	private  int _crawlDuration = 10;	
 	private String _topic;
 	private String _language;
 	private String[] _langKeys;
@@ -220,6 +220,8 @@ public class SimpleCrawlHFSOptions {
 			}			
 			if(line.hasOption( "n")) {
 				_numLoops = Integer.parseInt(line.getOptionValue("n"));
+				//vpapa
+				_crawlDuration=0;
 			}						
 			if(line.hasOption("c")) {
 				_crawlDuration = Integer.parseInt(line.getOptionValue("c"));

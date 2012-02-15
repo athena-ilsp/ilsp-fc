@@ -96,6 +96,10 @@ public class SampleExporter {
 	private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static final String cesDocVersion = "0.4";
+	private static String cesNameSpace = "http://www.w3.org/1999/xlink";
+	private static String cesNameSpace1 = "http://www.xces.org/schema/2003";
+	private static String cesNameSpace2 = "http://www.w3.org/2001/XMLSchema-instance";
+	
 
 	private static int MIN_TOKENS_PER_PARAGRAPH;
 	private static String crawlDirName;
@@ -104,6 +108,8 @@ public class SampleExporter {
 	private static String negWordsFile;
 	private static String outputDir="";
 	private static boolean textExport = false;
+	//vpapa
+	private static boolean cesdoc = false;
 	private static SampleExporterOptions options = null;
 	static Analyzer analyzer = null;
 	static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
@@ -354,6 +360,10 @@ public class SampleExporter {
 		}
 		if (options.get_textexport()) {
 			se.setTextExport(true);
+		}
+		//vpapa
+		if (options.get_style()) {
+			se.setStyleExport(options.get_style());
 		}
 		se.export(true);
 
@@ -792,24 +802,20 @@ public class SampleExporter {
 			Proxy.newProxyInstance(XMLStreamWriter2.class.getClassLoader(),
 					new Class[] { XMLStreamWriter2.class }, handler);
 			xtw.writeStartDocument();
-			//if (cesAlign){
-			//	xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesDoc.xsl' type='text/xsl'");
-			//}
+			//vpapa
+			if (cesdoc){
+				xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesDoc.xsl' type='text/xsl'");
+			}
 			xtw.writeStartElement("cesDoc");
 			xtw.writeAttribute("version", "0.4");
-			xtw.writeAttribute("xmlns",
-			"http://www.xces.org/schema/2003");
-			xtw.writeAttribute("xmlns:xlink",
-			"http://www.w3.org/1999/xlink");
-			xtw.writeAttribute("xmlns:xsi",
-			"http://www.w3.org/2001/XMLSchema-instance");
+			//xtw.writeAttribute("xmlns","http://www.xces.org/schema/2003");
+			//xtw.writeAttribute("xmlns:xlink","http://www.w3.org/1999/xlink");
+			//xtw.writeAttribute("xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
 			
-			//xtw.writeAttribute("xmlns:xlink", cesNameSpace );
-			//xtw.writeAttribute("xmlns", cesNameSpace1 );
-			//xtw.writeAttribute("xmlns:xsi", cesNameSpace2 );
-			//private static String cesNameSpace = "http://www.w3.org/1999/xlink";
-			//private static String cesNameSpace1 = "http://www.xces.org/schema/2003";
-			//private static String cesNameSpace2 = "http://www.w3.org/2001/XMLSchema-instance";
+			xtw.writeAttribute("xmlns:xlink", cesNameSpace );
+			xtw.writeAttribute("xmlns", cesNameSpace1 );
+			xtw.writeAttribute("xmlns:xsi", cesNameSpace2 );
+			
 			
 			//vpapa
 			//createHeader(xtw, eAddress, pubDate, lang, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
@@ -1350,5 +1356,9 @@ public class SampleExporter {
 	}
 	public void setTextExport(boolean textexport){
 		SampleExporter.textExport = textexport;
+	}
+	//vpapa
+	public void setStyleExport(boolean cesdoc){
+		SampleExporter.cesdoc = cesdoc;
 	}
 }

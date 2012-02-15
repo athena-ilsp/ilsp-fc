@@ -36,6 +36,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -255,6 +256,9 @@ public class SimpleCrawlHFS {
 		}
 		conf = new JobConf();
 		conf.setJarByClass(SimpleCrawlHFS.class);
+		//nmastr added this for concurrency issues (vpapa)
+		//conf.set("mapred.system.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred"+fs1+"system-"+ System.currentTimeMillis());
+		conf.set("mapred.system.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred"+fs1+"system-"+ UUID.randomUUID().toString());
 		FileSystem fs;
 		//if domain is supplied, it is checked for errors
 		String domain = options.getDomain();
@@ -512,7 +516,10 @@ public class SimpleCrawlHFS {
 				se.setLanguage(options.getLanguage());
 				se.setCrawlDirName (outputDirName);
 				se.setOutputFile (options.getOutputFile());					
-				se.setTopic(options.getTopic());				
+				se.setTopic(options.getTopic());
+				//vpapa
+				se.setStyleExport(options.getAlign());
+				
 				se.export(false);
 			}
 			//vpapa
@@ -525,7 +532,7 @@ public class SimpleCrawlHFS {
 					AAA = Bitexts.representXML(xmldir);
 					//System.out.println("Files found: "+AAA.length);
 					if (AAA.length<2){
-						LOGGER.info("Only 1 file found; Detection of pairs is stopped.");
+						LOGGER.info("Less than 2 files found. Detection of pairs is stopped.");
 						File out_temp=new File(options.getOutputFile());
 						if (out_temp.exists())
 							out_temp.delete();

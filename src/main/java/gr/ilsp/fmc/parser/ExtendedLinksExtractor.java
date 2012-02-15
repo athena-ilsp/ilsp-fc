@@ -42,6 +42,7 @@ public class ExtendedLinksExtractor {
 			reader.close();
 			String baseUrl = metadata.get(Metadata.CONTENT_LOCATION);			
 			doc = baseUrl!=null ? Jsoup.parse(htmltext,baseUrl) : Jsoup.parse(htmltext);		
+			//vpapa this must be checked to find all links
 			Elements links = doc.select("a[href]");
 			rankedLinks = new ExtendedOutlink[links.size()];	
 			int linksIndex = 0;

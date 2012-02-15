@@ -638,5 +638,17 @@ public class Classifier implements Serializable{
 		//}
 		return langidentified;
 	}
+	
+	public double rankLink1(String url) {
+		double score = 0;
+		String[] langs = _targetLanguage.split(";");
+		if (langs.length>1){
+			if (url.contains("lang=")){
+				score=100*_thres;
+			}
+		}else
+			score=0;
+		return score;
+	}
 
 }

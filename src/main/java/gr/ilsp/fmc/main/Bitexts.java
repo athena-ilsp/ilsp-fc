@@ -54,6 +54,7 @@ public class Bitexts {
 	private static double text_thres=0.4;
 	private static double length_thres=0.4;
 	private static double pars_thres=0.4;
+	private static int level_thres=2;
 		
 	@SuppressWarnings("restriction")
 	public static String[][] representXML(File xmldir) throws FileNotFoundException, XMLStreamException {
@@ -227,7 +228,7 @@ public class Bitexts {
 					continue;
 				String tf = files[jj].substring(0, files[jj].indexOf("."));
 				double tl_par = Double.parseDouble(AAA[jj][2]);
-				if (!AAA[ii][1].equals(AAA[jj][1]) & Math.abs(sf_level-Integer.parseInt(AAA[jj][0]))<2 
+				if (!AAA[ii][1].equals(AAA[jj][1]) & Math.abs(sf_level-Integer.parseInt(AAA[jj][0]))<level_thres 
 						& (Math.abs(sl_par-tl_par)/Math.max(sl_par, tl_par))<pars_thres) {
 					int[] tl =readlist(xmldir.getPath()+ fs+tf+".xml.txt");
 					double tl_length = Double.parseDouble(Integer.toString(tl.length));

@@ -78,7 +78,9 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 				//if (url.contains("europa.eu/legislation_summaries/")){
 				if (_classifier.getTopic()!=null){ 
 					linkScore = _classifier.rankLink(linktext);
+					//linkScore = linkScore+_classifier.rankLink1(url);
 				}
+				
 				//if (linkScore>=2500){
 				//	//vpapa	
 				//System.out.print(url);
