@@ -258,7 +258,14 @@ public class SimpleCrawlHFS {
 		conf.setJarByClass(SimpleCrawlHFS.class);
 		//nmastr added this for concurrency issues (vpapa)
 		//conf.set("mapred.system.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred"+fs1+"system-"+ System.currentTimeMillis());
-		conf.set("mapred.system.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred"+fs1+"system-"+ UUID.randomUUID().toString());
+		//LOGGER.info("Hadoop tmp dir: " + conf.get("hadoop.tmp.dir"));
+		conf.set("hadoop.tmp.dir", conf.get("hadoop.tmp.dir")+UUID.randomUUID().toString());
+		//LOGGER.info("Hadoop tmp dir now: " + conf.get("hadoop.tmp.dir"));
+		//System.exit(0);
+		//conf.set("mapred.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred"+fs1+"system-"+ UUID.randomUUID().toString());
+		conf.set("mapred.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred");//+fs1+"local");
+		conf.set("mapred.local.dir",conf.get("mapred.dir") + fs1+"local");//+fs1+"local");
+		conf.set("mapred.system.dir",conf.get("mapred.dir") + fs1+"system");//+fs1+"local");		
 		FileSystem fs;
 		//if domain is supplied, it is checked for errors
 		String domain = options.getDomain();
@@ -333,7 +340,7 @@ public class SimpleCrawlHFS {
 		//of terms each text must have as defined on the config file.
 		double thres = 0;
 		if (options.getTopic()!=null){
-			topic=TopicTools.analyzeTopic(options.getTopic(),options.getLanguage());
+			topic=TopicTools.analyzeTopic(options.getTopic(),options.getLanguage(), conf);
 			LOGGER.info("Topic analyzed, " + topic.size() + " terms found.");
 			//find the subclasses of the topic definition
 			classes=TopicTools.findSubclasses(topic);
@@ -488,10 +495,17 @@ public class SimpleCrawlHFS {
 				//	curLoopDirName =fs1+curLoopDirName;
 				//}
 				setLoopLoggerFile(curLoopDirName, curLoop);	
+//				System.err.println(conf.toString());
+//				System.err.println(conf.toString());
+				//for(int il =0; il<conf.getLocalDirs().length;il++) {
+				//	System.err.println(conf.getLocalDirs()[il]);
+				//}
+				//System.out.println("LOOP "+ Integer.toString(curLoop));
 				Flow flow = SimpleCrawlHFSWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlFilter, 
 						classes, topic, thres,min_uniq_terms,max_depth,options);							
 				flow.complete();
-
+				//System.err.println(conf.get("hadoop.tmp.dir"));
+				
 				//Reseting counters of parent class. We do it here so that SplitFetchedUnfetchedCrawlDatums
 				//when run again will not return the 256(or whatever) that were selected in the first run
 				SimpleCrawlHFSWorkflow.resetCounters();
@@ -514,12 +528,14 @@ public class SimpleCrawlHFS {
 				SampleExporter se = new SampleExporter();
 				se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
 				se.setLanguage(options.getLanguage());
-				se.setCrawlDirName (outputDirName);
-				se.setOutputFile (options.getOutputFile());					
+				se.setCrawlDirName(outputDirName);
+				se.setOutputFile(options.getOutputFile());	
 				se.setTopic(options.getTopic());
+				
 				//vpapa
 				se.setStyleExport(options.getAlign());
-				
+				se.setOutputFileHTML(options.getOutputFileHTML());
+				se.setHTMLOutput(options.getOutputFileHTML()!=null);
 				se.export(false);
 			}
 			//vpapa
@@ -577,7 +593,7 @@ public class SimpleCrawlHFS {
 					if (bitexts.size()>0){
 						Bitexts.writeXMLs(outputDirName,bitexts,options.getAlign());
 						bitexts = Bitexts.sortbyLength(bitexts);
-						Bitexts.writeOutList(outputDirName,options.getOutputFile(),bitexts);
+						Bitexts.writeOutList(outputDirName,options.getOutputFile(),options.getOutputFileHTML(),bitexts);
 						//System.out.println("Pairs found :"+bitexts.size());
 						LOGGER.info("Pairs found: "+bitexts.size() );
 					}
@@ -620,6 +636,8 @@ public class SimpleCrawlHFS {
 			e.printStackTrace(System.err);
 			System.exit(-1);
 		} catch (Throwable t) {
+			System.err.println(conf.get("hadoop.tmp.dir"));
+
 			System.err.println("Exception running tool: " + t.getMessage());
 			t.printStackTrace(System.err);
 			System.exit(-1);

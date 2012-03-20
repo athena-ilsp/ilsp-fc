@@ -63,16 +63,22 @@ public class MakeDistinctCrawlDbFunction extends BaseOperation<NullContext> impl
 		Iterator<TupleEntry> iter = bufferCall.getArgumentsIterator();  
 		double maxScore = 0.0;
 		boolean stop = false;
+		//int kkk=0;
+		
 		while (iter.hasNext() && !stop) {
+			//kkk=kkk+1;
 			_flowProcess.increment(DistinctFunctionCounters.MAKE_DISTINCT_URLS_PROCESSED,1);
 			nowDatum = new CrawlDbDatum(iter.next());
 			double nowScore = nowDatum.getScore();
+			//System.out.println(nowDatum.getUrl()+"\t"+nowDatum.getScore());
+			//System.out.println(nowDatum.getLastStatus().name());
 			if (!statusSet.contains(nowDatum.getLastStatus().name())) {
 				update = true;
 				stop = true;
 			} else 
 				if (datum !=null){	
-				if (datum.getLastUpdated()<nowDatum.getLastUpdated())
+				if (datum.getLastUpdated()<=nowDatum.getLastUpdated() & nowScore >= maxScore) 
+				//if (datum.getLastUpdated()<nowDatum.getLastUpdated())	
 					update = true;
 				else
 					update = false;
@@ -84,9 +90,10 @@ public class MakeDistinctCrawlDbFunction extends BaseOperation<NullContext> impl
 				datum.setLastStatus(nowDatum.getLastStatus());
 				datum.setLastUpdated(nowDatum.getLastUpdated());
 				datum.setCrawlDepth(nowDatum.getCrawlDepth());
-				maxScore = nowScore>maxScore?nowScore:maxScore;
+				maxScore = nowScore>maxScore?nowScore:maxScore;		
 			}
 		}
+		//System.out.println("loops: "+kkk+"\t"+nowDatum.getUrl()+"\t"+maxScore);
 		datum.setScore(maxScore);
 		if (datum != null) {
 			_flowProcess.increment(DistinctFunctionCounters.MAKE_DISTINCT_URLS_UNIQUE,1);

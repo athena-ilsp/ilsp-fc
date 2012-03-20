@@ -24,6 +24,7 @@ public class SampleExporterOptions {
 	private int _length;
 	private boolean _textexport=false;
 	private boolean _cesdoc=false;
+	private boolean _html=false;
 	
 	
 	public SampleExporterOptions() {
@@ -69,6 +70,9 @@ public class SampleExporterOptions {
 		options.addOption( OptionBuilder.withLongOpt( "style" )
 				.withDescription( "add stylesheet" )				
 				.create("ces") );
+		options.addOption( OptionBuilder.withLongOpt( "html" )
+				.withDescription( "outputlist in html format" )				
+				.create("ofh") );
 		return options;
 	}
     
@@ -107,6 +111,9 @@ public class SampleExporterOptions {
 			//vpapa
 			if(line.hasOption( "ces")) {
 				_cesdoc = true;
+			} 
+			if(line.hasOption( "ofh")) {
+				_html = true;
 			} 
 		} catch( ParseException exp ) {
 			// oops, something went wrong
@@ -152,5 +159,8 @@ public class SampleExporterOptions {
 	//vpapa
 	public boolean get_style(){
 		return _cesdoc;
+	}
+	public boolean get_htmloutput(){
+		return _html;
 	}
  }

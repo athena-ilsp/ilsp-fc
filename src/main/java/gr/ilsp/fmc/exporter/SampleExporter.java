@@ -70,7 +70,7 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.tika.language.LanguageIdentifier;
+//import org.apache.tika.language.LanguageIdentifier;
 import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamWriter2;
 
@@ -99,7 +99,7 @@ public class SampleExporter {
 	private static String cesNameSpace = "http://www.w3.org/1999/xlink";
 	private static String cesNameSpace1 = "http://www.xces.org/schema/2003";
 	private static String cesNameSpace2 = "http://www.w3.org/2001/XMLSchema-instance";
-	
+
 
 	private static int MIN_TOKENS_PER_PARAGRAPH;
 	private static String crawlDirName;
@@ -110,13 +110,14 @@ public class SampleExporter {
 	private static boolean textExport = false;
 	//vpapa
 	private static boolean cesdoc = false;
+	private static boolean html = false;
 	private static SampleExporterOptions options = null;
 	static Analyzer analyzer = null;
 	static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
 	private static ArrayList<String> topicTermsAll = null;
 	private static ArrayList<String> xmlFiles = new ArrayList<String>();
 	private static String outputFile = null;
-
+	private static String outputFileHTML = null;
 
 	private static void processStatus(JobConf conf, Path curDirPath) throws IOException {
 		Path statusPath = new Path(curDirPath, CrawlConfig.STATUS_SUBDIR_NAME);
@@ -272,7 +273,7 @@ public class SampleExporter {
 				String topicFile = getTopic();
 				ArrayList<String[]> topic = null;
 				if (topicFile!=null) {
-					topic=TopicTools.analyzeTopic(topicFile,language);
+					topic=TopicTools.analyzeTopic(topicFile,language, conf);
 					topicTermsAll = TopicTools.analyzeTopicALL(topicFile);
 				}
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
@@ -286,7 +287,7 @@ public class SampleExporter {
 				}
 				//vpapa
 				LOGGER.info("CesDoc files generated: "+ xmlFiles.size());
-				
+
 				LOGGER.info("Completed in " + (System.currentTimeMillis()-start) + " milliseconds.");
 
 				OutputStreamWriter xmlFileListWrt;
@@ -300,7 +301,26 @@ public class SampleExporter {
 				}
 				xmlFileListWrt.close();
 				//vpapa
-				//System.exit(0);
+				if (html){
+					//String outputfile1 = outputFile+".html";
+					String outputfile1 =outputFileHTML;
+					OutputStreamWriter xmlFileListWrt1;
+					xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputfile1),"UTF-8");
+					xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+
+					for (String xmlFile: xmlFiles) {
+						//vpapa added this just for development on windows
+						String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
+						ttt=ttt.substring(ttt.indexOf("http:"));
+						ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
+						//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
+						xmlFileListWrt1.write("<br />"+ttt);
+						//xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
+					}
+					xmlFileListWrt1.write("</html>");
+					xmlFileListWrt1.close();
+					//System.exit(0);
+				}
 			}
 
 			boolean exportDb = true;
@@ -344,7 +364,8 @@ public class SampleExporter {
 		options.parseOptions(args);
 		se.setMIN_TOKENS_PER_PARAGRAPH(options.get_length());
 		se.setCrawlDirName (options.get_inputdir());
-		se.setOutputFile(options.get_inputdir() + System.getProperty("file.separator") + "outputlist.txt");					
+		se.setOutputFile(options.get_inputdir() + System.getProperty("file.separator") + "outputlist.txt");
+		
 		if (options.get_topic()!=null) {
 			se.setTopic(options.get_topic());
 		}
@@ -438,6 +459,11 @@ public class SampleExporter {
 				id++;
 			if (textExport) TextExporter(xmlPath,cleanText,id-1);
 		}
+		//nmastr added these 3 lines
+		iter.close();
+        classIter.close();
+        contentIter.close();
+
 		return id;		
 	}
 
@@ -534,11 +560,12 @@ public class SampleExporter {
 		}
 	}
 
-	public static Boolean XMLExporter_OR(Path outputdir, String format, String title, String eAddress,
+	/*	public static Boolean XMLExporter_OR(Path outputdir, String format, String title, String eAddress,
 			String lang, String html_text, String cleaned_text, int id, String pubDate, String domain, String subdomain,
 			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words) { //throws Exception {
 		StringTokenizer tkzr = new StringTokenizer(cleaned_text);
 		if (tkzr.countTokens()<minTokensNumber){
+			//System.out.println("CUT: "+ eAddress);
 			return false;		
 		}
 
@@ -633,8 +660,16 @@ public class SampleExporter {
 						}
 						else {
 							String langidentified ="";
-							LanguageIdentifier LangI=new LanguageIdentifier(line); 							
-							langidentified = LangI.getLanguage();
+							//LanguageIdentifier LangI=new LanguageIdentifier(line); 							
+							//langidentified = LangI.getLanguage();
+							Detector detector = null;			
+							try {
+								detector = DetectorFactory.create();
+								detector.append(line);
+								langidentified = detector.detect();										
+							} catch (LangDetectException e) {
+								//LOGGER.error(e.getMessage());
+							}
 							if (!langidentified.equals(lang)){
 								//not in the right language
 								xtw.writeAttribute("type", "lang");
@@ -708,7 +743,7 @@ public class SampleExporter {
 		}
 
 		return true;
-	}
+	}*/
 
 	public static void TextExporter(Path outpath, String text, int id){
 		Path txt_file = new Path(outpath,id+".txt");
@@ -730,16 +765,17 @@ public class SampleExporter {
 	public static Boolean XMLExporter(Path outputdir, String format, String title, String eAddress,
 			String lang, String html_text, String cleaned_text, int id, String pubDate, String domain, String subdomain,
 			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words) { //throws Exception {
-		
+
 		//vpapa
 		String maincontent =cleaned_text;
 		maincontent = maincontent.replaceAll("<boiler.*</boiler>\n", "");
 		maincontent = maincontent.replaceAll("<text>", "");
 		maincontent = maincontent.replaceAll("</text>", "");
 		maincontent = maincontent.replaceAll("<text type.*>", "");
-		
+
 		StringTokenizer tkzr = new StringTokenizer(maincontent);
 		if (tkzr.countTokens()<minTokensNumber){
+			//			System.out.println("CUT: "+ eAddress);
 			return false;		
 		}
 		String foundt ="";
@@ -811,17 +847,17 @@ public class SampleExporter {
 			//xtw.writeAttribute("xmlns","http://www.xces.org/schema/2003");
 			//xtw.writeAttribute("xmlns:xlink","http://www.w3.org/1999/xlink");
 			//xtw.writeAttribute("xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
-			
+
 			xtw.writeAttribute("xmlns:xlink", cesNameSpace );
 			xtw.writeAttribute("xmlns", cesNameSpace1 );
 			xtw.writeAttribute("xmlns:xsi", cesNameSpace2 );
-			
-			
+
+
 			//vpapa
 			//createHeader(xtw, eAddress, pubDate, lang, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
 			createHeader(xtw, eAddress, pubDate, langidentified_total, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
-			
-			
+
+
 			//System.err.println("Now working on file:+fileNo);
 			xtw.writeStartElement("text");
 			xtw.writeStartElement("body");
@@ -979,8 +1015,16 @@ public class SampleExporter {
 						}
 						else {
 							//String langidentified ="";
-							LanguageIdentifier LangI=new LanguageIdentifier(line); 							
-							langidentified = LangI.getLanguage();
+							//LanguageIdentifier LangI=new LanguageIdentifier(line); 							
+							//langidentified = LangI.getLanguage();
+							Detector detector = null;			
+							try {
+								detector = DetectorFactory.create();
+								detector.append(line);
+								langidentified = detector.detect();										
+							} catch (LangDetectException e) {
+								//LOGGER.error(e.getMessage());
+							}
 							//vpapa
 							if (!langidentified.equals(langidentified_total)){
 								//not in the right language
@@ -1072,19 +1116,19 @@ public class SampleExporter {
 			//comment this exception
 			//LOGGER.info("language is not identified for this part of text.");
 			//LOGGER.error(e.getMessage());
-			
+
 		}
 		//}
 		return langidentified;
 	}*/
-	
+
 	private static String checkLang(String partOfLine) {
 		String langidentified ="";
-		LanguageIdentifier LangI=new LanguageIdentifier(partOfLine); 
-		langidentified = LangI.getLanguage();
+		//LanguageIdentifier LangI=new LanguageIdentifier(partOfLine); 
+		//langidentified = LangI.getLanguage();
 		//vpapa added comment below and remove comment from above to change language identifiers
 		//if (!langidentified.equals(targetLang)){
-		/*Detector detector = null;			
+		Detector detector = null;			
 		try {
 			detector = DetectorFactory.create();
 			detector.append(partOfLine);
@@ -1093,8 +1137,8 @@ public class SampleExporter {
 			//comment this exception
 			//LOGGER.info("language is not identified for this part of text.");
 			//LOGGER.error(e.getMessage());
-			
-		}*/
+
+		}
 		//}
 		return langidentified;
 	}
@@ -1115,8 +1159,8 @@ public class SampleExporter {
 		}
 		if (!in_targ_langs)
 			return found;
-		
-		
+
+
 		String[] tempstr = new String[1];		String term;
 		ArrayList<String> stems =new ArrayList<String>();
 		try {
@@ -1349,8 +1393,12 @@ public class SampleExporter {
 
 	public void setOutputFile(String outputFile) {
 		SampleExporter.outputFile  = outputFile;
-
 	}
+
+	public void setOutputFileHTML(String outputFileHTML) {
+		SampleExporter.outputFileHTML  = outputFileHTML;
+	}
+
 	public void setOutputDir(String outputDir) {
 		SampleExporter.outputDir = outputDir;
 	}
@@ -1360,5 +1408,8 @@ public class SampleExporter {
 	//vpapa
 	public void setStyleExport(boolean cesdoc){
 		SampleExporter.cesdoc = cesdoc;
+	}
+	public void setHTMLOutput(boolean html){
+		SampleExporter.html = html;
 	}
 }

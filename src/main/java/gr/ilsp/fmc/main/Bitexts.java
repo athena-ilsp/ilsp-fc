@@ -55,7 +55,7 @@ public class Bitexts {
 	private static double length_thres=0.4;
 	private static double pars_thres=0.4;
 	private static int level_thres=2;
-		
+
 	@SuppressWarnings("restriction")
 	public static String[][] representXML(File xmldir) throws FileNotFoundException, XMLStreamException {
 		FilenameFilter filter = new FilenameFilter() {			
@@ -156,7 +156,7 @@ public class Bitexts {
 				xmlFileListWrt.close();
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
-				
+
 			}catch (Exception ex) {
 				ex.printStackTrace();
 				System.err.println("Problem in respesenting the "+ files[ii]+" cesDoc file.");
@@ -164,35 +164,35 @@ public class Bitexts {
 		}
 		return res;
 	}
-	
+
 	public static double[][] readRes(String filename) throws IOException {
-    	ArrayList<double[]> tempparam=new ArrayList<double[]>();
-        URL svURL = ReadResources.class.getClassLoader().getResource(filename);
-        BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
-        String inputLine;
-        while ((inputLine = in.readLine()) != null) {
-              String[] temp=inputLine.split("\t");
-              double[] tempd=new double[temp.length];
-              for (int j=0;j<temp.length;j++){
-            	tempd[j]=Double.parseDouble(temp[j]);  
-              }
-              if (temp.length>1){
-            	  tempparam.add(new double[] {tempd[0], tempd[1],tempd[2]});
-              }else{
-            	  tempparam.add(new double[] {tempd[0]});
-              }
-        }
-        in.close();
-        int x= tempparam.size();
-        int y = tempparam.get(0).length;
-        double[][] param=new double[x][y];
-        for (int j=0;j<x;j++){
-        	for (int k=0;k<y;k++)
-        	param[j][k]=tempparam.get(j)[k];
-        }
-        return param;
-    }
-	
+		ArrayList<double[]> tempparam=new ArrayList<double[]>();
+		URL svURL = ReadResources.class.getClassLoader().getResource(filename);
+		BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
+		String inputLine;
+		while ((inputLine = in.readLine()) != null) {
+			String[] temp=inputLine.split("\t");
+			double[] tempd=new double[temp.length];
+			for (int j=0;j<temp.length;j++){
+				tempd[j]=Double.parseDouble(temp[j]);  
+			}
+			if (temp.length>1){
+				tempparam.add(new double[] {tempd[0], tempd[1],tempd[2]});
+			}else{
+				tempparam.add(new double[] {tempd[0]});
+			}
+		}
+		in.close();
+		int x= tempparam.size();
+		int y = tempparam.get(0).length;
+		double[][] param=new double[x][y];
+		for (int j=0;j<x;j++){
+			for (int k=0;k<y;k++)
+				param[j][k]=tempparam.get(j)[k];
+		}
+		return param;
+	}
+
 	public static ArrayList<String[]> findpairsXML_SVM(File xmldir, String[][] AAA, double[][] sv, double[][] w, double[][] b) {
 		ArrayList<String[]> pairs = new ArrayList<String[]>();
 		FilenameFilter filter = new FilenameFilter() {			
@@ -215,12 +215,12 @@ public class Bitexts {
 			int sflength =0;
 			for (int mm=0;mm<sl.length;mm++){
 				if (sl[mm]>0)
-				sflength = sflength+sl[mm];
+					sflength = sflength+sl[mm];
 			}
 			double sl_length = Double.parseDouble(Integer.toString(sl.length));
 			double sl_par = Double.parseDouble(AAA[ii][2]);
-			String filepair="";
-			String langpair="";
+			//String filepair="";
+			//String langpair="";
 			double dist;
 			double res=0.0;
 			for (int jj=ii+1; jj<files.length ; jj++){
@@ -266,7 +266,7 @@ public class Bitexts {
 							int tflength =0;
 							for (int mm=0;mm<tl.length;mm++){
 								if (tl[mm]>0)
-								tflength = tflength+tl[mm];
+									tflength = tflength+tl[mm];
 							}
 							String pairlength = Integer.toString(tflength+sflength);
 							pairs.add(new String[] {sf,tf,AAA[ii][1],AAA[jj][1],Double.toString(inv_res),pairlength});
@@ -277,7 +277,7 @@ public class Bitexts {
 		}
 		return pairs;
 	}
-	
+
 	private static double SVM_test(double f1, double f2, double f3,
 			double[][] sv, double[][] w, double[][] b, double degree) {
 		Double res=0.0;
@@ -295,7 +295,7 @@ public class Bitexts {
 		res=res+b[0][0];
 		return res;
 	}
-	
+
 	public static ArrayList<String[]> findBestPairs_SVM(ArrayList<String[]> pairs) {
 		ArrayList<String[]> bitexts=new ArrayList<String[]>();
 		Double[] new_temp1 = new Double[pairs.size()];
@@ -311,7 +311,7 @@ public class Bitexts {
 			pairlist[i][2]=pairs.get(i)[1].substring(0, ind1);
 			pairlist[i][3]=pairs.get(i)[1].substring(ind1+1);
 			pairlist[i][4]=pairs.get(i)[3];
-			
+
 		}
 		Arrays.sort(new_temp1);
 		int kk = 0;
@@ -347,8 +347,8 @@ public class Bitexts {
 		//System.out.println("END");
 		return bitexts;
 	}
-	
-	
+
+
 	public static ArrayList<String[]> findBestPairs_SVM_NEW(ArrayList<String[]> pairs) {
 		ArrayList<String[]> bitexts=new ArrayList<String[]>();
 		int[][] counts=new int[pairs.size()][2]; 
@@ -368,71 +368,71 @@ public class Bitexts {
 		double dist, dist1;
 		//for (int ii=0;ii<limit;ii++){
 		//for (int ii=0;ii<2;ii++){
-			for (int jj=0;jj<pairs.size();jj++){
-				if (counts[jj][0]==1 & counts[jj][1]==1 & flags[jj]==0){
-					//System.out.println(pairs.get(jj)[0]+"_"+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
-					bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],"high",pairs.get(jj)[5]});
-					flags[jj]=1;
-					//counts[jj][0]=counts[jj][0]-1;
-					//counts[jj][1]=counts[jj][1]-1;
-				}
+		for (int jj=0;jj<pairs.size();jj++){
+			if (counts[jj][0]==1 & counts[jj][1]==1 & flags[jj]==0){
+				//System.out.println(pairs.get(jj)[0]+"_"+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
+				bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],"high",pairs.get(jj)[5]});
+				flags[jj]=1;
+				//counts[jj][0]=counts[jj][0]-1;
+				//counts[jj][1]=counts[jj][1]-1;
 			}
-			//System.out.println("END OF pairs of type1");
-			for (int jj=0;jj<pairs.size();jj++){
-				if (counts[jj][0]==1 & counts[jj][1]==2 & flags[jj]==0){
-					temp =pairs.get(jj)[1]; 
-					dist = Double.parseDouble(pairs.get(jj)[4]);
-					dist1=0.0;
-					int ind=-1;
-					for (int kk=0;kk<pairs.size();kk++){
-						if (pairs.get(kk)[1].equals(pairs.get(jj)[1]) & kk!=jj)
-							ind=1;
-						if (pairs.get(kk)[0].equals(pairs.get(jj)[1]) & kk!=jj)
-							ind=0;
-						if (ind>-1){
-							dist1 = Double.parseDouble(pairs.get(kk)[4]);
-							if (dist<dist1){
-								//System.out.println(pairs.get(jj)[0]+"_"+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
-								bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],"medium",pairs.get(jj)[5]});
-								//counts[jj][0]=0;
-								//counts[jj][1]=0;
-								counts[kk][ind]=0;
-								flags[jj]=2;
-								flags[kk]=-1;
-							}else{
-								flags[jj]=-1;
-								counts[kk][ind]=counts[kk][ind]-1;
-							}
-							break;
+		}
+		//System.out.println("END OF pairs of type1");
+		for (int jj=0;jj<pairs.size();jj++){
+			if (counts[jj][0]==1 & counts[jj][1]==2 & flags[jj]==0){
+				temp =pairs.get(jj)[1]; 
+				dist = Double.parseDouble(pairs.get(jj)[4]);
+				dist1=0.0;
+				int ind=-1;
+				for (int kk=0;kk<pairs.size();kk++){
+					if (pairs.get(kk)[1].equals(pairs.get(jj)[1]) & kk!=jj)
+						ind=1;
+					if (pairs.get(kk)[0].equals(pairs.get(jj)[1]) & kk!=jj)
+						ind=0;
+					if (ind>-1){
+						dist1 = Double.parseDouble(pairs.get(kk)[4]);
+						if (dist<dist1){
+							//System.out.println(pairs.get(jj)[0]+"_"+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
+							bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],"medium",pairs.get(jj)[5]});
+							//counts[jj][0]=0;
+							//counts[jj][1]=0;
+							counts[kk][ind]=0;
+							flags[jj]=2;
+							flags[kk]=-1;
+						}else{
+							flags[jj]=-1;
+							counts[kk][ind]=counts[kk][ind]-1;
 						}
+						break;
 					}
 				}
 			}
-			for (int jj=0;jj<pairs.size();jj++){
-				if (counts[jj][0]==2 & counts[jj][1]==1 & flags[jj]==0){
-					temp =pairs.get(jj)[0]; 
-					dist = Double.parseDouble(pairs.get(jj)[4]);
-					dist1=0.0;
-					for (int kk=0;kk<pairs.size();kk++){
-						if (pairs.get(kk)[0].equals(pairs.get(jj)[0]) & kk!=jj){
-							dist1 = Double.parseDouble(pairs.get(kk)[4]);
-							if (dist<dist1){
-								//System.out.println(pairs.get(jj)[0]+"_"+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
-								bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],"medium",pairs.get(jj)[5]});
-								//counts[jj][0]=0;
-								//counts[jj][1]=0;
-								counts[kk][0]=0;
-								flags[jj]=2;
-								flags[kk]=-1;
-							}else{
-								flags[jj]=-1;
-								counts[kk][0]=counts[kk][0]-1;
-							}
-							break;
+		}
+		for (int jj=0;jj<pairs.size();jj++){
+			if (counts[jj][0]==2 & counts[jj][1]==1 & flags[jj]==0){
+				temp =pairs.get(jj)[0]; 
+				dist = Double.parseDouble(pairs.get(jj)[4]);
+				dist1=0.0;
+				for (int kk=0;kk<pairs.size();kk++){
+					if (pairs.get(kk)[0].equals(pairs.get(jj)[0]) & kk!=jj){
+						dist1 = Double.parseDouble(pairs.get(kk)[4]);
+						if (dist<dist1){
+							//System.out.println(pairs.get(jj)[0]+"_"+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
+							bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],"medium",pairs.get(jj)[5]});
+							//counts[jj][0]=0;
+							//counts[jj][1]=0;
+							counts[kk][0]=0;
+							flags[jj]=2;
+							flags[kk]=-1;
+						}else{
+							flags[jj]=-1;
+							counts[kk][0]=counts[kk][0]-1;
 						}
+						break;
 					}
 				}
 			}
+		}
 		//}
 		//System.out.println("END OF pairs of type 2");
 		ArrayList<String[]> new_pairs=new ArrayList<String[]>();
@@ -447,11 +447,11 @@ public class Bitexts {
 			bitexts.add(new String[] {new_bitexts.get(ii)[0], 
 					new_bitexts.get(ii)[1],new_bitexts.get(ii)[2],new_bitexts.get(ii)[3],"low",new_bitexts.get(ii)[5]});
 		}
-		
+
 		return bitexts;
 	}
 
-	private static int maxArray(int[][] num) {
+	/*private static int maxArray(int[][] num) {
 		int res=0;
 		for (int ii=0;ii<num.length;ii++){
 			res=Math.max(res, num[ii][0]);
@@ -460,9 +460,9 @@ public class Bitexts {
 			res=Math.max(res, num[ii][1]);
 		}
 		return res;
-	}
-	
-	
+	}*/
+
+
 	@SuppressWarnings("restriction")
 	public static void writeXMLs(String outdir,ArrayList<String[]> bitexts, boolean cesAlign) throws UnsupportedEncodingException, FileNotFoundException, XMLStreamException{
 		for (int ii=0;ii<bitexts.size();ii++){
@@ -578,7 +578,7 @@ public class Bitexts {
 		//for (int i=0; i<kk; i++)
 		//	patt_int[i]=Integer.parseInt(patterns[i]);
 		//return patt_int;
-				
+
 		int num_of_text_par=0;
 		for (int i=0; i<kk; i++){
 			patt_int[i]=Integer.parseInt(patterns[i]);
@@ -589,8 +589,8 @@ public class Bitexts {
 			return patt_int;
 		else
 			return null;
-		
-		
+
+
 	}
 
 	@SuppressWarnings("restriction")
@@ -625,7 +625,7 @@ public class Bitexts {
 		};
 		File xmldir=new File(outputDirName+fs+"xml");
 		String[] files= xmldir.list(filter);
-		String temp="";
+		//String temp="";
 		try {
 			//FileWriter outFile = new FileWriter(outputFile);
 			//PrintWriter out = new PrintWriter(outFile);
@@ -634,20 +634,41 @@ public class Bitexts {
 			for (int ii=0; ii<files.length ; ii++){
 				//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
 				//out.write(temp+fs+files[ii]+"\n");
-				
+
 				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
 				ttt=ttt.substring(ttt.indexOf("http:"));
 				out.write(ttt+"\n");
-				
-				
+
+
 			}
 			out.close();
 		} catch (IOException e){
 			System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
-		    e.printStackTrace();
+			e.printStackTrace();
+		}
+		try {
+			//FileWriter outFile = new FileWriter(outputFile);
+			//PrintWriter out = new PrintWriter(outFile);
+			Path outputDirName1=new Path(outputDirName);
+			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile+".html"),"UTF-8"));
+			out.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+
+			for (int ii=0; ii<files.length ; ii++){
+				//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
+				//out.write(temp+fs+files[ii]+"\n");
+				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+				ttt=ttt.substring(ttt.indexOf("http:"));
+				ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
+				out.write("<br />"+ttt);
+			}
+			out.write("</html>");
+			out.close();
+		} catch (IOException e){
+			System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
+			e.printStackTrace();
 		}
 	}
-	
+
 	public static String readFileAsString(String filePath) throws java.io.IOException{
 		byte[] buffer = new byte[(int) new File(filePath).length()];
 		BufferedInputStream f = new BufferedInputStream(new FileInputStream(filePath));
@@ -658,7 +679,7 @@ public class Bitexts {
 	public static ArrayList<String[]> sortbyLength(ArrayList<String[]> bitexts) {
 		ArrayList<String[]> new_bitexts=new ArrayList<String[]>();
 		int[] new_temp1 = new int[bitexts.size()];
-		
+
 		for (int i = 0; i < new_temp1.length; i++){
 			new_temp1[i] =Integer.parseInt(bitexts.get(i)[5]);
 		}
@@ -675,17 +696,15 @@ public class Bitexts {
 			for (int jj=0;jj<bitexts.size();jj++){
 				if (Integer.parseInt(bitexts.get(jj)[5])==new_temp[i]){
 					new_bitexts.add(new String[] {bitexts.get(jj)[0], 
-					bitexts.get(jj)[1],bitexts.get(jj)[2],bitexts.get(jj)[3],bitexts.get(jj)[4]});
+							bitexts.get(jj)[1],bitexts.get(jj)[2],bitexts.get(jj)[3],bitexts.get(jj)[4]});
 				}
 			}
 		}
 		return new_bitexts;
-		
+
 	}
 
-	public static void writeOutList(String outputDirName, String outputFile,ArrayList<String[]> bitexts) {
-		
-		
+	public static void writeOutList(String outputDirName, String outputFile, String outputFileHTML, ArrayList<String[]> bitexts) {
 		//File xmldir=new File(outputDirName+fs+"xml");
 		//String[] files= xmldir.list(filter);
 		//String temp="";
@@ -697,8 +716,8 @@ public class Bitexts {
 			String[] files=new String[bitexts.size()];
 			for (int ii=bitexts.size()-1;ii>-1;ii--){
 				files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-			//}
-			//for (int ii=0; ii<files.length ; ii++){
+				//}
+				//for (int ii=0; ii<files.length ; ii++){
 				//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
 				//out.write(temp+fs+files[ii]+"\n");
 				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
@@ -708,13 +727,37 @@ public class Bitexts {
 			out.close();
 		} catch (IOException e){
 			System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
-			
+		if (outputFileHTML!=null){
+			try {
+				//FileWriter outFile = new FileWriter(outputFile);
+				//PrintWriter out = new PrintWriter(outFile);
+				Path outputDirName1=new Path(outputDirName);
+				Writer out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileHTML),"UTF-8"));
+				out1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+				String[] files=new String[bitexts.size()];
+				for (int ii=bitexts.size()-1;ii>-1;ii--){
+					//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
+					//out.write(temp+fs+files[ii]+"\n");
+					files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
+
+					String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+					ttt=ttt.substring(ttt.indexOf("http:"));
+					ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
+					out1.write("<br />"+ttt);
+				}
+				out1.write("</html>");
+				out1.close();
+			} catch (IOException e){
+				System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
+				e.printStackTrace();
+			}	
+		}
 	}
 
-	
-	
+
+
 	/*@SuppressWarnings("restriction")
 	public static String[][] representXML_old(File xmldir) throws FileNotFoundException, XMLStreamException {
 		FilenameFilter filter = new FilenameFilter() {			
@@ -1507,6 +1550,6 @@ public class Bitexts {
 			System.exit(64);
 		}
 	}	 
-*/
-	
+	 */
+
 }

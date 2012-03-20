@@ -145,7 +145,7 @@ public class SimpleCrawl {
 		}
 		
 		//split the topic in triplets
-		topic=TopicTools.analyzeTopic(options.getTopic(),options.getLanguage());
+		topic=TopicTools.analyzeTopic(options.getTopic(),options.getLanguage(), null);//FIXME
 		//find the subclasses of the topic definition
 		classes=TopicTools.findSubclasses(topic);
 		double thres = TopicTools.calculateThreshold(topic,5);

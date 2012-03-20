@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.apache.tika.language.LanguageIdentifier;
+//import org.apache.tika.language.LanguageIdentifier;
 
 import com.cybozu.labs.langdetect.Detector;
 import com.cybozu.labs.langdetect.DetectorFactory;
@@ -93,8 +93,19 @@ public class Classifier implements Serializable{
 		}
 		//guess language of the content
 		if (_targetLanguage!=null){
-			LanguageIdentifier LangI=new LanguageIdentifier(content); 
-			langIdentified = LangI.getLanguage();
+			//LanguageIdentifier LangI=new LanguageIdentifier(content); 
+			//langIdentified = LangI.getLanguage();
+			
+			Detector detector = null;			
+			try {
+				detector = DetectorFactory.create();
+				detector.append(content);
+				langIdentified = detector.detect();										
+			} catch (LangDetectException e) {
+				//LOGGER.error(e.getMessage());
+			}
+			
+			
 			//System.out.println(langIdentified);
 			String[] langs = _targetLanguage.split(";");
 			boolean match = false;
@@ -496,7 +507,7 @@ public class Classifier implements Serializable{
 	}*/
 
 
-	public double rankLink(String text1) {
+	public double rankLinktest(String text1) {
 		double score = 0, weight=0; int matches=0;
 		String[] tempstr = null;		
 		String term;
@@ -506,13 +517,14 @@ public class Classifier implements Serializable{
 		try {
 			//vpapa
 			String[] langs = _targetLanguage.split(";");
-			boolean matchT=false, matchL=false;
-			for (String lang:langs){
-				if (langIdentified.equals(lang)){
-					matchT=true; //current page is in one of the targeted languages 
-					break;
-				}
-			}
+			boolean matchL=false;
+			//boolean matchT=false, matchL=false;
+			//for (String lang:langs){
+			//	if (langIdentified.equals(lang)){
+			//		matchT=true; //current page is in one of the targeted languages 
+			//		break;
+			//	}
+			//}
 			String langidentified_link="";
 			//System.out.println("langidentified_page:"+langIdentified);
 			if (!text.isEmpty()){
@@ -540,12 +552,106 @@ public class Classifier implements Serializable{
 				}
 				if (type==1){
 					//link's text implies that the link points to candidate translation
-					score +=100*_thres;
+					score +=1000*_thres;
+					return score;
+				}
+			}
+			//if (matchT & matchL){
+			if (matchL){
+				//if (!langidentified_link.equals(langIdentified)){
+				//	score+=10*_thres; //text and link are in dif. langs but both in targ. langs
+				//}else{
+					score+=_thres;  //text and link are in same langs and in targ. langs
+				//}
+				stems = TopicTools.analyze(text, langidentified_link);
+			}
+			else
+				return score;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		text="";
+		for (String s:stems){ text=text.concat(" "+s);}
+		text = text.trim();
+		for (int ii=0;ii<_topic.size();ii++){ 
+			tempstr=_topic.get(ii);
+			term = tempstr[1];
+			matches=0;
+			Pattern pattern = Pattern.compile(" "+term+" ");
+			Matcher matcher = pattern.matcher(" "+text+" ");
+			while (matcher.find()) {
+				matches++;
+			}
+			if (matches>0){
+				weight=Double.parseDouble(tempstr[0]);
+				score += weight*matches;
+				//System.out.println("FoundTerm :"+ term );
+			}
+		}
+		return score;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	public double rankLink(String text1, String anchortext, String pagelang, double vv) {
+		double score = 0, weight=0; int matches=0;
+		String[] tempstr = null;		
+		String term;
+		String text = text1.trim();
+		//System.out.print(text);
+		ArrayList<String> stems =new ArrayList<String>();
+		
+		try {
+			//vpapa
+			String[] langs = _targetLanguage.split(";");
+			boolean matchT=false, matchL=false;
+			for (String lang:langs){
+				if (pagelang.equals(lang)){
+					matchT=true; //current page is in one of the targeted languages 
+					break;
+				}
+			}
+			String langidentified_link="";
+			//System.out.println("langidentified_page:"+langIdentified);
+			
+			if (!text.isEmpty()){
+				langidentified_link= checkLang(text.toLowerCase());
+				//System.out.print("langidentified_link:"+langidentified_link+"\t");
+				for (String lang:langs){
+					if (langidentified_link.equals(lang)){
+						matchL=true; //text of current link is in one of the targeted languages 
+						break;
+					}
+				}
+			}else
+				return score;
+			int type=0;
+			if (langs.length>1){
+				int m=0;
+				for (String lang:langs){
+					//if (containLangKeys(text,m) & !lang.equals(pagelang)){
+					if (containLangKeys(anchortext,m) & !lang.equals(pagelang)){
+						//System.out.println("BINGO!");
+						//link's text implies that the link points to candidate translation
+						type=1;
+						break;
+					}
+					m++;
+				}
+				if (type==1 & vv>_thres){
+					//link's text implies that the link points to candidate translation
+					score +=10000*_thres;
 					return score;
 				}
 			}
 			if (matchT & matchL){
-				if (!langidentified_link.equals(langIdentified)){
+				StringTokenizer tkzr = new StringTokenizer(text);
+				if (!langidentified_link.equals(pagelang) & tkzr.countTokens()>3 & vv>_thres){
 					score+=10*_thres; //text and link are in dif. langs but both in targ. langs
 				}else{
 					score+=_thres;  //text and link are in same langs and in targ. langs
@@ -596,7 +702,7 @@ public class Classifier implements Serializable{
 		return result;
 	}
 
-	private String cleanContent(String content){
+	public static String cleanContent(String content){
 		String result = "";
 		//vpapa
 		String REGEX = "<text.*>.*</text>";
@@ -622,8 +728,10 @@ public class Classifier implements Serializable{
 
 
 	//vpapa added
-	private static String checkLang(String partOfLine) {
+	public static String checkLang(String partOfLine) {
 		String langidentified ="";
+		if (partOfLine.length()<5)
+			return langidentified;
 		//LanguageIdentifier LangI=new LanguageIdentifier(partOfLine); 
 		//langidentified = LangI.getLanguage();
 		//if (!langidentified.equals(targetLang)){

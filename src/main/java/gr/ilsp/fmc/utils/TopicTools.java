@@ -34,14 +34,15 @@ public class TopicTools {
 	//private static int MAX_CONTENT_TERMS = SimpleCrawlHFS.config.getInt("classifier.min_content_terms.value");
 	//private static int MAX_CONTENT_TERMS = 5;
 
-	public static ArrayList<String[]> analyzeTopic(String topicdef, String lang) {		
+	public static ArrayList<String[]> analyzeTopic(String topicdef, String lang, JobConf conf) {		
 		//topicdef:filename of file with the topic definition
 		//returns an array of strings with three columns (the triplets)
 		//File temp=new File(topicdef);
 		ArrayList<String[]> topic = new ArrayList<String[]>();
 		Path p = new Path(topicdef);
-		JobConf conf = new JobConf();
+		//JobConf conf = new JobConf();
 		conf.setJarByClass(SimpleCrawlHFS.class);
+		//System.err.println(conf.get("hadoop.tmp.dir"));
 		//conf.set("hadoop.tmp.dir", "hadoop-temp");
 		//conf.set("fs.default.name", "hdfs://kasos:54310/");
 		//if (!temp.exists()){System.out.println("The file for topic definition does not exist.");}

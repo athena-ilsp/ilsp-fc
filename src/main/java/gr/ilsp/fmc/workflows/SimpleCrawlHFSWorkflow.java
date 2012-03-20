@@ -28,7 +28,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Enumeration;
+//import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -188,6 +188,7 @@ public class SimpleCrawlHFSWorkflow {
 				}		
 				//LOGGER.info(hostIpHash + " " + url + " " + datum.getScore() + " " + datum.getLastStatus());
 				_numSelected++;
+				//System.out.println("SELECTED URL: "+url.getFile());
 				return true;
 			} else if (status == UrlStatus.FETCHED){
 				if (count==null)
@@ -199,6 +200,7 @@ public class SimpleCrawlHFSWorkflow {
 			}
 			return false;
 		}
+		//System.out.println("END OF SELECTED URLS");
 	}
 	
 	public static void resetCounters() {
@@ -249,6 +251,8 @@ public class SimpleCrawlHFSWorkflow {
 		_type =options.getType();
 		String[] langKeys = options.getLangKeys();
 		JobConf conf = SimpleCrawlHFS.conf;
+		//System.err.println(conf.get("hadoop.tmp.dir"));
+
 		//conf.setJarByClass(SimpleCrawlHFS.class);
 		//conf.setQuietMode(true);
 		//conf.set("hadoop.tmp.dir", "hadoop-temp");
@@ -256,6 +260,7 @@ public class SimpleCrawlHFSWorkflow {
 		Properties props = HadoopUtils.getDefaultProperties(SimpleCrawlWorkflow.class, debug, conf);
 		
 		FileSystem fs = curWorkingDirPath.getFileSystem(conf);
+		//System.err.println(conf.get("hadoop.tmp.dir"));
 		
 		if (!fs.exists(crawlDbPath)) {
 			throw new IllegalStateException(String.format("Input directory %s doesn't exist", crawlDbPath));
@@ -273,6 +278,8 @@ public class SimpleCrawlHFSWorkflow {
 		Fields f = new Fields(CrawlDbDatum.LAST_STATUS_FIELD).append(new Fields(CrawlDbDatum.SCORE));
 		StatusComparator statComp = new StatusComparator();
 		ScoreComparator scoreComp = new ScoreComparator();
+		//CrawlDbDatum datumvp = new CrawlDbDatum();
+		//double bbb=datumvp.getScore();
 		f.setComparator(CrawlDbDatum.LAST_STATUS_FIELD, statComp);
 		f.setComparator(CrawlDbDatum.SCORE, scoreComp);		
 		importPipe = new GroupBy(importPipe,f);

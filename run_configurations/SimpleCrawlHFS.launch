@@ -8,7 +8,7 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gr.ilsp.fmc.main.SimpleCrawlHFS"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -a test1 -n 25 -f -k -l1 el -l2 en -t 10 -of output_TOUR1_list.txt -tc ${project_loc}/test_crawls/tourism_EN_EL_topic.txt -u ${project_loc}/test_crawls/tourism_EN_EL_seed.txt -type p -xslt"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -a test1 -c 10 -f -k -l1 en -l2 fr -t 10 -of output_TESTM_list.txt -ofh  output_TESTM_list.txt.html -tc  ${project_loc}/test_crawls/bilingual_topics_seeds/LAB_EN_FR_topic.txt -u ${project_loc}/test_crawls/bilingual_topics_seeds/LAB_EN_FR_ilo.txt -type p -xslt"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ilsp-fmc-bixo"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.sourcepathProvider"/>
 </launchConfiguration>

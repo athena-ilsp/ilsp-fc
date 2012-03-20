@@ -35,6 +35,7 @@ public class SimpleCrawlHFSOptions {
 	private  String _type="m";
 	private  String _outputDir;
 	private  String _outputFile;
+	private  String _outputFileHTML;
 	private  String _agentName;
 	private  int _threads = 10;
 	private  int _numLoops = 1;
@@ -90,6 +91,10 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "output list file" )
 				.hasArg()
 				.create("of") );
+		options.addOption( OptionBuilder.withLongOpt( "outputhtml" )
+				.withDescription( "output HTML list file" )
+				.hasArg()
+				.create("ofh") );
 		options.addOption( OptionBuilder.withLongOpt( "agentname" )
 				.withDescription( "user agent name" )
 				.hasArg()
@@ -194,7 +199,8 @@ public class SimpleCrawlHFSOptions {
 			if(line.hasOption( "o")) {
 				File of = new File(line.getOptionValue("o"));
 				_outputDir = of.getAbsolutePath();
-				_outputFile = _outputDir + System.getProperty("file.separator") + "outputlist.txt";					
+				_outputFile = _outputDir + System.getProperty("file.separator") + "outputlist.txt";	
+				_outputFileHTML = _outputDir + System.getProperty("file.separator") + "outputlist.txt.html";
 			} else if (line.hasOption( "of")) {
 				File of = new File(line.getOptionValue("of"));
 				//System.out.println("of: "+of.getAbsolutePath());
@@ -209,8 +215,16 @@ public class SimpleCrawlHFSOptions {
 				//_outputFile = ws_dir+of.getName();
 				_outputFile = of.getAbsolutePath();
 				//help();
+				if (line.hasOption( "ofh")){
+					//_outputFileHTML = of.getAbsolutePath()+".html";
+					File ofh = new File(line.getOptionValue("ofh"));
+					_outputFileHTML = ofh.getAbsolutePath();
+				}
+				else
+					_outputFileHTML=null;
 			}
 			else help();
+			
 			if(line.hasOption( "a")) {
 				_agentName = line.getOptionValue("a");
 			}			
@@ -394,6 +408,9 @@ public class SimpleCrawlHFSOptions {
 	}
 	public  String getOutputFile() {
 		return _outputFile;
+	}
+	public  String getOutputFileHTML() {
+		return _outputFileHTML;
 	}
 	public  String getAgentName() {
 		return _agentName;
