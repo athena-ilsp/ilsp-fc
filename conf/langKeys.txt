@@ -1,6 +1,0 @@
-en>en,English,(en)
-fr>fr,French,français,(fr)
-el>el,Greek,ελληνικά,(el)
-de>de,German,Deutsch,(de)
-it>it,Italian,italiano,(it)
-es>es,Spanish,español,(es)

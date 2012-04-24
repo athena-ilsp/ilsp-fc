@@ -357,6 +357,7 @@ public class Classifier implements Serializable{
 			term_lang=tempstr[3];
 			matches=0;
 			term_score=0;
+			weight=Double.parseDouble(tempstr[0]);
 			//find term in text
 			if (!term_lang.equals(langIdentified))
 				continue;
@@ -369,14 +370,21 @@ public class Classifier implements Serializable{
 				termpos.add(Integer.toString(matcher.start()));
 				matches++;
 			}
+			int qq=0;
+			for (int nn=0;nn<termpos.size();nn++){
+				qq = Integer.parseInt(termpos.get(nn));
+				System.out.println(str.subSequence(qq, qq+30));				
+			}
 			if (matches>0){
-				uniqueTermsFound++;
+				if (weight>0.0){
+					uniqueTermsFound++;
+				}
 				//add found term
 				//termfound.add(term);
 				//add id of the found term
 				//termfoundid.add(Integer.toString(ii+1));
 				//get the weight of the term
-				weight=Double.parseDouble(tempstr[0]);
+				//weight=Double.parseDouble(tempstr[0]);
 				term_score = weight*matches;
 				//get the subclass of the term
 				term_class = tempstr[2];

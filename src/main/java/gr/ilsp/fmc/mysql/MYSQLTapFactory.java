@@ -36,8 +36,6 @@ import org.hsqldb.Server;
 
 import bixo.datum.FetchedDatum;
 
-import bixo.examples.JDBCTapFactory;
-
 import com.bixolabs.cascading.HadoopUtils;
 
 import cascading.jdbc.JDBCScheme;
@@ -48,7 +46,7 @@ import cascading.tuple.Fields;
 @SuppressWarnings("deprecation")
 public class MYSQLTapFactory {
 
-    private static final Logger LOGGER = Logger.getLogger(JDBCTapFactory.class);
+    private static final Logger LOGGER = Logger.getLogger(MYSQLTapFactory.class);
     //private static final String JDBC_URL_PREFIX = "jdbc:hsqldb:";
     //private static final String DB_NAME = "sitecrawler";
     //private static final String IN_MEM_DB = "mem:" + DB_NAME;

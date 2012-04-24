@@ -99,7 +99,7 @@ public class ExtendedParsePipe extends SubAssembly {
                 functionCall.getOutputCollector().add(parseResult.getTuple());
                 SimpleCrawlHFS.incrementPagesVisited();
             } catch (Exception e) {
-                LOGGER.warn("Error processing " + fetchedDatum.getBaseUrl());
+                LOGGER.warn("Error processing " + fetchedDatum.getUrl());
                 _flowProcess.increment(ExtendedParserCounters.PARSER_DOCUMENTS_FAILED, 1);
                 // TODO KKr - don't lose datums for documents that couldn't be parsed
             } finally {

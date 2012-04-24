@@ -6,9 +6,9 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gr.ilsp.fmc.main.SimpleCrawlHFS"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -a test1 -c 10 -f -k -l1 en -l2 fr -t 10 -of output_TESTM_list.txt -ofh  output_TESTM_list.txt.html -tc  ${project_loc}/test_crawls/bilingual_topics_seeds/LAB_EN_FR_topic.txt -u ${project_loc}/test_crawls/bilingual_topics_seeds/LAB_EN_FR_ilo.txt -type p -xslt"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -a test1 -c 10 -f -k -l1 en -l2 fr -t 10 -of output_TESTM_list.txt -ofh  output_TESTM_list.txt.html -tc  ${project_loc}/src/test/resources/bilingual_topics_seeds/LAB_EN_FR_topic.txt -u ${project_loc}/src/test/resources/bilingual_topics_seeds/LAB_EN_FR_ilo.txt -type p -xslt"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ilsp-fmc-bixo"/>
-<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.sourcepathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 </launchConfiguration>

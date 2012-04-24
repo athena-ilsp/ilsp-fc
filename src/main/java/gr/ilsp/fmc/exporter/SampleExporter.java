@@ -26,13 +26,15 @@ import gr.ilsp.fmc.datums.ClassifierDatum;
 import gr.ilsp.fmc.datums.CrawlDbDatum;
 import gr.ilsp.fmc.datums.ExtendedParsedDatum;
 import gr.ilsp.fmc.main.SimpleCrawlHFS;
+import gr.ilsp.fmc.utils.AnalyzerFactory;
 import gr.ilsp.fmc.utils.ContentNormalizer;
 import gr.ilsp.fmc.utils.CrawlConfig;
+import gr.ilsp.fmc.utils.DirUtils;
+import gr.ilsp.fmc.utils.JarUtils;
 import gr.ilsp.fmc.utils.LatvianAnalyzer;
 import gr.ilsp.fmc.utils.LithuanianAnalyzer;
 import gr.ilsp.fmc.utils.PrettyPrintHandler;
 import gr.ilsp.fmc.utils.TopicTools;
-import gr.ilsp.fmc.utils.AnalyzerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -51,12 +53,8 @@ import java.lang.reflect.Proxy;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,14 +68,8 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-//import org.apache.tika.language.LanguageIdentifier;
 import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamWriter2;
-
-import com.cybozu.labs.langdetect.Detector;
-import com.cybozu.labs.langdetect.DetectorFactory;
-import com.cybozu.labs.langdetect.LangDetectException;
-
 
 import bixo.datum.FetchedDatum;
 import bixo.datum.UrlStatus;
@@ -88,6 +80,10 @@ import cascading.tap.Hfs;
 import cascading.tap.Tap;
 import cascading.tuple.TupleEntry;
 import cascading.tuple.TupleEntryIterator;
+
+import com.cybozu.labs.langdetect.Detector;
+import com.cybozu.labs.langdetect.DetectorFactory;
+import com.cybozu.labs.langdetect.LangDetectException;
 
 @SuppressWarnings("deprecation")
 public class SampleExporter {
@@ -222,28 +218,14 @@ public class SampleExporter {
 
 			//LanguageIdentifier initialization	
 			if (loadProfile){
-				String path = "profs/";
-				InputStream is = null;
-				URL urldir = SimpleCrawlHFS.class.getResource("/profs");
+				URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
+				LOGGER.debug(urldir );
 				if (urldir.getProtocol()=="jar"){
-					String jarPath = urldir.getPath().substring(5, urldir.getPath().indexOf("!")); //strip out only the JAR file
-					JarFile jar = new JarFile(jarPath);
-					Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
-					List<String> profs = new ArrayList<String>();
-					while(entries.hasMoreElements()) {
-						String name = entries.nextElement().getName();
-						if (name.startsWith("profs/")) { //filter according to the path
-							String entry = name.substring(path.length());
-							int checkSubdir = entry.indexOf("/");
-							if (checkSubdir < 0) {
-								is = Detector.class.getResourceAsStream("/profs/"+entry);
-								profs.add(TopicTools.convertStreamToString(is));
-								is.close();
-							}	              
-						}
-					}
+					File tempDir = DirUtils.createTempDir();
+					LOGGER.debug(tempDir );
+					JarUtils.copyResourcesRecursively(urldir, tempDir);
 					try {
-						DetectorFactory.loadProfile(profs);				
+						DetectorFactory.loadProfile(tempDir);				
 					} catch (LangDetectException e1) {
 						LOGGER.error(e1.getMessage());
 					} 
@@ -255,6 +237,7 @@ public class SampleExporter {
 					} catch (URISyntaxException e) {
 						LOGGER.error(e.getMessage());
 					}
+
 				}
 			}
 
@@ -275,6 +258,7 @@ public class SampleExporter {
 				if (topicFile!=null) {
 					topic=TopicTools.analyzeTopic(topicFile,language, conf);
 					topicTermsAll = TopicTools.analyzeTopicALL(topicFile);
+					//topicTermsAll1 =TopicTools.getTopicTerms(topic);
 				}
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
 					id = exportToXml(conf,curDirPath,language, id,topic);
@@ -767,13 +751,26 @@ public class SampleExporter {
 			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words) { //throws Exception {
 
 		//vpapa
-		String maincontent =cleaned_text;
-		maincontent = maincontent.replaceAll("<boiler.*</boiler>\n", "");
+		//String maincontent =cleaned_text;
+		String maincontent="";
+		String[] temp = cleaned_text.split("\n");
+		for (int jj=0;jj<temp.length;jj++){
+			if (!temp[jj].contains("<boiler") && !temp[jj].contains("</boiler>")){
+				maincontent=maincontent+temp[jj]+"\n"; 
+			}
+		}
+		//maincontent = maincontent.replaceAll("<boiler.*(?s)", "");
+		//maincontent = maincontent.replaceAll("\\n\\n","");
+		//??????<boiler.*   <boiler.*</boiler>\n
+		//maincontent = maincontent.replaceAll("<boiler type.*</boiler>\n", "");
+		//////////// 
 		maincontent = maincontent.replaceAll("<text>", "");
 		maincontent = maincontent.replaceAll("</text>", "");
 		maincontent = maincontent.replaceAll("<text type.*>", "");
 
 		StringTokenizer tkzr = new StringTokenizer(maincontent);
+		//System.out.println(tkzr.countTokens());
+		//System.out.println(maincontent);
 		if (tkzr.countTokens()<minTokensNumber){
 			//			System.out.println("CUT: "+ eAddress);
 			return false;		
@@ -1173,8 +1170,11 @@ public class SampleExporter {
 			par_text+=" "+st;
 		}
 		par_text = par_text.trim();
+		double weight=0.0;
+		
 		for (int ii=0;ii<topic_terms.size();ii++){ //for each row of the topic
 			tempstr=topic_terms.get(ii);
+			weight=Double.parseDouble(tempstr[0]);
 			term = tempstr[1];
 			//vpapa
 			term_lang=tempstr[3];
@@ -1182,8 +1182,10 @@ public class SampleExporter {
 				continue;
 			Pattern pattern = Pattern.compile(" "+term+" ");	
 			Matcher matcher = pattern.matcher(" "+par_text+" ");
-			if (matcher.find()){
-				found=found+";"+topic_termsALL.get(ii); 
+			if (matcher.find() & weight>0){
+				//found=found+";"+topic_termsALL.get(ii); 
+				found=found+";"+term; 
+				
 			}
 		}
 		if (!found.isEmpty())

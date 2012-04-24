@@ -66,7 +66,7 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 		double score = datum.getTupleEntry().getDouble(ClassifierDatum.TOTABSCORE) / outlinks.length;
 		int crawlDepth = (Integer) datum.getPayloadValue(CrawlDbDatum.CRAWL_DEPTH);
 		double vv=datum.getTupleEntry().getDouble(ClassifierDatum.TOTABSCORE);
-		String vpvp= datum.getUrl();
+		//String vpvp= datum.getUrl();
 		
 		if (score>0.0) crawlDepth = -1;		
 		if (crawlDepth<_classifier.getMaxDepth()) {

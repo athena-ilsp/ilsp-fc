@@ -10,21 +10,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-//import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-//import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-//import javax.xml.parsers.DocumentBuilder;
-//import javax.xml.parsers.DocumentBuilderFactory;
-//import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.hadoop.fs.Path;
@@ -33,10 +28,6 @@ import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
 import org.codehaus.stax2.XMLStreamWriter2;
 import org.codehaus.stax2.evt.XMLEvent2;
-//import org.w3c.dom.Document;
-//import org.w3c.dom.Element;
-//import org.w3c.dom.NodeList;
-//import org.xml.sax.SAXException;
 
 public class Bitexts {
 	private static final String cesDocVersion = "1.0";
@@ -56,7 +47,29 @@ public class Bitexts {
 	private static double pars_thres=0.4;
 	private static int level_thres=2;
 
-	@SuppressWarnings("restriction")
+	public static void main(String[] args) {
+		File xmldir=new File("C:\\var\\lib\\tomcat6\\webapps\\soaplab2-results\\7ea10bac-c81d-413c-b0b4-fc98faa6cea9\\xml");
+		try {
+			String[][] CCC=representXML(xmldir);
+			double[][] sv=Bitexts.readRes("SVs19_last.txt");
+			double[][] b=Bitexts.readRes("B19_last.txt");
+			double[][] w=Bitexts.readRes("Ws19_last.txt");
+			ArrayList<String[]> pairs  = Bitexts.findpairsXML_SVM(xmldir,CCC,sv,w,b);
+			//ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM(pairs);
+			ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM_NEW(pairs);
+			for (int ii=0;ii<bitexts.size();ii++){
+				
+			}
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static String[][] representXML(File xmldir) throws FileNotFoundException, XMLStreamException {
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
@@ -364,7 +377,7 @@ public class Bitexts {
 		}
 		int[] flags=new int[counts.length];
 		//int limit = maxArray(counts)/2;
-		String temp="";
+		//String temp="";
 		double dist, dist1;
 		//for (int ii=0;ii<limit;ii++){
 		//for (int ii=0;ii<2;ii++){
@@ -380,7 +393,7 @@ public class Bitexts {
 		//System.out.println("END OF pairs of type1");
 		for (int jj=0;jj<pairs.size();jj++){
 			if (counts[jj][0]==1 & counts[jj][1]==2 & flags[jj]==0){
-				temp =pairs.get(jj)[1]; 
+				//temp =pairs.get(jj)[1]; 
 				dist = Double.parseDouble(pairs.get(jj)[4]);
 				dist1=0.0;
 				int ind=-1;
@@ -410,7 +423,7 @@ public class Bitexts {
 		}
 		for (int jj=0;jj<pairs.size();jj++){
 			if (counts[jj][0]==2 & counts[jj][1]==1 & flags[jj]==0){
-				temp =pairs.get(jj)[0]; 
+				//temp =pairs.get(jj)[0]; 
 				dist = Double.parseDouble(pairs.get(jj)[4]);
 				dist1=0.0;
 				for (int kk=0;kk<pairs.size();kk++){
@@ -463,7 +476,6 @@ public class Bitexts {
 	}*/
 
 
-	@SuppressWarnings("restriction")
 	public static void writeXMLs(String outdir,ArrayList<String[]> bitexts, boolean cesAlign) throws UnsupportedEncodingException, FileNotFoundException, XMLStreamException{
 		for (int ii=0;ii<bitexts.size();ii++){
 			String f1=bitexts.get(ii)[0];
@@ -593,7 +605,6 @@ public class Bitexts {
 
 	}
 
-	@SuppressWarnings("restriction")
 	private static void createHeader(XMLStreamWriter2 xtw, String f1, 
 			String f2,String l1, String l2, String confid, boolean cesAlign) throws XMLStreamException {
 		xtw.writeStartElement("cesHeader");

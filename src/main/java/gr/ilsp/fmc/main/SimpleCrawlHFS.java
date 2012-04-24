@@ -3,77 +3,41 @@ package gr.ilsp.fmc.main;
 import gr.ilsp.fmc.datums.CrawlDbDatum;
 import gr.ilsp.fmc.exporter.SampleExporter;
 import gr.ilsp.fmc.parser.DomainUrlFilter;
+import gr.ilsp.fmc.utils.CrawlConfig;
 import gr.ilsp.fmc.utils.DirUtils;
+import gr.ilsp.fmc.utils.JarUtils;
 import gr.ilsp.fmc.utils.TopicTools;
 import gr.ilsp.fmc.workflows.SimpleCrawlHFSWorkflow;
-//import gr.ilsp.fmc.bitexts.Utils;
 
 import java.io.BufferedReader;
-//import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-//import java.io.FileOutputStream;
-//import java.io.BufferedInputStream;
-//import java.io.FileNotFoundException;
-//import java.io.FileOutputStream;
-//import java.io.FilenameFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-//import java.io.UnsupportedEncodingException;
-//import java.io.OutputStreamWriter;
-//import java.io.Writer;
-
 import java.net.URISyntaxException;
 import java.net.URL;
-//import java.nio.CharBuffer;
-
-//import java.sql.ResultSet;
-//import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import javax.xml.stream.XMLStreamException;
-
-//import javax.xml.parsers.DocumentBuilder;
-//import javax.xml.parsers.DocumentBuilderFactory;
-//import javax.xml.parsers.ParserConfigurationException;
-//import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-//import org.apache.commons.io.FileUtils;
-//import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.log4j.FileAppender;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
-//import org.w3c.dom.Document;
-//import org.w3c.dom.Element;
-//import org.w3c.dom.NodeList;
-//import org.xml.sax.SAXException;
-
-import com.cybozu.labs.langdetect.Detector;
-import com.cybozu.labs.langdetect.DetectorFactory;
-import com.cybozu.labs.langdetect.LangDetectException;
-
 
 import bixo.config.FetcherPolicy;
-import bixo.config.UserAgent;
 import bixo.config.FetcherPolicy.FetcherMode;
+import bixo.config.UserAgent;
 import bixo.datum.UrlStatus;
-import bixo.examples.CrawlConfig;
 import bixo.urls.BaseUrlFilter;
 import bixo.urls.SimpleUrlNormalizer;
 import bixo.utils.CrawlDirUtils;
@@ -83,6 +47,9 @@ import cascading.scheme.SequenceFile;
 import cascading.tap.Hfs;
 import cascading.tap.Tap;
 import cascading.tuple.TupleEntryCollector;
+
+import com.cybozu.labs.langdetect.DetectorFactory;
+import com.cybozu.labs.langdetect.LangDetectException;
 
 /**
  * JDBCCrawlTool is an example of using Bixo to write a simple crawl tool.
@@ -266,6 +233,8 @@ public class SimpleCrawlHFS {
 		conf.set("mapred.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred");//+fs1+"local");
 		conf.set("mapred.local.dir",conf.get("mapred.dir") + fs1+"local");//+fs1+"local");
 		conf.set("mapred.system.dir",conf.get("mapred.dir") + fs1+"system");//+fs1+"local");		
+		
+
 		FileSystem fs;
 		//if domain is supplied, it is checked for errors
 		String domain = options.getDomain();
@@ -295,31 +264,16 @@ public class SimpleCrawlHFS {
 		//vpapa
 		if (options.getType().equals("p"))
 			urls = options.getUrls();
-		//Used only with the langdetect.jar
-		//URL profiles = Detector.class.getResource("/profiles");
-		String path = "profs/";
-		InputStream is = null;
-		URL urldir = SimpleCrawlHFS.class.getResource("/profs");
+
+		
+		URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
+		LOGGER.info(urldir );
 		if (urldir.getProtocol()=="jar"){
-			//vpapa add replace
-			String jarPath = urldir.getPath().substring(5, urldir.getPath().indexOf("!")).replace("%20"," "); //strip out only the JAR file
-			JarFile jar = new JarFile(jarPath);
-			Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
-			List<String> profs = new ArrayList<String>();
-			while(entries.hasMoreElements()) {
-				String name = entries.nextElement().getName();
-				if (name.startsWith("profs/")) { //filter according to the path
-					String entry = name.substring(path.length());
-					int checkSubdir = entry.indexOf("/");
-					if (checkSubdir < 0) {
-						is = Detector.class.getResourceAsStream("/profs/"+entry);
-						profs.add(TopicTools.convertStreamToString(is));
-						is.close();
-					}	              
-				}
-			}
+			File tempDir = DirUtils.createTempDir();
+			LOGGER.info(tempDir );
+			JarUtils.copyResourcesRecursively(urldir, tempDir);
 			try {
-				DetectorFactory.loadProfile(profs);				
+				DetectorFactory.loadProfile(tempDir);				
 			} catch (LangDetectException e1) {
 				LOGGER.error(e1.getMessage());
 			} 
@@ -327,9 +281,9 @@ public class SimpleCrawlHFS {
 			try {
 				DetectorFactory.loadProfile(new File(urldir.toURI()));
 			} catch (LangDetectException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage());
 			} catch (URISyntaxException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage());
 			}
 		}
 
@@ -495,16 +449,17 @@ public class SimpleCrawlHFS {
 				//	curLoopDirName =fs1+curLoopDirName;
 				//}
 				setLoopLoggerFile(curLoopDirName, curLoop);	
+				LOGGER.debug( conf.toString());
 //				System.err.println(conf.toString());
-//				System.err.println(conf.toString());
-				//for(int il =0; il<conf.getLocalDirs().length;il++) {
-				//	System.err.println(conf.getLocalDirs()[il]);
-				//}
+				for(int il =0; il<conf.getLocalDirs().length;il++) {
+					LOGGER.debug(conf.getLocalDirs()[il]);
+				}
+				
 				//System.out.println("LOOP "+ Integer.toString(curLoop));
 				Flow flow = SimpleCrawlHFSWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlFilter, 
 						classes, topic, thres,min_uniq_terms,max_depth,options);							
 				flow.complete();
-				//System.err.println(conf.get("hadoop.tmp.dir"));
+				//LOGGER.info("Hadoop tmp dir = " + conf.get("hadoop.tmp.dir"));
 				
 				//Reseting counters of parent class. We do it here so that SplitFetchedUnfetchedCrawlDatums
 				//when run again will not return the 256(or whatever) that were selected in the first run
@@ -631,7 +586,8 @@ public class SimpleCrawlHFS {
 			System.exit(0);
 			
 		} catch (PlannerException e) {
-			e.writeDOT("build/failed-flow.dot");
+			LOGGER.debug(conf.get("hadoop.tmp.dir"));			
+			e.writeDOT("failed-flow.dot");
 			System.err.println("PlannerException: " + e.getMessage());
 			e.printStackTrace(System.err);
 			System.exit(-1);

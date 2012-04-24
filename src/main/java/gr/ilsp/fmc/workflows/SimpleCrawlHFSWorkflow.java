@@ -20,6 +20,7 @@ import gr.ilsp.fmc.pipes.ClassifierPipe;
 import gr.ilsp.fmc.pipes.ExtendedParsePipe;
 import gr.ilsp.fmc.utils.CrawlConfig;
 
+import java.io.File;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -71,6 +72,7 @@ import cascading.tuple.TupleEntry;
 import com.bixolabs.cascading.BaseSplitter;
 import com.bixolabs.cascading.HadoopUtils;
 import com.bixolabs.cascading.SplitterAssembly;
+
 
 @SuppressWarnings("deprecation")
 public class SimpleCrawlHFSWorkflow {
@@ -214,13 +216,13 @@ public class SimpleCrawlHFSWorkflow {
 	//in statusSet, is ordered by Score
 	private static class StatusComparator implements Comparator<String>, Serializable {
 
+		private static final String FETCHED_STR = "FETCHED";
 		private static final long serialVersionUID = -5250304580989068398L;
 
-		@Override
 		public int compare(String o1, String o2) {
-			if (o1.equals("FETCHED") && o2.equals("FETCHED")) return 0;
-			else if (o1.equals("FETCHED")) return -1;
-			else if (o2.equals("FETCHED")) return 1;
+			if (o1.equals(FETCHED_STR) && o2.equals(FETCHED_STR)) return 0;
+			else if (o1.equals(FETCHED_STR)) return -1;
+			else if (o2.equals(FETCHED_STR)) return 1;
 			
 			if (statusSet.contains(o1) && statusSet.contains(o2)) return 0;
 			else return o1.compareTo(o2);			
@@ -230,7 +232,6 @@ public class SimpleCrawlHFSWorkflow {
 
 		private static final long serialVersionUID = -1057396789369463851L;
 
-		@Override
 		public int compare(Double o1, Double o2) {			
 			return o2.compareTo(o1);
 		}		
@@ -373,8 +374,10 @@ public class SimpleCrawlHFSWorkflow {
 		sinkMap.put(ClassifierPipe.CLASSIFIER_PIPE_NAME, classifierSink);
 		sinkMap.put(finishedDatums.getName(), loopCrawldbSink);
 
+
 		// Finally we can run it.
 		FlowConnector flowConnector = new FlowConnector(props);
+		//LOGGER.info("Hadoop tmp dir in SCHFSW: " + conf.get("hadoop.tmp.dir"));
 		
 		return flowConnector.connect(inputSource, sinkMap/*, statusOutputPipe*/, finalContentPipe, finalParsePipe,
 				classifyPipe.getClassifierTailPipe(), finishedDatums);
