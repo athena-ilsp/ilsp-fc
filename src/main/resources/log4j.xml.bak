@@ -26,22 +26,20 @@
 			<param name="AcceptOnMatch" value="true" />
 		</filter>
 	</appender>
-
-	<logger name="hsqldb.db">
-		<level value="ERROR" />
+	<logger name="cascading, cascading.flow.stack.FlowMapperStack">
+		<level value="WARN" />
 	</logger>
 
-	<logger name="gate">
-		<level value="ERROR" />
+
+	<logger name="com.bixolabs.cascading">
+		<level value="WARN" />
 	</logger>
 
-	<logger name="org.xces.graf.uima.GraphFactory">
-		<level value="ERROR" />
+
+	<logger name="org.apache.hadoop">
+		<level value="WARN" />
 	</logger>
 
-	<logger name="org.apache.activemq.transport">
-		<level value="INFO" />
-	</logger>
 
 	<root>
 		<level value="INFO" />
