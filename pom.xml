@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gr.ilsp</groupId>
-	<artifactId>ilsp-fmc-bixo</artifactId>
+	<artifactId>ilsp-fc</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ILSP Focused Crawler based on Bixo</name>
-	<description>A focused crawler (bixo-based)</description>
+	<name>ILSP Focused Crawler </name>
+	<description>A focused crawler using the Bixo web mining toolkit.</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -158,4 +158,8 @@
 			</plugin>
 		</plugins>
 	</build>
+	<organization>
+		<name>ILSP</name>
+		<url>http://www.ilsp.gr</url>
+	</organization>
 </project>
