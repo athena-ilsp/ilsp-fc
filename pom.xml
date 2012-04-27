@@ -20,13 +20,13 @@
 			<name>Cascading repository</name>
 			<url>http://conjars.org/repo</url>
 		</repository>
+		<repository>
+			<id>ILSP NLP</id>
+			<name>ILSP NLP repository</name>
+			<url>http://nlp.ilsp.gr/nexus</url>
+		</repository>
 	</repositories>
 	<dependencies>
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.bixolabs</groupId> -->
-<!-- 			<artifactId>cascading.utils</artifactId> -->
-<!-- 			<version>1.0.1</version> -->
-<!-- 		</dependency> -->
 		<dependency>
 			<groupId>bixo</groupId>
 			<artifactId>bixo-core</artifactId>
@@ -37,12 +37,6 @@
 			<artifactId>hadoop-core</artifactId>
 			<version>0.20.2</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>cascading</groupId> -->
-<!-- 			<artifactId>cascading-core</artifactId> -->
-<!-- 			<version>1.2.1</version> -->
-<!-- 		</dependency> -->
-
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
@@ -88,13 +82,6 @@
 			<artifactId>cascading-11-jdbc</artifactId>
 			<version>0.0.4</version>
 		</dependency>
-
-
-<!-- 		<dependency> -->
-<!-- 			<groupId>bixo</groupId> -->
-<!-- 			<artifactId>bixo-examples</artifactId> -->
-<!-- 			<version>0.7.1</version> -->
-<!-- 		</dependency> -->
 		<dependency>
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
@@ -125,7 +112,6 @@
 			<artifactId>langdetect</artifactId>
 			<version>09-13-2011</version>
 		</dependency>
-            		
 	</dependencies>
 	<build>
 		<plugins>
