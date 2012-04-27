@@ -22,6 +22,27 @@
 		</repository>
 	</repositories>
 	<dependencies>
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.bixolabs</groupId> -->
+<!-- 			<artifactId>cascading.utils</artifactId> -->
+<!-- 			<version>1.0.1</version> -->
+<!-- 		</dependency> -->
+		<dependency>
+			<groupId>bixo</groupId>
+			<artifactId>bixo-core</artifactId>
+			<version>0.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-core</artifactId>
+			<version>0.20.2</version>
+		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>cascading</groupId> -->
+<!-- 			<artifactId>cascading-core</artifactId> -->
+<!-- 			<version>1.2.1</version> -->
+<!-- 		</dependency> -->
+
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
@@ -58,35 +79,16 @@
 			<version>1.5.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-core</artifactId>
-			<version>0.20.2</version>
-		</dependency>
-		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.14</version>
 		</dependency>
 		<dependency>
 			<groupId>cascading</groupId>
-			<artifactId>cascading-core</artifactId>
-			<version>1.2.1</version>
-		</dependency>
-		<dependency>
-			<groupId>cascading</groupId>
 			<artifactId>cascading-11-jdbc</artifactId>
 			<version>0.0.4</version>
 		</dependency>
-		<dependency>
-			<groupId>com.bixolabs</groupId>
-			<artifactId>cascading.utils</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>bixo</groupId>
-			<artifactId>bixo-core</artifactId>
-			<version>0.6.0</version>
-		</dependency>
+
 
 <!-- 		<dependency> -->
 <!-- 			<groupId>bixo</groupId> -->

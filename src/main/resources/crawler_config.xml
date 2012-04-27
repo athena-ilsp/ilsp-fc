@@ -6,7 +6,7 @@
 	</agent>
 	<classifier>
 		<min_content_terms>
-			<value>2</value>
+			<value>1</value>
 			<description>Minimum number of terms that must exist in clean
 				content of each web page in order to be stored.</description>
 		</min_content_terms>

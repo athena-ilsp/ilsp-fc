@@ -228,6 +228,7 @@ public class SimpleCrawlHFSWorkflow {
 			else return o1.compareTo(o2);			
 		}		
 	}
+
 	private static class ScoreComparator implements Comparator<Double>, Serializable {
 
 		private static final long serialVersionUID = -1057396789369463851L;
@@ -236,8 +237,18 @@ public class SimpleCrawlHFSWorkflow {
 			return o2.compareTo(o1);
 		}		
 	}
-	
+
 	public static Flow createFlow(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
+			BaseUrlFilter urlFilter, String[] classes, ArrayList<String[]> topic, 
+			double thres, int min_uniq_terms,int max_depth,
+			SimpleCrawlHFSOptions options) throws Throwable {
+		
+		return createFlow071(curWorkingDirPath, crawlDbPath, userAgent, fetcherPolicy,
+				urlFilter, classes, topic, thres, min_uniq_terms, max_depth, options);				
+
+	}
+
+	public static Flow createFlow060(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
 			BaseUrlFilter urlFilter, String[] classes, ArrayList<String[]> topic, double thres,int min_uniq_terms,int max_depth, SimpleCrawlHFSOptions options) throws Throwable {
 		int maxThreads = options.getThreads();
 		boolean debug = options.isDebug();
@@ -383,4 +394,186 @@ public class SimpleCrawlHFSWorkflow {
 				classifyPipe.getClassifierTailPipe(), finishedDatums);
 	}
 
+	public static Flow createFlow071(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
+			BaseUrlFilter urlFilter, String[] classes, ArrayList<String[]> topic, double thres,int min_uniq_terms,int max_depth, SimpleCrawlHFSOptions options) throws Throwable {
+		int maxThreads = options.getThreads();
+		boolean debug = options.isDebug();
+		boolean keepBoiler = options.keepBoiler();
+		//vpapa
+		String subfilter = options.getFilter();
+		String initial_host = options.getDomain();
+		_subfilter=subfilter;
+		_inithost = initial_host;
+		String language = options.getLanguage();
+		_targlang = language;
+		_type =options.getType();
+		String[] langKeys = options.getLangKeys();
+		JobConf conf = SimpleCrawlHFS.conf;
+		//System.err.println(conf.get("hadoop.tmp.dir"));
+
+		//conf.setJarByClass(SimpleCrawlHFS.class);
+		//conf.setQuietMode(true);
+		//conf.set("hadoop.tmp.dir", "hadoop-temp");
+		int numReducers = conf.getNumReduceTasks() * HadoopUtils.getTaskTrackers(conf);
+		Properties props = HadoopUtils.getDefaultProperties(SimpleCrawlWorkflow.class, debug, conf);
+		
+		FileSystem fs = curWorkingDirPath.getFileSystem(conf);
+		//System.err.println(conf.get("hadoop.tmp.dir"));
+		
+		if (!fs.exists(crawlDbPath)) {
+			throw new IllegalStateException(String.format("Input directory %s doesn't exist", crawlDbPath));
+		}
+		//Setting up the input source and the input pipe
+		Tap inputSource = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toString());
+		//The import pipe contains ALL the urls that the crawler has processed since it started
+		//(fetched, unfetched, links etc). Using the custom comparators, these are grouped and sorted
+		//first by their STATUS (all fetched URLs will be first in order for the occurencies hashmaps
+		//to be filled correctly; these hashmaps will count how many URLs have been stored from each
+		//web domain in order to enforce URLs-per-webdomain restrictions). After all fetched URLs have
+		//been counted, all the rest that have STATUS that is acceptable for crawling are sorted by
+		//their score. 		
+		Pipe importPipe = new Pipe("url importer");
+		Fields f = new Fields(CrawlDbDatum.LAST_STATUS_FIELD).append(new Fields(CrawlDbDatum.SCORE));
+		StatusComparator statComp = new StatusComparator();
+		ScoreComparator scoreComp = new ScoreComparator();
+		//CrawlDbDatum datumvp = new CrawlDbDatum();
+		//double bbb=datumvp.getScore();
+		f.setComparator(CrawlDbDatum.LAST_STATUS_FIELD, statComp);
+		f.setComparator(CrawlDbDatum.SCORE, scoreComp);		
+		importPipe = new GroupBy(importPipe,f);
+		//The import pipe is splitted in 2 pipes, one for the next batch of urls to fetch
+		//and one for all the rest. The SplitFetchedUnfetchedCrawlDatums will select BUFFER_SIZE
+		//URLs from the sorted input source by checking that: a) their web domain does not have
+		//an occurrence higher than the thresholds defined in the config and b) their STATUS is one
+		//of those defined in statusSet. 
+		SplitterAssembly splitter = new SplitterAssembly(importPipe, new SplitFetchedUnfetchedCrawlDatums());
+		//finishedDatumsFromDb will represent ALL the URLs from the input source and urlsToFetchPipe
+		//will represent the selected BUFFER_SIZE URLs that are to be fetched.
+		Pipe finishedDatumsFromDbPipe = new Pipe("finished urls", importPipe);
+		Pipe urlsToFetchPipe = new Pipe("urls to Fetch", splitter.getLHSPipe());
+		urlsToFetchPipe = new Each(urlsToFetchPipe, new CreateUrlDatumFromCrawlDbFunction()); 
+		//Setting up all the sinks (each pipe that will write data is connected to a sink, a "path"
+		//for writing data in hadoop terms.
+		Path outCrawlDbPath = new Path(curWorkingDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+		Tap loopCrawldbSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), outCrawlDbPath.toString());
+		Path contentDirPath = new Path(curWorkingDirPath, CrawlConfig.CONTENT_SUBDIR_NAME);
+		Tap contentSink = new Hfs(new SequenceFile(FetchedDatum.FIELDS), contentDirPath.toString());
+		Path parseDirPath = new Path(curWorkingDirPath, CrawlConfig.PARSE_SUBDIR_NAME);
+		Tap parseSink = new Hfs(new SequenceFile(ExtendedParsedDatum.FIELDS), parseDirPath.toString());
+		Path classifierDirPath = new Path(curWorkingDirPath, CrawlConfig.CLASSIFIER_SUBDIR_NAME);
+		Tap classifierSink = new Hfs(new SequenceFile(ClassifierDatum.FIELDS), classifierDirPath.toString());
+
+		// Create the sub-assembly that runs the fetch job                
+		BaseFetcher fetcher = new SimpleHttpFetcher(maxThreads, fetcherPolicy, userAgent);
+		
+		((SimpleHttpFetcher) fetcher).setConnectionTimeout(SimpleCrawlHFS.config.getInt("fetcher.connection_timeout.value"));
+		((SimpleHttpFetcher) fetcher).setSocketTimeout(SimpleCrawlHFS.config.getInt("fetcher.socket_timeout.value"));
+		((SimpleHttpFetcher) fetcher).setMaxRetryCount(SimpleCrawlHFS.config.getInt("fetcher.max_retry_count.value"));
+		BaseScoreGenerator scorer = new FixedScoreGenerator();
+		FetchPipe fetchPipe = new FetchPipe(urlsToFetchPipe, scorer, fetcher, RobotUtils.createFetcher(fetcher),
+				new RobotRulesParser(), new DefaultFetchJobPolicy(fetcherPolicy.getMaxRequestsPerConnection(), 
+						SimpleCrawlHFS.config.getInt("fetcher.max_requests_per_host_per_run.value"), 
+						fetcherPolicy.getCrawlDelay()), numReducers);        
+		//The fetch pipe returns data in 2 different pipes, one contains the content
+		//of downloaded pages and one that contains the status of all the URLs that
+		//were fed to the fetcher. contentPipe will handle the content of the fetched pages.
+		Pipe contentPipe = new Pipe("content pipe", fetchPipe.getContentTailPipe());  
+		
+		//contentPipe is parsed. Metadata, content and links are extracted. Content is
+		//cleaned using Boilerpipe.
+		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler));
+		//The results from the parser are forwarded to the classifier. The classifier
+		//will score the content of each fetched page. It will also score all links
+		//based on the score of the page they came from, the anchor text and the surrounding
+		//text.
+		//ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth ));
+		//vpapa
+		ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(), 
+				new Classifier(langKeys,language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth));
+		Pipe urlsFromClassifier = new Pipe("urls from classifier", classifyPipe.getClassifierTailPipe());
+		urlsFromClassifier = new Each(urlsFromClassifier, new SelectUrlOnlyFunction());
+
+		//The classifier's and parser's results are forwarded to their final pipes for writing	
+		Fields fetchedDatumFields = new Fields(FetchedDatum.URL_FN);		
+		Fields statusDatumURLFields = new Fields(StatusDatum.URL_FN);		
+		Fields extendedUrlDatumFields = new Fields(ExtendedUrlDatum.URL_FN);
+		Fields fetchedDatumFieldsWithUrl = FetchedDatum.FIELDS.append(new Fields("url"));
+		Fields extendedParsedDatumFieldsWithUrl = ExtendedParsedDatum.FIELDS.append(new Fields("url"));
+		
+		Pipe finalContentPipe = new CoGroup(
+				contentPipe, fetchedDatumFields,
+				urlsFromClassifier, extendedUrlDatumFields,
+				fetchedDatumFieldsWithUrl,
+				new RightJoin());
+
+		Pipe finalParsePipe = new CoGroup(
+				parsePipe, extendedUrlDatumFields,
+				urlsFromClassifier, extendedUrlDatumFields,
+				extendedParsedDatumFieldsWithUrl,
+				new RightJoin());
+		
+		//The links scored by the classifier are handled be the urlFromOutlinksPipe
+		Pipe urlFromOutlinksPipe = new Pipe("url from outlinks", classifyPipe.getScoredLinksTailPipe());
+		//Outlinks are filtered and normalized
+		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter));
+		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedNormalizeUrlFunction(new SimpleUrlNormalizer()));
+		
+		//The second pipe returned from the fetcher, is assigned to urlFromFetchPipe.
+		Pipe urlFromFetchPipe = new Pipe("fetched pipe", fetchPipe.getStatusTailPipe());
+		//The URLs the Fetcher attempted to fetch are joined with the
+		//URLs the classifier managed to score in order to get a pipe
+		//with the BUFFER_SIZE URLs and their updated status and scores
+		Fields classifierFields = ClassifierDatum.FIELDS;
+		classifierFields = classifierFields.rename(new Fields(ClassifierDatum.URL_FN), new Fields("classifier_url"));
+		classifierFields = classifierFields.rename(new Fields(ClassifierDatum.PAYLOAD_FN), new Fields("classifier_payload"));        
+
+		Fields statusAndClassifierFields = StatusDatum.FIELDS.append(classifierFields);
+//		LOGGER.info(statusAndClassifierFields);		
+//		LOGGER.info(fetchedDatumFields);		
+//		LOGGER.info(fetchedDatumFieldsWithUrl);		
+		
+		urlFromFetchPipe = new CoGroup(
+				urlFromFetchPipe, statusDatumURLFields,
+				classifyPipe.getClassifierTailPipe(), extendedUrlDatumFields,
+				statusAndClassifierFields, new LeftJoin());
+				
+		urlFromFetchPipe = new Each(urlFromFetchPipe, new CreateUrlDatumFromStatusFunction());
+		//Finally, these URLs as well as the extracted links are converted to CrawlDbDatums. 
+		//Then, we add/update these 2 pipes to the original pipe containing the whole URL
+		//collection when we started this run and we make it unique. The result is the final URL collection that
+		//must be stored as a result of this run.
+		urlFromFetchPipe = new Each(urlFromFetchPipe, new CreateCrawlDbDatumFromUrlFunction());
+		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe,new CreateCrawlDbDatumFromUrlFunction());
+		Pipe finishedDatumsPipe = new GroupBy(
+				Pipe.pipes(
+						finishedDatumsFromDbPipe, 
+						urlFromFetchPipe,
+						urlFromOutlinksPipe),
+				new Fields(CrawlDbDatum.URL_FIELD));
+				//new Fields(StatusDatum.URL_FIELD));
+		
+		finishedDatumsPipe = new Every(finishedDatumsPipe, new MakeDistinctCrawlDbFunction(),Fields.RESULTS);
+		
+		// Create the output map that connects each tail pipe to the appropriate sink.
+		Map<String, Tap> sinkMap = new HashMap<String, Tap>();
+		sinkMap.put(finalContentPipe.getName(), contentSink);
+		sinkMap.put(finalParsePipe.getName(), parseSink);
+		sinkMap.put(ClassifierPipe.CLASSIFIER_PIPE_NAME, classifierSink);
+		sinkMap.put(finishedDatumsPipe.getName(), loopCrawldbSink);
+
+		// LOGGER.info(classifierFields);
+		// LOGGER.info(statusAndClassifierFields);		
+
+		// Finally we can run it.
+		FlowConnector flowConnector = new FlowConnector(props);
+
+		Flow flow = flowConnector.connect(inputSource, sinkMap/*, statusOutputPipe*/, finalContentPipe, finalParsePipe,
+				classifyPipe.getClassifierTailPipe()//, 
+				,finishedDatumsPipe
+				);
+		
+		return flow;
+	}
+	
+	
 }

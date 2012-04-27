@@ -373,7 +373,7 @@ public class Classifier implements Serializable{
 			int qq=0;
 			for (int nn=0;nn<termpos.size();nn++){
 				qq = Integer.parseInt(termpos.get(nn));
-				System.out.println(str.subSequence(qq, qq+30));				
+				//System.out.println(str.subSequence(qq, qq+30));				
 			}
 			if (matches>0){
 				if (weight>0.0){

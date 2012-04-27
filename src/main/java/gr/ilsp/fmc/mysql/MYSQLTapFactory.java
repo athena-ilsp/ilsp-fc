@@ -190,7 +190,7 @@ public class MYSQLTapFactory {
             JobConf jobConf;
             try {
                 jobConf = HadoopUtils.getDefaultJobConf();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new RuntimeException("Unable to get default job conf: " + e);
             }
             //String db = IN_MEM_DB;
