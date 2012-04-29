@@ -9,6 +9,40 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<id>Vassilis</id>
+			<name>Papavassiliou</name>
+			<email>vpapa@ilsp.gr</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>Nikos</id>
+			<name>Mastropavlos</name>
+			<email>nmastr@ilsp.gr</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>Prokopis</id>
+			<name>Prokopidis</name>
+			<email>prokopis@ilsp.gr</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
 	<repositories>
 		<repository>
 			<id>Bixo</id>
@@ -158,4 +192,9 @@
 		<name>ILSP</name>
 		<url>http://www.ilsp.gr</url>
 	</organization>
+	<issueManagement>
+		<system>Redmine</system>
+		<url>http://nlp.ilsp.gr/projects/ilsp-fc/issues/</url>
+	</issueManagement>
+	<inceptionYear>2010</inceptionYear>
 </project>
