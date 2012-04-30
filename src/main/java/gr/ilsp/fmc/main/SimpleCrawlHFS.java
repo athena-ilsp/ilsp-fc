@@ -601,16 +601,26 @@ public class SimpleCrawlHFS {
 	} 
 	
 
-	//vpapa
-	private static boolean check_evol(ArrayList<int[]> storVis) {
-		boolean to_continue = false;
-		int runs = storVis.size();
+	/**
+	 * @param stor_vis Array of stored and visited pages per run
+	 * @return true if no new links to follow exist and crawl has to stop. 
+	 */
+	private static boolean check_evol(ArrayList<int[]> stor_vis) {
+		boolean stop_crawl = false;
+		int runs = stor_vis.size();
 		if (runs>1){ //two runs at least 
-			if (storVis.get(runs-1)[1]==storVis.get(runs-2)[1]){
-				to_continue=true;
+			if (stor_vis.get(runs-1)[1]==stor_vis.get(runs-2)[1]){
+				stop_crawl=true;
 			}
 		}
-		return to_continue;
+		
+		if (runs==1) {
+			if (stor_vis.get(0)[1] == 0 ) {
+				stop_crawl=true;				
+			}
+		}
+		
+		return stop_crawl;
 	}
 
 	public static void incrementPagesStored() {
