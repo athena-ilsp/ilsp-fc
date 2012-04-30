@@ -108,10 +108,12 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             } else {
             	content = NumWordsRulesExtractor.INSTANCE.getText(reader);
             }
+            reader.close();
+            
             //Remove all consecutive occasions of whitespace characters 
             //content = content.replaceAll("(\\s|\\xA0){2,}", " ");
             content = ContentNormalizer.normalizeText(content);
-            
+
             return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, /*_contentExtractor.getContent()*/content, lang,
                             _metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
         } catch (Exception e) {
