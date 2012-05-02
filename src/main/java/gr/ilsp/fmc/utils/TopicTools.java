@@ -58,11 +58,13 @@ public class TopicTools {
 				BufferedReader in = new BufferedReader(new InputStreamReader(fs.open(p),"UTF-8"));
 				//BufferedReader in = new BufferedReader(new FileReader(temp));
 				//vpapa
-				String str, a, b, c, d="";
+				String str, a, b, c, d, b_or="";
 				String[] langs = lang.split(";");
 				while ((str = in.readLine()) != null) {
-					a=str.subSequence(0, str.indexOf(":")).toString().replaceAll("\\W+","");			    	
-					b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().toLowerCase().trim();					
+					//a=str.subSequence(0, str.indexOf(":")).toString().replaceAll("\\W+","");
+					a=str.subSequence(0, str.indexOf(":")).toString().trim();
+					b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().toLowerCase().trim();
+					b_or=b;
 					//vpapa
 					int ind=str.indexOf(">");
 					if (langs.length>1){
@@ -97,7 +99,25 @@ public class TopicTools {
 						c=str.subSequence(str.indexOf("=")+1, str.indexOf(">")).toString();
 					else
 						c=str.subSequence(str.indexOf("=")+1, str.length()).toString();
-					topic.add(new String[] {a,b,c,d});
+					Boolean flag=true;
+					String[] tempstr = new String[1];
+					for (int jj=0;jj<topic.size();jj++){
+						tempstr=topic.get(jj);
+						if (tempstr[1].equals(b) & tempstr[3].equals(d)){
+							double a1=Math.round((Double.parseDouble(a)+Double.parseDouble(tempstr[0]))/2);
+							a=Integer.toString((int)a1);
+							//tempstr[0]=a;
+							//tempstr[0]=a;
+							b_or=tempstr[4];
+							flag=false;
+							topic.remove(jj);
+							topic.add(new String[] {a,b,c,d,b_or});
+						}
+					}
+					if (flag){
+						topic.add(new String[] {a,b,c,d,b_or});
+					}
+					//topic.add(new String[] {a,b,c,d});
 				}
 				in.close();
 				
@@ -131,6 +151,18 @@ public class TopicTools {
 		//System.out.println("The topic definition contains: "+topic.size() +" terms.");
 		return topic;
 	}
+	
+	public static ArrayList<String> analyzeTopicALL(ArrayList<String[]> topic) {
+		ArrayList<String> topic_all = new ArrayList<String>();
+		String[] tempstr = new String[1];
+		for (int jj=0;jj<topic.size();jj++){
+			tempstr = topic.get(jj);
+			topic_all.add(tempstr[4]);
+		}
+		return topic_all;
+	}
+	
+	
 	public static ArrayList<String> analyze(String text, String lang) throws IOException  {
 		ArrayList<String> stems = new ArrayList<String>();
 		if (lang.equals("lv")) {
