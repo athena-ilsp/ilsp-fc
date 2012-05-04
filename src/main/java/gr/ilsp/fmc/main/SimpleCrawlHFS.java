@@ -493,12 +493,17 @@ public class SimpleCrawlHFS {
 				se.setHTMLOutput(options.getOutputFileHTML()!=null);
 				se.export(false);
 			}
+			// Finished exporting. Now remove (near) duplicates
+			//DedupMD5.dedup(outputPath.toString(), options.getOutputFile(),options.getOutputFileHTML());
+			DedupMD5.dedup(crawlDbPath.getParent().getParent().toString(), options.getOutputFile(),options.getOutputFileHTML());
+			//DedupMD5.dedupNew(crawlDbPath.getParent().getParent().toString(), options.getOutputFile(),options.getOutputFileHTML());
 			//vpapa
-			// Finished exporting. Now detect candidate parallel documents if needed.
+			// Now detect candidate parallel documents if needed.
 			//if (options.getLanguage().contains(";")){
 			if (options.getType().equals("p")){	
 				String[][] AAA;
 				try {
+					//File xmldir = new File(options.getOutputDir()+fs1+"xml");
 					File xmldir = new File(options.getOutputDir()+fs1+"xml");
 					AAA = Bitexts.representXML(xmldir);
 					//System.out.println("Files found: "+AAA.length);
