@@ -426,6 +426,10 @@ public class SimpleCrawlHFS {
 					endLoop = curLoop + 1;
 				}
 				//vpapa: checking if nums of stored/visited have changed. If not, crawling is terminated.
+				if (check_evol1(stor_vis)){
+					LOGGER.info("Seed page was not visited. So no new links to follow");
+					System.exit(64);
+				}
 				if (check_evol(stor_vis)){
 					LOGGER.info("No new links to follow, ending crawl.");
 					long duration = System.currentTimeMillis()-startTime;
@@ -605,6 +609,21 @@ public class SimpleCrawlHFS {
 		}
 	} 
 	
+	/**
+	 * @param stor_vis Array of stored and visited pages per run
+	 * @return true if first run failed to visit the seed URLs. 
+	 */
+	private static boolean check_evol1(ArrayList<int[]> stor_vis) {
+		boolean stop_crawl = false;
+		int runs = stor_vis.size();
+		if (runs==1) {
+			if (stor_vis.get(0)[1] == 0 ) {
+				stop_crawl=true;				
+			}
+		}
+		return stop_crawl;
+	}
+
 
 	/**
 	 * @param stor_vis Array of stored and visited pages per run
@@ -618,13 +637,6 @@ public class SimpleCrawlHFS {
 				stop_crawl=true;
 			}
 		}
-		
-		if (runs==1) {
-			if (stor_vis.get(0)[1] == 0 ) {
-				stop_crawl=true;				
-			}
-		}
-		
 		return stop_crawl;
 	}
 
