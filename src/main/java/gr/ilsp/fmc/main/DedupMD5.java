@@ -87,7 +87,8 @@ public class DedupMD5 {
 		}
 		//else
 		//	System.out.println(files.length+" files will be processed.");
-		long start = System.nanoTime(); 
+		//long start = System.nanoTime(); 
+		long start = System.currentTimeMillis();
 		String text="";
 		HashMap<String, TextAttr> freqs = new HashMap<String, TextAttr>();
 		byte[] texthashkey =null;
@@ -159,10 +160,10 @@ public class DedupMD5 {
 			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList);
 		}
 
-		long elapsedTime = System.nanoTime() - start;
+		long elapsedTime = System.currentTimeMillis()-start;
 		//System.out.println(counter + " files remained."); 
 		//System.out.println("Duration: "+elapsedTime);
-		LOGGER.info("Deduplication completed in " + elapsedTime + "milliseconds. "+ counter +  " files remained.");
+		LOGGER.info("Deduplication completed in " + elapsedTime + " milliseconds. "+ counter +  " files remained.");
 	}
 	
 	
