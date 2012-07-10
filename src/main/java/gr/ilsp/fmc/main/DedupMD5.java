@@ -95,7 +95,7 @@ public class DedupMD5 {
 		HashMap<String, TextAttr> freqs = new HashMap<String, TextAttr>();
 		byte[] texthashkey =null;
 		String string_key="";
-		String pairs="";
+		//String pairs="";
 		
 		//String tempfile="";
 		for (int ii=0;ii<files.length;ii++){
@@ -110,7 +110,7 @@ public class DedupMD5 {
 			TextAttr t= new TextAttr(text.length(),files[ii].getName());
 			if (freqs.containsKey(string_key)) {
 				
-				pairs = pairs + t.filename+ "\t\t" + freqs.get(string_key).filename + "\n";
+				//pairs = pairs + t.filename+ "\t\t" + freqs.get(string_key).filename + "\n";
 				if (t.length>freqs.get(string_key).length){
 					//System.out.println("OUT"+"\t"+freqs.get(string_key).filename);
 					freqs.put(string_key, t);
@@ -131,6 +131,7 @@ public class DedupMD5 {
 				freqs.put(string_key, t);
 			}
 		}
+		//System.out.println(pairs);
 		Set<String> keys=freqs.keySet();
 		Iterator<String> it = keys.iterator();
 		String urlList = "";
