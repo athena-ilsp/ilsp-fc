@@ -20,7 +20,7 @@ import gr.ilsp.fmc.pipes.ClassifierPipe;
 import gr.ilsp.fmc.pipes.ExtendedParsePipe;
 import gr.ilsp.fmc.utils.CrawlConfig;
 
-import java.io.File;
+//import java.io.File;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -84,6 +84,7 @@ public class SimpleCrawlHFSWorkflow {
 	//vpapa
 	private static String _subfilter;
 	private static String _inithost;
+	private static String _mainhost;
 	private static String _targlang;
 	private static String _type;
 	//hostsMap and newHostsMap represent the pairs of hosts-occurences globally and per-run respectively
@@ -114,7 +115,8 @@ public class SimpleCrawlHFSWorkflow {
 						
 		@Override
 		public boolean isLHS(TupleEntry tupleEntry) {			
-			if (_numSelected>=BUFFER_SIZE) return false;
+			if (_numSelected>=BUFFER_SIZE) 
+				return false;
 			CrawlDbDatum datum = new CrawlDbDatum(tupleEntry);
 			UrlStatus status = datum.getLastStatus(); 
 			URL url = null;
@@ -125,15 +127,18 @@ public class SimpleCrawlHFSWorkflow {
 			
 			try {
 				url = new URL(datum.getUrl());
+				//System.out.println("tested: "+url);
 				host = url.getHost();
 				//vpapa added this to force crawler stay in web site 
 				if (_type.equals("p")){
 					String temp1 = url.getAuthority()+url.getFile();
+					temp1 = temp1.substring(0,temp1.indexOf("/"));
 					if (temp1.substring(0, 3).equals("www")){
 						temp1=temp1.substring(4);
 					}
 					int ind2=temp1.toString().indexOf(_inithost);
-					if (ind2>3)
+					int ind3=temp1.toString().indexOf(_mainhost);
+					if (ind2>3 || ind3<0 || ind3>3)
 						return false;
 					if (ind2>0){
 						String temp2=temp1.substring(0, ind2);
@@ -158,7 +163,8 @@ public class SimpleCrawlHFSWorkflow {
 					}
 				}
 				hostHash = url.getHost().hashCode();				
-				count = hostsMap.get(hostHash);				
+				count = hostsMap.get(hostHash);		
+				//System.out.println("selected: "+url);
 			} catch (MalformedURLException e1) {
 				LOGGER.error(e1.getMessage());
 			} 
@@ -404,6 +410,7 @@ public class SimpleCrawlHFSWorkflow {
 		String initial_host = options.getDomain();
 		_subfilter=subfilter;
 		_inithost = initial_host;
+		_mainhost=options.getMainDomain();
 		String language = options.getLanguage();
 		_targlang = language;
 		_type =options.getType();
@@ -515,7 +522,10 @@ public class SimpleCrawlHFSWorkflow {
 		//The links scored by the classifier are handled be the urlFromOutlinksPipe
 		Pipe urlFromOutlinksPipe = new Pipe("url from outlinks", classifyPipe.getScoredLinksTailPipe());
 		//Outlinks are filtered and normalized
-		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter));
+		//if (_mainhost==null)
+		//	urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter));
+		//else
+			urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter, _mainhost));
 		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedNormalizeUrlFunction(new SimpleUrlNormalizer()));
 		
 		//The second pipe returned from the fetcher, is assigned to urlFromFetchPipe.
