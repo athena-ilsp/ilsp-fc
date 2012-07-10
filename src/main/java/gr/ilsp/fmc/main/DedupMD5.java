@@ -53,12 +53,14 @@ public class DedupMD5 {
 
 	public static void dedup(String indirname, String outputfilename, String outputHTMLfilename){
 		//modify indirname to be valid for windows
-		String temp = indirname+"/xml";
+		String temp = indirname+fs+"xml";
 		int tempid=temp.indexOf(":");
-		if (tempid<0)
+		if (tempid<0 || tempid<2)
 			input= new File(temp);
 		else
 			input= new File(temp.substring(tempid+2, temp.length()));
+		
+		System.out.println(input.getAbsolutePath());
 		if (!input.exists() || !input.isDirectory()){
 			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
 			System.exit(64);
@@ -368,7 +370,8 @@ public class DedupMD5 {
 		return MD5Hash.digest(newText.toString()).getDigest();
 	}
 
-	private static String extractTextfromXML_clean(String inputString) {
+	//private static String extractTextfromXML_clean(String inputString) {
+	public static String extractTextfromXML_clean(String inputString) {
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
