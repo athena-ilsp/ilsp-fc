@@ -257,8 +257,9 @@ public class SampleExporter {
 				ArrayList<String[]> topic = null;
 				if (topicFile!=null) {
 					topic=TopicTools.analyzeTopic(topicFile,language, conf);
-					topicTermsAll = TopicTools.analyzeTopicALL(topicFile);
+					//topicTermsAll = TopicTools.analyzeTopicALL(topicFile);
 					//topicTermsAll1 =TopicTools.getTopicTerms(topic);
+					topicTermsAll = TopicTools.analyzeTopicALL(topic);
 				}
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
 					id = exportToXml(conf,curDirPath,language, id,topic);
@@ -287,22 +288,25 @@ public class SampleExporter {
 				//vpapa
 				if (html){
 					//String outputfile1 = outputFile+".html";
-					String outputfile1 =outputFileHTML;
-					OutputStreamWriter xmlFileListWrt1;
-					xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputfile1),"UTF-8");
-					xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+					if (xmlFiles.size()>0){
+						String outputfile1 =outputFileHTML;
+						OutputStreamWriter xmlFileListWrt1;
+						xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputfile1),"UTF-8");
+						xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 
-					for (String xmlFile: xmlFiles) {
-						//vpapa added this just for development on windows
-						String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
-						ttt=ttt.substring(ttt.indexOf("http:"));
-						ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
-						//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
-						xmlFileListWrt1.write("<br />"+ttt);
-						//xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
+						for (String xmlFile: xmlFiles) {
+							//vpapa added this just for development on windows
+							String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
+							ttt=ttt.substring(ttt.indexOf("http:"));
+							ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
+							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
+							xmlFileListWrt1.write("<br />"+ttt);
+							//xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
+						}
+
+						xmlFileListWrt1.write("</html>");
+						xmlFileListWrt1.close();
 					}
-					xmlFileListWrt1.write("</html>");
-					xmlFileListWrt1.close();
 					//System.exit(0);
 				}
 			}
@@ -1071,8 +1075,8 @@ public class SampleExporter {
 				}							
 			} catch (Exception e) {
 				LOGGER.error("Could not write file with id " + temp_id);	
-				LOGGER.error(e.getMessage());
-				e.printStackTrace();
+				//LOGGER.error(e.getMessage());
+				//e.printStackTrace();
 				return false;
 			}
 			xtw.writeEndElement();
@@ -1184,8 +1188,8 @@ public class SampleExporter {
 			Matcher matcher = pattern.matcher(" "+par_text+" ");
 			if (matcher.find() & weight>0){
 				//found=found+";"+topic_termsALL.get(ii); 
-				found=found+";"+term; 
-				
+				//found=found+";"+term; 
+				found=found+";"+tempstr[4];
 			}
 		}
 		if (!found.isEmpty())
