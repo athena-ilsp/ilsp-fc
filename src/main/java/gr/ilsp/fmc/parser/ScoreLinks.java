@@ -68,12 +68,19 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 		double vv=datum.getTupleEntry().getDouble(ClassifierDatum.TOTABSCORE);
 		//String vpvp= datum.getUrl();
 		
-		if (score>0.0) crawlDepth = -1;		
+		
+		//vpapa added this for tunneling reasons when crawling without topic
+		if (_classifier.getTopic()!=null){ 
+			if (score>0.0) 
+				crawlDepth = -1;
+		}else
+			crawlDepth = -1;
+		//if (score>0.0) crawlDepth = -1;
+		
 		if (crawlDepth<_classifier.getMaxDepth()) {
 			datum.setPayloadValue(CrawlDbDatum.CRAWL_DEPTH, crawlDepth + 1);        
 			TupleEntryCollector collector = funcCall.getOutputCollector();
 			//ExtendedUrlDatum[] datums = new ExtendedUrlDatum[outlinks.length];
-			
 			//System.out.print(vpvp+"\t");
 			//System.out.print("OUTLINKS: "+outlinks.length+"\t");
 			//System.out.println("SCORE: "+vv);
@@ -90,7 +97,6 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 				double linkScore = 0.0;
 				//if (_filter!=null)
 				//if (url.contains("europa.eu/legislation_summaries/")){
-				
 				if (_classifier.getTopic()!=null){ 
 					linkScore = _classifier.rankLink(linktext, linktext1,pagelang,vv);
 					//linkScore += _classifier.rankLink(linktext1,pagelang,vv);
@@ -100,6 +106,8 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 						//System.out.println(linktext);
 					//}
 					//linkScore = linkScore+_classifier.rankLink1(url);
+				}else{
+					linkScore = _classifier.rankLinkNotopic(linktext, linktext1,pagelang,vv);
 				}
 				//System.out.println(linktext);
 				//if (linkScore>=2500){
@@ -114,10 +122,12 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 				resultDatum.setPayload(datum.getPayload());           
 				resultDatum.setScore(score + linkScore);    
 				collector.add(resultDatum.getTuple());
-				
 				_flowProcess.increment(ScoreLinksCounters.SCORING_LINKS_NUMBER, 1);
 			}
-		} else _flowProcess.increment(ScoreLinksCounters.SCORING_LINKS_TUNNEL_REJECTED,outlinks.length);
+		} else{
+			//System.out.println("SCORING_LINKS_TUNNEL_REJECTED:"+ScoreLinksCounters.SCORING_LINKS_TUNNEL_REJECTED.toString());
+			_flowProcess.increment(ScoreLinksCounters.SCORING_LINKS_TUNNEL_REJECTED,outlinks.length);
+		}
 		_flowProcess.increment(ScoreLinksCounters.SCORING_LINKS_TIME, (int)(System.currentTimeMillis()-time));
 		//System.out.println("EXTRACTION FINISHED");
 	}
