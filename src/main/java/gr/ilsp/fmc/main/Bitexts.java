@@ -1,7 +1,5 @@
 package gr.ilsp.fmc.main;
 //vpapa
-
-//import java.io.BufferedInputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -19,7 +17,16 @@ import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.StringTokenizer;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.hadoop.fs.Path;
@@ -28,6 +35,10 @@ import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
 import org.codehaus.stax2.XMLStreamWriter2;
 import org.codehaus.stax2.evt.XMLEvent2;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class Bitexts {
 	private static final String cesDocVersion = "1.0";
@@ -40,27 +51,43 @@ public class Bitexts {
 	private static String fs = System.getProperty("file.separator");
 	//private final static String appendXmlExt = ".xml";
 	//private final static double term_thresh=0.5;
-	private static final String URL_ELE = "eAddress";
 	//private static int diagonal_beam=5;
+	private static final String URL_ELE = "eAddress";
 	private static double text_thres=0.4;
 	private static double length_thres=0.4;
 	private static double pars_thres=0.4;
 	private static int level_thres=2;
+	private static double jac_thr=0.5;
+	private static int im_dif_thr=3;
+
 
 	public static void main(String[] args) {
-		File xmldir=new File("C:\\var\\lib\\tomcat6\\webapps\\soaplab2-results\\7ea10bac-c81d-413c-b0b4-fc98faa6cea9\\xml");
-		try {
-			String[][] CCC=representXML(xmldir);
+		//File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\AUTO_DE-EN\\voithcom\\e38ec81f-630d-44b0-8d20-8b6c1ff07170\\xml");
+		File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\HS_DE-IT\\temp");
+		try {	
+			//String[][] CCC=representXML(xmldir);
+			HashMap<String,String[]> props=representXML_NEW(xmldir);
+			HashMap<String,String[]> props_short =new HashMap<String,String[]>();
+			HashMap<String, String[]> imagesInHTML=ImageExtractor.findImages(xmldir,false);
+			ArrayList<String[]> pairsIM=new ArrayList<String[]>();
+			if (imagesInHTML.size()>1){
+				pairsIM=findpairsIM(imagesInHTML,props);
+				System.out.println("Pairs found: "+pairsIM.size());
+				props_short = excludepairsIM(pairsIM,props);
+			}
+
 			double[][] sv=Bitexts.readRes("SVs19_last.txt");
 			double[][] b=Bitexts.readRes("B19_last.txt");
 			double[][] w=Bitexts.readRes("Ws19_last.txt");
-			ArrayList<String[]> pairs  = Bitexts.findpairsXML_SVM(xmldir,CCC,sv,w,b);
-			//ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM(pairs);
-			ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM_NEW(pairs);
-			for (int ii=0;ii<bitexts.size();ii++){
-				
-			}
-			
+			//ArrayList<String[]> pairs  = Bitexts.findpairsXML_SVM(xmldir,CCC,sv,w,b);
+			ArrayList<String[]> pairs_new  = Bitexts.findpairsXML_SVM_NEW(xmldir,props_short,sv,w,b);
+			ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM_NEW(pairs_new);
+			//System.out.println("END");
+			String stats[]=Bitexts.calcStats(props, props_short, pairsIM, bitexts);
+			System.out.println("Tokens in "+stats[0] +" : "+ stats[1]);
+			System.out.println("Tokens in "+stats[2] +" : "+ stats[3]);
+			for (int ii=0;ii<bitexts.size();ii++)
+				System.out.println(bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (XMLStreamException e) {
@@ -69,6 +96,323 @@ public class Bitexts {
 			e.printStackTrace();
 		}
 	}
+
+
+
+	public static HashMap<String, String[]> excludepairsIM(ArrayList<String[]> pairsIM, HashMap<String, String[]> props) {
+		HashMap<String, String[]> props_short=new HashMap<String, String[]>();
+		Set<String> files_im_keys=props.keySet();
+		Iterator<String> files_im_it = files_im_keys.iterator();
+		String key_im = "";
+		while (files_im_it.hasNext()){
+			key_im = files_im_it.next();
+			props_short.put(key_im, props.get(key_im));
+		}
+		for (int ii=0;ii<pairsIM.size();ii++){
+			String[] temp = pairsIM.get(ii);
+			props_short.remove(temp[0]);
+			props_short.remove(temp[1]);
+		}
+		return props_short;
+	}
+
+
+
+	public static ArrayList<String[]> findpairsXML_SVM_NEW(File xmldir,HashMap<String, String[]> props, double[][] sv, double[][] w,
+			double[][] b) {
+		ArrayList<String[]> pairs = new ArrayList<String[]>();
+
+		Set<String> files_keys=props.keySet();
+		Iterator<String> files_it = files_keys.iterator();
+		String key1, key2;
+		while (files_it.hasNext()){
+			key1 = files_it.next();
+			if (Bitexts.readlist(xmldir.getPath()+ fs+key1+".xml.txt")==null){
+				//AAA[ii][0]="";
+				String[] fileprops = props.get(key1);
+				fileprops[0]="";
+				props.put(key1, fileprops);
+			}
+		}
+		files_it = files_keys.iterator();
+		ArrayList<String> already_tested=new ArrayList<String>();
+		while (files_it.hasNext()){
+			key1 = files_it.next();
+			//System.out.println(key1);
+			String[] fileprops = props.get(key1);
+			if (fileprops[0].isEmpty()) continue;
+			String sf = key1;
+			int sf_level = Integer.parseInt(fileprops[0]);
+			int[] sl =readlist(xmldir.getPath()+ fs+sf+".xml.txt");
+			int sflength =0;
+			for (int mm=0;mm<sl.length;mm++){
+				if (sl[mm]>0)
+					sflength = sflength+sl[mm];
+			}
+			double sl_length = Double.parseDouble(Integer.toString(sl.length));
+			double sl_par = Double.parseDouble(fileprops[2]);
+			double dist;
+			double res=0.0;
+			already_tested.add(key1);
+			Iterator<String> files_it2 = files_keys.iterator();
+
+			while (files_it2.hasNext()){
+				key2 = files_it2.next();
+				if (already_tested.contains(key2)) continue;
+				String[] fileprops2 = props.get(key2);
+				if (fileprops2[0].isEmpty()) continue;
+				String tf = key2;
+				double tl_par = Double.parseDouble(fileprops2[2]);
+				if (!fileprops[1].equals(fileprops2[1]) & Math.abs(sf_level-Integer.parseInt(fileprops2[0]))<level_thres 
+						& (Math.abs(sl_par-tl_par)/Math.max(sl_par, tl_par))<pars_thres) {
+
+					int[] tl =readlist(xmldir.getPath()+ fs+tf+".xml.txt");
+					double tl_length = Double.parseDouble(Integer.toString(tl.length));
+					if (Math.abs(sl_length-tl_length)/Math.min(sl_length,tl_length)<=length_thres
+							|| (Math.abs(sl_length-tl_length)<10)){
+						dist= Double.parseDouble(Integer.toString(editDist(sl,tl)));
+						double f1=0.0, f2=0.0, f3=0.0;
+						if (tl_length>=sl_length){
+							f1 = sl_length/tl_length;
+							f3=dist/tl_length;
+							//if (f1>0.9)
+							//	f3=0.6*dist/tl_length;
+						}
+						else{
+							f1 = tl_length/sl_length;
+							f3=dist/tl_length;
+							//if (f1>0.9)
+							//	f3=0.6*dist/tl_length;
+						}
+						if (tl_par>=sl_par){
+							f2=sl_par/tl_par;
+						}else{
+							f2=tl_par/sl_par;
+						}
+						if (f3>=0.3 || f1<=0.7 || f2<=0.7)
+							res=-1;
+						else
+							res=SVM_test(f1,f2,f3,sv,w,b,19.0);
+						if (res>0){
+							res=Math.abs(res);
+							double inv_res=1/res;
+							int tflength =0;
+							for (int mm=0;mm<tl.length;mm++){
+								if (tl[mm]>0)
+									tflength = tflength+tl[mm];
+							}
+							String pairlength = Integer.toString(tflength+sflength);
+							pairs.add(new String[] {sf,tf,fileprops[1],fileprops2[1],Double.toString(inv_res),pairlength});
+						}
+					}
+				}
+			}
+		}
+		return pairs;
+	}
+
+	public static ArrayList<String[]> findpairsIM(HashMap<String, String[]> imagesInHTML,HashMap<String, String[]> props) {
+		ArrayList<String[]> pairsIM=new ArrayList<String[]>();
+
+		Set<String> files_im_keys=imagesInHTML.keySet();
+		Iterator<String> files_im_it = files_im_keys.iterator();
+		String key_im, key;
+		String temp_pair="";
+		//ArrayList<String> paired=new ArrayList<String>();
+		while (files_im_it.hasNext()){
+			key_im = files_im_it.next();
+			//if (paired.contains(key_im)) continue;
+			if (props.get(key_im)==null) continue;
+			String lang1=props.get(key_im)[1];
+			Set<String> mySet1 = new HashSet<String>();
+			if (imagesInHTML.get(key_im)==null)
+				continue;
+			Collections.addAll(mySet1, imagesInHTML.get(key_im));
+			if (mySet1.isEmpty()) continue;
+			Set<String> all_files_keys=props.keySet();
+			Iterator<String> all_files_it = all_files_keys.iterator();
+			//ArrayList<String> temp_paired=new ArrayList<String>();
+			//ArrayList<Double> temp_paired_scores=new ArrayList<Double>();
+			temp_pair="";
+			double temp_pair_score=0.0;
+			String temp_lang=null;
+			while (all_files_it.hasNext()){
+				key = all_files_it.next();
+				//if (paired.contains(key)) continue;
+				if (props.get(key)==null) continue;
+				String lang2=props.get(key)[1];
+				if (!lang1.equals(lang2)){
+					Set<String> mySet2 = new HashSet<String>();
+					if (imagesInHTML.get(key)==null)
+						continue;
+					Collections.addAll(mySet2, imagesInHTML.get(key));
+					if (mySet2.isEmpty()) continue;
+					Set intersection = new HashSet(mySet1);
+					intersection.retainAll(mySet2);
+					if (Math.abs(mySet2.size()-mySet1.size())<im_dif_thr){
+						double t1=Double.parseDouble(Integer.toString(intersection.size()));
+						double t2=Double.parseDouble(Integer.toString((mySet1.size()+mySet2.size()-intersection.size())));
+						double jac=t1/t2;
+						double p1=Double.parseDouble(props.get(key_im)[0]);
+						double p2=Double.parseDouble(props.get(key)[0]);
+						double tok1=Double.parseDouble(props.get(key_im)[3]);
+						double tok2=Double.parseDouble(props.get(key)[3]);
+						double dist=0.0;
+						double disttok=0.0;
+						if (p1>p2) dist=p2/p1; else dist=p1/p2;
+						if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
+						if (jac>=jac_thr && dist>=0.7 && disttok > 0.1){ //
+							//System.out.println(key_im +"_im:"+mySet1.size()+"-----"+key+"_im:"+mySet2.size()+"_"+jac);
+							if (jac*dist>temp_pair_score){
+								temp_pair=key;
+								temp_pair_score=jac*dist;
+								//System.out.println(key_im+"->"+key+" with "+disttok);
+							}
+							temp_lang=lang2;
+						}
+					}
+				}
+			}
+			//if (temp_paired.size()==1){
+			if (!temp_pair.isEmpty()){
+				//	paired.add(key_im);
+				//	paired.add(temp_paired.get(0));
+				pairsIM.add(new String[] {key_im,temp_pair,lang1, temp_lang});
+				//System.out.println(key_im+"_"+temp_pair);
+			}
+		}
+		ArrayList<String[]> result=new ArrayList<String[]>();
+		for (int ii=0;ii<pairsIM.size();ii++){
+			String temp1=pairsIM.get(ii)[0];
+			String temp2=pairsIM.get(ii)[1];
+			for (int jj=ii+1;jj<pairsIM.size();jj++){
+				if (pairsIM.get(jj)[1].equals(temp1) && pairsIM.get(jj)[0].equals(temp2)){
+					result.add(new String[] {temp1,temp2,pairsIM.get(ii)[2], pairsIM.get(ii)[3],"im"});
+					//System.out.println(temp1+"_"+temp2);
+				}
+			}
+		}
+		return result;
+	}
+
+
+	public static HashMap<String, String[]> representXML_NEW(File xmldir) throws FileNotFoundException, XMLStreamException {
+		FilenameFilter filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.substring(arg1.length()-4).equals(".xml"));
+			}
+		};
+		String[] files= xmldir.list(filter);
+		HashMap<String, String[]> res=new HashMap<String, String[]>();
+		String url="", lang="", curElement="";
+		for (int ii=0; ii<files.length ; ii++){
+			String[] temp_res = new String[4];
+			String tempstr="";
+			int pcounter=0;
+			OutputStreamWriter xmlFileListWrt = null;
+			try {
+				xmlFileListWrt = new OutputStreamWriter(new FileOutputStream
+						(xmldir.getPath()+fs+files[ii]+".txt"),"UTF-8");
+				int eventType=0;
+				XMLInputFactory2 xmlif = null;
+				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
+				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,
+						Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,
+						Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
+				xmlif.configureForSpeed();
+				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.
+						createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+files[ii]),"UTF-8");
+				while (xmlr.hasNext()) {
+					eventType = xmlr.next();
+					if (eventType == XMLEvent2.START_ELEMENT){
+						curElement = xmlr.getLocalName().toString();
+						if (curElement.equals(LANGUAGE_ELE)) {
+							lang=xmlr.getAttributeValue(0);
+							temp_res[1]=lang;
+						}else{
+							if (curElement.equals(URL_ELE)){
+								if (xmlr.getAttributeCount()<1){
+									url=xmlr.getElementText();
+									int k=0, level=0, ind=0;
+									while (k<url.length()){
+										ind=url.indexOf("/", k);
+										if (ind>0){
+											k = ind+1;
+											level=level+1;
+										}else
+											k=url.length();
+									}
+									if (url.endsWith("/"))
+										level=level-1;
+									level=level-2; 
+									temp_res[0]=Integer.toString(level);
+								}
+							}else{
+								if (curElement.equals("p")){
+									pcounter=pcounter+1;
+									int attrs=xmlr.getAttributeCount();
+
+									int t=-1, t1=0;
+									for (int m=1;m<attrs;m++){
+										if (xmlr.getAttributeValue(m).equals("boilerplate")){
+											t=0; 
+											break;
+										}
+										if (xmlr.getAttributeValue(m).equals("title"))
+											t=-2; 
+										if (xmlr.getAttributeValue(m).equals("heading"))
+											t=-3; 
+										if (xmlr.getAttributeValue(m).equals("listitem"))
+											t=-4;
+										if (xmlr.getAttributeLocalName(m).equals("topic")){
+											//topic=true;
+											t1=-5;
+										}
+									}
+									if (t<0){
+										if (t==-2)
+											xmlFileListWrt.write("-2"+"\n");
+										if (t==-3)
+											xmlFileListWrt.write("-3"+"\n");
+										if (t==-4)
+											xmlFileListWrt.write("-4"+"\n");
+									}
+									if (t1<0)
+										xmlFileListWrt.write("-5"+"\n");	
+									if (t<0 | t1<0) {
+										String tempstr1 = xmlr.getElementText();
+										//int temp = xmlr.getElementText().length();
+										int temp = tempstr1.length();
+										xmlFileListWrt.write(Integer.toString(temp)+"\n");
+										tempstr = tempstr+ " "+tempstr1;
+									}
+								}
+							}
+						}
+					}else
+						curElement = "";
+				}
+				temp_res[2]=Integer.toString(pcounter);
+				StringTokenizer st = new StringTokenizer(tempstr);	
+				temp_res[3]=Integer.toString(st.countTokens());
+				res.put(files[ii].substring(0, files[ii].indexOf(".")), temp_res);
+				xmlFileListWrt.close();
+				xmlr.close();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}catch (Exception ex) {
+				ex.printStackTrace();
+				System.err.println("Problem in respesenting the "+ files[ii]+" cesDoc file.");
+			}
+		}
+		return res;
+	}
+
+
+
+
 
 	public static String[][] representXML(File xmldir) throws FileNotFoundException, XMLStreamException {
 		FilenameFilter filter = new FilenameFilter() {			
@@ -97,7 +441,7 @@ public class Bitexts {
 				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
 				xmlif.configureForSpeed();
 				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.
-				createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+files[ii]),"UTF-8");
+						createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+files[ii]),"UTF-8");
 				while (xmlr.hasNext()) {
 					eventType = xmlr.next();
 					if (eventType == XMLEvent2.START_ELEMENT){
@@ -232,8 +576,6 @@ public class Bitexts {
 			}
 			double sl_length = Double.parseDouble(Integer.toString(sl.length));
 			double sl_par = Double.parseDouble(AAA[ii][2]);
-			//String filepair="";
-			//String langpair="";
 			double dist;
 			double res=0.0;
 			for (int jj=ii+1; jj<files.length ; jj++){
@@ -252,17 +594,21 @@ public class Bitexts {
 						if (tl_length>=sl_length){
 							f1 = sl_length/tl_length;
 							f3=dist/tl_length;
+							//if (sl_length<15)
+							//	f3=0.8*dist/tl_length;
 						}
 						else{
 							f1 = tl_length/sl_length;
 							f3=dist/tl_length;
+							//if (sl_length<15)
+							//	f3=0.8*dist/tl_length;
 						}
 						if (tl_par>=sl_par){
 							f2=sl_par/tl_par;
 						}else{
 							f2=tl_par/sl_par;
 						}
-						if (f3>=0.30 || f1<=0.7 || f2<=0.7)
+						if (f3>=0.3 || f1<=0.7 || f2<=0.7)
 							res=-1;
 						else
 							res=SVM_test(f1,f2,f3,sv,w,b,19.0);
@@ -460,7 +806,6 @@ public class Bitexts {
 			bitexts.add(new String[] {new_bitexts.get(ii)[0], 
 					new_bitexts.get(ii)[1],new_bitexts.get(ii)[2],new_bitexts.get(ii)[3],"low",new_bitexts.get(ii)[5]});
 		}
-
 		return bitexts;
 	}
 
@@ -476,7 +821,7 @@ public class Bitexts {
 	}*/
 
 
-	public static void writeXMLs(String outdir,ArrayList<String[]> bitexts, boolean cesAlign) throws UnsupportedEncodingException, FileNotFoundException, XMLStreamException{
+	public static void writeXMLs(String outdir,ArrayList<String[]> bitexts, boolean cesAlign) throws XMLStreamException, IOException{
 		for (int ii=0;ii<bitexts.size();ii++){
 			String f1=bitexts.get(ii)[0];
 			String f2=bitexts.get(ii)[1];
@@ -484,10 +829,6 @@ public class Bitexts {
 			String l2=bitexts.get(ii)[3];
 			String confid=bitexts.get(ii)[4];
 			Path outdir1 = new Path(outdir);
-			//String f11="", f22="";
-			//String ff1 = f1.substring(f1.lastIndexOf("/")+1, f1.lastIndexOf("."));
-			//String ff2 = f2.substring(f2.lastIndexOf("/")+1, f2.lastIndexOf("."));
-			//String curXMLName=f1.substring(0, f1.lastIndexOf("/"))+"/"+ff1+"_"+ff2+".xml";
 			String curXMLName= outdir+fs+"xml"+fs+f1+"_"+f2+"_"+confid.substring(0, 1)+".xml";
 
 			XMLOutputFactory2 xof = (XMLOutputFactory2) XMLOutputFactory2.newInstance();
@@ -519,6 +860,7 @@ public class Bitexts {
 			xtw.writeEndDocument();
 			xtw.flush();
 			xtw.close();
+			wrt.close();
 		}
 	}
 
@@ -645,12 +987,9 @@ public class Bitexts {
 			for (int ii=0; ii<files.length ; ii++){
 				//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
 				//out.write(temp+fs+files[ii]+"\n");
-
 				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
 				ttt=ttt.substring(ttt.indexOf("http:"));
 				out.write(ttt+"\n");
-
-
 			}
 			out.close();
 		} catch (IOException e){
@@ -662,8 +1001,9 @@ public class Bitexts {
 			//PrintWriter out = new PrintWriter(outFile);
 			Path outputDirName1=new Path(outputDirName);
 			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile+".html"),"UTF-8"));
-			out.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
-
+			if (files.length>0){
+				out.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");	
+			}
 			for (int ii=0; ii<files.length ; ii++){
 				//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
 				//out.write(temp+fs+files[ii]+"\n");
@@ -672,7 +1012,9 @@ public class Bitexts {
 				ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
 				out.write("<br />"+ttt);
 			}
-			out.write("</html>");
+			if (files.length>0){
+				out.write("</html>");
+			}
 			out.close();
 		} catch (IOException e){
 			System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
@@ -684,6 +1026,7 @@ public class Bitexts {
 		byte[] buffer = new byte[(int) new File(filePath).length()];
 		BufferedInputStream f = new BufferedInputStream(new FileInputStream(filePath));
 		f.read(buffer);
+		f.close();
 		return new String(buffer);
 	}
 
@@ -712,25 +1055,24 @@ public class Bitexts {
 			}
 		}
 		return new_bitexts;
-
 	}
 
-	public static void writeOutList(String outputDirName, String outputFile, String outputFileHTML, ArrayList<String[]> bitexts) {
-		//File xmldir=new File(outputDirName+fs+"xml");
-		//String[] files= xmldir.list(filter);
-		//String temp="";
+
+	public static void writeOutList(String outputDirName, String outputFile, 
+			String outputFileHTML, ArrayList<String[]> bitexts, ArrayList<String[]> bitextsIM) {
 		try {
-			//FileWriter outFile = new FileWriter(outputFile);
-			//PrintWriter out = new PrintWriter(outFile);
 			Path outputDirName1=new Path(outputDirName);
 			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
 			String[] files=new String[bitexts.size()];
 			for (int ii=bitexts.size()-1;ii>-1;ii--){
 				files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-				//}
-				//for (int ii=0; ii<files.length ; ii++){
-				//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
-				//out.write(temp+fs+files[ii]+"\n");
+				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+				ttt=ttt.substring(ttt.indexOf("http:"));
+				out.write(ttt+"\n");
+			}
+			files=new String[bitextsIM.size()];
+			for (int ii=bitextsIM.size()-1;ii>-1;ii--){
+				files[ii]=bitextsIM.get(ii)[0]+"_"+bitextsIM.get(ii)[1]+"_"+bitextsIM.get(ii)[4].substring(0, 1)+".xml";
 				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
 				ttt=ttt.substring(ttt.indexOf("http:"));
 				out.write(ttt+"\n");
@@ -749,10 +1091,15 @@ public class Bitexts {
 				out1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 				String[] files=new String[bitexts.size()];
 				for (int ii=bitexts.size()-1;ii>-1;ii--){
-					//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
-					//out.write(temp+fs+files[ii]+"\n");
 					files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-
+					String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+					ttt=ttt.substring(ttt.indexOf("http:"));
+					ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
+					out1.write("<br />"+ttt);
+				}
+				files=new String[bitextsIM.size()];
+				for (int ii=bitextsIM.size()-1;ii>-1;ii--){
+					files[ii]=bitextsIM.get(ii)[0]+"_"+bitextsIM.get(ii)[1]+"_"+bitextsIM.get(ii)[4].substring(0, 1)+".xml";
 					String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
 					ttt=ttt.substring(ttt.indexOf("http:"));
 					ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
@@ -767,7 +1114,103 @@ public class Bitexts {
 		}
 	}
 
+	public static String extractURLfromXML(String inputString) {
+		String result="";
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db;
+		try {
+			db = dbf.newDocumentBuilder();
+			Document doc = db.parse(inputString);
+			doc.getDocumentElement().normalize();
+			NodeList nodeLstP = doc.getElementsByTagName("eAddress");
+			for(int s=0; s<nodeLstP.getLength() ; s++){
+				Element NameElement = (Element)nodeLstP.item(s);
+				if (!NameElement.hasAttribute("type")){
+					result+=NameElement.getTextContent();
+					break;
+				}
+			}
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 
+
+	public static String readfile(File txtfile) {
+		String str=null, text=null;
+		StringBuffer contents = new StringBuffer();
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(txtfile));
+			while ((str = in.readLine()) != null) {
+				contents.append(str).append(System.getProperty("line.separator"));
+			}
+			in.close();
+		} catch (IOException e) {
+			System.err.println("Problem in reading file: " + txtfile.getName());
+		}
+		//System.out.println(contents.toString());
+		text = contents.toString();
+		return text;
+	}
+
+
+
+	public static String[] calcStats(HashMap<String, String[]> props, HashMap<String, String[]> props_short,ArrayList<String[]> bitextsIM, ArrayList<String[]> bitexts) {
+		String[] stats=new String[4];
+
+		//if (bitextsIM!=null){
+		if (!bitextsIM.isEmpty()){
+			stats[0]=bitextsIM.get(0)[2];
+			stats[1]=Integer.toString(0);
+			stats[2]=bitextsIM.get(0)[3];
+			stats[3]=Integer.toString(0);
+			for (int ii=0;ii<bitextsIM.size();ii++){
+				String p1 = bitextsIM.get(ii)[0];
+				String p2 = bitextsIM.get(ii)[1];
+				//String l1 = bitextsIM.get(ii)[2];
+				//String l2 = bitextsIM.get(ii)[3];
+				String[] attr1=props.get(p1);
+				String[] attr2=props.get(p2);
+				//System.out.println(p1+" in "+attr1[1]+":"+attr1[3]+"\t"+p2+" in "+attr2[1]+":"+attr2[3]);
+				if (attr1[1].equals(stats[0]))
+					stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[3]));
+				if (attr1[1].equals(stats[2]))
+					stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[3])); 
+				if (attr2[1].equals(stats[0]))
+					stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[3])); 
+				if (attr2[1].equals(stats[2]))
+					stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[3]));
+			}
+		}else{
+			//if (bitexts!=null){
+			if (!bitexts.isEmpty()){
+				stats[0]=bitexts.get(0)[2];
+				stats[1]=Integer.toString(0);
+				stats[2]=bitexts.get(0)[3];
+				stats[3]=Integer.toString(0);
+				for (int ii=0;ii<bitexts.size();ii++){
+					String p1 = bitexts.get(ii)[0];
+					String p2 = bitexts.get(ii)[1];
+					String[] attr1=props_short.get(p1);
+					String[] attr2=props_short.get(p2);
+					if (attr1[1].equals(stats[0]))
+						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[3]));
+					if (attr1[1].equals(stats[2]))
+						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[3])); 
+					if (attr2[1].equals(stats[0]))
+						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[3])); 
+					if (attr2[1].equals(stats[2]))
+						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[3]));
+				}
+			}
+		}
+		return stats;
+	}
 
 	/*@SuppressWarnings("restriction")
 	public static String[][] representXML_old(File xmldir) throws FileNotFoundException, XMLStreamException {
