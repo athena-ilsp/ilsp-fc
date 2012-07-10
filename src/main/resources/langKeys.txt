@@ -1,6 +1,6 @@
-en>EN,en,English,(en),English [en],[en],english
+en>EN,en,English,(en),English [en],[en],english,United Kingdom
 fr>FR,fr,French,français,(fr),Français [fr],[fr],Français
-el>EL,el,Greek,ελληνικά,(el),[el],Ελληνική,Ελληνικά,Επιλογή γλώσσας
-de>DE,de,German,Deutsch,(de),Deutsch [de],[de]
-it>IT,it,Italian,italiano,(it),[it]
-es>ES,es,Spanish,español,(es),Español [es],[es],Español
+el>EL,el,Greek,ελληνικά,(el),[el],Ελληνική,Ελληνικά,Επιλογή γλώσσας,Greece
+de>DE,de,German,Deutsch,(de),Deutsch [de],[de],Germany
+it>IT,it,Italian,italiano,(it),[it],Italy
+es>ES,es,Spanish,español,(es),Español [es],[es],Español,Spain
