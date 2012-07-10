@@ -88,7 +88,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
 @SuppressWarnings("deprecation")
 public class SampleExporter {
 	private static final Logger LOGGER = Logger.getLogger(SampleExporter.class);
-	private static final int minTokensNumber=200;
+	private static int minTokensNumber=200;
 	private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static final String cesDocVersion = "0.4";
@@ -775,6 +775,9 @@ public class SampleExporter {
 		StringTokenizer tkzr = new StringTokenizer(maincontent);
 		//System.out.println(tkzr.countTokens());
 		//System.out.println(maincontent);
+		if (lang.contains(";"))
+			minTokensNumber=100;
+		
 		if (tkzr.countTokens()<minTokensNumber){
 			//			System.out.println("CUT: "+ eAddress);
 			return false;		
