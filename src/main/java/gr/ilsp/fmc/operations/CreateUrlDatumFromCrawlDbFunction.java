@@ -42,14 +42,17 @@ public class CreateUrlDatumFromCrawlDbFunction extends BaseOperation<NullContext
 	public void operate(FlowProcess flowProcess, FunctionCall<NullContext> funcCall) {
 		long time = System.currentTimeMillis();
 		CrawlDbDatum datum = new CrawlDbDatum(funcCall.getArguments());
-		ExtendedUrlDatum urlDatum = new ExtendedUrlDatum(datum.getUrl());
-		urlDatum.setPayloadValue(CrawlDbDatum.LAST_FETCHED_FIELD, datum.getLastFetched());
-		urlDatum.setPayloadValue(CrawlDbDatum.LAST_UPDATED_FIELD, datum.getLastUpdated());
-		urlDatum.setPayloadValue(CrawlDbDatum.LAST_STATUS_FIELD, datum.getLastStatus().name());
-		urlDatum.setPayloadValue(CrawlDbDatum.CRAWL_DEPTH, datum.getCrawlDepth());
-		urlDatum.setScore(datum.getScore());
-		funcCall.getOutputCollector().add(urlDatum.getTuple());
-		_flowProcess.increment(CreateUrlDatumCounters.CONVERSION_DOCUMENTS, 1);
-		_flowProcess.increment(CreateUrlDatumCounters.CONVERSION_TIME, (int)(System.currentTimeMillis()-time));
+		String aaa=datum.getUrl();
+		if (!aaa.startsWith("ftp") && !aaa.equals("http:/")){
+			ExtendedUrlDatum urlDatum = new ExtendedUrlDatum(datum.getUrl());
+			urlDatum.setPayloadValue(CrawlDbDatum.LAST_FETCHED_FIELD, datum.getLastFetched());
+			urlDatum.setPayloadValue(CrawlDbDatum.LAST_UPDATED_FIELD, datum.getLastUpdated());
+			urlDatum.setPayloadValue(CrawlDbDatum.LAST_STATUS_FIELD, datum.getLastStatus().name());
+			urlDatum.setPayloadValue(CrawlDbDatum.CRAWL_DEPTH, datum.getCrawlDepth());
+			urlDatum.setScore(datum.getScore());
+			funcCall.getOutputCollector().add(urlDatum.getTuple());
+			_flowProcess.increment(CreateUrlDatumCounters.CONVERSION_DOCUMENTS, 1);
+			_flowProcess.increment(CreateUrlDatumCounters.CONVERSION_TIME, (int)(System.currentTimeMillis()-time));
+		}
 	}
 }
