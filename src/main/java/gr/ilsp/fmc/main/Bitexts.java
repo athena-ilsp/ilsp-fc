@@ -63,7 +63,8 @@ public class Bitexts {
 
 	public static void main(String[] args) {
 		//File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\AUTO_DE-EN\\voithcom\\e38ec81f-630d-44b0-8d20-8b6c1ff07170\\xml");
-		File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\HS_DE-IT\\temp");
+		//File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\HS_DE-IT\\temp_entsend");
+		File xmldir=new File("C:\\var\\lib\\tomcat6\\webapps\\soaplab2-results\\a4f4e75e-f7fc-4dce-8b8a-bd1ec48d857d\\xml");
 		try {	
 			//String[][] CCC=representXML(xmldir);
 			HashMap<String,String[]> props=representXML_NEW(xmldir);
@@ -189,7 +190,7 @@ public class Bitexts {
 						}else{
 							f2=tl_par/sl_par;
 						}
-						if (f3>=0.3 || f1<=0.7 || f2<=0.7)
+						if (f3>=0.37 || f1<=0.7 || f2<=0.7)
 							res=-1;
 						else
 							res=SVM_test(f1,f2,f3,sv,w,b,19.0);
@@ -261,7 +262,7 @@ public class Bitexts {
 						double disttok=0.0;
 						if (p1>p2) dist=p2/p1; else dist=p1/p2;
 						if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
-						if (jac>=jac_thr && dist>=0.7 && disttok > 0.1){ //
+						if (jac>=jac_thr && dist>=0.5 && disttok > 0.3){ //
 							//System.out.println(key_im +"_im:"+mySet1.size()+"-----"+key+"_im:"+mySet2.size()+"_"+jac);
 							if (jac*dist>temp_pair_score){
 								temp_pair=key;
@@ -1209,6 +1210,8 @@ public class Bitexts {
 				}
 			}
 		}
+		if (stats[0]==null)
+			return null;
 		return stats;
 	}
 
