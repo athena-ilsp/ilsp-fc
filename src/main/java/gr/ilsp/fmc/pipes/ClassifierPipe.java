@@ -104,6 +104,7 @@ public class ClassifierPipe extends SubAssembly {
 	                _flowProcess.increment(ClassifierCounters.CLASSIFIER_DOCUMENTS_PASSED, 1);                
 	                functionCall.getOutputCollector().add(classifyResult.getTuple());
 	                SimpleCrawlHFS.incrementPagesStored();
+	                SimpleCrawlHFS.incrementTokensStored(classifyResult.getLengthInTok());
                 }
             } catch (Exception e) {
                 LOGGER.warn("Error processing " + parsedDatum.getUrl(), e);
@@ -131,7 +132,8 @@ public class ClassifierPipe extends SubAssembly {
         ClassifyFunction classifyFunction = new ClassifyFunction(classifier);
         classifierPipe = new Each(classifierPipe, classifyFunction, Fields.RESULTS);  
         classifierPipe = new GroupBy(classifierPipe, new Fields(UrlDatum.URL_FN));
-        Fields f = new Fields("ClassifierDatum-subclasses", "ClassifierDatum-subscores", "ClassifierDatum-totabscore", "ClassifierDatum-totrelscore", "url1","payload1", "ExtendedParsedDatum-hostAddress", "ExtendedParsedDatum-parsedText", "ExtendedParsedDatum-language", "ExtendedParsedDatum-title", "ExtendedParsedDatum-outLinks", "ExtendedParsedDatum-parsedMeta","UrlDatum-url", "PayloadDatum-payload");
+        //Fields f = new Fields("ClassifierDatum-subclasses", "ClassifierDatum-subscores", "ClassifierDatum-totabscore", "ClassifierDatum-totrelscore", "url1","payload1", "ExtendedParsedDatum-hostAddress", "ExtendedParsedDatum-parsedText", "ExtendedParsedDatum-language", "ExtendedParsedDatum-title", "ExtendedParsedDatum-outLinks", "ExtendedParsedDatum-parsedMeta","UrlDatum-url", "PayloadDatum-payload");
+        Fields f = new Fields("ClassifierDatum-subclasses", "ClassifierDatum-subscores", "ClassifierDatum-totabscore", "ClassifierDatum-totrelscore", "ClassifierDatum-lengthintok", "url1","payload1", "ExtendedParsedDatum-hostAddress", "ExtendedParsedDatum-parsedText", "ExtendedParsedDatum-language", "ExtendedParsedDatum-title", "ExtendedParsedDatum-outLinks", "ExtendedParsedDatum-parsedMeta","UrlDatum-url", "PayloadDatum-payload");
         Pipe scoredLinksPipe = new CoGroup(SCORED_LINKS_PIPE_NAME, 
         		classifierPipe, new Fields(UrlDatum.URL_FN),
         		parsedPipe, new Fields(UrlDatum.URL_FN),f, new RightJoin());
