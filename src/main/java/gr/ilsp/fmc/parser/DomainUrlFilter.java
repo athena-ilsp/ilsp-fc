@@ -68,7 +68,10 @@ public class DomainUrlFilter extends BaseUrlFilter {
 	@Override
 	public boolean isRemove(UrlDatum datum) {
 		String urlAsString = datum.getUrl();
-
+		if (urlAsString.length()<7)
+			return true;
+		if (urlAsString.startsWith("ftp") || urlAsString.equals("http:/") || urlAsString.isEmpty())
+			return true;
 		// Skip URLs with protocols we don't want to try to process
 		if (!_protocolInclusionPattern.matcher(urlAsString).find()) {
 			return true;
