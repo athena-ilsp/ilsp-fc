@@ -13,13 +13,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.UUID;
 
 import javax.xml.stream.XMLStreamException;
@@ -67,12 +71,18 @@ public class SimpleCrawlHFS {
 	public static CompositeConfiguration config;
 	private static int PAGES_STORED = 0;
 	private static int PAGES_VISITED = 0;
+	private static int TOKENS_STORED = 0;
+	private static int TOKENS_TARGET = 40000000;
 	private static String fs1 = System.getProperty("file.separator");
 	public static JobConf conf = null;
 
 	private static String operation = "crawlandexport";
 
-	// Create log output file in loop directory.
+	
+	/**
+	 * @param outputDirName to store the downloaded HTML, the created cesDoc or/and cesAling XML files 
+	 * @return Create log output file in loop directory.. 
+	 */
 	private static void setLoopLoggerFile(String outputDirName, int loopNumber) {
 		Logger rootLogger = Logger.getRootLogger();
 
@@ -82,9 +92,7 @@ public class SimpleCrawlHFS {
 			appender = new FileAppender();
 			appender.setName("loop-logger");
 			appender.setLayout(new PatternLayout("%d{yy/MM/dd HH:mm:ss} %p %c{2}:%L - %m%n"));
-
-			// We have to do this before calling addAppender, as otherwise Log4J
-			// warns us.
+			// We have to do this before calling addAppender, as otherwise Log4J warns us.
 			appender.setFile(filename);
 			appender.activateOptions();
 			rootLogger.addAppender(appender);
@@ -93,8 +101,11 @@ public class SimpleCrawlHFS {
 			appender.activateOptions();
 		}
 	}
-
 	
+	/**
+	 * @param targetDomain:crawler will stay in this web domain, crawlDbPath: path for loops' results, conf:crawler's configuration
+	 * @return initialize the frontier with the seed URL list which contains only one URL (crawler will stay in this web domain). 
+	 */
 	private static void importOneDomain(String targetDomain, Path crawlDbPath, JobConf conf) throws IOException {
 		try {
 			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
@@ -109,6 +120,11 @@ public class SimpleCrawlHFS {
 			throw e;
 		}
 	}
+	
+	/**
+	 * @param urls:crawler will start from these URLS, crawlDbPath: path for loops' results, conf:crawler's configuration
+	 * @return initialize the frontier with the seed URL list. 
+	 */
 	private static void importUrlList(String urls, Path crawlDbPath, JobConf conf) throws IOException {		        
 		try {
 			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
@@ -116,6 +132,7 @@ public class SimpleCrawlHFS {
 			SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();            
 			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
 			String line = "";
+			//UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
 			while ((line=rdr.readLine())!=null){
 				byte[] bts = line.getBytes("UTF-8");
 				if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
@@ -124,35 +141,9 @@ public class SimpleCrawlHFS {
 						bts2[i-3]=bts[i];
 					line = new String(bts2);
 				}
-				if (line.equals("")) continue;
-				CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize(line), 0, 0, 
-						UrlStatus.UNFETCHED, 0,0.0);
-				writer.add(datum.getTuple());
-			}
-			rdr.close();
-			writer.close();
-		} catch (IOException e) {
-			throw e;
-		}
-	}
-	//vpapa
-	private static void importURLOneDomain(String urls, Path crawlDbPath, JobConf conf) throws IOException {
-		try {
-			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
-			TupleEntryCollector writer = urlSink.openForWrite(conf);			
-			SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
-			//CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize("http://" + targetDomain), 0, 0, UrlStatus.UNFETCHED, 0,0.0);
-			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
-			String line = "";
-			while ((line=rdr.readLine())!=null){
-				byte[] bts = line.getBytes("UTF-8");
-				if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
-					byte[] bts2 = new byte[bts.length-3];
-					for (int i = 3; i<bts.length;i++)
-						bts2[i-3]=bts[i];
-					line = new String(bts2);
-				}
-				if (line.equals("")) continue;
+				if (line.equals("") || line.startsWith("ftp") || line.equals("http://")) continue;
+				//if (!urlValidator.isValid(line) && !line.contains("#")) continue;
+				
 				CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize(line), 0, 0, 
 						UrlStatus.UNFETCHED, 0,0.0);
 				writer.add(datum.getTuple());
@@ -164,8 +155,44 @@ public class SimpleCrawlHFS {
 		}
 	}
 	
+	//vpapa
+	/**
+	 * @param urls:crawler will stay in this web domain, crawlDbPath: path for loops' results, conf:crawler's configuration
+	 * @return initialize the frontier with the seed URL. Crawler will stay in this web domain. 
+	 */
+	private static void importURLOneDomain(String urls, Path crawlDbPath, JobConf conf) throws IOException {
+		try {
+			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
+			TupleEntryCollector writer = urlSink.openForWrite(conf);			
+			SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
+			//CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize("http://" + targetDomain), 0, 0, UrlStatus.UNFETCHED, 0,0.0);
+			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
+			String line = "";
+			//UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
+			while ((line=rdr.readLine())!=null){
+				byte[] bts = line.getBytes("UTF-8");
+				if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
+					byte[] bts2 = new byte[bts.length-3];
+					for (int i = 3; i<bts.length;i++)
+						bts2[i-3]=bts[i];
+					line = new String(bts2);
+				}
+				if (line.equals("") || line.startsWith("ftp") || line.equals("http://")) continue;
+				//if (!urlValidator.isValid(line)&& !line.contains("#")) continue;
+				
+				CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize(line), 0, 0, 
+						UrlStatus.UNFETCHED, 0,0.0);
+				writer.add(datum.getTuple());
+			}
+			rdr.close();
+			writer.close();
+		} catch (IOException e) {
+			throw e;
+		}
+	}	
 
 	public static void main(String[] args) {
+		
 		if (args.length==0){LOGGER.info("Usage: SimpleCrawlHFS [crawl|export|config]");
 		System.exit(-1);
 		}
@@ -223,18 +250,14 @@ public class SimpleCrawlHFS {
 		}
 		conf = new JobConf();
 		conf.setJarByClass(SimpleCrawlHFS.class);
-		//nmastr added this for concurrency issues (vpapa)
-		//conf.set("mapred.system.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred"+fs1+"system-"+ System.currentTimeMillis());
+		//Added this for concurrency issues
 		//LOGGER.info("Hadoop tmp dir: " + conf.get("hadoop.tmp.dir"));
 		conf.set("hadoop.tmp.dir", conf.get("hadoop.tmp.dir")+UUID.randomUUID().toString());
 		//LOGGER.info("Hadoop tmp dir now: " + conf.get("hadoop.tmp.dir"));
-		//System.exit(0);
-		//conf.set("mapred.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred"+fs1+"system-"+ UUID.randomUUID().toString());
-		conf.set("mapred.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred");//+fs1+"local");
-		conf.set("mapred.local.dir",conf.get("mapred.dir") + fs1+"local");//+fs1+"local");
-		conf.set("mapred.system.dir",conf.get("mapred.dir") + fs1+"system");//+fs1+"local");		
+		conf.set("mapred.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred");
+		conf.set("mapred.local.dir",conf.get("mapred.dir") + fs1+"local");
+		conf.set("mapred.system.dir",conf.get("mapred.dir") + fs1+"system");		
 		
-
 		FileSystem fs;
 		//if domain is supplied, it is checked for errors
 		String domain = options.getDomain();
@@ -262,9 +285,10 @@ public class SimpleCrawlHFS {
 			}
 		}		
 		//vpapa
-		if (options.getType().equals("p"))
+		if (options.getType().equals("p")) 
 			urls = options.getUrls();
-
+		if (options.getDomain()!=null) 
+			urls = options.getUrls();
 		
 		URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
 		LOGGER.info(urldir );
@@ -288,7 +312,7 @@ public class SimpleCrawlHFS {
 		}
 
 		int min_uniq_terms = SimpleCrawlHFS.config.getInt("classifier.min_unique_content_terms.value");
-		int max_depth = SimpleCrawlHFS.config.getInt("classifier.max_depth.value");
+		int max_depth = SimpleCrawlHFS.config.getInt("classifier.max_depth.value");//value for tunneling
 		//Analyze the topic and create the classes and topic variables. Term threshold
 		//is calculate based on the median weight of the terms and the minimum number
 		//of terms each text must have as defined on the config file.
@@ -305,17 +329,13 @@ public class SimpleCrawlHFS {
 		} else LOGGER.info("Running with no topic.");
 
 		String outputDirName = options.getOutputDir();
-		if (options.isDebug()) {
+		if (options.isDebug()) 
 			System.setProperty("fmc.root.level", "DEBUG");            
-		} else {
-			//System.setProperty("fmc.root.level", "INFO");
-			System.setProperty("fmc.root.level", "ERROR");
-		}
+		else 
+			System.setProperty("fmc.root.level", "ERROR"); //System.setProperty("fmc.root.level", "INFO");
 
-		if (options.getLoggingAppender() != null) {
-			// Set console vs. DRFA vs. something else
-			System.setProperty("fmc.appender", options.getLoggingAppender());
-		}
+		if (options.getLoggingAppender() != null) 
+			System.setProperty("fmc.appender", options.getLoggingAppender()); // Set console vs. DRFA vs. something else
 
 		try {
 			//JobConf conf = new JobConf();
@@ -328,32 +348,23 @@ public class SimpleCrawlHFS {
 				LOGGER.warn("Removing previous crawl data in " + outputPath);
 				fs.delete(outputPath);
 			}
-			//If the outputPath does not exist, it is created. Seed URL list (or domain) is imported
-			//into the hfs.
+			//If the outputPath does not exist, it is created. Seed URL list (or domain) is imported into the hfs.
 			if (!fs.exists(outputPath)) {
-				//vpapa
-				LOGGER.info("Creating path: " +outputPath.toString());
+				LOGGER.info("Creating path: " +outputPath.toString());//vpapa
 				fs.mkdirs(outputPath);
 		
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, 0);
 				String curLoopDirName = curLoopDir.toUri().toString();
-				if (curLoopDirName.startsWith("file:/")){
-					//vpapa 6->5
-					curLoopDirName = curLoopDirName.substring(5);
-					//System.out.println("curLoopDirName: "+curLoopDirName);
-				}//else{
-				//	curLoopDirName=fs1+curLoopDirName;
-				//}
+				if (curLoopDirName.startsWith("file:/"))
+					curLoopDirName = curLoopDirName.substring(5); //vpapa 6->5
 					
 				setLoopLoggerFile(curLoopDirName, 0);
 				Path crawlDbPath = new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME);
 				if (domain!=null && !isDomainFile){	
-					//vpapa
-					if (urls!=null){
+					if (urls!=null) //vpapa
 						importURLOneDomain(urls,crawlDbPath , conf);
-					}else{
+					else
 						importOneDomain(domain,crawlDbPath , conf);
-					}
 				}
 				else
 					importUrlList(urls,crawlDbPath, conf);
@@ -368,8 +379,7 @@ public class SimpleCrawlHFS {
 			//CrawlDbPath is the path where the crawl database will be stored for the current run
 			Path crawlDbPath = new Path(inputPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
 
-			//Start and end loop numbers are calculated (if the crawl is running on a fixed
-			//number of loops)
+			//Start and end loop numbers are calculated (if the crawl is running on a fixed number of loops)
 			int startLoop = CrawlDirUtils.extractLoopNumber(inputPath);
 			int endLoop = startLoop + options.getNumLoops();
 
@@ -404,28 +414,28 @@ public class SimpleCrawlHFS {
 
 			// Main loop. This will run as many times as specified by the numloop option
 			//or until the specified duration is reached
-
 			long startTime = System.currentTimeMillis();
-			//vpapa
+			
 			ArrayList<int[]> stor_vis = new ArrayList<int[]>();
 			for (int curLoop = startLoop + 1; curLoop <= endLoop; curLoop++) {
 				// Checking if duration is expired. If so, crawling is terminated.
 				if (hasEndTime) {
 					long now = System.currentTimeMillis();
-					if (targetEndTime-now<=0){
-						LOGGER.info("Time expired, ending crawl.");
+					if (targetEndTime-now<=0 || TOKENS_STORED>TOKENS_TARGET){
+						LOGGER.info("Time expired or target tokens amount reached, ending crawl.");
 						long duration = System.currentTimeMillis()-startTime;
 						LOGGER.info("Made " + (curLoop-startLoop-1) + " runs in " + 
 								(System.currentTimeMillis()-startTime) + " milliseconds.");
 						float avg = (float)duration/(curLoop-startLoop-1);
 						LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
+						LOGGER.info("Total tokens stored: " + TOKENS_STORED);
 						LOGGER.info("Average run time: " + avg + " milliseconds.");						
 						break;
 					}
 					//If duration is not reached, endLoop is increased to run the next loop
 					endLoop = curLoop + 1;
 				}
-				//vpapa: checking if nums of stored/visited have changed. If not, crawling is terminated.
+				//checking if nums of stored/visited have changed. If not, crawling is terminated.
 				if (check_evol1(stor_vis)){
 					LOGGER.info("Seed page was not visited. So no new links to follow");
 					System.exit(64);
@@ -437,6 +447,7 @@ public class SimpleCrawlHFS {
 							(System.currentTimeMillis()-startTime) + " milliseconds.");
 					float avg = (float)duration/(curLoop-startLoop-1);
 					LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
+					LOGGER.info("Total tokens stored: " + TOKENS_STORED);
 					LOGGER.info("Average run time: " + avg + " milliseconds.");						
 					break;
 				}
@@ -445,19 +456,12 @@ public class SimpleCrawlHFS {
 				//topic and classes arrays, the term threshold and the crawl options
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, curLoop);
 				String curLoopDirName = curLoopDir.toUri().toString();
-				if (curLoopDirName.startsWith("file:/")){
-					//vpapa 6->5
-					curLoopDirName = curLoopDirName.substring(5);
-					//System.out.println("curLoopDirName: "+curLoopDirName);
-				}//else{
-				//	curLoopDirName =fs1+curLoopDirName;
-				//}
+				if (curLoopDirName.startsWith("file:/"))
+					curLoopDirName = curLoopDirName.substring(5); //vpapa 6->5
 				setLoopLoggerFile(curLoopDirName, curLoop);	
 				LOGGER.debug( conf.toString());
-//				System.err.println(conf.toString());
-				for(int il =0; il<conf.getLocalDirs().length;il++) {
+				for(int il =0; il<conf.getLocalDirs().length;il++) 
 					LOGGER.debug(conf.getLocalDirs()[il]);
-				}
 				
 				//System.out.println("LOOP "+ Integer.toString(curLoop));
 				Flow flow = SimpleCrawlHFSWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlFilter, 
@@ -468,14 +472,12 @@ public class SimpleCrawlHFS {
 				//Reseting counters of parent class. We do it here so that SplitFetchedUnfetchedCrawlDatums
 				//when run again will not return the 256(or whatever) that were selected in the first run
 				SimpleCrawlHFSWorkflow.resetCounters();
-				if (curLoop>3) {
+				if (curLoop>3) 
 					DirUtils.clearPreviousLoopDir(fs,outputPath,curLoop);
-				}
 
 				LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
-				//vpapa
-				//System.out.println("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
-				stor_vis.add(new int[] {PAGES_STORED,PAGES_VISITED});
+				LOGGER.info("Total tokens stored: " + TOKENS_STORED);
+				stor_vis.add(new int[] {PAGES_STORED,PAGES_VISITED});//vpapa
 				// flow.writeDOT("build/valid-flow.dot");
 
 				// Input for the next round is our current output
@@ -490,28 +492,27 @@ public class SimpleCrawlHFS {
 				se.setCrawlDirName(outputDirName);
 				se.setOutputFile(options.getOutputFile());	
 				se.setTopic(options.getTopic());
-				
-				//vpapa
-				se.setStyleExport(options.getAlign());
+				se.setStyleExport(options.getAlign()); 
 				se.setOutputFileHTML(options.getOutputFileHTML());
 				se.setHTMLOutput(options.getOutputFileHTML()!=null);
 				se.export(false);
 			}
 			// Finished exporting. Now remove (near) duplicates
-			//DedupMD5.dedup(outputPath.toString(), options.getOutputFile(),options.getOutputFileHTML());
-			DedupMD5.dedup(crawlDbPath.getParent().getParent().toString(), options.getOutputFile(),options.getOutputFileHTML());
-			//DedupMD5.dedupNew(crawlDbPath.getParent().getParent().toString(), options.getOutputFile(),options.getOutputFileHTML());
-			//vpapa
+			System.out.println(outputDirName);
+			System.out.println(crawlDbPath.getParent().getParent().toString());
+			//DedupMD5.dedup(crawlDbPath.getParent().getParent().toString(), options.getOutputFile(),options.getOutputFileHTML());
+			DedupMD5.dedup(outputDirName, options.getOutputFile(),options.getOutputFileHTML());
+	
 			// Now detect candidate parallel documents if needed.
-			//if (options.getLanguage().contains(";")){
 			if (options.getType().equals("p")){	
-				String[][] AAA;
-				try {
-					//File xmldir = new File(options.getOutputDir()+fs1+"xml");
+				//String[][] AAA;
+				try {				
 					File xmldir = new File(options.getOutputDir()+fs1+"xml");
-					AAA = Bitexts.representXML(xmldir);
-					//System.out.println("Files found: "+AAA.length);
-					if (AAA.length<2){
+					//AAA = Bitexts.representXML(xmldir);
+					HashMap<String,String[]> props=Bitexts.representXML_NEW(xmldir);
+					HashMap<String,String[]> props_short = new HashMap<String,String[]>();
+					//if (AAA.length<2){
+					if (props.size()<2){
 						LOGGER.info("Less than 2 files found. Detection of pairs is stopped.");
 						File out_temp=new File(options.getOutputFile());
 						if (out_temp.exists())
@@ -520,11 +521,24 @@ public class SimpleCrawlHFS {
 					}
 					int l1=0, l2=0;
 					String[] lang=options.getLanguage().split(";");
-					for (int jj=0;jj<AAA.length;jj++){
+					/*for (int jj=0;jj<AAA.length;jj++){
 						if (AAA[jj][1].equals(lang[0]))
 							l1++;
 						else{
 							if (AAA[jj][1].equals(lang[1]))
+								l2++;
+						}
+					}*/
+					Set<String> files_keys=props.keySet();
+					Iterator<String> files_it = files_keys.iterator();
+					String key;
+					while (files_it.hasNext()){
+						key = files_it.next();
+						String[] file_props=props.get(key);
+						if (file_props[1].equals(lang[0]))
+							l1++;
+						else{
+							if (file_props[1].equals(lang[1]))
 								l2++;
 						}
 					}
@@ -543,28 +557,42 @@ public class SimpleCrawlHFS {
 							out_temp.delete();
 						System.exit(0);
 					}
-					//double[][] sv=Bitexts.readRes("SVs19.txt");
-					//double[][] b=Bitexts.readRes("B19.txt");
-					//double[][] w=Bitexts.readRes("Ws19.txt");
+					//find pairs based on common images
+					ArrayList<String[]> bitextsIM=new ArrayList<String[]>();
+					
+					HashMap<String, String[]> imagesInHTML=ImageExtractor.findImages(xmldir,options.getImpath());
+					if (imagesInHTML.size()>1){
+						bitextsIM=Bitexts.findpairsIM(imagesInHTML,props);
+						if (bitextsIM.size()>0){
+							LOGGER.info(bitextsIM.size()+ " pairs found (based on images).");
+							Bitexts.writeXMLs(outputDirName,bitextsIM,options.getAlign());
+							props_short = Bitexts.excludepairsIM(bitextsIM,props);
+							LOGGER.info(props.size()+ " files still remained for pair detection.");
+						}else
+							LOGGER.info("No pairs found (based on common images)");
+					}
 					
 					double[][] sv=Bitexts.readRes("SVs19_last.txt");
 					double[][] b=Bitexts.readRes("B19_last.txt");
 					double[][] w=Bitexts.readRes("Ws19_last.txt");
-					
-					ArrayList<String[]> pairs = Bitexts.findpairsXML_SVM(xmldir,AAA,sv,w,b);
-					//ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM(pairs);
-					ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM_NEW(pairs);
+					//ArrayList<String[]> pairs = Bitexts.findpairsXML_SVM(xmldir,AAA,sv,w,b);
+					ArrayList<String[]> pairs_new  = Bitexts.findpairsXML_SVM_NEW(xmldir,props_short,sv,w,b);
+					ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM_NEW(pairs_new);
 					if (bitexts.size()>0){
 						Bitexts.writeXMLs(outputDirName,bitexts,options.getAlign());
 						bitexts = Bitexts.sortbyLength(bitexts);
-						Bitexts.writeOutList(outputDirName,options.getOutputFile(),options.getOutputFileHTML(),bitexts);
-						//System.out.println("Pairs found :"+bitexts.size());
-						LOGGER.info("Pairs found: "+bitexts.size() );
+						Bitexts.writeOutList(outputDirName,options.getOutputFile(),options.getOutputFileHTML(),bitexts,bitextsIM);
+						LOGGER.info("Pairs found (based on structure): "+bitexts.size() );
 					}
 					else{
-						LOGGER.info("No pairs found");
+						LOGGER.info("No pairs found (based on structure)");
 						Bitexts.writeOutList(outputDirName,options.getOutputFile());
 					}
+					int total_pairs= bitexts.size()+bitextsIM.size();
+					LOGGER.info("Total pairs found: "+ total_pairs);
+					String[] stats=Bitexts.calcStats(props,props_short, bitextsIM,bitexts);
+					LOGGER.info("Tokens in "+stats[0] +" : "+ stats[1]);
+					LOGGER.info("Tokens in "+stats[2] +" : "+ stats[3]);
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				} catch (XMLStreamException e1) {
@@ -586,12 +614,35 @@ public class SimpleCrawlHFS {
 					//Bitexts.createprofiles(newdir);
 				//}
 			}
-			//vpapa
 			//crawl for comparable
 			if (options.getType().equals("q")){
 			//put Nikos module based on aligned topics
 			}
-			
+			if (options.getType().equals("m")){
+				File input1=null;
+				String temp = outputDirName+fs1+"xml";
+				int tempid=temp.indexOf(":");
+				if (tempid<0 || tempid<2)
+					input1= new File(temp);
+				else
+					input1= new File(temp.substring(tempid+2, temp.length()));
+				
+				FilenameFilter filter = new FilenameFilter() {			
+					public boolean accept(File arg0, String arg1) {
+						return (arg1.substring(arg1.length()-4).equals(".xml"));
+					}
+				};
+				File[] files=input1.listFiles(filter);
+				String text="";
+				int total_tokens=0;
+				for (int ii=0;ii<files.length;ii++){
+					text = DedupMD5.extractTextfromXML_clean(files[ii].getAbsolutePath());
+					StringTokenizer tkzr = new StringTokenizer(text);
+					int length_in_tok=tkzr.countTokens();
+					total_tokens=total_tokens+length_in_tok;
+				}
+				System.out.println("Total tokens: "+ total_tokens);
+			}
 			System.exit(0);
 			
 		} catch (PlannerException e) {
@@ -602,7 +653,6 @@ public class SimpleCrawlHFS {
 			System.exit(-1);
 		} catch (Throwable t) {
 			System.err.println(conf.get("hadoop.tmp.dir"));
-
 			System.err.println("Exception running tool: " + t.getMessage());
 			t.printStackTrace(System.err);
 			System.exit(-1);
@@ -623,7 +673,6 @@ public class SimpleCrawlHFS {
 		}
 		return stop_crawl;
 	}
-
 
 	/**
 	 * @param stor_vis Array of stored and visited pages per run
@@ -646,4 +695,81 @@ public class SimpleCrawlHFS {
 	public static void incrementPagesVisited() {
 		PAGES_VISITED++;
 	}
+	public static int incrementTokensStored(Double len) {
+		TOKENS_STORED=(int) (TOKENS_STORED+len);
+		return TOKENS_STORED;
+	}
+	
+	/*	Calculate statistics
+	 * File input1=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\target\\xml");
+	FilenameFilter filter = new FilenameFilter() {			
+		public boolean accept(File arg0, String arg1) {
+			return (arg1.substring(arg1.length()-4).equals(".xml"));
+		}
+	};
+	File[] files=input1.listFiles(filter);
+	String text="", text1="";
+	//int total_tokens=0;
+	ArrayList<String> web_doms = new ArrayList<String>();
+	ArrayList<Integer> web_toks = new ArrayList<Integer>();
+	Writer out_out;
+	Writer out_out1;
+	try {
+		out_out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("C:\\Users\\vpapa\\workspace\\ilsp-fc\\target\\stats.txt"),"UTF-8"));
+		out_out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("C:\\Users\\vpapa\\workspace\\ilsp-fc\\target\\stats_total.txt"),"UTF-8"));
+		for (int ii=0;ii<files.length;ii++){
+			//System.out.println(files[ii].getAbsolutePath());
+			text = DedupMD5.extractTextfromXML_clean(files[ii].getAbsolutePath());
+			text1 = Bitexts.extractURLfromXML(files[ii].getAbsolutePath());
+			String web_doma="";
+			int index=0;
+			for (int k=1;k<4;k++){
+				index = text1.indexOf("/", index+1);
+			}
+			web_doma = text1.substring(0, index);
+			//System.out.println(text);
+			StringTokenizer tkzr = new StringTokenizer(text);
+			int length_in_tok = tkzr.countTokens();
+			out_out.write(files[ii].getName()+"\t");
+			out_out.write(Integer.toString(length_in_tok)+"\t");
+			out_out.write(web_doma+"\n");
+			boolean found=false;
+			if (ii==0){
+				web_doms.add(web_doma);
+				web_toks.add(length_in_tok);
+			}else{
+				for (int k=0;k<web_doms.size();k++){
+					if (web_doma.equals(web_doms.get(k))){
+						found=true;
+						web_toks.set(k,web_toks.get(k)+length_in_tok);
+						break;
+					}
+				}
+				if (!found){
+					web_doms.add(web_doma);
+					web_toks.add(length_in_tok);
+				}
+			}
+			//total_tokens=total_tokens+length_in_tok;
+		}
+		out_out.close();
+		for (int k=0;k<web_doms.size();k++){
+			out_out1.write(web_doms.get(k)+"\t");
+			out_out1.write(web_toks.get(k)+"\t");
+			out_out1.write("\n");	
+		}
+		out_out1.close();
+	} catch (UnsupportedEncodingException e) {
+		e.printStackTrace();
+		System.err.println("Error in writing the output text file. The encoding is not supported.");
+	} catch (FileNotFoundException e) {
+		e.printStackTrace();
+		System.err.println("Error in writing the output text file. The file does not exist.");
+	} catch (IOException e) {
+		e.printStackTrace();
+		System.out.println("Error in writing the output text file.");
+	}
+	System.out.println("END");//"Total tokens: "+ total_tokens);
+*/
+	
 }
