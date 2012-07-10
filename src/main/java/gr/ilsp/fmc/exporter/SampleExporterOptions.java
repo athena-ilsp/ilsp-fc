@@ -17,7 +17,7 @@ public class SampleExporterOptions {
 	private String _inputdir;
 	private String _language;
 	private String _topic;
-	private String _negwords = "";
+	private String _negwords;
 	private String _outputdir = "";
 	
 	private String APPNAME = "SimpleCrawlHFS export";
