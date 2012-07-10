@@ -16,10 +16,14 @@ public class ClassifierDatum extends UrlDatum {
 	public static final String SUBSCORES = fieldName(ClassifierDatum.class,"subscores");
 	public static final String TOTABSCORE = fieldName(ClassifierDatum.class,"totabscore");
 	public static final String TOTRELSCORE = fieldName(ClassifierDatum.class,"totrelscore");
+	public static final String LENGTHINTOK = fieldName(ClassifierDatum.class,"lengthintok");
 	
+    //public static final Fields FIELDS = new Fields(SUBCLASSES, SUBSCORES, TOTABSCORE, 
+    //		TOTRELSCORE).append(getSuperFields(ClassifierDatum.class));
+    
     public static final Fields FIELDS = new Fields(SUBCLASSES, SUBSCORES, TOTABSCORE, 
-    		TOTRELSCORE).append(getSuperFields(ClassifierDatum.class));
-
+    		TOTRELSCORE,LENGTHINTOK).append(getSuperFields(ClassifierDatum.class));
+    
     /**
      * No argument constructor for use with FutureTask
      */
@@ -42,7 +46,29 @@ public class ClassifierDatum extends UrlDatum {
         setTotRelScore(totrelscore);        
     }
 
-    public String[] getSubClasses() {
+    public ClassifierDatum(String url, String[] subclasses, Double[][] subscores, Double totabscore, Double totrelscore, int length_in_tok) {
+		// TODO Auto-generated constructor stub
+    	super(FIELDS);
+    	
+    	setUrl(url);
+        setSubClasses(subclasses);
+        setSubScores(subscores);
+        setTotAbScore(totabscore);
+        setTotRelScore(totrelscore);    
+        setLengthInTok(length_in_tok);    
+    	
+	}
+
+    public void setLengthInTok(int length_in_tok) {
+        _tupleEntry.set(LENGTHINTOK, length_in_tok);
+    }
+
+    public Double getLengthInTok() {
+        return _tupleEntry.getDouble(LENGTHINTOK);
+    }
+    
+    
+	public String[] getSubClasses() {
     	Tuple tup = (Tuple)_tupleEntry.get(SUBCLASSES);    	
         String[] subclasses = new String[tup.size()];
         
