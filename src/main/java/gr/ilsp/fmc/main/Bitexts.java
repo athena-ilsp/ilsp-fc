@@ -59,12 +59,12 @@ public class Bitexts {
 	private static int level_thres=2;
 	private static double jac_thr=0.5;
 	private static int im_dif_thr=3;
-
+	private static int minnumofpars=3;
 
 	public static void main(String[] args) {
 		//File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\AUTO_DE-EN\\voithcom\\e38ec81f-630d-44b0-8d20-8b6c1ff07170\\xml");
 		//File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\HS_DE-IT\\temp_entsend");
-		File xmldir=new File("C:\\var\\lib\\tomcat6\\webapps\\soaplab2-results\\a4f4e75e-f7fc-4dce-8b8a-bd1ec48d857d\\xml");
+		File xmldir=new File("C:\\var\\lib\\tomcat6\\webapps\\soaplab2-results\\81fe5e39-52f4-4d55-bd27-21ef866bd3cc\\xml");
 		try {	
 			//String[][] CCC=representXML(xmldir);
 			HashMap<String,String[]> props=representXML_NEW(xmldir);
@@ -190,7 +190,7 @@ public class Bitexts {
 						}else{
 							f2=tl_par/sl_par;
 						}
-						if (f3>=0.37 || f1<=0.7 || f2<=0.7)
+						if (f3>=0.38 || f1<=0.7 || f2<=0.7)
 							res=-1;
 						else
 							res=SVM_test(f1,f2,f3,sv,w,b,19.0);
@@ -398,7 +398,12 @@ public class Bitexts {
 				temp_res[2]=Integer.toString(pcounter);
 				StringTokenizer st = new StringTokenizer(tempstr);	
 				temp_res[3]=Integer.toString(st.countTokens());
+				if (res.containsKey(files[ii].substring(0, files[ii].indexOf("."))))
+					System.out.println("OOPS");
 				res.put(files[ii].substring(0, files[ii].indexOf(".")), temp_res);
+				
+				//System.out.println(files[ii].substring(0, files[ii].indexOf("."))+":"+temp_res[0]+">"+temp_res[1]+">"+temp_res[2]+">"+temp_res[3]);
+				
 				xmlFileListWrt.close();
 				xmlr.close();
 			} catch (UnsupportedEncodingException e) {
@@ -940,7 +945,7 @@ public class Bitexts {
 			if (Integer.parseInt(patterns[i])>0)
 				num_of_text_par++;
 		}
-		if (num_of_text_par>5)
+		if (num_of_text_par>minnumofpars)
 			return patt_int;
 		else
 			return null;
@@ -1186,6 +1191,22 @@ public class Bitexts {
 					stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[3])); 
 				if (attr2[1].equals(stats[2]))
 					stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[3]));
+			}
+			if (!bitexts.isEmpty()){
+				for (int ii=0;ii<bitexts.size();ii++){
+					String p1 = bitexts.get(ii)[0];
+					String p2 = bitexts.get(ii)[1];
+					String[] attr1=props_short.get(p1);
+					String[] attr2=props_short.get(p2);
+					if (attr1[1].equals(stats[0]))
+						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[3]));
+					if (attr1[1].equals(stats[2]))
+						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[3])); 
+					if (attr2[1].equals(stats[0]))
+						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[3])); 
+					if (attr2[1].equals(stats[2]))
+						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[3]));
+				}
 			}
 		}else{
 			//if (bitexts!=null){
