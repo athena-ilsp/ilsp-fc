@@ -40,7 +40,7 @@ public class Classifier implements Serializable{
 	private double TOTRELSCORE_TH = 0.2;
 	private double SUBCLASSSCORE_TH = 0.2;
 	private String _targetLanguage;
-	private int _minTokensNumber = 100;		
+	private int _minTokensNumber = 200;		
 	private String[] _classes;
 	private String[] _targetlangKeys;
 
@@ -65,6 +65,9 @@ public class Classifier implements Serializable{
 		_max_depth = max_depth;
 		//vpapa
 		_targetlangKeys=langKeys;
+		
+		if (_targetLanguage.contains(";"))
+			_minTokensNumber=100;
 	}
 	public ClassifierDatum classify(ExtendedParsedDatum parsedDatum) {
 		//String lang = parsedDatum.getLanguage();
@@ -474,7 +477,6 @@ public class Classifier implements Serializable{
 				}
 				m++;
 			}
-			//FIXME: vpapa. This must be moved somewhere else, not needed to do it for every link
 			boolean match1 = false;
 			for (String lang:langs){
 				if (langIdentified.equals(lang)){
