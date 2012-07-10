@@ -568,8 +568,10 @@ public class SimpleCrawlHFS {
 							Bitexts.writeXMLs(outputDirName,bitextsIM,options.getAlign());
 							props_short = Bitexts.excludepairsIM(bitextsIM,props);
 							LOGGER.info(props.size()+ " files still remained for pair detection.");
-						}else
-							LOGGER.info("No pairs found (based on common images)");
+						}else{
+							LOGGER.info("No pairs found (based on images)");
+							props_short=props;
+						}
 					}
 					
 					double[][] sv=Bitexts.readRes("SVs19_last.txt");
@@ -591,8 +593,10 @@ public class SimpleCrawlHFS {
 					int total_pairs= bitexts.size()+bitextsIM.size();
 					LOGGER.info("Total pairs found: "+ total_pairs);
 					String[] stats=Bitexts.calcStats(props,props_short, bitextsIM,bitexts);
-					LOGGER.info("Tokens in "+stats[0] +" : "+ stats[1]);
-					LOGGER.info("Tokens in "+stats[2] +" : "+ stats[3]);
+					if (stats!=null){
+						LOGGER.info("Tokens in "+stats[0] +" : "+ stats[1]);
+						LOGGER.info("Tokens in "+stats[2] +" : "+ stats[3]);
+					}
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				} catch (XMLStreamException e1) {
