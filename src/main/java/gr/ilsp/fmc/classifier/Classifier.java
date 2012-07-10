@@ -40,7 +40,7 @@ public class Classifier implements Serializable{
 	private double TOTRELSCORE_TH = 0.2;
 	private double SUBCLASSSCORE_TH = 0.2;
 	private String _targetLanguage;
-			
+	private int _minTokensNumber = 100;		
 	private String[] _classes;
 	private String[] _targetlangKeys;
 
@@ -65,7 +65,6 @@ public class Classifier implements Serializable{
 		_max_depth = max_depth;
 		//vpapa
 		_targetlangKeys=langKeys;
-		
 	}
 	public ClassifierDatum classify(ExtendedParsedDatum parsedDatum) {
 		//String lang = parsedDatum.getLanguage();
@@ -78,6 +77,13 @@ public class Classifier implements Serializable{
 		//vpapa
 		String content = parsedDatum.getParsedText().toLowerCase();
 		if (_keepBoiler) content = cleanContent(content);
+
+		StringTokenizer tkzr = new StringTokenizer(content);
+		int length_in_tok=tkzr.countTokens();
+		if (length_in_tok<_minTokensNumber){
+			return null;
+		}
+
 		String url = parsedDatum.getUrl();
 		//		for (String s:metaMap.keySet()){
 		//			if (s.equals("keywords"))
@@ -95,7 +101,7 @@ public class Classifier implements Serializable{
 		if (_targetLanguage!=null){
 			//LanguageIdentifier LangI=new LanguageIdentifier(content); 
 			//langIdentified = LangI.getLanguage();
-			
+
 			Detector detector = null;			
 			try {
 				detector = DetectorFactory.create();
@@ -104,8 +110,8 @@ public class Classifier implements Serializable{
 			} catch (LangDetectException e) {
 				//LOGGER.error(e.getMessage());
 			}
-			
-			
+
+
 			//System.out.println(langIdentified);
 			String[] langs = _targetLanguage.split(";");
 			boolean match = false;
@@ -138,7 +144,8 @@ public class Classifier implements Serializable{
 				return null;
 		}
 		if (_topic==null){
-			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0);
+			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,length_in_tok);
+			//return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0);
 		}		
 		if (title==null) title = "";
 
@@ -148,7 +155,7 @@ public class Classifier implements Serializable{
 		Double[][] contentScores=rankText(content,CONTENT_WEIGHT ,_topic,_classes, true);
 		//System.out.println("Score:" + titleScores[titleScores.length-1][0] + " " +contentScores[contentScores.length-1][0]);
 		ClassifierDatum result=classifyText(titleScores,keywordsScores,metaScores,contentScores,
-				TOTABSCORE_TH,TOTRELSCORE_TH,SUBCLASSSCORE_TH,_classes, url);
+				TOTABSCORE_TH,TOTRELSCORE_TH,SUBCLASSSCORE_TH,_classes, url, length_in_tok);
 		//System.out.println(parsedDatum.getUrl() + " " + TOTABSCORE_TH);
 		double contentscore = contentScores[contentScores.length-1][0];
 		if (contentscore>=_thres)
@@ -161,9 +168,10 @@ public class Classifier implements Serializable{
 
 	public static ClassifierDatum classifyText(Double[][] scores1, Double[][] scores2,
 			Double[][] scores3, Double[][] scores4, double thr1, double thr2, 
-			double thr3, String[] classes, String url) {
+			double thr3, String[] classes, String url, int length_in_tok) {
 		//get the arrays with scores for each location, the thresholds and the sub-classes
 		//Boolean pass=false;
+		//System.out.println("scored: " + url);
 		double norm_score=0; 
 		Double total_score=0.0;
 		Double total_relscore = 0.0;
@@ -211,7 +219,8 @@ public class Classifier implements Serializable{
 			subscores1[i][1] = temp[0][1];
 		}
 		//System.out.println("The total score is "+total_score);
-		ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore);
+		ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore,length_in_tok);
+		//ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore);
 		return result;
 	}
 
@@ -370,11 +379,11 @@ public class Classifier implements Serializable{
 				termpos.add(Integer.toString(matcher.start()));
 				matches++;
 			}
-			int qq=0;
-			for (int nn=0;nn<termpos.size();nn++){
-				qq = Integer.parseInt(termpos.get(nn));
-				//System.out.println(str.subSequence(qq, qq+30));				
-			}
+			//int qq=0;
+			//for (int nn=0;nn<termpos.size();nn++){
+			//	qq = Integer.parseInt(termpos.get(nn));
+			//	//System.out.println(str.subSequence(qq, qq+30));				
+			//}
 			if (matches>0){
 				if (weight>0.0){
 					uniqueTermsFound++;
@@ -520,7 +529,7 @@ public class Classifier implements Serializable{
 		String[] tempstr = null;		
 		String term;
 		String text = text1.trim();
-//		System.out.println(text);
+		//		System.out.println(text);
 		ArrayList<String> stems =new ArrayList<String>();
 		try {
 			//vpapa
@@ -569,7 +578,7 @@ public class Classifier implements Serializable{
 				//if (!langidentified_link.equals(langIdentified)){
 				//	score+=10*_thres; //text and link are in dif. langs but both in targ. langs
 				//}else{
-					score+=_thres;  //text and link are in same langs and in targ. langs
+				score+=_thres;  //text and link are in same langs and in targ. langs
 				//}
 				stems = TopicTools.analyze(text, langidentified_link);
 			}
@@ -598,14 +607,14 @@ public class Classifier implements Serializable{
 		}
 		return score;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
 	public double rankLink(String text1, String anchortext, String pagelang, double vv) {
 		double score = 0, weight=0; int matches=0;
 		String[] tempstr = null;		
@@ -613,7 +622,7 @@ public class Classifier implements Serializable{
 		String text = text1.trim();
 		//System.out.print(text);
 		ArrayList<String> stems =new ArrayList<String>();
-		
+
 		try {
 			//vpapa
 			String[] langs = _targetLanguage.split(";");
@@ -626,7 +635,7 @@ public class Classifier implements Serializable{
 			}
 			String langidentified_link="";
 			//System.out.println("langidentified_page:"+langIdentified);
-			
+
 			if (!text.isEmpty()){
 				langidentified_link= checkLang(text.toLowerCase());
 				//System.out.print("langidentified_link:"+langidentified_link+"\t");
@@ -754,7 +763,7 @@ public class Classifier implements Serializable{
 		//}
 		return langidentified;
 	}
-	
+
 	public double rankLink1(String url) {
 		double score = 0;
 		String[] langs = _targetLanguage.split(";");
@@ -766,5 +775,64 @@ public class Classifier implements Serializable{
 			score=0;
 		return score;
 	}
+	public double rankLinkNotopic(String linktext, String anchortext, String pagelang, double vv) {
+		double score = 0;
+				
+		
+		String text = linktext.trim();
+		//System.out.print(text);
+		//vpapa
+		String[] langs = _targetLanguage.split(";");
+		boolean matchT=false, matchL=false;
+		for (String lang:langs){
+			if (pagelang.equals(lang)){
+				matchT=true; //current page is in one of the targeted languages 
+				break;
+			}
+		}
+		String langidentified_link="";
+		//System.out.println("langidentified_page:"+langIdentified);
 
+		if (!text.isEmpty()){
+			langidentified_link= checkLang(text.toLowerCase());
+			//System.out.print("langidentified_link:"+langidentified_link+"\t");
+			for (String lang:langs){
+				if (langidentified_link.equals(lang)){
+					matchL=true; //text of current link is in one of the targeted languages 
+					break;
+				}
+			}
+		}else
+			return score;
+		int type=0;
+		if (langs.length>1){
+			int m=0;
+			for (String lang:langs){
+				//if (containLangKeys(text,m) & !lang.equals(pagelang)){
+				if (containLangKeys(anchortext,m) & !lang.equals(pagelang)){
+					//System.out.println("BINGO!");
+					//link's text implies that the link points to candidate translation
+					type=1;
+					break;
+				}
+				m++;
+			}
+			if (type==1 & vv>_thres){
+				//link's text implies that the link points to candidate translation
+				score +=2;
+				return score;
+			}
+		}
+		if (matchT & matchL){
+			StringTokenizer tkzr = new StringTokenizer(text);
+			if (!langidentified_link.equals(pagelang) & tkzr.countTokens()>3 & vv>_thres){
+				score+=1; //text and link are in dif. langs but both in targ. langs
+			}else{
+				score+=1;  //text and link are in same langs and in targ. langs
+			}
+		}
+		else
+			return score;
+		return score;
+	}
 }
