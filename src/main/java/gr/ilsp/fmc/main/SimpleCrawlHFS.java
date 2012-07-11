@@ -567,7 +567,7 @@ public class SimpleCrawlHFS {
 							LOGGER.info(bitextsIM.size()+ " pairs found (based on images).");
 							Bitexts.writeXMLs(outputDirName,bitextsIM,options.getAlign());
 							props_short = Bitexts.excludepairsIM(bitextsIM,props);
-							LOGGER.info(props.size()+ " files still remained for pair detection.");
+							LOGGER.info(props_short.size()+ " files still remained for pair detection.");
 						}else{
 							LOGGER.info("No pairs found (based on images)");
 							props_short=props;
