@@ -313,19 +313,50 @@ public class SimpleCrawlHFSOptions {
 					URL url;
 					try {
 						String temp=Bitexts.readFileAsString(_urls);
-						url = new URL(temp);
-						String host = url.getHost();
-						if (host.substring(0, 3).equals("www")){
-							host=host.substring(4);
-						}
-						String mainhost=processhost(host);
-						if (mainhost.substring(0, 3).equals("www")){
-							mainhost=host.substring(4);
-						}
-						_domain=host;
-						_maindomain=mainhost;
-						System.out.println(_domain);
-						System.out.println(_maindomain);
+						String seeds[] =temp.split("\n");
+						if (seeds.length==1){
+							url = new URL(temp);
+							String host = url.getHost();
+							if (host.substring(0, 3).equals("www")){
+								host=host.substring(4);
+							}
+							String mainhost=processhost(host);
+							if (mainhost.substring(0, 3).equals("www")){
+								mainhost=host.substring(4);
+							}
+							_domain=host;
+							_maindomain=mainhost;
+							System.out.println(_domain);
+							System.out.println(_maindomain);
+						}		
+						else{
+							String firsthost=new URL(seeds[0]).getHost();
+							for (int ii=1;ii<seeds.length;ii++){
+								url = new URL(seeds[ii]);
+								String host = url.getHost();
+								if (!host.equals(firsthost)){
+									System.out.println("FC does not support two webdomains in seed list for bilingual crawling. Use the filter argument to confine FC within these webdomains.");
+									if (!line.hasOption( "filter"))
+									System.exit(0);				
+									else{
+										_domain=null;
+										_maindomain=null;
+									}
+								}else{
+									if (host.substring(0, 3).equals("www")){
+										host=host.substring(4);
+									}
+									String mainhost=processhost(host);
+									if (mainhost.substring(0, 3).equals("www")){
+										mainhost=host.substring(4);
+									}
+									_domain=host;
+									_maindomain=mainhost;
+									System.out.println(_domain);
+									System.out.println(_maindomain);
+								}
+							}	
+						}	
 					} catch (MalformedURLException e) {
 						LOGGER.error("Seed URL is not valid.");
 						help();
