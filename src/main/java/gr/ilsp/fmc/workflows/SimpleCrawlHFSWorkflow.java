@@ -107,12 +107,12 @@ public class SimpleCrawlHFSWorkflow {
 		private static final long serialVersionUID = -5255131937144107833L;
 		private static final int urlsPerServer = SimpleCrawlHFS.config.getInt("fetcher.max_fetched_per_host.value"); 
 		private static final int urlsPerServerPerRun = SimpleCrawlHFS.config.getInt("fetcher.max_requests_per_host_per_run.value"); 
-		
+
 		@Override
 		public String getLHSName() {
 			return "fetched unfetched UrlDatums";
 		}                
-						
+
 		@Override
 		public boolean isLHS(TupleEntry tupleEntry) {			
 			if (_numSelected>=BUFFER_SIZE) 
@@ -124,43 +124,48 @@ public class SimpleCrawlHFSWorkflow {
 			String host = null; 
 			int hostIpHash = 0,hostHash = 0;
 			InetAddress ipaddress = null;
-			
+
 			try {
 				url = new URL(datum.getUrl());
 				//System.out.println("tested: "+url);
 				host = url.getHost();
 				//vpapa added this to force crawler stay in web site 
 				if (_type.equals("p")){
-					String temp1 = url.getAuthority()+url.getFile();
-					temp1 = temp1.substring(0,temp1.indexOf("/"));
-					if (temp1.substring(0, 3).equals("www")){
-						temp1=temp1.substring(4);
-					}
-					int ind2=temp1.toString().indexOf(_inithost);
-					int ind3=temp1.toString().indexOf(_mainhost);
-					if (ind2>3 || ind3<0 || ind3>3)
-						return false;
-					if (ind2>0){
-						String temp2=temp1.substring(0, ind2);
-						String[] langs=_targlang.split(";");
-						boolean match=false;
-						for (int mm=0;mm<langs.length;mm++){
-							if (temp2.contains(langs[mm])){
-								match=true;
-								break;
-							}
+					if (_inithost!=null && _mainhost!=null){
+						String temp1 = url.getAuthority()+url.getFile();
+						temp1 = temp1.substring(0,temp1.indexOf("/"));
+						if (temp1.substring(0, 3).equals("www")){
+							temp1=temp1.substring(4);
 						}
-						if (!match){
+						int ind2=temp1.toString().indexOf(_inithost);
+						int ind3=temp1.toString().indexOf(_mainhost);
+						if (ind2>3 || ind3<0 || ind3>3)
 							return false;
+						if (ind2>0){
+							String temp2=temp1.substring(0, ind2);
+							String[] langs=_targlang.split(";");
+							boolean match=false;
+							for (int mm=0;mm<langs.length;mm++){
+								if (temp2.contains(langs[mm])){
+									match=true;
+									break;
+								}
+							}
+							if (!match){
+								return false;
+							}
 						}
 					}
 				}
 				//vpapa
 				if (_subfilter!=null){
 					String temp = url.getAuthority()+url.getFile();
-					if (!temp.contains(_subfilter)){
+					//if (!temp.contains(_subfilter)){
+					//	return false;
+					//}
+					//if (!temp.matches(".*(ilo\\.org/rome/|ilo\\.org/public/german).*"))
+					if (!temp.matches(_subfilter))	
 						return false;
-					}
 				}
 				hostHash = url.getHost().hashCode();				
 				count = hostsMap.get(hostHash);		
@@ -168,8 +173,8 @@ public class SimpleCrawlHFSWorkflow {
 			} catch (MalformedURLException e1) {
 				LOGGER.error(e1.getMessage());
 			} 
-			
-			
+
+
 			if (statusSet.contains(status.name())) {
 				if (count==null)
 					hostsMap.put(hostHash, 1);
@@ -210,13 +215,13 @@ public class SimpleCrawlHFSWorkflow {
 		}
 		//System.out.println("END OF SELECTED URLS");
 	}
-	
+
 	public static void resetCounters() {
 		hostsMap = new HashMap<Integer,Integer>();
 		hostsIpMap = new HashMap<Integer,Integer>();
 		_numSelected = 0;
 	}
-	
+
 	//Custom comparators. These enable grouping the URL list by Status (so that Fetched come first in order
 	//for host-occurency hash map to be filled correctly. Everything else that has a status that belongs
 	//in statusSet, is ordered by Score
@@ -229,7 +234,7 @@ public class SimpleCrawlHFSWorkflow {
 			if (o1.equals(FETCHED_STR) && o2.equals(FETCHED_STR)) return 0;
 			else if (o1.equals(FETCHED_STR)) return -1;
 			else if (o2.equals(FETCHED_STR)) return 1;
-			
+
 			if (statusSet.contains(o1) && statusSet.contains(o2)) return 0;
 			else return o1.compareTo(o2);			
 		}		
@@ -248,7 +253,7 @@ public class SimpleCrawlHFSWorkflow {
 			BaseUrlFilter urlFilter, String[] classes, ArrayList<String[]> topic, 
 			double thres, int min_uniq_terms,int max_depth,
 			SimpleCrawlHFSOptions options) throws Throwable {
-		
+
 		return createFlow071(curWorkingDirPath, crawlDbPath, userAgent, fetcherPolicy,
 				urlFilter, classes, topic, thres, min_uniq_terms, max_depth, options);				
 
@@ -276,10 +281,10 @@ public class SimpleCrawlHFSWorkflow {
 		//conf.set("hadoop.tmp.dir", "hadoop-temp");
 		int numReducers = conf.getNumReduceTasks() * HadoopUtils.getTaskTrackers(conf);
 		Properties props = HadoopUtils.getDefaultProperties(SimpleCrawlWorkflow.class, debug, conf);
-		
+
 		FileSystem fs = curWorkingDirPath.getFileSystem(conf);
 		//System.err.println(conf.get("hadoop.tmp.dir"));
-		
+
 		if (!fs.exists(crawlDbPath)) {
 			throw new IllegalStateException(String.format("Input directory %s doesn't exist", crawlDbPath));
 		}
@@ -325,7 +330,7 @@ public class SimpleCrawlHFSWorkflow {
 
 		// Create the sub-assembly that runs the fetch job                
 		BaseFetcher fetcher = new SimpleHttpFetcher(maxThreads, fetcherPolicy, userAgent);
-		
+
 		((SimpleHttpFetcher) fetcher).setConnectionTimeout(SimpleCrawlHFS.config.getInt("fetcher.connection_timeout.value"));
 		((SimpleHttpFetcher) fetcher).setSocketTimeout(SimpleCrawlHFS.config.getInt("fetcher.socket_timeout.value"));
 		((SimpleHttpFetcher) fetcher).setMaxRetryCount(SimpleCrawlHFS.config.getInt("fetcher.max_retry_count.value"));
@@ -338,7 +343,7 @@ public class SimpleCrawlHFSWorkflow {
 		//of downloaded pages and one that contains the status of all the URLs that
 		//were fed to the fetcher. contentPipe will handle the content of the fetched pages.
 		Pipe contentPipe = new Pipe("content pipe", fetchPipe.getContentTailPipe());  
-		
+
 		//contentPipe is parsed. Metadata, content and links are extracted. Content is
 		//cleaned using Boilerpipe.
 		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler));
@@ -361,7 +366,7 @@ public class SimpleCrawlHFSWorkflow {
 		//Outlinks are filtered and normalized
 		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter));
 		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedNormalizeUrlFunction(new SimpleUrlNormalizer()));
-		
+
 		//The second pipe returned from the fetcher, is assigned to urlFromFetchPipe.
 		Pipe urlFromFetchPipe = new Pipe("fetched pipe", fetchPipe.getStatusTailPipe());
 		//The URLs the Fetcher attempted to fetch are joined with the
@@ -383,7 +388,7 @@ public class SimpleCrawlHFSWorkflow {
 		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe,new CreateCrawlDbDatumFromUrlFunction());
 		Pipe finishedDatums = new GroupBy(Pipe.pipes(finishedDatumsFromDb,urlFromFetchPipe, urlFromOutlinksPipe), new Fields(CrawlDbDatum.URL_FIELD));
 		finishedDatums = new Every(finishedDatums, new MakeDistinctCrawlDbFunction(),Fields.RESULTS);
-		
+
 		// Create the output map that connects each tail pipe to the appropriate sink.
 		Map<String, Tap> sinkMap = new HashMap<String, Tap>();
 		sinkMap.put(finalContentPipe.getName(), contentSink);
@@ -395,7 +400,7 @@ public class SimpleCrawlHFSWorkflow {
 		// Finally we can run it.
 		FlowConnector flowConnector = new FlowConnector(props);
 		//LOGGER.info("Hadoop tmp dir in SCHFSW: " + conf.get("hadoop.tmp.dir"));
-		
+
 		return flowConnector.connect(inputSource, sinkMap/*, statusOutputPipe*/, finalContentPipe, finalParsePipe,
 				classifyPipe.getClassifierTailPipe(), finishedDatums);
 	}
@@ -423,10 +428,10 @@ public class SimpleCrawlHFSWorkflow {
 		//conf.set("hadoop.tmp.dir", "hadoop-temp");
 		int numReducers = conf.getNumReduceTasks() * HadoopUtils.getTaskTrackers(conf);
 		Properties props = HadoopUtils.getDefaultProperties(SimpleCrawlWorkflow.class, debug, conf);
-		
+
 		FileSystem fs = curWorkingDirPath.getFileSystem(conf);
 		//System.err.println(conf.get("hadoop.tmp.dir"));
-		
+
 		if (!fs.exists(crawlDbPath)) {
 			throw new IllegalStateException(String.format("Input directory %s doesn't exist", crawlDbPath));
 		}
@@ -472,7 +477,7 @@ public class SimpleCrawlHFSWorkflow {
 
 		// Create the sub-assembly that runs the fetch job                
 		BaseFetcher fetcher = new SimpleHttpFetcher(maxThreads, fetcherPolicy, userAgent);
-		
+
 		((SimpleHttpFetcher) fetcher).setConnectionTimeout(SimpleCrawlHFS.config.getInt("fetcher.connection_timeout.value"));
 		((SimpleHttpFetcher) fetcher).setSocketTimeout(SimpleCrawlHFS.config.getInt("fetcher.socket_timeout.value"));
 		((SimpleHttpFetcher) fetcher).setMaxRetryCount(SimpleCrawlHFS.config.getInt("fetcher.max_retry_count.value"));
@@ -485,7 +490,7 @@ public class SimpleCrawlHFSWorkflow {
 		//of downloaded pages and one that contains the status of all the URLs that
 		//were fed to the fetcher. contentPipe will handle the content of the fetched pages.
 		Pipe contentPipe = new Pipe("content pipe", fetchPipe.getContentTailPipe());  
-		
+
 		//contentPipe is parsed. Metadata, content and links are extracted. Content is
 		//cleaned using Boilerpipe.
 		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler));
@@ -506,7 +511,7 @@ public class SimpleCrawlHFSWorkflow {
 		Fields extendedUrlDatumFields = new Fields(ExtendedUrlDatum.URL_FN);
 		Fields fetchedDatumFieldsWithUrl = FetchedDatum.FIELDS.append(new Fields("url"));
 		Fields extendedParsedDatumFieldsWithUrl = ExtendedParsedDatum.FIELDS.append(new Fields("url"));
-		
+
 		Pipe finalContentPipe = new CoGroup(
 				contentPipe, fetchedDatumFields,
 				urlsFromClassifier, extendedUrlDatumFields,
@@ -518,16 +523,16 @@ public class SimpleCrawlHFSWorkflow {
 				urlsFromClassifier, extendedUrlDatumFields,
 				extendedParsedDatumFieldsWithUrl,
 				new RightJoin());
-		
+
 		//The links scored by the classifier are handled be the urlFromOutlinksPipe
 		Pipe urlFromOutlinksPipe = new Pipe("url from outlinks", classifyPipe.getScoredLinksTailPipe());
 		//Outlinks are filtered and normalized
 		//if (_mainhost==null)
 		//	urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter));
 		//else
-			urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter, _mainhost));
+		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter, _mainhost));
 		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedNormalizeUrlFunction(new SimpleUrlNormalizer()));
-		
+
 		//The second pipe returned from the fetcher, is assigned to urlFromFetchPipe.
 		Pipe urlFromFetchPipe = new Pipe("fetched pipe", fetchPipe.getStatusTailPipe());
 		//The URLs the Fetcher attempted to fetch are joined with the
@@ -538,15 +543,15 @@ public class SimpleCrawlHFSWorkflow {
 		classifierFields = classifierFields.rename(new Fields(ClassifierDatum.PAYLOAD_FN), new Fields("classifier_payload"));        
 
 		Fields statusAndClassifierFields = StatusDatum.FIELDS.append(classifierFields);
-//		LOGGER.info(statusAndClassifierFields);		
-//		LOGGER.info(fetchedDatumFields);		
-//		LOGGER.info(fetchedDatumFieldsWithUrl);		
-		
+		//		LOGGER.info(statusAndClassifierFields);		
+		//		LOGGER.info(fetchedDatumFields);		
+		//		LOGGER.info(fetchedDatumFieldsWithUrl);		
+
 		urlFromFetchPipe = new CoGroup(
 				urlFromFetchPipe, statusDatumURLFields,
 				classifyPipe.getClassifierTailPipe(), extendedUrlDatumFields,
 				statusAndClassifierFields, new LeftJoin());
-				
+
 		urlFromFetchPipe = new Each(urlFromFetchPipe, new CreateUrlDatumFromStatusFunction());
 		//Finally, these URLs as well as the extracted links are converted to CrawlDbDatums. 
 		//Then, we add/update these 2 pipes to the original pipe containing the whole URL
@@ -559,11 +564,11 @@ public class SimpleCrawlHFSWorkflow {
 						finishedDatumsFromDbPipe, 
 						urlFromFetchPipe,
 						urlFromOutlinksPipe),
-				new Fields(CrawlDbDatum.URL_FIELD));
-				//new Fields(StatusDatum.URL_FIELD));
-		
+						new Fields(CrawlDbDatum.URL_FIELD));
+		//new Fields(StatusDatum.URL_FIELD));
+
 		finishedDatumsPipe = new Every(finishedDatumsPipe, new MakeDistinctCrawlDbFunction(),Fields.RESULTS);
-		
+
 		// Create the output map that connects each tail pipe to the appropriate sink.
 		Map<String, Tap> sinkMap = new HashMap<String, Tap>();
 		sinkMap.put(finalContentPipe.getName(), contentSink);
@@ -581,9 +586,9 @@ public class SimpleCrawlHFSWorkflow {
 				classifyPipe.getClassifierTailPipe()//, 
 				,finishedDatumsPipe
 				);
-		
+
 		return flow;
 	}
-	
-	
+
+
 }
