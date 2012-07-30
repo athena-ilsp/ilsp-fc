@@ -775,8 +775,8 @@ public class SampleExporter {
 		StringTokenizer tkzr = new StringTokenizer(maincontent);
 		//System.out.println(tkzr.countTokens());
 		//System.out.println(maincontent);
-		if (lang.contains(";"))
-			minTokensNumber=100;
+		//if (lang.contains(";"))
+		//	minTokensNumber=100;
 		
 		if (tkzr.countTokens()<minTokensNumber){
 			//			System.out.println("CUT: "+ eAddress);
