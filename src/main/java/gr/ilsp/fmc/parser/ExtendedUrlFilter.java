@@ -56,7 +56,7 @@ public class ExtendedUrlFilter extends BaseOperation<NullContext> implements Fil
 		//BaseUrlFilter filter=_filter;
 		String aaa=datum.getUrl();
 				
-		if (aaa.startsWith("ftp") || aaa.equals("http:/") || aaa.isEmpty() || aaa.length()<7)
+		if (aaa.startsWith("ftp") || aaa.contains("mailto:")|| aaa.equals("http:/") || aaa.isEmpty() || aaa.length()<7)
 			return false;
 		/*UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
 		if (!urlValidator.isValid(aaa) && !aaa.contains("#")){
