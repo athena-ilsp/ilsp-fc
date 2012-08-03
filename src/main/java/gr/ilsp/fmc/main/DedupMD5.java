@@ -17,7 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -41,9 +43,9 @@ public class DedupMD5 {
 	private static File out_textfile;
 	private static boolean html=false;
 	private static String input_type="xml";
-	private static int MIN_TOKEN_LEN=2;
+	private static int MIN_TOKEN_LEN=3;
 	private static float QUANT_RATE= (float) 0.01;
-	private static int QAUNT_DEFAULT=2;
+	private static int QAUNT_DEFAULT=5;
 	private static String fs = System.getProperty("file.separator");
 	//private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	//private static final String HTTP_PATH = "http://sifnos.ilsp.gr/soaplab2-axis";
@@ -59,7 +61,7 @@ public class DedupMD5 {
 			input= new File(temp);
 		else
 			input= new File(temp.substring(tempid+2, temp.length()));
-		
+
 		System.out.println(input.getAbsolutePath());
 		if (!input.exists() || !input.isDirectory()){
 			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
@@ -95,11 +97,27 @@ public class DedupMD5 {
 		HashMap<String, TextAttr> freqs = new HashMap<String, TextAttr>();
 		byte[] texthashkey =null;
 		String string_key="";
-		//String pairs="";
-		
+		String pairs="";
+
 		//String tempfile="";
 		for (int ii=0;ii<files.length;ii++){
 			text = extractTextfromXML_clean(files[ii].getAbsolutePath());
+			//System.out.println(files[ii]);
+			//System.out.println(text);
+			/*Writer out;
+			try {
+				out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("C:\\PANACEA\\HS_DE_IT\\eur-lex_f\\e2eb64d8-dd45-462c-9315-ad27a08a95c5\\xml1\\10t.txt"),"UTF-8"));
+				out.write(text);
+				out.close();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}*/
+
+
 			if (text.isEmpty())
 				continue;
 			texthashkey =calculate(text);
@@ -109,8 +127,8 @@ public class DedupMD5 {
 			}
 			TextAttr t= new TextAttr(text.length(),files[ii].getName());
 			if (freqs.containsKey(string_key)) {
-				
-				//pairs = pairs + t.filename+ "\t\t" + freqs.get(string_key).filename + "\n";
+
+				pairs = pairs + t.filename+ "\t\t" + freqs.get(string_key).filename + "\n";
 				if (t.length>freqs.get(string_key).length){
 					//System.out.println("OUT"+"\t"+freqs.get(string_key).filename);
 					freqs.put(string_key, t);
@@ -131,7 +149,7 @@ public class DedupMD5 {
 				freqs.put(string_key, t);
 			}
 		}
-		//System.out.println(pairs);
+		System.out.println(pairs);
 		Set<String> keys=freqs.keySet();
 		Iterator<String> it = keys.iterator();
 		String urlList = "";
@@ -140,23 +158,23 @@ public class DedupMD5 {
 		while (it.hasNext()){
 			string_key = it.next();
 			//try {
-				sourcefile = freqs.get(string_key).filename;
-				//System.out.println(sourcefile);
-				//copy(input.getAbsolutePath()+fs+sourcefile,outputdir.getAbsolutePath()+fs+sourcefile);
-				String temp1 = outputdir.getAbsolutePath().replace("\\","/");
-				temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
-				temp1=temp1.substring(temp1.indexOf("http:"));
-				
-				urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
-				
-				counter++;
-				//sourcefile = freqs.get(string_key).filename.replace(".xml", ".html");
-				//copy(input.getPath()+fs+sourcefile,outputdir.getPath()+fs+sourcefile);
+			sourcefile = freqs.get(string_key).filename;
+			//System.out.println(sourcefile);
+			//copy(input.getAbsolutePath()+fs+sourcefile,outputdir.getAbsolutePath()+fs+sourcefile);
+			String temp1 = outputdir.getAbsolutePath().replace("\\","/");
+			temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
+			temp1=temp1.substring(temp1.indexOf("http:"));
+
+			urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
+
+			counter++;
+			//sourcefile = freqs.get(string_key).filename.replace(".xml", ".html");
+			//copy(input.getPath()+fs+sourcefile,outputdir.getPath()+fs+sourcefile);
 			//} catch (IOException e) {
 			//	System.err.println(e.getMessage());
 			//}
 		}
-		
+
 		writetextfile(out_textfile.getAbsolutePath(),urlList);
 		if (html){
 			File out_HTMLfile =new File(outputHTMLfilename);
@@ -168,9 +186,9 @@ public class DedupMD5 {
 		//System.out.println("Duration: "+elapsedTime);
 		LOGGER.info("Deduplication completed in " + elapsedTime + " milliseconds. "+ counter +  " files remained.");
 	}
-	
-	
-	
+
+
+
 	public static void dedupNew(String indirname, String outputfilename, String outputHTMLfilename){
 		//modify indirname to be valid for windows
 		String temp = indirname+"/xml";
@@ -194,7 +212,7 @@ public class DedupMD5 {
 		}
 		File outputdir= new File(input.getParent()+fs+"xmlDedup");
 		outputdir.mkdir();
-		
+
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
 				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type));
@@ -246,9 +264,9 @@ public class DedupMD5 {
 				String temp1 = outputdir.getAbsolutePath().replace("\\","/");
 				temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
 				temp1=temp1.substring(temp1.indexOf("http:"));
-				
+
 				urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
-				
+
 				counter++;
 				sourcefile = freqs.get(string_key).filename.replace(".xml", ".html");
 				copy(input.getPath()+fs+sourcefile,outputdir.getPath()+fs+sourcefile);
@@ -447,27 +465,27 @@ public class DedupMD5 {
 	}
 
 	public static void delete(String fileName) {
-	    try {
-	      // Construct a File object for the file to be deleted.
-	      File target = new File(fileName);
+		try {
+			// Construct a File object for the file to be deleted.
+			File target = new File(fileName);
 
-	      if (!target.exists()) {
-	        System.err.println("File " + fileName
-	            + " not present to begin with!");
-	        return;
-	      }
+			if (!target.exists()) {
+				System.err.println("File " + fileName
+						+ " not present to begin with!");
+				return;
+			}
 
-	      // Quick, now, delete it immediately:
-	      if (!target.delete())
-	        //System.err.println("** Deleted " + fileName + " **");
-	      //else
-	        System.err.println("Failed to delete " + fileName);
-	    } catch (SecurityException e) {
-	      System.err.println("Unable to delete " + fileName + "("
-	          + e.getMessage() + ")");
-	    }
-	  }
-	
+			// Quick, now, delete it immediately:
+			if (!target.delete())
+				//System.err.println("** Deleted " + fileName + " **");
+				//else
+				System.err.println("Failed to delete " + fileName);
+		} catch (SecurityException e) {
+			System.err.println("Unable to delete " + fileName + "("
+					+ e.getMessage() + ")");
+		}
+	}
+
 	public static void copy(String fromFileName, String toFileName)
 			throws IOException {
 		File fromFile = new File(fromFileName);
@@ -539,5 +557,152 @@ public class DedupMD5 {
 								;
 							}
 				}*/
+	}
+
+
+
+	public static void dedupnew(String indirname, String outputfilename, String outputHTMLfilename) {
+		//modify indirname to be valid for windows
+		String temp = indirname+fs+"xml";
+		int tempid=temp.indexOf(":");
+		if (tempid<0 || tempid<2)
+			input= new File(temp);
+		else
+			input= new File(temp.substring(tempid+2, temp.length()));
+
+		System.out.println(input.getAbsolutePath());
+		if (!input.exists() || !input.isDirectory()){
+			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
+			System.exit(64);
+		}
+		out_textfile =new File(outputfilename);
+		if (!out_textfile.exists()){
+			System.err.println( "List of cesdoc files does not exist!!!!!!!!" );			
+			System.exit(64);
+		}
+		if (!(outputHTMLfilename==null)){
+			html=true;
+		}
+		File outputdir= new File(input.getParent()+fs+"xml");
+		//outputdir.mkdir();
+		FilenameFilter filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type));
+			}
+		};
+		File[] files=input.listFiles(filter);
+		if (files.length<2){
+			//System.err.println("The input list contains less than 2 files.");
+			LOGGER.info("The input list contains less than 2 files.");
+			//return;
+			System.exit(64);
+		}
+		//else
+		//	System.out.println(files.length+" files will be processed.");
+		//long start = System.nanoTime(); 
+		long start = System.currentTimeMillis();
+		String text="";
+		String string_key="";
+		String pairs="";
+		byte[] parhashkey =null;
+		//String tempfile="";
+		HashMap<String, HashSet<String>> fileshash= new HashMap<String, HashSet<String>>();
+		HashMap<String, HashSet<Integer>> fileslengthhash= new HashMap<String, HashSet<Integer>>();
+		HashMap<String, Integer> fileTextlength= new HashMap<String, Integer>();
+		for (int ii=0;ii<files.length;ii++){
+			text = extractTextfromXML_clean(files[ii].getAbsolutePath());
+			String[] pars=text.split("\n");
+			List<String> filelist=new ArrayList<String>();
+			List<Integer> filelengthlist=new ArrayList<Integer>();
+			for (int jj=0;jj<pars.length;jj++){
+				parhashkey=MD5Hash.digest(pars[jj]).getDigest();
+				string_key="";
+				for (int kk=0;kk<parhashkey.length;kk++) {
+					string_key += parhashkey[kk];
+				}
+				filelist.add(string_key);
+				filelengthlist.add(pars[jj].length());
+			}
+			HashSet<String> fileset= new HashSet<String>(filelist);
+			fileshash.put(files[ii].getName().toString(), fileset);
+			HashSet<Integer> filelengthset= new HashSet<Integer>(filelengthlist);
+			fileslengthhash.put(files[ii].getName().toString(), filelengthset);
+			fileTextlength.put(files[ii].getName().toString(), text.length());
+		}
+		Set<String> keys=fileshash.keySet();
+		Iterator<String> it = keys.iterator();
+		String urlList="", string_key1 = "";
+		String sourcefile="";
+		int counter=0;
+		while (it.hasNext()){
+			string_key = it.next();
+			HashSet<String> fileset=fileshash.get(string_key);
+			Iterator<String> it1 = keys.iterator();
+			counter++;
+			int len = fileTextlength.get(string_key);
+			while (it1.hasNext()){
+				string_key1 = it1.next();
+				if (string_key1.equals(string_key)) continue;
+				int len1 = fileTextlength.get(string_key1);
+				HashSet<String> fileset1=fileshash.get(string_key1);
+				HashSet intersection = new HashSet(fileset);
+				intersection.retainAll(fileset1);
+				double t=Double.parseDouble(Integer.toString(fileset.size()));
+				double t1=Double.parseDouble(Integer.toString(fileset1.size()));
+				double ti=Double.parseDouble(Integer.toString(intersection.size()));
+
+				double tu=t+t1-ti;
+				if (ti/t >0.9 || ti/t1 >0.9 || ti/tu >0.9){
+					System.out.println(string_key+" pair with "+ string_key1);
+					if (fileTextlength.get(string_key1)>fileTextlength.get(string_key)){
+						//System.out.println("OUT"+"\t"+freqs.get(string_key).filename);
+						//freqs.put(string_key, t);
+						String temp2 = input.getPath()+fs+string_key;
+						delete(temp2);
+						temp2 = temp2.replace("."+input_type,".html");
+						delete(temp2);
+					}else{
+						//System.out.println("OUT"+"\t"+t.filename);
+						String temp2 = input.getPath()+fs+string_key1;
+						delete(temp2);
+						temp2 = temp2.replace("."+input_type,".html");
+						delete(temp2);
+					}
+				}
+
+			}
+		}
+		File[] files1=input.listFiles(filter);
+		counter=0;
+		//while (it.hasNext()){
+		for (int ii=0;ii<files1.length;ii++){
+			//string_key = files1[ii].getName();
+			//try {
+			sourcefile = files1[ii].getName(); //freqs.get(string_key).filename;
+			//System.out.println(sourcefile);
+			//copy(input.getAbsolutePath()+fs+sourcefile,outputdir.getAbsolutePath()+fs+sourcefile);
+			String temp1 = outputdir.getAbsolutePath().replace("\\","/");
+			temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
+			//temp1=temp1.substring(temp1.indexOf("http:"));
+
+			urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
+
+			counter++;
+			//sourcefile = freqs.get(string_key).filename.replace(".xml", ".html");
+			//copy(input.getPath()+fs+sourcefile,outputdir.getPath()+fs+sourcefile);
+			//} catch (IOException e) {
+			//	System.err.println(e.getMessage());
+			//}
+		}
+		writetextfile(out_textfile.getAbsolutePath(),urlList);
+		if (html){
+			File out_HTMLfile =new File(outputHTMLfilename);
+			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList);
+		}
+
+		long elapsedTime = System.currentTimeMillis()-start;
+		//System.out.println(counter + " files remained."); 
+		//System.out.println("Duration: "+elapsedTime);
+		LOGGER.info("New Deduplication completed in " + elapsedTime + " milliseconds. "+ counter +  " files remained.");
 	}
 }
