@@ -66,8 +66,8 @@ public class Classifier implements Serializable{
 		//vpapa
 		_targetlangKeys=langKeys;
 		
-		if (_targetLanguage.contains(";"))
-			_minTokensNumber=100;
+		//if (_targetLanguage.contains(";"))
+		//	_minTokensNumber=100;
 	}
 	public ClassifierDatum classify(ExtendedParsedDatum parsedDatum) {
 		//String lang = parsedDatum.getLanguage();
@@ -161,11 +161,16 @@ public class Classifier implements Serializable{
 				TOTABSCORE_TH,TOTRELSCORE_TH,SUBCLASSSCORE_TH,_classes, url, length_in_tok);
 		//System.out.println(parsedDatum.getUrl() + " " + TOTABSCORE_TH);
 		double contentscore = contentScores[contentScores.length-1][0];
-		if (contentscore>=_thres)
+		double relcontentscore = contentScores[contentScores.length-1][1];
+		if (contentscore>=_thres && relcontentscore>0.4){//FIXME relscore????
 			//ClassifierDatum result = new ClassifierDatum(url, new String[1],new String[1][2], 0.0, 0.0);
+			//System.out.println(url +" STORED "+ contentscore +"\t"+ relcontentscore);
 			return result;
-		else
+		}
+		else{
+			
 			return null;
+		}
 	}
 
 
