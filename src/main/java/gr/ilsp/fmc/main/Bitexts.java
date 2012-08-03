@@ -10,7 +10,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -23,13 +25,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapred.JobConf;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
@@ -43,6 +49,7 @@ import org.xml.sax.SAXException;
 public class Bitexts {
 	private static final String cesDocVersion = "1.0";
 	private static final String LANGUAGE_ELE = "language";
+	private static final String EADDRESS = "eAddress";
 	private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static String cesNameSpace = "http://www.w3.org/1999/xlink";
@@ -57,19 +64,67 @@ public class Bitexts {
 	private static double length_thres=0.4;
 	private static double pars_thres=0.4;
 	private static int level_thres=2;
-	private static double jac_thr=0.5;
+	private static double jac_thr=0.6;
 	private static int im_dif_thr=3;
 	private static int minnumofpars=3;
 
 	public static void main(String[] args) {
 		//File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\AUTO_DE-EN\\voithcom\\e38ec81f-630d-44b0-8d20-8b6c1ff07170\\xml");
 		//File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\HS_DE-IT\\temp_entsend");
-		File xmldir=new File("C:\\var\\lib\\tomcat6\\webapps\\soaplab2-results\\81fe5e39-52f4-4d55-bd27-21ef866bd3cc\\xml");
+		//File xmldir=new File("C:\\var\\lib\\tomcat6\\webapps\\soaplab2-results\\81fe5e39-52f4-4d55-bd27-21ef866bd3cc\\xml");
+		//File xmldir=new File("C:\\PANACEA\\HS_DE_IT\\osha-europa\\xml");
+		//File xmldir=new File(args[0]);
+		//File xmldir=new File("C:\\PANACEA\\HS_DE_IT\\eur-lex_f\\e2eb64d8-dd45-462c-9315-ad27a08a95c5\\xml1");
+		File xmldir=new File("C:\\PANACEA\\AUTOMOTIVE\\AUTO_EN\\93dbfb32-d55f-4619-8454-5f45fe923856\\xml");
+		//File xmldirnew=new File("C:\\PANACEA\\AUTOMOTIVE\\AUTO_DE\\xml");
 		try {	
+			//check_domainess("C:\\PANACEA\\HS_IT\\wegleitung-ekas_f\\domainess.txt","it;de", 0.5);
+			String outfile = "C:\\PANACEA\\AUTOMOTIVE\\AUTO_EN\\output_automotive_EN_list.txt";
+			//String outfilehtml = "C:\\PANACEA\\AUTOMOTIVE\\AUTO_EN\\output_automotive_EN_list.txt.html";
+			//DedupMD5.dedup(xmldir.toString(), outfile,outfilehtml);
+			//DedupMD5.dedupnew(xmldir.toString(), outfile,outfilehtml);
+			//System.exit(0);
+			
+			checklistfiles(xmldir,outfile);
+			//String outfile = "C:\\PANACEA\\AUTOMOTIVE\\AUTO_EN\\output_automotive_EN_list.txt";
+			//String outfile_new = "C:\\PANACEA\\AUTOMOTIVE\\AUTO_DE\\output_automotive_DE_list_new.txt";
+			//String removefile="C:\\PANACEA\\AUTOMOTIVE\\AUTO_DE\\remove.txt";
+			//removepages(outfile,outfile_new,removefile);
+			//System.exit(0);
+			
+			extractURL(xmldir,outfile);
+			System.exit(0);
+
+			//File newxmldir=new File("C:\\PANACEA\\AUTOMOTIVE\\EN-DE_delivered\\thyssenkrupp\\xml");
+			//moveoutputfiles(xmldir,"_h",newxmldir,outfile);
+			//moveoutputfiles(xmldir,"_i",newxmldir,outfile);
+			//moveoutputfiles(xmldir,"_l",newxmldir,outfile);
+			//moveoutputfiles(xmldir,"_m",newxmldir,outfile);
+			//moveoutputfiles(xmldir,xmldirnew,outfile);
+			//System.exit(0);
+			//counttoks(xmldirnew,outfile);
+			//System.exit(0);
+			//countdomainess(xmldir,"","de;en",outfile);
+			//countdomainess(xmldir,"","de;en",outfile);
+
+			String[] langs=new String[2];	langs[0]="de";	langs[1]="en";
+			//counttoks_topic(xmldir,"_h",langs,outfile);
+			//counttoks_topic(xmldir,"_i",langs,outfile);
+			//counttoks_topic(xmldir,"_m",langs);
+			//counttoks_topic(xmldir,"_l",langs);
+			counttoks(xmldir,"_h",langs,outfile);
+			counttoks(xmldir,"_i",langs,outfile);
+			counttoks(xmldir,"_m",langs,outfile);
+			counttoks(xmldir,"_l",langs,outfile);
+			System.exit(0);
+
+			//DedupMD5.dedup(xmldir.getAbsolutePath(), "C:\\PANACEA\\HS_DE_IT\\eur-lex_f\\e2eb64d8-dd45-462c-9315-ad27a08a95c5\\xml1\\test.txt","test.txt.html");
+
 			//String[][] CCC=representXML(xmldir);
 			HashMap<String,String[]> props=representXML_NEW(xmldir);
 			HashMap<String,String[]> props_short =new HashMap<String,String[]>();
-			HashMap<String, String[]> imagesInHTML=ImageExtractor.findImages(xmldir,false);
+			//System.out.println("ss");
+			HashMap<String, String[]> imagesInHTML=ImageExtractor.findImages(xmldir,true);
 			ArrayList<String[]> pairsIM=new ArrayList<String[]>();
 			if (imagesInHTML.size()>1){
 				pairsIM=findpairsIM(imagesInHTML,props);
@@ -96,6 +151,865 @@ public class Bitexts {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+
+
+	private static void counttoks(File xmldir, String outfile) {
+		ArrayList<String> outlist =new ArrayList<String>();
+		BufferedReader in;
+		String str="";
+		try {
+			in = new BufferedReader(new FileReader(outfile));
+			while ((str = in.readLine()) != null) {
+				outlist.add(str.substring(str.lastIndexOf("/")+1));
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String[] files= xmldir.list();
+		int tokens=0; 
+		int counter=0;
+		for (int ii=0; ii<files.length ; ii++){
+			File fileAlign=new File(files[ii]);
+			String f1 = fileAlign.getName();
+			if (f1.endsWith(".html")) continue;
+			counter++;
+			int temp=0;
+			try {
+				int eventType=0;
+				String lang="", curElement="";
+				XMLInputFactory2 xmlif = null;
+				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
+				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
+				xmlif.configureForSpeed();
+				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+f1),"UTF-8");
+				while (xmlr.hasNext()) {
+					eventType = xmlr.next();
+					if (eventType == XMLEvent2.START_ELEMENT){
+						curElement = xmlr.getLocalName().toString();
+						if (curElement.equals(LANGUAGE_ELE)) {
+							lang=xmlr.getAttributeValue(0);
+						}else{
+							if (curElement.equals("p")){
+								int attrs=xmlr.getAttributeCount();
+								int t=-1;
+								for (int m=1;m<attrs;m++){
+									if (xmlr.getAttributeValue(m).equals("boilerplate")
+											|| xmlr.getAttributeValue(m).equals("ooi-lang")
+											|| xmlr.getAttributeValue(m).equals("ooi-length")){
+										t=0; 
+										break;
+									}
+								}
+								if (t<0) {
+									String tempstr1 = xmlr.getElementText();
+									StringTokenizer st = new StringTokenizer(tempstr1);	
+									//double words_num=st.countTokens();
+									temp = temp+st.countTokens();
+								}
+							}
+						}
+					}else
+						curElement = "";
+				}
+				tokens=tokens+temp;
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println(counter+ " files");
+		System.out.println(tokens);
+	}
+
+
+
+	private static void moveoutputfiles(File xmldir, File xmldirnew,	String outfile) {
+		ArrayList<String> outlist =new ArrayList<String>();
+		BufferedReader in;
+		String str="";
+		try {
+			in = new BufferedReader(new FileReader(outfile));
+			while ((str = in.readLine()) != null) {
+				outlist.add(str.substring(str.lastIndexOf("/")+1));
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (int ii=0;ii<outlist.size();ii++){
+			String f1 = outlist.get(ii);
+			String f1h=f1.substring(0, f1.indexOf("."))+".html";
+			copyfile(xmldir.toString()+fs+f1,xmldirnew.toString()+fs+f1);
+			copyfile(xmldir.toString()+fs+f1h,xmldirnew.toString()+fs+f1h);
+		}
+		
+	}
+
+
+
+	private static void checklistfiles(File xmldir, String outfile) {
+		String[] files= xmldir.list();
+		ArrayList<String> outlist =new ArrayList<String>();
+		BufferedReader in;
+		String str="";
+		try {
+			in = new BufferedReader(new FileReader(outfile));
+			while ((str = in.readLine()) != null) {
+				outlist.add(str.substring(str.lastIndexOf("/")+1));
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (int ii=0; ii<files.length ; ii++){
+			File fileAlign=new File(files[ii]);
+			String f1 = fileAlign.getName();
+			if (f1.endsWith(".html")) continue;
+			if (!outlist.contains(f1))
+				System.out.println(f1);
+		}
+		System.out.println("-----");
+		for (int ii=0; ii<outlist.size() ; ii++){
+			boolean found =false;
+			for (int jj=0; jj<files.length; jj++){
+				if (outlist.get(ii).equals(files[jj]))
+					found=true;
+			}
+			if (!found)
+				System.out.println(outlist.get(ii));
+		}
+	}
+
+
+
+	private static void removepages(String outfile, String outfile_new, String removefile) {
+		ArrayList<String> outlist =new ArrayList<String>();
+		//ArrayList<String> outlist_new =new ArrayList<String>();
+		ArrayList<String> removelist =new ArrayList<String>();
+		BufferedReader in;
+		String str="";
+		try {
+			in = new BufferedReader(new FileReader(outfile));
+			while ((str = in.readLine()) != null) {
+				outlist.add(str.substring(str.lastIndexOf("/")+1));
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		BufferedReader in1;
+		String str1="";
+		try {
+			in1 = new BufferedReader(new FileReader(removefile));
+			while ((str1 = in1.readLine()) != null) {
+				removelist.add(str1.substring(str1.lastIndexOf("/")+1));
+			}
+			in1.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (int ii=0;ii<removelist.size();ii++){
+			if (outlist.contains(removelist.get(ii))){
+				System.out.println(removelist.get(ii)+" found");
+				outlist.remove(removelist.get(ii));
+			}
+			//else
+			//	System.out.println(removelist.get(ii)+"aa");
+		}
+		Writer out;
+		try {
+			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outfile_new),"UTF-8"));
+			for (int ii=0;ii<outlist.size();ii++){
+				out.write(outlist.get(ii)+"\n");
+			}
+			out.close();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	private static void extractURL(File xmldir, String outfile) {
+		System.out.println("AAA");
+		String[] files= xmldir.list();
+		ArrayList<String> outlist =new ArrayList<String>();
+		BufferedReader in;
+		String str="";
+		try {
+			in = new BufferedReader(new FileReader(outfile));
+			while ((str = in.readLine()) != null) {
+				outlist.add(str.substring(str.lastIndexOf("/")+1));
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Writer out;
+		try {
+			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("urls.txt"),"UTF-8"));
+			for (int ii=0; ii<outlist.size() ; ii++){
+				File fileCesDoc=new File(outlist.get(ii));
+				String f1 = fileCesDoc.getName();
+				int temp=0;
+				int tokens=0;
+				try {
+					int eventType=0;
+					String eaddress="", curElement="";
+					XMLInputFactory2 xmlif = null;
+					xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
+					xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,Boolean.FALSE);
+					xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,Boolean.FALSE);
+					xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
+					xmlif.configureForSpeed();
+					XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.createXMLStreamReader(new FileInputStream(xmldir.getPath()+fs+f1),"UTF-8");
+					while (xmlr.hasNext()) {
+						eventType = xmlr.next();
+						if (eventType == XMLEvent2.START_ELEMENT){
+							curElement = xmlr.getLocalName().toString();
+							if (curElement.equals(EADDRESS)) {
+								eaddress=xmlr.getElementText();
+							}else{
+								if (curElement.equals("p")){
+									int attrs=xmlr.getAttributeCount();
+									int t=-1;
+									for (int m=1;m<attrs;m++){
+										if (xmlr.getAttributeValue(m).equals("boilerplate")
+												|| xmlr.getAttributeValue(m).equals("ooi-lang")
+												|| xmlr.getAttributeValue(m).equals("ooi-length")){
+											t=0; 
+											break;
+										}
+									}
+									if (t<0) {
+										String tempstr1 = xmlr.getElementText();
+										StringTokenizer st = new StringTokenizer(tempstr1);	
+										//double words_num=st.countTokens();
+										temp = temp+st.countTokens();
+									}
+								}
+							}
+						}else
+							curElement = "";
+					}
+					tokens=tokens+temp;
+					out.write(f1+":\t"+eaddress+"\ttokens:\t"+temp+"\n");
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (XMLStreamException e) {
+					e.printStackTrace();
+				}
+			}
+			out.close();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+
+	private static void moveoutputfiles(File xmldir, String type,	File newxmldir, String outfile) {
+
+		String[] files= xmldir.list();
+		int pairscounter=0;
+		System.out.println("checking "+type);
+		ArrayList<String> outlist =new ArrayList<String>();
+		BufferedReader in;
+		String str="";
+		try {
+			in = new BufferedReader(new FileReader(outfile));
+			while ((str = in.readLine()) != null) {
+				outlist.add(str.substring(str.lastIndexOf("/")+1));
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		//File newxmldir=new File(xmldir.getParent()+fs+"selectedxml");
+		for (int ii=0; ii<files.length ; ii++){
+			File fileAlign=new File(files[ii]);
+			String fileAlignName = fileAlign.getName();
+			if (fileAlignName.length()<9 || !fileAlignName.contains(type)) continue;
+			String f1 = fileAlignName.substring(0, fileAlignName.indexOf("_"))+".xml";
+			String f2 = fileAlignName.substring(fileAlignName.indexOf("_")+1, fileAlignName.lastIndexOf("_"))+".xml";
+			//System.out.println(f1.substring(0,f1.length()-4)+"_"+f2.substring(0,f2.length()-4)+type+".xml");
+			if (!outlist.contains(f1.substring(0,f1.length()-4)+"_"+f2.substring(0,f2.length()-4)+type+".xml"))
+				continue;
+			pairscounter++;
+			String f1h=f1.substring(0, f1.indexOf("."))+".html";
+			String f2h=f2.substring(0, f2.indexOf("."))+".html";
+			copyfile(xmldir.toString()+fs+f1,newxmldir.toString()+fs+f1);
+			copyfile(xmldir.toString()+fs+f2,newxmldir.toString()+fs+f2);
+			copyfile(xmldir.toString()+fs+f1h,newxmldir.toString()+fs+f1h);
+			copyfile(xmldir.toString()+fs+f2h,newxmldir.toString()+fs+f2h);
+			copyfile(xmldir.toString()+fs+fileAlign.getName(),newxmldir.toString()+fs+fileAlign.getName());
+		}
+		System.out.println(pairscounter+" files:"+ pairscounter*5);
+	}
+
+
+
+	private static void copyfile(String f1, String f2) {
+		InputStream inStream = null;
+		OutputStream outStream = null;
+		try{
+			File afile =new File(f1);
+			File bfile =new File(f2);
+			inStream = new FileInputStream(afile);
+			outStream = new FileOutputStream(bfile);
+			byte[] buffer = new byte[1024];
+			int length;
+			//copy the file content in bytes 
+			while ((length = inStream.read(buffer)) > 0)
+				outStream.write(buffer, 0, length);
+			inStream.close();
+			outStream.close();
+			System.out.println("File is copied successful!");
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+
+
+
+	private static void check_domainess(String txtfile, String langs, double thr) {
+		String str1=null, str2=null;
+
+		BufferedReader in;
+		try {
+			in = new BufferedReader(new FileReader(txtfile));
+			String key1, key2;
+			String lang1, lang2;
+			int len1, len2;
+			String[] languages=langs.split(";");
+			int[] lengths=new int[2];
+			lengths[0]=0; lengths[1]=0;
+			double score1, score2;
+			int counter=0;
+			while ((str1 = in.readLine()) != null) {
+				key1="";
+				key2="";
+				lang1="";
+				lang2="";
+				String[] temp1=str1.split("\t");
+				str2 = in.readLine();
+				String[] temp2=str2.split("\t");
+				key1 = temp1[0]; 				key2 = temp2[0];
+				score1=Double.parseDouble(temp1[1]);
+				score2=Double.parseDouble(temp2[1]);
+				if (score1>thr || score2>thr){
+					counter++;
+					lang1 = temp1[7]; 
+					lang2 = temp2[7];
+					len1=(int)Double.parseDouble(temp1[5]);
+					len2=(int)Double.parseDouble(temp2[5]);
+					if (lang1.equals(languages[0])){
+						lengths[0]=lengths[0]+len1;
+						lengths[1]=lengths[1]+len2;
+					}
+					else{
+						lengths[0]=lengths[0]+len2;
+						lengths[1]=lengths[1]+len1;
+					}
+				}else{
+					System.out.println(key1+"_"+key2);
+				}
+			}
+			in.close();
+			System.out.println("THR:"+ thr +" pairs:"+ counter+ " in "+ languages[0]+": "+ lengths[0]+ " in "+languages[1]+":"+ lengths[1]);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+
+	private static void countdomainess(File xmldir, String type, String langs, String otufile) {
+		String[] files= xmldir.list();
+		int pairscounter=0;
+		String topicdef="C:\\PANACEA\\AUTOMOTIVE\\Automotive-seed-terms-de_en.txt";
+		System.out.println("checking "+type);
+		ArrayList<String[]> topicterms=tttTopic(topicdef, langs); 
+		ArrayList<String> outlist =new ArrayList<String>();
+		BufferedReader in;
+		String str="";
+		try {
+			in = new BufferedReader(new FileReader(otufile));
+			while ((str = in.readLine()) != null) {
+				outlist.add(str.substring(str.lastIndexOf("/")+1));
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		for (int ii=0; ii<files.length ; ii++){
+			double rank=0;
+			//File fileAlign=new File(files[ii]);
+			//String fileAlignName = fileAlign.getName();
+			//if (fileAlignName.length()<9 || !fileAlignName.contains(type)) continue;
+			//pairscounter++;
+			//String f1 = fileAlignName.substring(0, fileAlignName.indexOf("_"))+".xml";
+			//String f2 = fileAlignName.substring(fileAlignName.indexOf("_")+1, fileAlignName.lastIndexOf("_"))+".xml";
+			//if (!outlist.contains(f1.substring(0,f1.length()-4)+"_"+f2.substring(0,f2.length()-4)+type+".xml"))
+			//	continue;
+			String f1 =files[ii];
+			String f2="";
+			double temp=0;
+			String lang="", pageurl="";
+			try {
+				int eventType=0;
+				String curElement="";
+				XMLInputFactory2 xmlif = null;
+				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
+				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
+				xmlif.configureForSpeed();
+				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+f1),"UTF-8");
+				while (xmlr.hasNext()) {
+					eventType = xmlr.next();
+					if (eventType == XMLEvent2.START_ELEMENT){
+						curElement = xmlr.getLocalName().toString();
+						if (curElement.equals(LANGUAGE_ELE))
+							lang=xmlr.getAttributeValue(0);
+						else{
+							if (curElement.equals(EADDRESS))
+								pageurl=xmlr.getElementText();
+							else{
+								if (curElement.equals("p")){
+									int attrs=xmlr.getAttributeCount();
+									int t=-1;
+									for (int m=1;m<attrs;m++){
+										if (xmlr.getAttributeLocalName(m).toString().equals("topic")){
+											String tempstr2 = xmlr.getAttributeValue(m);
+											String terms[]=tempstr2.split(";");
+											for (int ll=0;ll<terms.length;ll++){
+												for (int mm=0;mm<topicterms.size();mm++){
+													if (topicterms.get(mm)[1].equals(terms[ll]))
+														rank = rank+Integer.parseInt(topicterms.get(mm)[0]);
+												}
+											}
+										}
+										if (xmlr.getAttributeValue(m).equals("boilerplate")
+												|| xmlr.getAttributeValue(m).equals("ooi-lang")
+												|| xmlr.getAttributeValue(m).equals("ooi-length")){
+											t=0;
+											break;
+										}
+									}
+									if (t<0){
+										String tempstr1 = xmlr.getElementText();
+										StringTokenizer st = new StringTokenizer(tempstr1);	
+										temp = temp+st.countTokens();	
+									}
+								}
+							}
+						}
+					}else
+						curElement = "";
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+			//System.out.println(f1+" url:"+ pageurl);
+			//System.out.println(f1+":\t"+rank/temp + "\trank:\t"+ rank+ "\ttoks:\t"+ temp+"\tlang:\t"+lang);
+			if (f2.isEmpty()) {
+				if ((rank/temp)<0.5)
+					System.out.println(f1+":\t"+rank/temp + "\trank:\t"+ rank+ "\ttoks:\t"+ temp+"\tlang:\t"+lang);
+				continue;
+			}
+			double temp1=0;
+			double rank1=0;
+			try {
+				int eventType=0;
+				String curElement="";
+				XMLInputFactory2 xmlif = null;
+				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
+				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
+				xmlif.configureForSpeed();
+				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+f2),"UTF-8");
+				while (xmlr.hasNext()) {
+					eventType = xmlr.next();
+					if (eventType == XMLEvent2.START_ELEMENT){
+						curElement = xmlr.getLocalName().toString();
+						if (curElement.equals(LANGUAGE_ELE)) 
+							lang=xmlr.getAttributeValue(0);
+						else{
+							if (curElement.equals(EADDRESS))
+								pageurl=xmlr.getElementText();
+							else{
+								if (curElement.equals("p")){
+									int attrs=xmlr.getAttributeCount();
+									int t=-1;
+									for (int m=1;m<attrs;m++){
+										if (xmlr.getAttributeLocalName(m).toString().equals("topic")){
+											String tempstr2 = xmlr.getAttributeValue(m);
+											String terms[]=tempstr2.split(";");
+											for (int ll=0;ll<terms.length;ll++){
+												for (int mm=0;mm<topicterms.size();mm++){
+													if (topicterms.get(mm)[1].equals(terms[ll]))
+														rank1 = rank1+Integer.parseInt(topicterms.get(mm)[0]);
+												}
+											}
+											//String tempstr1 = xmlr.getElementText();
+											//StringTokenizer st = new StringTokenizer(tempstr1);	
+											//temp = temp+st.countTokens();	
+											//break;
+										}
+										if (xmlr.getAttributeValue(m).equals("boilerplate")
+												|| xmlr.getAttributeValue(m).equals("ooi-lang")
+												|| xmlr.getAttributeValue(m).equals("ooi-length")){
+											t=0;
+											break;
+										}
+									}
+									if (t<0){
+										String tempstr1 = xmlr.getElementText();
+										StringTokenizer st = new StringTokenizer(tempstr1);	
+										temp1 = temp1+st.countTokens();	
+									}
+								}
+							}
+						}
+					}else
+						curElement = "";
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+			//System.out.println(f2+" url:"+ pageurl);
+			System.out.println(f2+":\t"+rank1/temp1 + "\trank:\t"+ rank1+ "\ttoks:\t"+ temp1+"\tlang:\t"+lang);
+			if (rank/temp<0.5 && rank1/temp1<0.5){
+				System.out.println("PROBLEM: "+ f1+"_"+f2);
+			}
+		}
+	}
+
+
+
+	private static ArrayList<String[]> tttTopic(String topicdef, String lang) {
+		ArrayList<String[]> topic = new ArrayList<String[]>();
+		String str, a, b, c, d ;
+		//String[] langs = lang.split(";");
+		BufferedReader in;
+		try {
+			in = new BufferedReader(new FileReader(topicdef));
+			while ((str = in.readLine()) != null) {
+				a=str.subSequence(0, str.indexOf(":")).toString().trim();
+				b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().toLowerCase().trim();
+				int ind=str.indexOf(">");
+				d=str.subSequence(ind+1, str.length()).toString().toLowerCase().trim();
+				topic.add(new String[] {a,b,d});
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return topic;
+	}
+
+
+
+	private static void counttoks_topic(File xmldir, String type,	String[] langs, String outfile) {
+
+		ArrayList<String> outlist =new ArrayList<String>();
+		BufferedReader in;
+		String str="";
+		try {
+			in = new BufferedReader(new FileReader(outfile));
+			while ((str = in.readLine()) != null) {
+				outlist.add(str.substring(str.lastIndexOf("/")+1));
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+		String[] files= xmldir.list();
+		int pairscounter=0;
+		int[] tokens = new int[2];
+
+		for (int ii=0; ii<files.length ; ii++){
+			File fileAlign=new File(files[ii]);
+			String fileAlignName = fileAlign.getName();
+			if (fileAlignName.length()<9 || !fileAlignName.contains(type)) continue;
+			String f1 = fileAlignName.substring(0, fileAlignName.indexOf("_"))+".xml";
+			String f2 = fileAlignName.substring(fileAlignName.indexOf("_")+1, fileAlignName.lastIndexOf("_"))+".xml";
+			if (!outlist.contains(f1.substring(0,f1.length()-4)+"_"+f2.substring(0,f2.length()-4)+type+".xml"))
+				continue;
+			pairscounter++;
+			int temp=0;
+			try {
+				int eventType=0;
+				String lang="", curElement="";
+				XMLInputFactory2 xmlif = null;
+				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
+				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
+				xmlif.configureForSpeed();
+				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+f1),"UTF-8");
+				while (xmlr.hasNext()) {
+					eventType = xmlr.next();
+					if (eventType == XMLEvent2.START_ELEMENT){
+						curElement = xmlr.getLocalName().toString();
+						if (curElement.equals(LANGUAGE_ELE)) {
+							lang=xmlr.getAttributeValue(0);
+						}else{
+							if (curElement.equals("p")){
+								int attrs=xmlr.getAttributeCount();
+								for (int m=1;m<attrs;m++){
+									//System.out.println(xmlr.getAttributeLocalName(m).toString());
+									if (xmlr.getAttributeLocalName(m).toString().equals("topic")){
+										String tempstr1 = xmlr.getElementText();
+										StringTokenizer st = new StringTokenizer(tempstr1);	
+										temp = temp+st.countTokens();
+									}
+								}
+							}
+						}
+					}else
+						curElement = "";
+				}
+				if (lang.equals(langs[0]))
+					tokens[0]=tokens[0]+temp;
+				else
+					tokens[1]=tokens[1]+temp;
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+			System.out.println(f1+":"+temp);
+			temp=0;
+			try {
+				int eventType=0;
+				String lang="", curElement="";
+				XMLInputFactory2 xmlif = null;
+				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
+				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
+				xmlif.configureForSpeed();
+				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+f2),"UTF-8");
+
+				while (xmlr.hasNext()) {
+					eventType = xmlr.next();
+					if (eventType == XMLEvent2.START_ELEMENT){
+						curElement = xmlr.getLocalName().toString();
+						if (curElement.equals(LANGUAGE_ELE)) {
+							lang=xmlr.getAttributeValue(0);
+						}else{
+							if (curElement.equals("p")){
+								int attrs=xmlr.getAttributeCount();
+								//int t=-1;
+								for (int m=1;m<attrs;m++){
+									if (xmlr.getAttributeLocalName(m).toString().equals("topic")){
+										String tempstr1 = xmlr.getElementText();
+										StringTokenizer st = new StringTokenizer(tempstr1);	
+										temp = temp+st.countTokens();
+									}
+								}
+							}
+						}
+					}else
+						curElement = "";
+				}
+				if (lang.equals(langs[0]))
+					tokens[0]=tokens[0]+temp;
+				else
+					tokens[1]=tokens[1]+temp;
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+			System.out.println(f2+":"+temp);
+		}
+		System.out.println(type+" > PAIRS:\t"+pairscounter+"\tLANGS/TOKENS:\t"+ langs[0]+ "\twith\t"+ tokens[0]+ "\tAND\t" + langs[1]+ " with "+ tokens[1]);
+
+	}
+
+
+
+	private static void counttoks(File xmldir, String type, String[] langs, String outfile) {
+
+		ArrayList<String> outlist =new ArrayList<String>();
+		BufferedReader in;
+		String str="";
+		try {
+			in = new BufferedReader(new FileReader(outfile));
+			while ((str = in.readLine()) != null) {
+				outlist.add(str.substring(str.lastIndexOf("/")+1));
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		String[] files= xmldir.list();
+		int pairscounter=0;
+		int[] tokens = new int[2];
+
+		for (int ii=0; ii<files.length ; ii++){
+			File fileAlign=new File(files[ii]);
+			String fileAlignName = fileAlign.getName();
+			if (fileAlignName.length()<9 || !fileAlignName.contains(type)) continue;
+			String f1 = fileAlignName.substring(0, fileAlignName.indexOf("_"))+".xml";
+			String f2 = fileAlignName.substring(fileAlignName.indexOf("_")+1, fileAlignName.lastIndexOf("_"))+".xml";
+			if (!outlist.contains(f1.substring(0,f1.length()-4)+"_"+f2.substring(0,f2.length()-4)+type+".xml"))
+				continue;
+			pairscounter++;
+			int temp=0;
+			try {
+				int eventType=0;
+				String lang="", curElement="";
+				XMLInputFactory2 xmlif = null;
+				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
+				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
+				xmlif.configureForSpeed();
+				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+f1),"UTF-8");
+				while (xmlr.hasNext()) {
+					eventType = xmlr.next();
+					if (eventType == XMLEvent2.START_ELEMENT){
+						curElement = xmlr.getLocalName().toString();
+						if (curElement.equals(LANGUAGE_ELE)) {
+							lang=xmlr.getAttributeValue(0);
+						}else{
+							if (curElement.equals("p")){
+								int attrs=xmlr.getAttributeCount();
+								int t=-1;
+								for (int m=1;m<attrs;m++){
+									if (xmlr.getAttributeValue(m).equals("boilerplate")
+											|| xmlr.getAttributeValue(m).equals("ooi-lang")
+											|| xmlr.getAttributeValue(m).equals("ooi-length")){
+										t=0; 
+										break;
+									}
+								}
+								if (t<0) {
+									String tempstr1 = xmlr.getElementText();
+									StringTokenizer st = new StringTokenizer(tempstr1);	
+									//double words_num=st.countTokens();
+									temp = temp+st.countTokens();
+								}
+							}
+						}
+					}else
+						curElement = "";
+				}
+				if (lang.equals(langs[0]))
+					tokens[0]=tokens[0]+temp;
+				else
+					tokens[1]=tokens[1]+temp;
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+			System.out.println(f1+":"+temp);
+			temp=0;
+			try {
+				int eventType=0;
+				String lang="", curElement="";
+				XMLInputFactory2 xmlif = null;
+				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
+				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,Boolean.FALSE);
+				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
+				xmlif.configureForSpeed();
+				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+f2),"UTF-8");
+
+				while (xmlr.hasNext()) {
+					eventType = xmlr.next();
+					if (eventType == XMLEvent2.START_ELEMENT){
+						curElement = xmlr.getLocalName().toString();
+						if (curElement.equals(LANGUAGE_ELE)) {
+							lang=xmlr.getAttributeValue(0);
+						}else{
+							if (curElement.equals("p")){
+								int attrs=xmlr.getAttributeCount();
+								int t=-1;
+								for (int m=1;m<attrs;m++){
+									if (xmlr.getAttributeValue(m).equals("boilerplate")
+											|| xmlr.getAttributeValue(m).equals("ooi-lang")
+											|| xmlr.getAttributeValue(m).equals("ooi-length")){
+										t=0; 
+										break;
+									}
+								}
+								if (t<0) {
+									String tempstr1 = xmlr.getElementText();
+									StringTokenizer st = new StringTokenizer(tempstr1);	
+									temp = temp+st.countTokens();
+								}
+							}
+						}
+					}else
+						curElement = "";
+				}
+				if (lang.equals(langs[0]))
+					tokens[0]=tokens[0]+temp;
+				else
+					tokens[1]=tokens[1]+temp;
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+			System.out.println(f2+":"+temp);
+		}
+		System.out.println(type+" > PAIRS:\t"+pairscounter+"\tLANGS/TOKENS:\t"+ langs[0]+ "\twith\t"+ tokens[0]+ "\tAND\t" + langs[1]+ " with "+ tokens[1]);
 	}
 
 
@@ -262,12 +1176,13 @@ public class Bitexts {
 						double disttok=0.0;
 						if (p1>p2) dist=p2/p1; else dist=p1/p2;
 						if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
-						if (jac>=jac_thr && dist>=0.5 && disttok > 0.3){ //
+						if (jac>=jac_thr && dist>=0.6 && disttok > 0.3){ //
 							//System.out.println(key_im +"_im:"+mySet1.size()+"-----"+key+"_im:"+mySet2.size()+"_"+jac);
-							if (jac*dist>temp_pair_score){
+							//if (jac*dist>temp_pair_score){
+							if (jac>temp_pair_score){
 								temp_pair=key;
 								temp_pair_score=jac*dist;
-								//System.out.println(key_im+"->"+key+" with "+disttok);
+								//System.out.println(key_im+"->"+key+" with "+jac);
 							}
 							temp_lang=lang2;
 						}
@@ -289,7 +1204,7 @@ public class Bitexts {
 			for (int jj=ii+1;jj<pairsIM.size();jj++){
 				if (pairsIM.get(jj)[1].equals(temp1) && pairsIM.get(jj)[0].equals(temp2)){
 					result.add(new String[] {temp1,temp2,pairsIM.get(ii)[2], pairsIM.get(ii)[3],"im"});
-					//System.out.println(temp1+"_"+temp2);
+					System.out.println(temp1+"_"+temp2);
 				}
 			}
 		}
@@ -307,8 +1222,9 @@ public class Bitexts {
 		HashMap<String, String[]> res=new HashMap<String, String[]>();
 		String url="", lang="", curElement="";
 		for (int ii=0; ii<files.length ; ii++){
-			String[] temp_res = new String[4];
+			String[] temp_res = new String[5];
 			String tempstr="";
+			String newtempstr="";
 			int pcounter=0;
 			OutputStreamWriter xmlFileListWrt = null;
 			try {
@@ -355,8 +1271,9 @@ public class Bitexts {
 									pcounter=pcounter+1;
 									int attrs=xmlr.getAttributeCount();
 
-									int t=-1, t1=0;
+									int t=-1, t1=0, t10=0;
 									for (int m=1;m<attrs;m++){
+										//System.out.println(xmlr.getAttributeValue(m));
 										if (xmlr.getAttributeValue(m).equals("boilerplate")){
 											t=0; 
 											break;
@@ -371,6 +1288,9 @@ public class Bitexts {
 											//topic=true;
 											t1=-5;
 										}
+										if (m==1 && !xmlr.getAttributeValue(m).equals("ooi-length") && !xmlr.getAttributeValue(m).equals("ooi-lang")){
+											t10=1; 
+										}
 									}
 									if (t<0){
 										if (t==-2)
@@ -382,13 +1302,15 @@ public class Bitexts {
 									}
 									if (t1<0)
 										xmlFileListWrt.write("-5"+"\n");	
+									String tempstr1 = xmlr.getElementText();
 									if (t<0 | t1<0) {
-										String tempstr1 = xmlr.getElementText();
 										//int temp = xmlr.getElementText().length();
 										int temp = tempstr1.length();
 										xmlFileListWrt.write(Integer.toString(temp)+"\n");
 										tempstr = tempstr+ " "+tempstr1;
 									}
+									if (t10==1 | attrs==1)
+										newtempstr = newtempstr + " "+ tempstr1;
 								}
 							}
 						}
@@ -396,14 +1318,16 @@ public class Bitexts {
 						curElement = "";
 				}
 				temp_res[2]=Integer.toString(pcounter);
-				StringTokenizer st = new StringTokenizer(tempstr);	
+				StringTokenizer st = new StringTokenizer(tempstr);
 				temp_res[3]=Integer.toString(st.countTokens());
+				StringTokenizer st1 = new StringTokenizer(newtempstr);
+				temp_res[4]=Integer.toString(st1.countTokens());
 				if (res.containsKey(files[ii].substring(0, files[ii].indexOf("."))))
 					System.out.println("OOPS");
 				res.put(files[ii].substring(0, files[ii].indexOf(".")), temp_res);
-				
+
 				//System.out.println(files[ii].substring(0, files[ii].indexOf("."))+":"+temp_res[0]+">"+temp_res[1]+">"+temp_res[2]+">"+temp_res[3]);
-				
+
 				xmlFileListWrt.close();
 				xmlr.close();
 			} catch (UnsupportedEncodingException e) {
@@ -1184,13 +2108,13 @@ public class Bitexts {
 				String[] attr2=props.get(p2);
 				//System.out.println(p1+" in "+attr1[1]+":"+attr1[3]+"\t"+p2+" in "+attr2[1]+":"+attr2[3]);
 				if (attr1[1].equals(stats[0]))
-					stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[3]));
+					stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[4]));
 				if (attr1[1].equals(stats[2]))
-					stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[3])); 
+					stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[4])); 
 				if (attr2[1].equals(stats[0]))
-					stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[3])); 
+					stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[4])); 
 				if (attr2[1].equals(stats[2]))
-					stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[3]));
+					stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[4]));
 			}
 			if (!bitexts.isEmpty()){
 				for (int ii=0;ii<bitexts.size();ii++){
@@ -1199,13 +2123,13 @@ public class Bitexts {
 					String[] attr1=props_short.get(p1);
 					String[] attr2=props_short.get(p2);
 					if (attr1[1].equals(stats[0]))
-						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[3]));
+						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[4]));
 					if (attr1[1].equals(stats[2]))
-						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[3])); 
+						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[4])); 
 					if (attr2[1].equals(stats[0]))
-						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[3])); 
+						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[4])); 
 					if (attr2[1].equals(stats[2]))
-						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[3]));
+						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[4]));
 				}
 			}
 		}else{
@@ -1221,13 +2145,13 @@ public class Bitexts {
 					String[] attr1=props_short.get(p1);
 					String[] attr2=props_short.get(p2);
 					if (attr1[1].equals(stats[0]))
-						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[3]));
+						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[4]));
 					if (attr1[1].equals(stats[2]))
-						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[3])); 
+						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[4])); 
 					if (attr2[1].equals(stats[0]))
-						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[3])); 
+						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[4])); 
 					if (attr2[1].equals(stats[2]))
-						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[3]));
+						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[4]));
 				}
 			}
 		}
