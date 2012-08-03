@@ -56,6 +56,7 @@ public class ImageExtractor {
 		//String webSiteURL;
 		try {
 			for (int ii=0; ii<files.length ; ii++){
+				//System.out.println(ii);
 				//webSiteURL=getURLfromXML(xmldir.getPath()+"/"+files[ii]);
 				//Document doc;
 				//doc = Jsoup.connect(webSiteURL).get();
@@ -70,6 +71,7 @@ public class ImageExtractor {
 					//String[] strarray = (String[]) images.toArray();
 					for (int jj=0;jj<images.size();jj++){
 						strarray[jj]=images.get(jj);
+						//System.out.print(images.get(jj)+">");
 						if (all_images.containsKey(images.get(jj)))
 							all_images.put(images.get(jj), all_images.get(images.get(jj))+1);
 						else
@@ -78,6 +80,7 @@ public class ImageExtractor {
 					String key=files[ii].substring(0, files[ii].indexOf("."));
 					result.put(key,strarray);
 				}
+				//System.out.println();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -112,8 +115,11 @@ public class ImageExtractor {
 		while (imit.hasNext()){	
 			temp_im = imit.next();
 			//System.out.println(temp_im+"_"+all_images.get(temp_im) );
-			if (all_images.get(temp_im)>thr)
+			if (all_images.get(temp_im)>=thr || all_images.get(temp_im)>=10 || all_images.get(temp_im)==1){
 				boilerimages.add(temp_im);
+				//System.out.println("DISCARD_IMAGE: "+ temp_im);
+			}
+				
 		}
 		keys1=result.keySet();
 		imit = keys1.iterator();
@@ -126,8 +132,12 @@ public class ImageExtractor {
 					new_temp.add(temp[ii]);
 			}
 			String final_temp[]=new String[new_temp.size()];
-			for (int ii=0;ii<new_temp.size();ii++)
+			//System.out.println(temp_im);
+			for (int ii=0;ii<new_temp.size();ii++){
 				final_temp[ii]=new_temp.get(ii);
+				System.out.println(final_temp[ii]);
+			}
+				
 			result.put(temp_im, final_temp);
 		}
 		return result;
