@@ -26,7 +26,7 @@ public class ExtendedLinksExtractor {
 		try {
 			_input.reset();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(_input,metadata.get(Metadata.CONTENT_ENCODING)));
-			
+
 			String htmltext = "", linktext = "", anchortext = "";
 			String line = "", temp = "";
 			String pre_extendedtext ="", post_extendedtext ="", wholetext="";
@@ -37,7 +37,7 @@ public class ExtendedLinksExtractor {
 			org.jsoup.nodes.Element node = null;
 			StringTokenizer stpre = null,stpost = null;
 			String[] preWORDS=null, postWORDS=null;
-			
+
 			while ((line=reader.readLine())!=null) htmltext=htmltext.concat(line);
 			reader.close();
 			String baseUrl = metadata.get(Metadata.CONTENT_LOCATION);			
