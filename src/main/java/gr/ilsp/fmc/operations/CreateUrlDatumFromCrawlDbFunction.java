@@ -43,7 +43,7 @@ public class CreateUrlDatumFromCrawlDbFunction extends BaseOperation<NullContext
 		long time = System.currentTimeMillis();
 		CrawlDbDatum datum = new CrawlDbDatum(funcCall.getArguments());
 		String aaa=datum.getUrl();
-		if (!aaa.startsWith("ftp") && !aaa.equals("http:/")){
+		if (!aaa.startsWith("ftp") && !aaa.equals("http:/") && !aaa.contains("mailto:")){
 			ExtendedUrlDatum urlDatum = new ExtendedUrlDatum(datum.getUrl());
 			urlDatum.setPayloadValue(CrawlDbDatum.LAST_FETCHED_FIELD, datum.getLastFetched());
 			urlDatum.setPayloadValue(CrawlDbDatum.LAST_UPDATED_FIELD, datum.getLastUpdated());
