@@ -498,11 +498,13 @@ public class SimpleCrawlHFS {
 				se.export(false);
 			}
 			// Finished exporting. Now remove (near) duplicates
-			System.out.println(outputDirName);
-			System.out.println(crawlDbPath.getParent().getParent().toString());
+			//System.out.println(outputDirName);
+			//System.out.println(crawlDbPath.getParent().getParent().toString());
 			//DedupMD5.dedup(crawlDbPath.getParent().getParent().toString(), options.getOutputFile(),options.getOutputFileHTML());
+			LOGGER.info("Deduplication by using lists and MD5 method.");
 			DedupMD5.dedup(outputDirName, options.getOutputFile(),options.getOutputFileHTML());
-	
+			LOGGER.info("Deduplication based on common paragraphs.");
+			DedupMD5.dedupnew(outputDirName, options.getOutputFile(), options.getOutputFileHTML());
 			// Now detect candidate parallel documents if needed.
 			if (options.getType().equals("p")){	
 				//String[][] AAA;
