@@ -89,8 +89,8 @@ public class DedupMD5 {
 			//return;
 			System.exit(64);
 		}
-		//else
-		//	System.out.println(files.length+" files will be processed.");
+		else
+			System.out.println(files.length+" files will be processed.");
 		//long start = System.nanoTime(); 
 		long start = System.currentTimeMillis();
 		String text="";
@@ -149,7 +149,7 @@ public class DedupMD5 {
 				freqs.put(string_key, t);
 			}
 		}
-		System.out.println(pairs);
+		//System.out.println(pairs);
 		Set<String> keys=freqs.keySet();
 		Iterator<String> it = keys.iterator();
 		String urlList = "";
@@ -470,16 +470,17 @@ public class DedupMD5 {
 			File target = new File(fileName);
 
 			if (!target.exists()) {
-				System.err.println("File " + fileName
-						+ " not present to begin with!");
+				//System.err.println("File " + fileName
+				//		+ " not present to begin with!");
 				return;
 			}
 
 			// Quick, now, delete it immediately:
-			if (!target.delete())
+			target.delete();
+			//if (!target.delete())
 				//System.err.println("** Deleted " + fileName + " **");
 				//else
-				System.err.println("Failed to delete " + fileName);
+				//System.err.println("Failed to delete " + fileName);
 		} catch (SecurityException e) {
 			System.err.println("Unable to delete " + fileName + "("
 					+ e.getMessage() + ")");
@@ -603,7 +604,7 @@ public class DedupMD5 {
 		long start = System.currentTimeMillis();
 		String text="";
 		String string_key="";
-		String pairs="";
+		//String pairs="";
 		byte[] parhashkey =null;
 		//String tempfile="";
 		HashMap<String, HashSet<String>> fileshash= new HashMap<String, HashSet<String>>();
@@ -653,7 +654,7 @@ public class DedupMD5 {
 
 				double tu=t+t1-ti;
 				if (ti/t >0.9 || ti/t1 >0.9 || ti/tu >0.9){
-					System.out.println(string_key+" pair with "+ string_key1);
+					//System.out.println(string_key+" pair with "+ string_key1);
 					if (fileTextlength.get(string_key1)>fileTextlength.get(string_key)){
 						//System.out.println("OUT"+"\t"+freqs.get(string_key).filename);
 						//freqs.put(string_key, t);
@@ -704,5 +705,152 @@ public class DedupMD5 {
 		//System.out.println(counter + " files remained."); 
 		//System.out.println("Duration: "+elapsedTime);
 		LOGGER.info("New Deduplication completed in " + elapsedTime + " milliseconds. "+ counter +  " files remained.");
+	}
+
+	public static void deduppars(String indirname, String outputfilename, String outputHTMLfilename) {
+		//modify indirname to be valid for windows
+		String temp = indirname+fs+"data";
+		String dir_txts = temp+fs+"pars_dedup_txt";
+		int tempid=temp.indexOf(":");
+		if (tempid<0 || tempid<2)
+			input= new File(temp);
+		else
+			input= new File(temp.substring(tempid+2, temp.length()));
+
+		System.out.println(input.getAbsolutePath());
+		if (!input.exists() || !input.isDirectory()){
+			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
+			System.exit(64);
+		}
+
+		FilenameFilter filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type));
+			}
+		};
+		File[] files=input.listFiles(filter);
+		if (files.length<2){
+			//System.err.println("The input list contains less than 2 files.");
+			LOGGER.info("The input list contains less than 2 files.");
+			//return;
+			System.exit(64);
+		}
+		//else
+		//	System.out.println(files.length+" files will be processed.");
+		//long start = System.nanoTime(); 
+		String text="";
+		String string_key="";
+		String new_string="";
+		byte[] parhashkey =null;
+		String txtfilename="";
+		HashMap<String, String> parshash= new HashMap<String, String>();
+		for (int ii=0;ii<files.length;ii++){
+			txtfilename = dir_txts+fs+files[ii].getName()+".txt";
+			Writer out;
+			try {
+				out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txtfilename),"UTF-8"));	
+				text = extractTextfromXML_clean(files[ii].getAbsolutePath());
+				String[] pars=text.split("\n");
+				for (int jj=0;jj<pars.length;jj++){
+					parhashkey=MD5Hash.digest(pars[jj]).getDigest();
+					string_key="";
+					for (int kk=0;kk<parhashkey.length;kk++) 
+						string_key += parhashkey[kk];
+					if (parshash.containsKey(string_key)){
+						new_string=parshash.get(string_key)+","+files[ii].getName();
+						parshash.put(string_key, new_string);
+						System.out.println(new_string);
+						System.out.println(pars[jj]);
+					}else{
+						out.write(pars[jj]+"\n");
+						parshash.put(string_key, files[ii].getName());
+					}
+				}
+				out.close();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+				System.err.println("Error in writing the output text file. The encoding is not supported.");
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				System.err.println("Error in writing the output text file. The file does not exist.");
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("Error in writing the output text file.");
+			}
+		}
+	}
+
+	public static void deduppars(String indirname) {
+		//modify indirname to be valid for windows
+		String temp = indirname;
+		String dir_txts = temp+fs+"pars_dedup_txt";
+		int tempid=temp.indexOf(":");
+		if (tempid<0 || tempid<2)
+			input= new File(temp);
+		else
+			input= new File(temp.substring(tempid+2, temp.length()));
+
+		System.out.println(input.getAbsolutePath());
+		if (!input.exists() || !input.isDirectory()){
+			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
+			System.exit(64);
+		}
+
+		FilenameFilter filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type));
+			}
+		};
+		File[] files=input.listFiles(filter);
+		if (files.length<2){
+			//System.err.println("The input list contains less than 2 files.");
+			LOGGER.info("The input list contains less than 2 files.");
+			//return;
+			System.exit(64);
+		}
+		else
+			System.out.println(files.length+" files will be processed.");
+		//long start = System.nanoTime(); 
+		String text="";
+		String string_key="";
+		String new_string="";
+		byte[] parhashkey =null;
+		String txtfilename="";
+		HashMap<String, String> parshash= new HashMap<String, String>();
+		for (int ii=0;ii<files.length;ii++){
+			txtfilename = dir_txts+fs+files[ii].getName()+".txt";
+			Writer out;
+			try {
+				out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txtfilename),"UTF-8"));	
+				text = extractTextfromXML_clean(files[ii].getAbsolutePath());
+				String[] pars=text.split("\n");
+				for (int jj=0;jj<pars.length;jj++){
+					parhashkey=MD5Hash.digest(pars[jj]).getDigest();
+					string_key="";
+					for (int kk=0;kk<parhashkey.length;kk++) {
+						string_key += parhashkey[kk];
+					}
+					if (parshash.containsKey(string_key)){
+						new_string=parshash.get(string_key)+","+files[ii].getName();
+						parshash.put(string_key, new_string);
+						System.out.println(new_string);
+						System.out.println(pars[jj]);
+					}else{
+						out.write(pars[jj]+"\n");
+						parshash.put(string_key, files[ii].getName());
+					}
+				}
+				out.close();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+				System.err.println("Error in writing the output text file. The encoding is not supported.");
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				System.err.println("Error in writing the output text file. The file does not exist.");
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("Error in writing the output text file.");
+			}
+		}
 	}
 }
