@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gr.ilsp</groupId>
 	<artifactId>ilsp-fc</artifactId>
-	<version>1.1-SNAPSHOT</version>
+	<version>1.1</version>
 	<name>ILSP Focused Crawler </name>
 	<description>A focused crawler using the Bixo web mining toolkit.</description>
 	<properties>
@@ -163,7 +163,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-        		<version>2.5.1</version>
+				<version>2.5.1</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
@@ -173,10 +173,19 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
-					<!--<execution> <id>package-project</id> <phase>package</phase> <goals> 
-						<goal>single</goal> </goals> <configuration> <tarLongFileMode>gnu</tarLongFileMode> 
-						<descriptorRefs> <descriptorRef>project</descriptorRef> </descriptorRefs> 
-						</configuration> </execution> -->
+					<execution>
+						<id>package-project</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<tarLongFileMode>gnu</tarLongFileMode>
+							<descriptorRefs>
+								<descriptorRef>project</descriptorRef>
+							</descriptorRefs>
+						</configuration>
+					</execution>
 					<execution>
 						<id>package-jar-with-dependencies</id>
 						<phase>package</phase>
@@ -184,20 +193,37 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
-							<appendAssemblyId>false</appendAssemblyId>
+<!-- 							<appendAssemblyId>false</appendAssemblyId> -->
 							<descriptorRefs>
 								<descriptorRef>jar-with-dependencies</descriptorRef>
 							</descriptorRefs>
 							<archive>
 								<manifest>
 									<mainClass>gr.ilsp.fmc.main.SimpleCrawlHFS</mainClass>
-									<!--<mainClass>gr.ilsp.fmc.exporter.SampleExporter</mainClass> -->
+									<mainClass>gr.ilsp.fmc.exporter.SampleExporter</mainClass>
 								</manifest>
 							</archive>
 						</configuration>
 					</execution>
+					<execution>
+						<id>package-source-with-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/assembly.xml</descriptor>
+							</descriptors>
+							<archive>
+							</archive>
+						</configuration>
+					</execution>
 				</executions>
+
 			</plugin>
+
+
 		</plugins>
 	</build>
 	<organization>
