@@ -39,6 +39,7 @@ public class Classifier implements Serializable{
 	private double TOTABSCORE_TH = 0.0;
 	private double TOTRELSCORE_TH = 0.2;
 	private double SUBCLASSSCORE_TH = 0.2;
+	private double relcontentthr = 0.1;
 	private String _targetLanguage;
 	private int _minTokensNumber = 200;		
 	private String[] _classes;
@@ -83,9 +84,8 @@ public class Classifier implements Serializable{
 
 		StringTokenizer tkzr = new StringTokenizer(content);
 		int length_in_tok=tkzr.countTokens();
-		if (length_in_tok<_minTokensNumber){
+		if (length_in_tok<_minTokensNumber)
 			return null;
-		}
 
 		String url = parsedDatum.getUrl();
 		//		for (String s:metaMap.keySet()){
@@ -162,15 +162,13 @@ public class Classifier implements Serializable{
 		//System.out.println(parsedDatum.getUrl() + " " + TOTABSCORE_TH);
 		double contentscore = contentScores[contentScores.length-1][0];
 		double relcontentscore = contentScores[contentScores.length-1][1];
-		if (contentscore>=_thres && relcontentscore>0.4){//FIXME relscore????
+		if (contentscore>=_thres && relcontentscore>relcontentthr){//FIXME relscore????
 			//ClassifierDatum result = new ClassifierDatum(url, new String[1],new String[1][2], 0.0, 0.0);
 			//System.out.println(url +" STORED "+ contentscore +"\t"+ relcontentscore);
 			return result;
 		}
-		else{
-			
+		else
 			return null;
-		}
 	}
 
 
@@ -531,7 +529,7 @@ public class Classifier implements Serializable{
 	}*/
 
 
-	public double rankLinktest(String text1) {
+	/*public double rankLinktest(String text1) {
 		double score = 0, weight=0; int matches=0;
 		String[] tempstr = null;		
 		String term;
@@ -615,7 +613,7 @@ public class Classifier implements Serializable{
 		return score;
 	}
 
-
+*/
 
 
 
@@ -771,7 +769,7 @@ public class Classifier implements Serializable{
 		return langidentified;
 	}
 
-	public double rankLink1(String url) {
+	/*public double rankLink1(String url) {
 		double score = 0;
 		String[] langs = _targetLanguage.split(";");
 		if (langs.length>1){
@@ -781,7 +779,7 @@ public class Classifier implements Serializable{
 		}else
 			score=0;
 		return score;
-	}
+	}*/
 	public double rankLinkNotopic(String linktext, String anchortext, String pagelang, double vv) {
 		double score = 0;
 				
