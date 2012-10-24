@@ -1077,7 +1077,8 @@ public class SampleExporter {
 					parId++;
 				}							
 			} catch (Exception e) {
-				LOGGER.error("Could not write file with id " + temp_id);	
+				//LOGGER..error("Could not write file with id " + temp_id);	
+				LOGGER.warn("Could not write file with id " + temp_id);
 				//LOGGER.error(e.getMessage());
 				//e.printStackTrace();
 				return false;
