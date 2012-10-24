@@ -135,7 +135,7 @@ public class ImageExtractor {
 			//System.out.println(temp_im);
 			for (int ii=0;ii<new_temp.size();ii++){
 				final_temp[ii]=new_temp.get(ii);
-				System.out.println(final_temp[ii]);
+				//System.out.println(final_temp[ii]);
 			}
 				
 			result.put(temp_im, final_temp);
