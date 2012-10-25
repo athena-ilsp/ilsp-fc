@@ -4,7 +4,7 @@ package gr.ilsp.fmc.parser;
 
 
 
-import org.apache.commons.validator.UrlValidator;
+//import org.apache.commons.validator.UrlValidator;
 
 import bixo.datum.UrlDatum;
 import bixo.hadoop.ImportCounters;
