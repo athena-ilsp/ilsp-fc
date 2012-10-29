@@ -647,7 +647,7 @@ public class SimpleCrawlHFS {
 					int length_in_tok=tkzr.countTokens();
 					total_tokens=total_tokens+length_in_tok;
 				}
-				System.out.println("Total tokens: "+ total_tokens);
+				LOGGER.info("Total tokens: "+ total_tokens);
 			}
 			System.exit(0);
 			
