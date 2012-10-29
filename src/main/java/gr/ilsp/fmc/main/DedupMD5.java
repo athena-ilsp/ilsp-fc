@@ -62,7 +62,7 @@ public class DedupMD5 {
 		else
 			input= new File(temp.substring(tempid+2, temp.length()));
 
-		System.out.println(input.getAbsolutePath());
+		//System.out.println(input.getAbsolutePath());
 		if (!input.exists() || !input.isDirectory()){
 			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
 			System.exit(64);
@@ -86,11 +86,12 @@ public class DedupMD5 {
 		if (files.length<2){
 			//System.err.println("The input list contains less than 2 files.");
 			LOGGER.info("The input list contains less than 2 files.");
-			//return;
-			System.exit(64);
+			return;
+			//System.exit(64);
 		}
 		else
-			System.out.println(files.length+" files will be processed.");
+			LOGGER.info(files.length+" files will be processed.");
+			//System.out.println(files.length+" files will be processed.");
 		//long start = System.nanoTime(); 
 		long start = System.currentTimeMillis();
 		String text="";
@@ -571,7 +572,7 @@ public class DedupMD5 {
 		else
 			input= new File(temp.substring(tempid+2, temp.length()));
 
-		System.out.println(input.getAbsolutePath());
+		//System.out.println(input.getAbsolutePath());
 		if (!input.exists() || !input.isDirectory()){
 			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
 			System.exit(64);
@@ -595,8 +596,8 @@ public class DedupMD5 {
 		if (files.length<2){
 			//System.err.println("The input list contains less than 2 files.");
 			LOGGER.info("The input list contains less than 2 files.");
-			//return;
-			System.exit(64);
+			return;
+			//System.exit(64);
 		}
 		//else
 		//	System.out.println(files.length+" files will be processed.");
