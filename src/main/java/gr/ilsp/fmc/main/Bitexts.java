@@ -75,15 +75,17 @@ public class Bitexts {
 		//File xmldir=new File("C:\\PANACEA\\HS_DE_IT\\osha-europa\\xml");
 		//File xmldir=new File(args[0]);
 		//File xmldir=new File("C:\\PANACEA\\HS_DE_IT\\eur-lex_f\\e2eb64d8-dd45-462c-9315-ad27a08a95c5\\xml1");
-		File xmldir=new File("C:\\PANACEA\\AUTOMOTIVE\\AUTO_EN\\93dbfb32-d55f-4619-8454-5f45fe923856\\xml");
+		File xmldir=new File("C:\\PANACEA\\MONO_2\\LAB_IT\\LAB_IT");
 		//File xmldirnew=new File("C:\\PANACEA\\AUTOMOTIVE\\AUTO_DE\\xml");
 		try {	
 			//check_domainess("C:\\PANACEA\\HS_IT\\wegleitung-ekas_f\\domainess.txt","it;de", 0.5);
-			String outfile = "C:\\PANACEA\\AUTOMOTIVE\\AUTO_EN\\output_automotive_EN_list.txt";
-			//String outfilehtml = "C:\\PANACEA\\AUTOMOTIVE\\AUTO_EN\\output_automotive_EN_list.txt.html";
+			String outfile = "C:\\PANACEA\\MONO_2\\LAB_IT\\LAB_IT\\LAB_IT_list.txt";
+			String outfilehtml = "C:\\PANACEA\\MONO_2\\LAB_IT\\LAB_IT\\LAB_IT_list.txt.html";
 			//DedupMD5.dedup(xmldir.toString(), outfile,outfilehtml);
 			//DedupMD5.dedupnew(xmldir.toString(), outfile,outfilehtml);
-			//System.exit(0);
+			//DedupMD5.deduppars(xmldir.toString(), outfile,outfilehtml);
+			DedupMD5.deduppars(xmldir.toString());
+			System.exit(0);
 			
 			checklistfiles(xmldir,outfile);
 			//String outfile = "C:\\PANACEA\\AUTOMOTIVE\\AUTO_EN\\output_automotive_EN_list.txt";
@@ -1168,15 +1170,17 @@ public class Bitexts {
 						double t1=Double.parseDouble(Integer.toString(intersection.size()));
 						double t2=Double.parseDouble(Integer.toString((mySet1.size()+mySet2.size()-intersection.size())));
 						double jac=t1/t2;
-						double p1=Double.parseDouble(props.get(key_im)[0]);
-						double p2=Double.parseDouble(props.get(key)[0]);
+						double p1=Double.parseDouble(props.get(key_im)[2]);
+						double p2=Double.parseDouble(props.get(key)[2]);
+						double l1=Double.parseDouble(props.get(key_im)[0]);
+						double l2=Double.parseDouble(props.get(key)[0]);
 						double tok1=Double.parseDouble(props.get(key_im)[3]);
 						double tok2=Double.parseDouble(props.get(key)[3]);
 						double dist=0.0;
 						double disttok=0.0;
 						if (p1>p2) dist=p2/p1; else dist=p1/p2;
 						if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
-						if (jac>=jac_thr && dist>=0.6 && disttok > 0.3){ //
+						if (jac>=jac_thr && dist>=0.6 && disttok > 0.3 && Math.abs(l1-l2)<2.0){ //
 							//System.out.println(key_im +"_im:"+mySet1.size()+"-----"+key+"_im:"+mySet2.size()+"_"+jac);
 							//if (jac*dist>temp_pair_score){
 							if (jac>temp_pair_score){
@@ -1204,7 +1208,7 @@ public class Bitexts {
 			for (int jj=ii+1;jj<pairsIM.size();jj++){
 				if (pairsIM.get(jj)[1].equals(temp1) && pairsIM.get(jj)[0].equals(temp2)){
 					result.add(new String[] {temp1,temp2,pairsIM.get(ii)[2], pairsIM.get(ii)[3],"im"});
-					System.out.println(temp1+"_"+temp2);
+					//System.out.println(temp1+"_"+temp2);
 				}
 			}
 		}
