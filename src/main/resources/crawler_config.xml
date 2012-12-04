@@ -11,7 +11,7 @@
 				content of each web page in order to be stored.</description>
 		</min_content_terms>
 		<min_unique_content_terms>
-			<value>1</value>
+			<value>2</value>
 			<description>Minimum unique terms that must exist in clean content</description>
 		</min_unique_content_terms>
 		<max_depth>
