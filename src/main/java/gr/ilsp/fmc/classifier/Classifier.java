@@ -162,6 +162,8 @@ public class Classifier implements Serializable{
 		//System.out.println(parsedDatum.getUrl() + " " + TOTABSCORE_TH);
 		double contentscore = contentScores[contentScores.length-1][0];
 		double relcontentscore = contentScores[contentScores.length-1][1];
+		//added for running without topic
+		if (_thres==0.0); relcontentthr=-0.1;
 		if (contentscore>=_thres && relcontentscore>relcontentthr){//FIXME relscore????
 			//ClassifierDatum result = new ClassifierDatum(url, new String[1],new String[1][2], 0.0, 0.0);
 			//System.out.println(url +" STORED "+ contentscore +"\t"+ relcontentscore);
