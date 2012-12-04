@@ -402,6 +402,8 @@ public class SimpleCrawlHFSOptions {
 							}
 							_domain=host;
 							_maindomain=mainhost;
+							//_domain="."+host;
+							//_maindomain="."+mainhost;
 							System.out.println(_domain);
 							System.out.println(_maindomain);
 						} catch (IOException e) {
