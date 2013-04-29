@@ -78,7 +78,7 @@ public class Classifier implements Serializable{
 		Map<String,String> metaMap = parsedDatum.getParsedMeta();
 		String keywords = "";
 		String meta = "";
-		//vpapa
+		
 		String content = parsedDatum.getParsedText().toLowerCase();
 		if (_keepBoiler) content = cleanContent(content);
 
