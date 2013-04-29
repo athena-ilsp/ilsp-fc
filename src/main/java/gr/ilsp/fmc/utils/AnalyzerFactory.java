@@ -15,7 +15,7 @@ import org.apache.lucene.util.Version;
 
 public class AnalyzerFactory {
 
-	String[] langs = {"de", "el", "en", "es", "fr", "it",};
+	String[] langs = {"de", "el", "en", "es", "fr", "it", "pt"};
 	List<String> langsList = Arrays.asList(langs);
 
 	public Analyzer getAnalyzer (String lang) throws Exception {
@@ -30,6 +30,8 @@ public class AnalyzerFactory {
 		} else	if (lang.equals("fr")) {
 			return new FrenchAnalyzer(Version.LUCENE_40);
 		} else	if (lang.equals("it")) {
+			return new ItalianAnalyzer(Version.LUCENE_40);
+		} else	if (lang.equals("pt")) {
 			return new ItalianAnalyzer(Version.LUCENE_40);
 		} else {
 			throw new Exception("No analyzer available for language " + lang + ".\n"
