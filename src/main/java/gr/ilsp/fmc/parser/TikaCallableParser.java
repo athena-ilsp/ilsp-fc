@@ -14,7 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-
+//import org.apache.tika.detect.DefaultDetector;
+//import org.apache.tika.detect.Detector;
+//import org.apache.tika.mime.MimeTypes;
 import org.apache.tika.language.ProfilingHandler;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
@@ -23,8 +25,8 @@ import org.apache.tika.parser.html.DefaultHtmlMapper;
 import org.apache.tika.parser.html.HtmlMapper;
 import org.apache.tika.sax.TeeContentHandler;
 
-import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
-
+//import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
+import de.l3s.boilerpipe.extractors.ArticleExtractor;
 
 
 
@@ -46,7 +48,11 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
     private Metadata _metadata;
     private boolean _extractLanguage;
 	private boolean _keepBoiler = false;
-    
+
+	
+	//private static final Detector DETECTOR = new DefaultDetector(
+	//        MimeTypes.getDefaultMimeTypes());
+	
     public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata) {
         this(parser, contentExtractor, input, metadata, true, false);
     }
@@ -57,7 +63,17 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
         _input = input;
         _metadata = metadata;
         _extractLanguage = extractLanguage;
-        _keepBoiler  = keepBoiler;
+        _keepBoiler = keepBoiler;
+        //BufferedInputStream f = new BufferedInputStream(input);
+        //try {
+		//	String mimeType=DETECTOR.detect(f, metadata).toString();
+		//	System.out.println(mimeType);
+		//	 f.close();
+		//} catch (IOException e) {
+		//	// TODO Auto-generated catch block
+		//	e.printStackTrace();
+		//}
+        
     }
     
     @Override
@@ -100,13 +116,14 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             content = task.get();
             outlinks = linktask.get();*/
             
-            
             BufferedReader reader = new BufferedReader(new InputStreamReader(_input,_metadata.get(Metadata.CONTENT_ENCODING)));            
             String content = "";
             if (_keepBoiler) {            	
-            	content = gr.ilsp.boilerpipe.extractors.NumWordsRulesExtractor.INSTANCE.getText(reader,true);
+            	//content = gr.ilsp.boilerpipe.extractors.NumWordsRulesExtractor.INSTANCE.getText(reader,true);
+            	content = gr.ilsp.boilerpipe.extractors.ArticleExtractor.INSTANCE.getText(reader,true);
             } else {
-            	content = NumWordsRulesExtractor.INSTANCE.getText(reader);
+            	//content = NumWordsRulesExtractor.INSTANCE.getText(reader);
+            	content = ArticleExtractor.INSTANCE.getText(reader);
             }
             reader.close();
             
