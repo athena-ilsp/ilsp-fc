@@ -53,25 +53,18 @@ public class ImageExtractor {
 			}
 		};
 		String[] files= xmldir.list(filter);
-		//String webSiteURL;
 		try {
 			for (int ii=0; ii<files.length ; ii++){
-				//System.out.println(ii);
-				//webSiteURL=getURLfromXML(xmldir.getPath()+"/"+files[ii]);
-				//Document doc;
-				//doc = Jsoup.connect(webSiteURL).get();
-				//logger.info("Images for " + webSiteURL);
-				//System.out.println(files[ii]);
+				
 				File htmlfile=new File(xmldir.toString()+fs+files[ii]);
+				//System.out.println(ii+">"+htmlfile.getName());
 				String html = Bitexts.readFileAsString(htmlfile.getAbsolutePath());
 				Document doc = Jsoup.parse(html);
 				List<String> images = ie.getImages(doc,keep);
 				if (!images.isEmpty()){
 					String[] strarray=new String[images.size()];
-					//String[] strarray = (String[]) images.toArray();
 					for (int jj=0;jj<images.size();jj++){
 						strarray[jj]=images.get(jj);
-						//System.out.print(images.get(jj)+">");
 						if (all_images.containsKey(images.get(jj)))
 							all_images.put(images.get(jj), all_images.get(images.get(jj))+1);
 						else
@@ -80,36 +73,18 @@ public class ImageExtractor {
 					String key=files[ii].substring(0, files[ii].indexOf("."));
 					result.put(key,strarray);
 				}
-				//System.out.println();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		/*try {
-			ImageExtractor ie = new ImageExtractor();
-			for (int ii=0;ii<files.length;ii++){
-				File htmlfile=new File(xmldir.toString()+fs+files[ii]);
-				String html = Bitexts.readFileAsString(htmlfile.getAbsolutePath());
-				Document doc = Jsoup.parse(html);
-				//Jsoup.parse(html).
-				List<String> images = ie.getImages(doc);
-				if (!images.isEmpty()){
-					String[] strarray = (String[]) images.toArray();  
-					result.add(strarray);
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
-		//ValueComparator bvc =  new ValueComparator(all_images);
-		//TreeMap<String,Integer> sorted_map = new TreeMap(bvc);
-		
-		//sorted_map.putAll(all_images);
-		//Set<String> keys1=sorted_map.keySet();
-		
 		Set<String> keys1=all_images.keySet();
 		Iterator<String> imit = keys1.iterator();
 		String temp_im="";
+		//while (imit.hasNext()){	
+		//	temp_im = imit.next();
+			//System.out.println(temp_im+"\t"+ all_images.get(temp_im));
+		//}
+		//imit = keys1.iterator();
 		ArrayList<String> boilerimages = new ArrayList<String>();
 		Integer thr = files.length/10;
 		while (imit.hasNext()){	
@@ -236,19 +211,73 @@ public class ImageExtractor {
 				//images.add(src);
 				//continue;
 			}
-			if (keep)
-				images.add(src);
-			else{
-				indexname = src.lastIndexOf(SLASH);
-				if (indexname>0)
-					images.add(src.substring(indexname, src.length()));
-				else
+			//if (!images.contains(src)){
+				if (keep)
 					images.add(src);
-			}
-			
+				else{
+					indexname = src.lastIndexOf(SLASH);
+					if (indexname>0)
+						images.add(src.substring(indexname, src.length()));
+					else
+						images.add(src);
+				}
+			//}
 		}
 		return images;
 	}
 
 }
 
+
+
+
+
+/*for (int ii=0; ii<files.length ; ii++){
+	System.out.println(ii);
+	//webSiteURL=getURLfromXML(xmldir.getPath()+"/"+files[ii]);
+	//Document doc;
+	//doc = Jsoup.connect(webSiteURL).get();
+	//logger.info("Images for " + webSiteURL);
+	//System.out.println(files[ii]);
+	File htmlfile = new File(xmldir.toString()+fs+files[ii]);
+	String html = Bitexts.readFileAsString(htmlfile.getAbsolutePath());
+	Document doc = Jsoup.parse(html);
+	html="";
+	htmlfile=null;
+	//List<String> images = ie.getImages(doc,keep);
+	//ArrayList<String> uniqueimages = new ArrayList<String>();
+	List<String> uniqueimages = ie.getImages(doc,keep);
+	doc=null;
+	if (!uniqueimages.isEmpty()){
+		//String[] strarray = new String[images.size()];
+		//for (int jj=0;jj<images.size();jj++)
+		//	strarray[jj]=images.get(jj);
+		//Arrays.sort(strarray);
+		//images = null;
+		//uniqueimages.add(strarray[0]);
+		//for (int kk=1;kk<strarray.length;kk++){ 
+		//		if (!strarray[kk].equals(strarray[kk-1]))
+		//			uniqueimages.add(strarray[kk]);
+		//}
+		//strarray = null;
+		String[] strarray = new String[uniqueimages.size()];
+		for (int jj=0;jj<uniqueimages.size();jj++)
+			strarray[jj]=uniqueimages.get(jj);
+		uniqueimages=null;
+		for (int jj=0;jj<strarray.length;jj++){
+			if (all_images.containsKey(strarray[jj]))
+				all_images.put(strarray[jj], all_images.get(strarray[jj])+1);
+			else
+				all_images.put(strarray[jj], 1);
+		}
+		uniqueimages=null;
+		String key=files[ii].substring(0, files[ii].indexOf("."));
+		result.put(key,strarray);
+		strarray=null;
+	} 
+	//System.out.println();
+}
+
+
+
+*/
