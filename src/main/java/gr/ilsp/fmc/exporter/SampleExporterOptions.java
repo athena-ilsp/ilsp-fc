@@ -91,22 +91,22 @@ public class SampleExporterOptions {
 			else help();
 			
 			if(line.hasOption( "l")) {
-				_language = line.getOptionValue("l");;
+				_language = line.getOptionValue("l");
 			}
 			if(line.hasOption( "t")) {
-				_topic = line.getOptionValue("t");;
+				_topic = line.getOptionValue("t");
 			} 
 			if(line.hasOption( "len")) {
 				_length = Integer.parseInt(line.getOptionValue("len"));
 			} 
 			if(line.hasOption( "n")) {
-				_negwords = line.getOptionValue("n");;
+				_negwords = line.getOptionValue("n");
 			} 
 			if(line.hasOption( "te")) {
 				_textexport = true;
 			} 
 			if(line.hasOption( "o")) {
-				_outputdir = line.getOptionValue("o");;
+				_outputdir = line.getOptionValue("o");
 			} else help();						
 			//vpapa
 			if(line.hasOption( "ces")) {
