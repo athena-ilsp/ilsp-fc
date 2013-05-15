@@ -9,7 +9,9 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 //import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
@@ -57,8 +59,9 @@ public class SimpleCrawlHFSOptions {
 	private String _config;
 	private int _length = 10;
 	private static final Logger LOGGER = Logger.getLogger(SimpleCrawlHFSOptions.class);
-	private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
-
+	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
+	private String ws_dir;
+	private static String fs = System.getProperty("file.separator");
 
 
 	public SimpleCrawlHFSOptions() {
@@ -151,7 +154,6 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "Minimum number of tokens per text block" )	
 				.hasArg()
 				.create("len") );
-		//vpapa
 		options.addOption( OptionBuilder.withLongOpt( "type" )
 				.withDescription( "Crawling for monolingual (m), parallel (p), comparable (q)" )	
 				.hasArg()
@@ -168,10 +170,12 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "Target language2.")
 				.hasArg()
 				.create("l2") );
-		//vpapa
 		options.addOption( OptionBuilder.withLongOpt( "cesAlignPreview" )
 				.withDescription( "Preview cesAlign docs.")
 				.create("xslt") );
+		options.addOption( OptionBuilder.withLongOpt( "destination" )
+				.withDescription( "Destination.")
+				.create("dest") );
 
 		return options;
 	}
@@ -184,6 +188,18 @@ public class SimpleCrawlHFSOptions {
 
 			if(line.hasOption( "h")) {
 				help();
+			}
+			if(line.hasOption( "a")) {
+				_agentName = line.getOptionValue("a");
+			}			
+			else help();
+			
+			if (line.hasOption( "dest")) {
+				ws_dir = line.getOptionValue("dom")+fs;
+			}else{
+				String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+				//System.out.println(timeStamp );
+				ws_dir=_agentName+"_"+timeStamp+fs;
 			}
 			//vpapa changed the use of the option -d
 			/*if(line.hasOption( "d")) {
@@ -237,17 +253,12 @@ public class SimpleCrawlHFSOptions {
 					_outputFileHTML=null;
 			}
 			else help();
-
-			if(line.hasOption( "a")) {
-				_agentName = line.getOptionValue("a");
-			}			
-			else help();
+			
 			if(line.hasOption( "t")) {
 				_threads = Integer.parseInt(line.getOptionValue("t"));
 			}			
 			if(line.hasOption( "n")) {
 				_numLoops = Integer.parseInt(line.getOptionValue("n"));
-				//vpapa
 				_crawlDuration=0;
 			}						
 			if(line.hasOption("c")) {
@@ -296,7 +307,6 @@ public class SimpleCrawlHFSOptions {
 			if(line.hasOption( "len")) {
 				_length = Integer.parseInt(line.getOptionValue("len"));
 			} 
-			//vpapa
 			if(line.hasOption( "xslt")) 
 				_cesAlign  = true;
 			else	
