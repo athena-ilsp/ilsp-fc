@@ -80,6 +80,9 @@ public class Classifier implements Serializable{
 		String meta = "";
 		
 		String content = parsedDatum.getParsedText().toLowerCase();
+		//if (_keepBoiler & parsedDatum.getParsedMeta().get("Content-Type").contains("text/html"))  
+		//	content = cleanContent(content);
+		//System.out.println(content);
 		if (_keepBoiler) content = cleanContent(content);
 
 		StringTokenizer tkzr = new StringTokenizer(content);
