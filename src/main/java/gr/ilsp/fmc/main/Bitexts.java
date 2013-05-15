@@ -1,5 +1,4 @@
 package gr.ilsp.fmc.main;
-//vpapa
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -23,11 +22,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,6 +38,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
+
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
@@ -50,8 +53,8 @@ public class Bitexts {
 	private static final String cesDocVersion = "1.0";
 	private static final String LANGUAGE_ELE = "language";
 	private static final String EADDRESS = "eAddress";
-	private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
-	private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
+	//private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
+	//private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static String cesNameSpace = "http://www.w3.org/1999/xlink";
 	private static String cesNameSpace1 = "http://www.xces.org/schema/2003";
 	private static String cesNameSpace2 = "http://www.w3.org/2001/XMLSchema-instance";
@@ -67,94 +70,11 @@ public class Bitexts {
 	private static double jac_thr=0.6;
 	private static int im_dif_thr=3;
 	private static int minnumofpars=3;
-
+		    
 	public static void main(String[] args) {
-		//File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\AUTO_DE-EN\\voithcom\\e38ec81f-630d-44b0-8d20-8b6c1ff07170\\xml");
-		//File xmldir=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\src\\test\\resources\\HS_DE-IT\\temp_entsend");
-		//File xmldir=new File("C:\\var\\lib\\tomcat6\\webapps\\soaplab2-results\\81fe5e39-52f4-4d55-bd27-21ef866bd3cc\\xml");
-		//File xmldir=new File("C:\\PANACEA\\HS_DE_IT\\osha-europa\\xml");
-		//File xmldir=new File(args[0]);
-		//File xmldir=new File("C:\\PANACEA\\HS_DE_IT\\eur-lex_f\\e2eb64d8-dd45-462c-9315-ad27a08a95c5\\xml1");
-		File xmldir=new File("C:\\PANACEA\\MONO_2\\LAB_IT\\LAB_IT");
-		//File xmldirnew=new File("C:\\PANACEA\\AUTOMOTIVE\\AUTO_DE\\xml");
-		try {	
-			//check_domainess("C:\\PANACEA\\HS_IT\\wegleitung-ekas_f\\domainess.txt","it;de", 0.5);
-			String outfile = "C:\\PANACEA\\MONO_2\\LAB_IT\\LAB_IT\\LAB_IT_list.txt";
-			String outfilehtml = "C:\\PANACEA\\MONO_2\\LAB_IT\\LAB_IT\\LAB_IT_list.txt.html";
-			//DedupMD5.dedup(xmldir.toString(), outfile,outfilehtml);
-			//DedupMD5.dedupnew(xmldir.toString(), outfile,outfilehtml);
-			//DedupMD5.deduppars(xmldir.toString(), outfile,outfilehtml);
-			DedupMD5.deduppars(xmldir.toString());
-			System.exit(0);
-			
-			checklistfiles(xmldir,outfile);
-			//String outfile = "C:\\PANACEA\\AUTOMOTIVE\\AUTO_EN\\output_automotive_EN_list.txt";
-			//String outfile_new = "C:\\PANACEA\\AUTOMOTIVE\\AUTO_DE\\output_automotive_DE_list_new.txt";
-			//String removefile="C:\\PANACEA\\AUTOMOTIVE\\AUTO_DE\\remove.txt";
-			//removepages(outfile,outfile_new,removefile);
-			//System.exit(0);
-			
-			extractURL(xmldir,outfile);
-			System.exit(0);
+		
 
-			//File newxmldir=new File("C:\\PANACEA\\AUTOMOTIVE\\EN-DE_delivered\\thyssenkrupp\\xml");
-			//moveoutputfiles(xmldir,"_h",newxmldir,outfile);
-			//moveoutputfiles(xmldir,"_i",newxmldir,outfile);
-			//moveoutputfiles(xmldir,"_l",newxmldir,outfile);
-			//moveoutputfiles(xmldir,"_m",newxmldir,outfile);
-			//moveoutputfiles(xmldir,xmldirnew,outfile);
-			//System.exit(0);
-			//counttoks(xmldirnew,outfile);
-			//System.exit(0);
-			//countdomainess(xmldir,"","de;en",outfile);
-			//countdomainess(xmldir,"","de;en",outfile);
-
-			String[] langs=new String[2];	langs[0]="de";	langs[1]="en";
-			//counttoks_topic(xmldir,"_h",langs,outfile);
-			//counttoks_topic(xmldir,"_i",langs,outfile);
-			//counttoks_topic(xmldir,"_m",langs);
-			//counttoks_topic(xmldir,"_l",langs);
-			counttoks(xmldir,"_h",langs,outfile);
-			counttoks(xmldir,"_i",langs,outfile);
-			counttoks(xmldir,"_m",langs,outfile);
-			counttoks(xmldir,"_l",langs,outfile);
-			System.exit(0);
-
-			//DedupMD5.dedup(xmldir.getAbsolutePath(), "C:\\PANACEA\\HS_DE_IT\\eur-lex_f\\e2eb64d8-dd45-462c-9315-ad27a08a95c5\\xml1\\test.txt","test.txt.html");
-
-			//String[][] CCC=representXML(xmldir);
-			HashMap<String,String[]> props=representXML_NEW(xmldir);
-			HashMap<String,String[]> props_short =new HashMap<String,String[]>();
-			//System.out.println("ss");
-			HashMap<String, String[]> imagesInHTML=ImageExtractor.findImages(xmldir,true);
-			ArrayList<String[]> pairsIM=new ArrayList<String[]>();
-			if (imagesInHTML.size()>1){
-				pairsIM=findpairsIM(imagesInHTML,props);
-				System.out.println("Pairs found: "+pairsIM.size());
-				props_short = excludepairsIM(pairsIM,props);
-			}
-
-			double[][] sv=Bitexts.readRes("SVs19_last.txt");
-			double[][] b=Bitexts.readRes("B19_last.txt");
-			double[][] w=Bitexts.readRes("Ws19_last.txt");
-			//ArrayList<String[]> pairs  = Bitexts.findpairsXML_SVM(xmldir,CCC,sv,w,b);
-			ArrayList<String[]> pairs_new  = Bitexts.findpairsXML_SVM_NEW(xmldir,props_short,sv,w,b);
-			ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM_NEW(pairs_new);
-			//System.out.println("END");
-			String stats[]=Bitexts.calcStats(props, props_short, pairsIM, bitexts);
-			System.out.println("Tokens in "+stats[0] +" : "+ stats[1]);
-			System.out.println("Tokens in "+stats[2] +" : "+ stats[3]);
-			for (int ii=0;ii<bitexts.size();ii++)
-				System.out.println(bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (XMLStreamException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
-
 
 
 	private static void counttoks(File xmldir, String outfile) {
@@ -254,7 +174,7 @@ public class Bitexts {
 			copyfile(xmldir.toString()+fs+f1,xmldirnew.toString()+fs+f1);
 			copyfile(xmldir.toString()+fs+f1h,xmldirnew.toString()+fs+f1h);
 		}
-		
+
 	}
 
 
@@ -1772,11 +1692,11 @@ public class Bitexts {
 			f1 = outdir1.toString()+fs+"xml"+fs+f1+".xml";
 			f2 = outdir1.toString()+fs+"xml"+fs+f2+".xml";
 			//String v1 =outdir.replace(VAR_RES_CACHE,HTTP_PATH);
-			f1 = f1.replace(VAR_RES_CACHE,HTTP_PATH);
-			f2 = f2.replace(VAR_RES_CACHE,HTTP_PATH);
+			//f1 = f1.replace(VAR_RES_CACHE,HTTP_PATH);
+			//f2 = f2.replace(VAR_RES_CACHE,HTTP_PATH);
 			//vpapa added this just for development on windows
-			f1 = f1.substring(f1.indexOf("http:"));
-			f2 = f2.substring(f2.indexOf("http:"));
+			//f1 = f1.substring(f1.indexOf("http:"));
+			//f2 = f2.substring(f2.indexOf("http:"));
 			xtw.writeStartDocument();
 			if (cesAlign){
 				xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
@@ -1919,10 +1839,12 @@ public class Bitexts {
 			Path outputDirName1=new Path(outputDirName);
 			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
 			for (int ii=0; ii<files.length ; ii++){
-				//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
-				//out.write(temp+fs+files[ii]+"\n");
-				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-				ttt=ttt.substring(ttt.indexOf("http:"));
+				////temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
+				////out.write(temp+fs+files[ii]+"\n");
+				//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+				//ttt=ttt.substring(ttt.indexOf("http:"));
+				//out.write(ttt+"\n");
+				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]);
 				out.write(ttt+"\n");
 			}
 			out.close();
@@ -1939,10 +1861,13 @@ public class Bitexts {
 				out.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");	
 			}
 			for (int ii=0; ii<files.length ; ii++){
-				//temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
-				//out.write(temp+fs+files[ii]+"\n");
-				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-				ttt=ttt.substring(ttt.indexOf("http:"));
+				////temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
+				////out.write(temp+fs+files[ii]+"\n");
+				//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+				//ttt=ttt.substring(ttt.indexOf("http:"));
+				//ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
+				//out.write("<br />"+ttt);
+				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]);
 				ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
 				out.write("<br />"+ttt);
 			}
@@ -2000,15 +1925,18 @@ public class Bitexts {
 			String[] files=new String[bitexts.size()];
 			for (int ii=bitexts.size()-1;ii>-1;ii--){
 				files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-				ttt=ttt.substring(ttt.indexOf("http:"));
+				//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+				//ttt=ttt.substring(ttt.indexOf("http:"));
+				String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
 				out.write(ttt+"\n");
 			}
 			files=new String[bitextsIM.size()];
 			for (int ii=bitextsIM.size()-1;ii>-1;ii--){
 				files[ii]=bitextsIM.get(ii)[0]+"_"+bitextsIM.get(ii)[1]+"_"+bitextsIM.get(ii)[4].substring(0, 1)+".xml";
-				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-				ttt=ttt.substring(ttt.indexOf("http:"));
+				//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+				//ttt=ttt.substring(ttt.indexOf("http:"));
+				String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
+				//ttt=ttt.substring(ttt.indexOf("http:"));
 				out.write(ttt+"\n");
 			}
 			out.close();
@@ -2026,16 +1954,18 @@ public class Bitexts {
 				String[] files=new String[bitexts.size()];
 				for (int ii=bitexts.size()-1;ii>-1;ii--){
 					files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-					String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-					ttt=ttt.substring(ttt.indexOf("http:"));
+					//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+					//ttt=ttt.substring(ttt.indexOf("http:"));
+					String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
 					ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
 					out1.write("<br />"+ttt);
 				}
 				files=new String[bitextsIM.size()];
 				for (int ii=bitextsIM.size()-1;ii>-1;ii--){
 					files[ii]=bitextsIM.get(ii)[0]+"_"+bitextsIM.get(ii)[1]+"_"+bitextsIM.get(ii)[4].substring(0, 1)+".xml";
-					String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-					ttt=ttt.substring(ttt.indexOf("http:"));
+					//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
+					//ttt=ttt.substring(ttt.indexOf("http:"));
+					String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
 					ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
 					out1.write("<br />"+ttt);
 				}
