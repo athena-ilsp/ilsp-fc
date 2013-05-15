@@ -33,14 +33,14 @@ public class DomainUrlFilter extends BaseUrlFilter {
 	public DomainUrlFilter(String domain) {
 		if (domain!=null)
 			_domain.add(domain);
-		_suffixExclusionPattern = Pattern.compile("(?i)\\.(pdf|zip|gzip|gz|sit|bz|bz2|tar|tgz|exe|arff|au" +
+		_suffixExclusionPattern = Pattern.compile("(?i)\\.(zip|gzip|gz|sit|bz|bz2|tar|tgz|exe|arff|au" +
 				"|avi|class|fig|gif|hqx|ica|jpeg|jpg|mat|mdb|mov|mp3|mpeg|mpg|msi|pcx|pdb|psd|ram|rar|raw|rmd|rmx|" +
 				"sav|sdd|shar|tga|tif|tiff|vo|wav|wmv|wmz|xbm|xpm|z)$");
 		_protocolInclusionPattern = Pattern.compile("(?i)^(http|https)://");
 	}
 	public DomainUrlFilter(Path domain){
 		JobConf conf = new JobConf();
-		_suffixExclusionPattern = Pattern.compile("(?i)\\.(pdf|zip|gzip|gz|sit|bz|bz2|tar|tgz|exe|arff|au" +
+		_suffixExclusionPattern = Pattern.compile("(?i)\\.(zip|gzip|gz|sit|bz|bz2|tar|tgz|exe|arff|au" +
 				"|avi|class|fig|gif|hqx|ica|jpeg|jpg|mat|mdb|mov|mp3|mpeg|mpg|msi|pcx|pdb|psd|ram|rar|raw|rmd|rmx|" +
 				"sav|sdd|shar|tga|tif|tiff|vo|wav|wmv|wmz|xbm|xpm|z)$");
 		_protocolInclusionPattern = Pattern.compile("(?i)^(http|https)://");
