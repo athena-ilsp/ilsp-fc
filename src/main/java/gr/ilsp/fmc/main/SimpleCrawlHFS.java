@@ -133,6 +133,7 @@ public class SimpleCrawlHFS {
 			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
 			String line = "";
 			//UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
+			//FIXME if there is an empty line in the seed urls list, Exception running tool
 			while ((line=rdr.readLine())!=null){
 				byte[] bts = line.getBytes("UTF-8");
 				if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
@@ -326,7 +327,10 @@ public class SimpleCrawlHFS {
 			thres = TopicTools.calculateThreshold(topic,
 					SimpleCrawlHFS.config.getInt("classifier.min_content_terms.value"));
 			LOGGER.info("Classifier threshold calculated: "+ thres);
-		} else LOGGER.info("Running with no topic.");
+		} else{ 
+			LOGGER.info("Running with no topic.");
+			min_uniq_terms=0;
+		}
 
 		String outputDirName = options.getOutputDir();
 		if (options.isDebug()) 
@@ -477,7 +481,7 @@ public class SimpleCrawlHFS {
 
 				LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
 				LOGGER.info("Total tokens stored: " + TOKENS_STORED);
-				stor_vis.add(new int[] {PAGES_STORED,PAGES_VISITED});//vpapa
+				stor_vis.add(new int[] {PAGES_STORED,PAGES_VISITED});
 				// flow.writeDOT("build/valid-flow.dot");
 
 				// Input for the next round is our current output
@@ -507,13 +511,13 @@ public class SimpleCrawlHFS {
 			DedupMD5.dedupnew(outputDirName, options.getOutputFile(), options.getOutputFileHTML());
 			// Now detect candidate parallel documents if needed.
 			if (options.getType().equals("p")){	
-				//String[][] AAA;
+				
 				try {				
 					File xmldir = new File(options.getOutputDir()+fs1+"xml");
-					//AAA = Bitexts.representXML(xmldir);
+					
 					HashMap<String,String[]> props=Bitexts.representXML_NEW(xmldir);
 					HashMap<String,String[]> props_short = new HashMap<String,String[]>();
-					//if (AAA.length<2){
+					
 					if (props.size()<2){
 						LOGGER.info("Less than 2 files found. Detection of pairs is stopped.");
 						File out_temp=new File(options.getOutputFile());
@@ -523,14 +527,7 @@ public class SimpleCrawlHFS {
 					}
 					int l1=0, l2=0;
 					String[] lang=options.getLanguage().split(";");
-					/*for (int jj=0;jj<AAA.length;jj++){
-						if (AAA[jj][1].equals(lang[0]))
-							l1++;
-						else{
-							if (AAA[jj][1].equals(lang[1]))
-								l2++;
-						}
-					}*/
+					
 					Set<String> files_keys=props.keySet();
 					Iterator<String> files_it = files_keys.iterator();
 					String key;
@@ -579,7 +576,7 @@ public class SimpleCrawlHFS {
 					double[][] sv=Bitexts.readRes("SVs19_last.txt");
 					double[][] b=Bitexts.readRes("B19_last.txt");
 					double[][] w=Bitexts.readRes("Ws19_last.txt");
-					//ArrayList<String[]> pairs = Bitexts.findpairsXML_SVM(xmldir,AAA,sv,w,b);
+					
 					ArrayList<String[]> pairs_new  = Bitexts.findpairsXML_SVM_NEW(xmldir,props_short,sv,w,b);
 					ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM_NEW(pairs_new);
 					if (bitexts.size()>0){
