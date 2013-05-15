@@ -89,8 +89,8 @@ import com.cybozu.labs.langdetect.LangDetectException;
 public class SampleExporter {
 	private static final Logger LOGGER = Logger.getLogger(SampleExporter.class);
 	private static int minTokensNumber=200;
-	private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
-	private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
+	//private static String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
+	//private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static final String cesDocVersion = "0.4";
 	private static String cesNameSpace = "http://www.w3.org/1999/xlink";
 	private static String cesNameSpace1 = "http://www.xces.org/schema/2003";
@@ -279,10 +279,11 @@ public class SampleExporter {
 				xmlFileListWrt = new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8");
 				for (String xmlFile: xmlFiles) {
 					//vpapa added this just for development on windows
-					String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
-					ttt=ttt.substring(ttt.indexOf("http:"));
-					xmlFileListWrt.write(ttt+"\n");
-					//xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
+					//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
+					//ttt=ttt.substring(ttt.indexOf("http:"));
+					//xmlFileListWrt.write(ttt+"\n");
+					xmlFileListWrt.write(xmlFile+"\n");
+					////xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
 				}
 				xmlFileListWrt.close();
 				//vpapa
@@ -296,12 +297,18 @@ public class SampleExporter {
 
 						for (String xmlFile: xmlFiles) {
 							//vpapa added this just for development on windows
-							String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
-							ttt=ttt.substring(ttt.indexOf("http:"));
-							ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
+							//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
+							//ttt=ttt.substring(ttt.indexOf("http:"));
+							//ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
+							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
+							//xmlFileListWrt1.write("<br />"+ttt);
+							//xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
+						
+							//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
+							//ttt=ttt.substring(ttt.indexOf("http:"));
+							String ttt = "<a href=\""+xmlFile+"\">"+xmlFile+"</a>";
 							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
 							xmlFileListWrt1.write("<br />"+ttt);
-							//xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
 						}
 
 						xmlFileListWrt1.write("</html>");
@@ -387,6 +394,11 @@ public class SampleExporter {
 		String format = "";	
 		String subdomains = "";
 		String contentEncoding = "";
+		//String author ="";
+		//String licence="";
+		//String pubdate="";
+		//String publisher="";
+		
 		ArrayList<String> terms = null;
 		String url = "";
 		Map<String,String> meta = null;
@@ -423,34 +435,44 @@ public class SampleExporter {
 			url = datum.getUrl();
 			//LOGGER.debug("Writing: " + id + " " + url);
 			title = datum.getTitle();
+			//author= datum.getAuthor(); FIXME
+			// author=meta.get("Author");
 			if (title==null) title = "";
 			cleanText = datum.getParsedText();
 			//cleanText = cleanText.replaceAll("(\\s|\\xA0){2,}", " ");
 			cleanText = ContentNormalizer.normalizeText(cleanText);
-			//domain = datum.getHostAddress();
+			//domain = datum.getHostAddress(); FIXME
 			meta = datum.getParsedMeta();
 			String termsArray = meta.get("keywords");
 			terms = new ArrayList<String>();
 			if (termsArray!=null){
 				termsArray = termsArray.replace(",","");
-
 				for (String s: termsArray.split(" "))
 					terms.add(s);
 			}
-
 			contentEncoding = meta.get("Content-Encoding");
 			format = meta.get("Content-Type");	
 			format = validFormat(format);
 			htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			subdomains = getSubdomains(url, curDirPath,classIter);
+			//if (format.contains("text/html"))
+			//	cleanText = ContentNormalizer.normalizeText(cleanText);
+			//if (format.contains("application/pdf"))
+			//	cleanText = ContentNormalizer.normalizePdfText(cleanText);
+			//if (format.contains("text/html"))
+			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
+			//if (format.contains("application/pdf")){
+			//	LOGGER.info("PDF should be created"); //FIXME (examine if we get the content required to create the pdf file
+			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
+			//}
 			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", domain, subdomains, terms, topic, neg_words ))
 				id++;
 			if (textExport) TextExporter(xmlPath,cleanText,id-1);
 		}
 		//nmastr added these 3 lines
 		iter.close();
-        classIter.close();
-        contentIter.close();
+		classIter.close();
+		contentIter.close();
 
 		return id;		
 	}
@@ -757,27 +779,32 @@ public class SampleExporter {
 		//vpapa
 		//String maincontent =cleaned_text;
 		String maincontent="";
-		String[] temp = cleaned_text.split("\n");
-		for (int jj=0;jj<temp.length;jj++){
-			if (!temp[jj].contains("<boiler") && !temp[jj].contains("</boiler>")){
-				maincontent=maincontent+temp[jj]+"\n"; 
+		if (format.contains("text/html")){
+
+			String[] temp = cleaned_text.split("\n");
+			for (int jj=0;jj<temp.length;jj++){
+				if (!temp[jj].contains("<boiler") && !temp[jj].contains("</boiler>")){
+					maincontent=maincontent+temp[jj]+"\n"; 
+				}
 			}
+			//maincontent = maincontent.replaceAll("<boiler.*(?s)", "");
+			//maincontent = maincontent.replaceAll("\\n\\n","");
+			//??????<boiler.*   <boiler.*</boiler>\n
+			//maincontent = maincontent.replaceAll("<boiler type.*</boiler>\n", "");
+			//////////// 
+			maincontent = maincontent.replaceAll("<text>", "");
+			maincontent = maincontent.replaceAll("</text>", "");
+			maincontent = maincontent.replaceAll("<text type.*>", "");
 		}
-		//maincontent = maincontent.replaceAll("<boiler.*(?s)", "");
-		//maincontent = maincontent.replaceAll("\\n\\n","");
-		//??????<boiler.*   <boiler.*</boiler>\n
-		//maincontent = maincontent.replaceAll("<boiler type.*</boiler>\n", "");
-		//////////// 
-		maincontent = maincontent.replaceAll("<text>", "");
-		maincontent = maincontent.replaceAll("</text>", "");
-		maincontent = maincontent.replaceAll("<text type.*>", "");
+		if (format.contains("application/pdf"))
+			maincontent=cleaned_text;
 
 		StringTokenizer tkzr = new StringTokenizer(maincontent);
 		//System.out.println(tkzr.countTokens());
 		//System.out.println(maincontent);
 		//if (lang.contains(";"))
 		//	minTokensNumber=100;
-		
+
 		if (tkzr.countTokens()<minTokensNumber){
 			//			System.out.println("CUT: "+ eAddress);
 			return false;		
@@ -799,7 +826,14 @@ public class SampleExporter {
 			return false;
 		//Filename of files to be written.
 		String temp_id=Integer.toString(id);
-		String html_filename = temp_id+".html";
+		String html_filename="";
+		if (format.contains("text/html"))
+			html_filename = temp_id+".html";
+
+		if (format.contains("application/pdf")){
+			html_filename = temp_id+".pdf";
+			html_text=cleaned_text;
+		}
 		Path xml_file = new Path(outputdir,temp_id+".xml");
 		Path annotation = new Path(outputdir,html_filename);
 		OutputStreamWriter tmpwrt;
@@ -1039,21 +1073,22 @@ public class SampleExporter {
 								}
 								else {
 									//does the paragraph contain terms?
-									String[] tempstr = new String[1];		
-									String term;
-									ArrayList<String> stems =new ArrayList<String>();
-									try {
-										stems = TopicTools.analyze(line, langidentified);
-									} catch (IOException e) {
-										e.printStackTrace();
-									} 
-									String par_text="";
-									for (String st:stems){
-										par_text=par_text.concat(" "+st);
-									}
-									par_text = par_text.trim();
-									Boolean found = false;
 									if (topic!=null) {
+										String[] tempstr = new String[1];		
+										String term;
+										ArrayList<String> stems =new ArrayList<String>();
+										try {
+											stems = TopicTools.analyze(line, langidentified);
+										} catch (IOException e) {
+											e.printStackTrace();
+										} 
+										String par_text="";
+										for (String st:stems){
+											par_text=par_text.concat(" "+st);
+										}
+										par_text = par_text.trim();
+										Boolean found = false;
+
 										for (int ii=0;ii<topic.size();ii++){ //for each row of the topic
 											tempstr=topic.get(ii);
 											term = tempstr[1];
@@ -1179,7 +1214,7 @@ public class SampleExporter {
 		}
 		par_text = par_text.trim();
 		double weight=0.0;
-		
+
 		for (int ii=0;ii<topic_terms.size();ii++){ //for each row of the topic
 			tempstr=topic_terms.get(ii);
 			weight=Double.parseDouble(tempstr[0]);
@@ -1352,11 +1387,13 @@ public class SampleExporter {
 		xtw.writeStartElement("annotations");
 		xtw.writeStartElement("annotation");
 		//vpapa added this just for development on windows
-		String ttt = htmlFilename.replace(VAR_RES_CACHE,HTTP_PATH);
-		ttt=ttt.substring(ttt.indexOf("http:"));
-		xtw.writeCharacters(ttt);
-		//xtw.writeCharacters(htmlFilename.replace(VAR_RES_CACHE,
-		//		HTTP_PATH));
+		//String ttt = htmlFilename.replace(VAR_RES_CACHE,HTTP_PATH);
+		//ttt=ttt.substring(ttt.indexOf("http:"));
+		//xtw.writeCharacters(ttt);
+		////xtw.writeCharacters(htmlFilename.replace(VAR_RES_CACHE,
+		////		HTTP_PATH));
+		xtw.writeCharacters(htmlFilename);
+		
 		xtw.writeEndElement();
 		xtw.writeEndElement();
 		xtw.writeEndElement();
