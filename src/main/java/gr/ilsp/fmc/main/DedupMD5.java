@@ -49,8 +49,8 @@ public class DedupMD5 {
 	private static String fs = System.getProperty("file.separator");
 	//private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	//private static final String HTTP_PATH = "http://sifnos.ilsp.gr/soaplab2-axis";
-	private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
-	private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
+	//private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
+	//private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 
 
 	public static void dedup(String indirname, String outputfilename, String outputHTMLfilename){
@@ -160,20 +160,12 @@ public class DedupMD5 {
 			string_key = it.next();
 			//try {
 			sourcefile = freqs.get(string_key).filename;
-			//System.out.println(sourcefile);
-			//copy(input.getAbsolutePath()+fs+sourcefile,outputdir.getAbsolutePath()+fs+sourcefile);
 			String temp1 = outputdir.getAbsolutePath().replace("\\","/");
-			temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
-			temp1=temp1.substring(temp1.indexOf("http:"));
-
-			urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
-
+			//temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
+			//temp1=temp1.substring(temp1.indexOf("http:"));
+			//urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
+			urlList=urlList + temp1+fs+sourcefile+"\n";
 			counter++;
-			//sourcefile = freqs.get(string_key).filename.replace(".xml", ".html");
-			//copy(input.getPath()+fs+sourcefile,outputdir.getPath()+fs+sourcefile);
-			//} catch (IOException e) {
-			//	System.err.println(e.getMessage());
-			//}
 		}
 
 		writetextfile(out_textfile.getAbsolutePath(),urlList);
@@ -225,9 +217,9 @@ public class DedupMD5 {
 			//return;
 			System.exit(64);
 		}
-		else
-			System.out.println(files.length+" files will be processed.");
-		long start = System.nanoTime(); 
+		//else
+			//System.out.println(files.length+" files will be processed.");
+		//long start = System.nanoTime(); 
 		String text="";
 		HashMap<String, TextAttr> freqs = new HashMap<String, TextAttr>();
 		byte[] texthashkey =null;
@@ -256,19 +248,19 @@ public class DedupMD5 {
 		Iterator<String> it = keys.iterator();
 		String urlList = "";
 		String sourcefile="";
-		int counter=0;
+		//int counter=0;
 		while (it.hasNext()){
 			string_key = it.next();
 			try {
 				sourcefile = freqs.get(string_key).filename;
 				copy(input.getAbsolutePath()+fs+sourcefile,outputdir.getAbsolutePath()+fs+sourcefile);
 				String temp1 = outputdir.getAbsolutePath().replace("\\","/");
-				temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
-				temp1=temp1.substring(temp1.indexOf("http:"));
-
-				urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
-
-				counter++;
+				//temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
+				//temp1=temp1.substring(temp1.indexOf("http:"));
+				//urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
+				urlList=urlList + temp1+fs+sourcefile+"\n";
+				
+				//counter++;
 				sourcefile = freqs.get(string_key).filename.replace(".xml", ".html");
 				copy(input.getPath()+fs+sourcefile,outputdir.getPath()+fs+sourcefile);
 			} catch (IOException e) {
@@ -281,9 +273,9 @@ public class DedupMD5 {
 			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList);
 		}
 
-		long elapsedTime = System.nanoTime() - start;
-		System.out.println(counter + " files remained."); 
-		System.out.println("Duration: "+elapsedTime);
+		//long elapsedTime = System.nanoTime() - start;
+		//System.out.println(counter + " files remained."); 
+		//System.out.println("Duration: "+elapsedTime);
 	}
 
 	private static class TextAttr {
@@ -681,20 +673,14 @@ public class DedupMD5 {
 			//string_key = files1[ii].getName();
 			//try {
 			sourcefile = files1[ii].getName(); //freqs.get(string_key).filename;
-			//System.out.println(sourcefile);
-			//copy(input.getAbsolutePath()+fs+sourcefile,outputdir.getAbsolutePath()+fs+sourcefile);
+			
 			String temp1 = outputdir.getAbsolutePath().replace("\\","/");
-			temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
+			//temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
 			//temp1=temp1.substring(temp1.indexOf("http:"));
-
-			urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
-
+			//urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
+			urlList=urlList + temp1+fs+sourcefile+"\n";
+			
 			counter++;
-			//sourcefile = freqs.get(string_key).filename.replace(".xml", ".html");
-			//copy(input.getPath()+fs+sourcefile,outputdir.getPath()+fs+sourcefile);
-			//} catch (IOException e) {
-			//	System.err.println(e.getMessage());
-			//}
 		}
 		writetextfile(out_textfile.getAbsolutePath(),urlList);
 		if (html){
