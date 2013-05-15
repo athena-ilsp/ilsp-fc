@@ -12,13 +12,12 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-
+import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.log4j.Logger;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.utils.CharsetUtils;
-
 
 import bixo.config.ParserPolicy;
 import bixo.datum.FetchedDatum;
@@ -108,19 +107,30 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
         // Provide clues to the parser about the format of the content.
         Metadata metadata = new Metadata();
         metadata.add(Metadata.RESOURCE_NAME_KEY, fetchedDatum.getUrl());
+        // detects application/pdf mime types 
         metadata.add(Metadata.CONTENT_TYPE, fetchedDatum.getContentType());
         String charset = getCharset(fetchedDatum);
         metadata.add(Metadata.CONTENT_LANGUAGE, getLanguage(fetchedDatum, charset));
         metadata.add(Metadata.CONTENT_ENCODING, charset);
-        
         
         InputStream is = new ByteArrayInputStream(fetchedDatum.getContentBytes(), 0, fetchedDatum.getContentLength());
         metadata.add(Metadata.CONTENT_LENGTH, Integer.toString(fetchedDatum.getContentLength()));
         try {
         	URL baseUrl = getContentLocation(fetchedDatum);
         	metadata.add(Metadata.CONTENT_LOCATION, baseUrl.toExternalForm());
-
-            Callable<ExtendedParsedDatum> c = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler);
+        	//System.out.println(baseUrl);
+        	//System.out.println(metadata.get("Content-Type"));
+        	Callable<ExtendedParsedDatum> c;
+        	if (metadata.get("Content-Type").equals("application/pdf")){
+        		_parser=null; 
+        		 PDFParser _parser = null;
+        		//Callable<ExtendedParsedDatum>
+        		c = new PdfboxCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler);
+        	}else{
+        		//Callable<ExtendedParsedDatum>
+        		c = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler);
+        	}
+            //Callable<ExtendedParsedDatum> c = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler);
             FutureTask<ExtendedParsedDatum> task = new FutureTask<ExtendedParsedDatum>(c);
             Thread t = new Thread(task);
             t.start();
