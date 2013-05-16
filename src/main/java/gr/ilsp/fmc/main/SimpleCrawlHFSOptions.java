@@ -175,6 +175,7 @@ public class SimpleCrawlHFSOptions {
 				.create("xslt") );
 		options.addOption( OptionBuilder.withLongOpt( "destination" )
 				.withDescription( "Destination.")
+				.hasArg()
 				.create("dest") );
 
 		return options;
@@ -195,7 +196,7 @@ public class SimpleCrawlHFSOptions {
 			else help();
 			
 			if (line.hasOption( "dest")) {
-				ws_dir = line.getOptionValue("dom")+fs;
+				ws_dir = line.getOptionValue("dest")+fs;
 			}else{
 				String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 				//System.out.println(timeStamp );
@@ -511,7 +512,10 @@ public class SimpleCrawlHFSOptions {
 	public String[] getLangKeys() {
 		return _langKeys;
 	}
-
+	public String getDest() {
+		return ws_dir;
+	}
+	
 	public String getTopic() { return _topic;}
 	public  String getDomain() {
 		return _domain;
