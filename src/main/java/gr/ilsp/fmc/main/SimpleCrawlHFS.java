@@ -72,7 +72,7 @@ public class SimpleCrawlHFS {
 	private static int PAGES_STORED = 0;
 	private static int PAGES_VISITED = 0;
 	private static int TOKENS_STORED = 0;
-	private static int TOKENS_TARGET = 30000000;
+	private static int TOKENS_TARGET = 100000000;
 	private static String fs1 = System.getProperty("file.separator");
 	public static JobConf conf = null;
 
