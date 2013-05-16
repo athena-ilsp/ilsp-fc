@@ -292,10 +292,10 @@ public class SimpleCrawlHFS {
 			urls = options.getUrls();
 		
 		URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
-		LOGGER.info(urldir );
+		LOGGER.debug(urldir );
 		if (urldir.getProtocol()=="jar"){
 			File tempDir = DirUtils.createTempDir();
-			LOGGER.info(tempDir );
+			LOGGER.debug(tempDir );
 			JarUtils.copyResourcesRecursively(urldir, tempDir);
 			try {
 				DetectorFactory.loadProfile(tempDir);				
