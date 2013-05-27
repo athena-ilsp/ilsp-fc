@@ -76,7 +76,7 @@ public class LithuanianAnalyzer {
 		ArrayList<String> blocks = new ArrayList<String>();
 		String stringBlock = "";
 		int index = 0;
-		while (text.length()>200){
+		while (text.length()>100){
 			index = text.indexOf(" ",50);
 			if (index==-1) index = text.length();
 			stringBlock = text.substring(0,index);
