@@ -88,7 +88,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
 @SuppressWarnings("deprecation")
 public class SampleExporter {
 	private static final Logger LOGGER = Logger.getLogger(SampleExporter.class);
-	private static int minTokensNumber=200;
+	private static int minTokensNumber=100;
 	//private static String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	//private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static final String cesDocVersion = "0.4";
@@ -293,7 +293,7 @@ public class SampleExporter {
 						String outputfile1 =outputFileHTML;
 						OutputStreamWriter xmlFileListWrt1;
 						xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputfile1),"UTF-8");
-						xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+						xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
 
 						for (String xmlFile: xmlFiles) {
 							//vpapa added this just for development on windows
@@ -306,9 +306,9 @@ public class SampleExporter {
 						
 							//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
 							//ttt=ttt.substring(ttt.indexOf("http:"));
-							String ttt = "<a href=\""+xmlFile+"\">"+xmlFile+"</a>";
+							String ttt = "<a href=\""+xmlFile+"\">\n"+xmlFile+"</a>";
 							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
-							xmlFileListWrt1.write("<br />"+ttt);
+							xmlFileListWrt1.write("<br />"+ttt+"\n");
 						}
 
 						xmlFileListWrt1.write("</html>");
