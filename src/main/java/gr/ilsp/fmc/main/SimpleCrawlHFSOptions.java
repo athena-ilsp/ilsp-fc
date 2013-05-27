@@ -148,7 +148,6 @@ public class SimpleCrawlHFSOptions {
 						.create("f") );		
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
-				.hasArg()
 				.create("h") );
 		options.addOption( OptionBuilder.withLongOpt( "length" )
 				.withDescription( "Minimum number of tokens per text block" )	
@@ -170,8 +169,8 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "Target language2.")
 				.hasArg()
 				.create("l2") );
-		options.addOption( OptionBuilder.withLongOpt( "cesAlignPreview" )
-				.withDescription( "Preview cesAlign docs.")
+		options.addOption( OptionBuilder.withLongOpt( "xslt" )
+				.withDescription( "Insert a stylesheet for rendering xml results as html.")
 				.create("xslt") );
 		options.addOption( OptionBuilder.withLongOpt( "destination" )
 				.withDescription( "Destination.")
