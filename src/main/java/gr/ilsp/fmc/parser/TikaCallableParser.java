@@ -89,8 +89,10 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             
             // Check each link for creative commons licenses
             for (ExtendedOutlink extendedOutlink : outlinks) {
-            	URL url = new URL(extendedOutlink.getAnchor());            // resolve the url
-				// check that it's a CC license URL
+            	URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
+            	//System.out.println(url.getProtocol());
+            	//System.out.println(url.getHost());
+            	// check that it's a CC license URL
 				if (HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol()) &&
 						CREATIVECOMMONS_ORG_STR.equalsIgnoreCase(url.getHost()) &&
 						url.getPath() != null &&
@@ -105,20 +107,6 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             String lang = "";
             _input.reset();
             
-            
-            /*Callable<ExtendedOutlink[]> linkcallable = new CallableLinkExtractor(_input,_metadata);
-            Callable<String> c = new CallableBoilerplateRemover(_input,_metadata.get(Metadata.CONTENT_ENCODING));
-            ExecutorService taskExecutor = Executors.newFixedThreadPool(2);
-            Future<ExtendedOutlink[]> linktask =taskExecutor.submit(linkcallable);
-            Future<String> task = taskExecutor.submit(c);
-            taskExecutor.shutdown();
-            
-            ExtendedOutlink[] outlinks;
-            String content;
-            taskExecutor.awaitTermination(28000, TimeUnit.MILLISECONDS);
-            content = task.get();
-            outlinks = linktask.get();*/
-            
             BufferedReader reader = new BufferedReader(new InputStreamReader(_input,_metadata.get(Metadata.CONTENT_ENCODING)));            
             String content = "";
             if (_keepBoiler) {            	
@@ -131,7 +119,6 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             reader.close();
             
             //Remove all consecutive occasions of whitespace characters 
-            //content = content.replaceAll("(\\s|\\xA0){2,}", " ");
             content = ContentNormalizer.normalizeText(content);
             //System.out.println(content);
             return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, /*_contentExtractor.getContent()*/content, lang,
