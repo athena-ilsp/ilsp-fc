@@ -1,6 +1,7 @@
 package gr.ilsp.fmc.utils;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -76,6 +77,50 @@ public class ContentNormalizer {
 
 		text = text.replaceAll("(\n){2,}","\n");
 		return text;
+	}
+
+
+	private static final String XML10PATTERN = "[^"
+            + "\u0009\r\n"
+            + "\u0020-\uD7FF"
+            + "\uE000-\uFFFD"
+            + "\ud800\udc00-\udbff\udfff"
+            + "]";
+	
+	
+	public static String normalizePdfText(String content) {
+		for (String s:invalidChars.keySet()){
+			content = content.replaceAll(s, invalidChars.get(s));
+		}
+		content=content.replaceAll(XML10PATTERN, "");
+		//content = content.replaceAll("(\\s){2,}", " ");
+		content = content.replaceAll("( \n)", "\n");
+		content = content.replaceAll("(\n){3,}","\n");
+		content=splitParagraphs("\n"+content);
+		
+		return content;
+	}
+
+	//FIXME
+	private static String splitParagraphs(String content) {
+		//String text="";
+		
+		int par_id=0;  
+		ArrayList<String> paragraphs =new ArrayList<String>();
+		String[] lines=content.split("\n");
+		
+		int[] lengths=new int[lines.length];
+		for (int ii=0;ii<lines.length-1;ii++){
+			lengths[ii]=lines[ii].length();
+		}
+		
+		
+		for (int ii=0;ii<lines.length-1;ii++){
+			lengths[ii]=lines[ii].length();
+		}
+		
+		
+		return content;
 	}
 
 
