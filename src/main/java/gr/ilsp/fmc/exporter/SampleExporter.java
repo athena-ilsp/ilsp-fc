@@ -107,7 +107,7 @@ public class SampleExporter {
 	private static String negWordsFile;
 	private static String outputDir="";
 	private static boolean textExport = false;
-	//vpapa
+
 	private static boolean cesdoc = false;
 	private static boolean html = false;
 	private static SampleExporterOptions options = null;
@@ -138,7 +138,6 @@ public class SampleExporter {
 			UrlStatus status = UrlStatus.valueOf(pieces[0]);
 			statusCounts[status.ordinal()] += 1;
 		}
-
 
 		for (int i = 0; i < statusCounts.length; i++) {
 			if (statusCounts[i] != 0) {
@@ -190,12 +189,8 @@ public class SampleExporter {
 //				ClassifierDatum datum = new ClassifierDatum(entry);
 //				//LOGGER.info(datum.toString());
 //			}
-
-
 			prevLoop = curLoop;
 		}
-
-
 
 		if (!exportDb) {
 			LOGGER.info(String.format("%d fetched URLs", fetchedUrls));
@@ -274,15 +269,14 @@ public class SampleExporter {
 
 					prevLoop = curLoop;
 				}
-				//vpapa
+				
 				LOGGER.info("CesDoc files generated: "+ xmlFiles.size());
-
 				LOGGER.info("Completed in " + (System.currentTimeMillis()-start) + " milliseconds.");
 
 				OutputStreamWriter xmlFileListWrt;
 				xmlFileListWrt = new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8");
 				for (String xmlFile: xmlFiles) {
-					//vpapa added this just for development on windows
+					//added this just for development on windows
 					//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
 					//ttt=ttt.substring(ttt.indexOf("http:"));
 					//xmlFileListWrt.write(ttt+"\n");
@@ -300,16 +294,6 @@ public class SampleExporter {
 						xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
 
 						for (String xmlFile: xmlFiles) {
-							//vpapa added this just for development on windows
-							//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
-							//ttt=ttt.substring(ttt.indexOf("http:"));
-							//ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
-							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
-							//xmlFileListWrt1.write("<br />"+ttt);
-							//xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
-						
-							//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
-							//ttt=ttt.substring(ttt.indexOf("http:"));
 							String ttt = "<a href=\""+xmlFile+"\">\n"+xmlFile+"</a>";
 							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
 							xmlFileListWrt1.write("<br />"+ttt+"\n");
@@ -381,7 +365,6 @@ public class SampleExporter {
 		if (options.get_textexport()) {
 			se.setTextExport(true);
 		}
-		//vpapa
 		if (options.get_style()) {
 			se.setStyleExport(options.get_style());
 		}
@@ -395,6 +378,7 @@ public class SampleExporter {
 		String cleanText = "";
 		String htmlText = "";
 		String domain = "";
+		String genre="";
 		String format = "";	
 		String subdomains = "";
 		String contentEncoding = "";
@@ -451,7 +435,7 @@ public class SampleExporter {
 			terms = new ArrayList<String>();
 			if (termsArray!=null){
 				termsArray = termsArray.replace(",","");
-				for (String s: termsArray.split(" "))
+				for (String s: termsArray.split(","))
 					terms.add(s);
 			}
 			contentEncoding = meta.get("Content-Encoding");
@@ -472,7 +456,7 @@ public class SampleExporter {
 			//	LOGGER.info("PDF should be created"); //FIXME (examine if we get the content required to create the pdf file
 			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			//}
-			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", domain, subdomains, terms, topic, neg_words, licenseURL ))
+			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", domain, subdomains, terms, topic, neg_words, licenseURL, genre ))
 				id++;
 			if (textExport) TextExporter(xmlPath,cleanText,id-1);
 		}
@@ -577,190 +561,6 @@ public class SampleExporter {
 		}
 	}
 
-	/*	public static Boolean XMLExporter_OR(Path outputdir, String format, String title, String eAddress,
-			String lang, String html_text, String cleaned_text, int id, String pubDate, String domain, String subdomain,
-			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words) { //throws Exception {
-		StringTokenizer tkzr = new StringTokenizer(cleaned_text);
-		if (tkzr.countTokens()<minTokensNumber){
-			//System.out.println("CUT: "+ eAddress);
-			return false;		
-		}
-
-		//Filename of files to be written.
-		String temp_id=Integer.toString(id);
-		String html_filename = temp_id+".html";
-		Path xml_file = new Path(outputdir,temp_id+".xml");
-		Path annotation = new Path(outputdir,html_filename);
-		OutputStreamWriter tmpwrt;
-		try {
-			tmpwrt = new OutputStreamWriter(new FileOutputStream(annotation.toUri().getPath()),"UTF-8");
-			tmpwrt.write(html_text);
-			tmpwrt.close();
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-			//throw new Exception("Problem in encoding during writing HTML");
-		} catch (IOException e) {
-			e.printStackTrace();
-			//throw new Exception("Problem in encoding during writing HTML");
-		}
-
-
-		//Write the XML file
-		int parId = 1;
-
-		XMLOutputFactory2 xof = (XMLOutputFactory2) XMLOutputFactory2.newInstance();
-		XMLStreamWriter2 xtw1 = null;
-		XMLStreamWriter2 xtw = null;
-		OutputStreamWriter wrt = null;
-
-		try {
-			wrt = new OutputStreamWriter(new FileOutputStream(xml_file.toUri().getPath()),"UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		try {
-			xtw1 = (XMLStreamWriter2)
-			xof.createXMLStreamWriter(wrt);
-			PrettyPrintHandler handler = new PrettyPrintHandler(
-					xtw1 );
-			xtw = (XMLStreamWriter2)
-			Proxy.newProxyInstance(XMLStreamWriter2.class.getClassLoader(),
-					new Class[] { XMLStreamWriter2.class }, handler);
-			xtw.writeStartDocument();
-			xtw.writeStartElement("cesDoc");
-			xtw.writeAttribute("version", "0.4");
-			xtw.writeAttribute("xmlns",
-			"http://www.xces.org/schema/2003");
-			xtw.writeAttribute("xmlns:xlink",
-			"http://www.w3.org/1999/xlink");
-			xtw.writeAttribute("xmlns:xsi",
-			"http://www.w3.org/2001/XMLSchema-instance");
-			createHeader(xtw, eAddress, pubDate, lang, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
-			//System.err.println("Now working on file:+fileNo);
-			xtw.writeStartElement("text");
-			xtw.writeStartElement("body");
-			try {
-
-				String lines[] = cleaned_text.split("\n");
-				for (String line : lines ) {
-					if (line.length()==0) continue;
-					if (line.toCharArray()[0]==160)continue;
-
-					//if (line.substring(0, 8).equals("<boiler>")) {
-					if (line.indexOf("<boiler>")==0){
-						line = line.substring(8, line.length()-9);
-						if (line.trim().length()<=1) continue;						
-						xtw.writeStartElement("p");
-						xtw.writeAttribute("id",("p"+parId));
-						xtw.writeAttribute("type","boilerplate");
-
-
-
-
-
-
-
-					}else {
-						//if (line.substring(0, 6).equals("<text>"))
-						if (line.indexOf("<text>")==0)
-							line = line.substring(6, line.length()-7);													
-						if (line.trim().length()<=1) continue;
-						xtw.writeStartElement("p");
-						xtw.writeAttribute("id",("p"+parId));
-
-						if (!countWords(line, MIN_TOKENS_PER_PARAGRAPH )) {
-							xtw.writeAttribute("type","length");
-						}
-						else {
-							String langidentified ="";
-							//LanguageIdentifier LangI=new LanguageIdentifier(line); 							
-							//langidentified = LangI.getLanguage();
-							Detector detector = null;			
-							try {
-								detector = DetectorFactory.create();
-								detector.append(line);
-								langidentified = detector.detect();										
-							} catch (LangDetectException e) {
-								//LOGGER.error(e.getMessage());
-							}
-							if (!langidentified.equals(lang)){
-								//not in the right language
-								xtw.writeAttribute("type", "lang");
-							} else {
-								if (findWords(line,neg_words)){	//contain "forbidden" words
-									xtw.writeAttribute("type", "content");
-								}
-								else {
-									//does the paragraph contain terms?
-									String[] tempstr = new String[1];		
-									String term;
-									ArrayList<String> stems =new ArrayList<String>();
-									try {
-										stems = TopicTools.analyze(line, langidentified);
-									} catch (IOException e) {
-										e.printStackTrace();
-									} 
-									String par_text="";
-									for (String st:stems){
-										par_text=par_text.concat(" "+st);
-									}
-									par_text = par_text.trim();
-									Boolean found = false;
-									if (topic!=null) {
-										for (int ii=0;ii<topic.size();ii++){ //for each row of the topic
-											tempstr=topic.get(ii);
-											term = tempstr[1];
-											Pattern pattern = Pattern.compile(" "+term+" ");	
-											Matcher matcher = pattern.matcher(" "+par_text+" ");
-											if (matcher.find()){
-												found=true;
-												break;
-											}
-										}
-										if (!found){//does not contain terms
-											xtw.writeAttribute("type","terms");
-										}
-									}
-								}
-							}
-						}
-					}
-					xtw.writeCharacters(line);
-					xtw.writeEndElement();
-					parId++;
-				}							
-			} catch (Exception e) {
-				LOGGER.error("Could not write file with id " + temp_id);	
-				LOGGER.error(e.getMessage());
-				e.printStackTrace();
-				return false;
-			}
-			xtw.writeEndElement();
-			xtw.writeEndElement();
-			xtw.writeEndElement();
-			xtw.flush();							
-		} catch (XMLStreamException e) {
-			LOGGER.error("Could not write XML " + xml_file);
-			LOGGER.error(e.getMessage());
-			return false;			
-		} finally {
-			try {				
-				xtw.close();
-				xtw1.close();
-				wrt.close();
-			} catch (XMLStreamException e) {
-				LOGGER.error(e.getMessage());
-			} catch (IOException e) {
-				LOGGER.error(e.getMessage());
-			}
-		}
-
-		return true;
-	}*/
 
 	public static void TextExporter(Path outpath, String text, int id){
 		Path txt_file = new Path(outpath,id+".txt");
@@ -781,10 +581,8 @@ public class SampleExporter {
 
 	public static Boolean XMLExporter(Path outputdir, String format, String title, String eAddress,
 			String lang, String html_text, String cleaned_text, int id, String pubDate, String domain, String subdomain,
-			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words, String licenseURL) { //throws Exception {
+			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words, String licenseURL, String genre) { //throws Exception {
 
-		//vpapa
-		//String maincontent =cleaned_text;
 		String maincontent="";
 		if (format.contains("text/html")){
 
@@ -794,11 +592,6 @@ public class SampleExporter {
 					maincontent=maincontent+temp[jj]+"\n"; 
 				}
 			}
-			//maincontent = maincontent.replaceAll("<boiler.*(?s)", "");
-			//maincontent = maincontent.replaceAll("\\n\\n","");
-			//??????<boiler.*   <boiler.*</boiler>\n
-			//maincontent = maincontent.replaceAll("<boiler type.*</boiler>\n", "");
-			//////////// 
 			maincontent = maincontent.replaceAll("<text>", "");
 			maincontent = maincontent.replaceAll("</text>", "");
 			maincontent = maincontent.replaceAll("<text type.*>", "");
@@ -807,10 +600,6 @@ public class SampleExporter {
 			maincontent=cleaned_text;
 
 		StringTokenizer tkzr = new StringTokenizer(maincontent);
-		//System.out.println(tkzr.countTokens());
-		//System.out.println(maincontent);
-		//if (lang.contains(";"))
-		//	minTokensNumber=100;
 
 		if (tkzr.countTokens()<minTokensNumber){
 			//			System.out.println("CUT: "+ eAddress);
@@ -897,10 +686,8 @@ public class SampleExporter {
 			xtw.writeAttribute("xmlns", cesNameSpace1 );
 			xtw.writeAttribute("xmlns:xsi", cesNameSpace2 );
 
-
-			//vpapa
 			//createHeader(xtw, eAddress, pubDate, lang, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
-			createHeader(xtw, eAddress, pubDate, langidentified_total, title, domain, terms, annotation.toUri().getPath(), format, subdomain, licenseURL);
+			createHeader(xtw, eAddress, pubDate, langidentified_total, title, domain, terms, annotation.toUri().getPath(), format, subdomain, licenseURL,genre);
 
 
 			//System.err.println("Now working on file:+fileNo);
@@ -1173,7 +960,7 @@ public class SampleExporter {
 		String langidentified ="";
 		//LanguageIdentifier LangI=new LanguageIdentifier(partOfLine); 
 		//langidentified = LangI.getLanguage();
-		//vpapa added comment below and remove comment from above to change language identifiers
+		//added comment below and remove comment from above to change language identifiers
 		//if (!langidentified.equals(targetLang)){
 		Detector detector = null;			
 		try {
@@ -1273,8 +1060,6 @@ public class SampleExporter {
 		StringTokenizer st = new StringTokenizer(par_text);
 		int count=st.countTokens();
 		Boolean type=true;
-		//int count = 0;  String ss="";
-		//while (st.hasMoreTokens()) {ss= st.nextToken();count++;}
 		if (count<thresh){	
 			type=false;
 		}
@@ -1297,7 +1082,7 @@ public class SampleExporter {
 
 	private static void createHeader(XMLStreamWriter2 xtw, String url, String pubDate,
 			String language, String title, String domain, ArrayList<String> terms, 
-			String htmlFilename, String file_format, String subdomain, String licenseURL) throws XMLStreamException {
+			String htmlFilename, String file_format, String subdomain, String licenseURL, String genre) throws XMLStreamException {
 		xtw.writeStartElement("cesHeader");
 		xtw.writeAttribute("version", cesDocVersion);
 		xtw.writeStartElement("fileDesc");
@@ -1323,11 +1108,11 @@ public class SampleExporter {
 		xtw.writeEndElement();
 		xtw.writeStartElement("eAddress");
 		xtw.writeAttribute("type", "web");
-		//xtw.writeCharacters("http://www.panacea-lr.eu");
-		xtw.writeCharacters("http://www.panacea-lr.eu/");
+		//xtw.writeCharacters("http://www.panacea-lr.eu/");
+		xtw.writeCharacters("project_website");
 		xtw.writeEndElement();
 		xtw.writeStartElement("availability");
-		if (licenseURL!="") {
+		if (licenseURL!="" & licenseURL!=null) {
 			xtw.writeStartElement("license");
 			xtw.writeAttribute("target", licenseURL);
 			xtw.writeCharacters("Distributed under a Creative Commons license");
@@ -1350,11 +1135,11 @@ public class SampleExporter {
 		xtw.writeCharacters("");
 		xtw.writeEndElement();
 		xtw.writeStartElement("imprint");
-		//new
+		
 		xtw.writeStartElement("format");
 		xtw.writeCharacters(file_format);
 		xtw.writeEndElement();
-		//end of new
+		
 		xtw.writeStartElement("publisher");
 		xtw.writeCharacters("");
 		xtw.writeEndElement();
@@ -1418,17 +1203,14 @@ public class SampleExporter {
 		xtw.writeStartElement("subdomain");
 		xtw.writeCharacters(subdomain!=null?subdomain:"");
 		xtw.writeEndElement();
+		xtw.writeStartElement("genre");
+		xtw.writeCharacters(genre!=null?genre:"");
+		xtw.writeEndElement();
 		xtw.writeStartElement("subject");
 		xtw.writeEndElement();
 		xtw.writeEndElement();
 		xtw.writeStartElement("annotations");
 		xtw.writeStartElement("annotation");
-		//vpapa added this just for development on windows
-		//String ttt = htmlFilename.replace(VAR_RES_CACHE,HTTP_PATH);
-		//ttt=ttt.substring(ttt.indexOf("http:"));
-		//xtw.writeCharacters(ttt);
-		////xtw.writeCharacters(htmlFilename.replace(VAR_RES_CACHE,
-		////		HTTP_PATH));
 		xtw.writeCharacters(htmlFilename);
 		
 		xtw.writeEndElement();
@@ -1510,4 +1292,192 @@ public class SampleExporter {
 	public static void setResearchProject(String researchProject) {
 		SampleExporter.researchProject = researchProject;
 	}
+	
+	/*	public static Boolean XMLExporter_OR(Path outputdir, String format, String title, String eAddress,
+	String lang, String html_text, String cleaned_text, int id, String pubDate, String domain, String subdomain,
+	ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words) { //throws Exception {
+StringTokenizer tkzr = new StringTokenizer(cleaned_text);
+if (tkzr.countTokens()<minTokensNumber){
+	//System.out.println("CUT: "+ eAddress);
+	return false;		
+}
+
+//Filename of files to be written.
+String temp_id=Integer.toString(id);
+String html_filename = temp_id+".html";
+Path xml_file = new Path(outputdir,temp_id+".xml");
+Path annotation = new Path(outputdir,html_filename);
+OutputStreamWriter tmpwrt;
+try {
+	tmpwrt = new OutputStreamWriter(new FileOutputStream(annotation.toUri().getPath()),"UTF-8");
+	tmpwrt.write(html_text);
+	tmpwrt.close();
+} catch (UnsupportedEncodingException e1) {
+	e1.printStackTrace();
+} catch (FileNotFoundException e1) {
+	e1.printStackTrace();
+	//throw new Exception("Problem in encoding during writing HTML");
+} catch (IOException e) {
+	e.printStackTrace();
+	//throw new Exception("Problem in encoding during writing HTML");
+}
+
+
+//Write the XML file
+int parId = 1;
+
+XMLOutputFactory2 xof = (XMLOutputFactory2) XMLOutputFactory2.newInstance();
+XMLStreamWriter2 xtw1 = null;
+XMLStreamWriter2 xtw = null;
+OutputStreamWriter wrt = null;
+
+try {
+	wrt = new OutputStreamWriter(new FileOutputStream(xml_file.toUri().getPath()),"UTF-8");
+} catch (UnsupportedEncodingException e) {
+	e.printStackTrace();
+} catch (FileNotFoundException e) {
+	e.printStackTrace();
+}
+try {
+	xtw1 = (XMLStreamWriter2)
+	xof.createXMLStreamWriter(wrt);
+	PrettyPrintHandler handler = new PrettyPrintHandler(
+			xtw1 );
+	xtw = (XMLStreamWriter2)
+	Proxy.newProxyInstance(XMLStreamWriter2.class.getClassLoader(),
+			new Class[] { XMLStreamWriter2.class }, handler);
+	xtw.writeStartDocument();
+	xtw.writeStartElement("cesDoc");
+	xtw.writeAttribute("version", "0.4");
+	xtw.writeAttribute("xmlns",
+	"http://www.xces.org/schema/2003");
+	xtw.writeAttribute("xmlns:xlink",
+	"http://www.w3.org/1999/xlink");
+	xtw.writeAttribute("xmlns:xsi",
+	"http://www.w3.org/2001/XMLSchema-instance");
+	createHeader(xtw, eAddress, pubDate, lang, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
+	//System.err.println("Now working on file:+fileNo);
+	xtw.writeStartElement("text");
+	xtw.writeStartElement("body");
+	try {
+
+		String lines[] = cleaned_text.split("\n");
+		for (String line : lines ) {
+			if (line.length()==0) continue;
+			if (line.toCharArray()[0]==160)continue;
+
+			//if (line.substring(0, 8).equals("<boiler>")) {
+			if (line.indexOf("<boiler>")==0){
+				line = line.substring(8, line.length()-9);
+				if (line.trim().length()<=1) continue;						
+				xtw.writeStartElement("p");
+				xtw.writeAttribute("id",("p"+parId));
+				xtw.writeAttribute("type","boilerplate");
+
+
+
+
+
+
+
+			}else {
+				//if (line.substring(0, 6).equals("<text>"))
+				if (line.indexOf("<text>")==0)
+					line = line.substring(6, line.length()-7);													
+				if (line.trim().length()<=1) continue;
+				xtw.writeStartElement("p");
+				xtw.writeAttribute("id",("p"+parId));
+
+				if (!countWords(line, MIN_TOKENS_PER_PARAGRAPH )) {
+					xtw.writeAttribute("type","length");
+				}
+				else {
+					String langidentified ="";
+					//LanguageIdentifier LangI=new LanguageIdentifier(line); 							
+					//langidentified = LangI.getLanguage();
+					Detector detector = null;			
+					try {
+						detector = DetectorFactory.create();
+						detector.append(line);
+						langidentified = detector.detect();										
+					} catch (LangDetectException e) {
+						//LOGGER.error(e.getMessage());
+					}
+					if (!langidentified.equals(lang)){
+						//not in the right language
+						xtw.writeAttribute("type", "lang");
+					} else {
+						if (findWords(line,neg_words)){	//contain "forbidden" words
+							xtw.writeAttribute("type", "content");
+						}
+						else {
+							//does the paragraph contain terms?
+							String[] tempstr = new String[1];		
+							String term;
+							ArrayList<String> stems =new ArrayList<String>();
+							try {
+								stems = TopicTools.analyze(line, langidentified);
+							} catch (IOException e) {
+								e.printStackTrace();
+							} 
+							String par_text="";
+							for (String st:stems){
+								par_text=par_text.concat(" "+st);
+							}
+							par_text = par_text.trim();
+							Boolean found = false;
+							if (topic!=null) {
+								for (int ii=0;ii<topic.size();ii++){ //for each row of the topic
+									tempstr=topic.get(ii);
+									term = tempstr[1];
+									Pattern pattern = Pattern.compile(" "+term+" ");	
+									Matcher matcher = pattern.matcher(" "+par_text+" ");
+									if (matcher.find()){
+										found=true;
+										break;
+									}
+								}
+								if (!found){//does not contain terms
+									xtw.writeAttribute("type","terms");
+								}
+							}
+						}
+					}
+				}
+			}
+			xtw.writeCharacters(line);
+			xtw.writeEndElement();
+			parId++;
+		}							
+	} catch (Exception e) {
+		LOGGER.error("Could not write file with id " + temp_id);	
+		LOGGER.error(e.getMessage());
+		e.printStackTrace();
+		return false;
+	}
+	xtw.writeEndElement();
+	xtw.writeEndElement();
+	xtw.writeEndElement();
+	xtw.flush();							
+} catch (XMLStreamException e) {
+	LOGGER.error("Could not write XML " + xml_file);
+	LOGGER.error(e.getMessage());
+	return false;			
+} finally {
+	try {				
+		xtw.close();
+		xtw1.close();
+		wrt.close();
+	} catch (XMLStreamException e) {
+		LOGGER.error(e.getMessage());
+	} catch (IOException e) {
+		LOGGER.error(e.getMessage());
+	}
+}
+
+return true;
+}*/
+
+	
+	
 }
