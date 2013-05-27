@@ -25,11 +25,8 @@ import org.apache.tika.parser.html.DefaultHtmlMapper;
 import org.apache.tika.parser.html.HtmlMapper;
 import org.apache.tika.sax.TeeContentHandler;
 
-//import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
-
-
-
+import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
+//import de.l3s.boilerpipe.extractors.ArticleExtractor;
 
 import bixo.parser.BaseContentExtractor;
 
@@ -49,11 +46,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
     private boolean _extractLanguage;
 	private boolean _keepBoiler = false;
 
-	
-	//private static final Detector DETECTOR = new DefaultDetector(
-	//        MimeTypes.getDefaultMimeTypes());
-	
-    public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata) {
+	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata) {
         this(parser, contentExtractor, input, metadata, true, false);
     }
     
@@ -64,16 +57,6 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
         _metadata = metadata;
         _extractLanguage = extractLanguage;
         _keepBoiler = keepBoiler;
-        //BufferedInputStream f = new BufferedInputStream(input);
-        //try {
-		//	String mimeType=DETECTOR.detect(f, metadata).toString();
-		//	System.out.println(mimeType);
-		//	 f.close();
-		//} catch (IOException e) {
-		//	// TODO Auto-generated catch block
-		//	e.printStackTrace();
-		//}
-        
     }
     
     @Override
@@ -119,18 +102,18 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             BufferedReader reader = new BufferedReader(new InputStreamReader(_input,_metadata.get(Metadata.CONTENT_ENCODING)));            
             String content = "";
             if (_keepBoiler) {            	
-            	//content = gr.ilsp.boilerpipe.extractors.NumWordsRulesExtractor.INSTANCE.getText(reader,true);
-            	content = gr.ilsp.boilerpipe.extractors.ArticleExtractor.INSTANCE.getText(reader,true);
+            	content = gr.ilsp.boilerpipe.extractors.NumWordsRulesExtractor.INSTANCE.getText(reader,true);
+            	//content = gr.ilsp.boilerpipe.extractors.ArticleExtractor.INSTANCE.getText(reader,true);
             } else {
-            	//content = NumWordsRulesExtractor.INSTANCE.getText(reader);
-            	content = ArticleExtractor.INSTANCE.getText(reader);
+            	content = NumWordsRulesExtractor.INSTANCE.getText(reader);
+            	//content = ArticleExtractor.INSTANCE.getText(reader);
             }
             reader.close();
             
             //Remove all consecutive occasions of whitespace characters 
             //content = content.replaceAll("(\\s|\\xA0){2,}", " ");
             content = ContentNormalizer.normalizeText(content);
-
+            //System.out.println(content);
             return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, /*_contentExtractor.getContent()*/content, lang,
                             _metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
         } catch (Exception e) {
