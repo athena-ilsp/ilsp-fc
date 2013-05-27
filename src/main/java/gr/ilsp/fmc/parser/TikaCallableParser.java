@@ -10,6 +10,7 @@ import gr.ilsp.fmc.utils.ContentNormalizer;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -33,7 +34,11 @@ import bixo.parser.BaseContentExtractor;
 public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
     //private static final Logger LOGGER = Logger.getLogger(TikaCallableParser.class);
     
-    
+	private static final String LICENSES_STR = "/licenses/";
+	private static final String HTTP_PROTOCOL = "http";
+	private static final String CREATIVECOMMONS_ORG_STR = "creativecommons.org";
+	//private static final String REL_LICENSE_LOCATION = "rel";
+
 
     // Simplistic language code pattern used when there are more than one languages specified
     // FUTURE KKr - improve this to handle en-US, and "eng" for those using old-style language codes.
@@ -81,6 +86,21 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             
             
             ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
+            
+            // Check each link for creative commons licenses
+            for (ExtendedOutlink extendedOutlink : outlinks) {
+            	URL url = new URL(extendedOutlink.getAnchor());            // resolve the url
+				// check that it's a CC license URL
+				if (HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol()) &&
+						CREATIVECOMMONS_ORG_STR.equalsIgnoreCase(url.getHost()) &&
+						url.getPath() != null &&
+						url.getPath().startsWith(LICENSES_STR) &&
+						url.getPath().length() > LICENSES_STR.length()) {
+	            	_metadata.set(Metadata.LICENSE_URL, url.toString());
+	            	break;
+				}
+            }
+            
             //String lang = _extractLanguage ? detectLanguage(_metadata, profilingHandler) : "";
             String lang = "";
             _input.reset();

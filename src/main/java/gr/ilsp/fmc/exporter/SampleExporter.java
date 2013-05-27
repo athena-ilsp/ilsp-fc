@@ -53,6 +53,7 @@ import java.lang.reflect.Proxy;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -68,6 +69,7 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.tika.metadata.Metadata;
 import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamWriter2;
 
@@ -95,7 +97,8 @@ public class SampleExporter {
 	private static String cesNameSpace = "http://www.w3.org/1999/xlink";
 	private static String cesNameSpace1 = "http://www.xces.org/schema/2003";
 	private static String cesNameSpace2 = "http://www.w3.org/2001/XMLSchema-instance";
-
+	
+	private static String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));//FIXME
 
 	private static int MIN_TOKENS_PER_PARAGRAPH;
 	private static String crawlDirName;
@@ -114,6 +117,7 @@ public class SampleExporter {
 	private static ArrayList<String> xmlFiles = new ArrayList<String>();
 	private static String outputFile = null;
 	private static String outputFileHTML = null;
+	private static String researchProject = "ILSP";
 
 	private static void processStatus(JobConf conf, Path curDirPath) throws IOException {
 		Path statusPath = new Path(curDirPath, CrawlConfig.STATUS_SUBDIR_NAME);
@@ -181,11 +185,11 @@ public class SampleExporter {
 			Path classifiedPath = new Path(curDirPath, CrawlConfig.CLASSIFIER_SUBDIR_NAME);
 			Tap classifiedTap = new Hfs(new SequenceFile(ClassifierDatum.FIELDS),classifiedPath.toUri().toString());
 			iter = classifiedTap.openForRead(conf);
-			while (iter.hasNext()) {
-				TupleEntry entry = iter.next();
-				ClassifierDatum datum = new ClassifierDatum(entry);
-				//LOGGER.info(datum.toString());
-			}
+//			while (iter.hasNext()) {
+//				TupleEntry entry = iter.next();
+//				ClassifierDatum datum = new ClassifierDatum(entry);
+//				//LOGGER.info(datum.toString());
+//			}
 
 
 			prevLoop = curLoop;
@@ -395,7 +399,7 @@ public class SampleExporter {
 		String subdomains = "";
 		String contentEncoding = "";
 		//String author ="";
-		//String licence="";
+		String licenseURL="";
 		//String pubdate="";
 		//String publisher="";
 		
@@ -455,6 +459,9 @@ public class SampleExporter {
 			format = validFormat(format);
 			htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			subdomains = getSubdomains(url, curDirPath,classIter);
+			
+			licenseURL = meta.get(Metadata.LICENSE_URL);
+
 			//if (format.contains("text/html"))
 			//	cleanText = ContentNormalizer.normalizeText(cleanText);
 			//if (format.contains("application/pdf"))
@@ -465,7 +472,7 @@ public class SampleExporter {
 			//	LOGGER.info("PDF should be created"); //FIXME (examine if we get the content required to create the pdf file
 			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			//}
-			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", domain, subdomains, terms, topic, neg_words ))
+			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", domain, subdomains, terms, topic, neg_words, licenseURL ))
 				id++;
 			if (textExport) TextExporter(xmlPath,cleanText,id-1);
 		}
@@ -774,7 +781,7 @@ public class SampleExporter {
 
 	public static Boolean XMLExporter(Path outputdir, String format, String title, String eAddress,
 			String lang, String html_text, String cleaned_text, int id, String pubDate, String domain, String subdomain,
-			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words) { //throws Exception {
+			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words, String licenseURL) { //throws Exception {
 
 		//vpapa
 		//String maincontent =cleaned_text;
@@ -893,7 +900,7 @@ public class SampleExporter {
 
 			//vpapa
 			//createHeader(xtw, eAddress, pubDate, lang, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
-			createHeader(xtw, eAddress, pubDate, langidentified_total, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
+			createHeader(xtw, eAddress, pubDate, langidentified_total, title, domain, terms, annotation.toUri().getPath(), format, subdomain, licenseURL);
 
 
 			//System.err.println("Now working on file:+fileNo);
@@ -1290,7 +1297,7 @@ public class SampleExporter {
 
 	private static void createHeader(XMLStreamWriter2 xtw, String url, String pubDate,
 			String language, String title, String domain, ArrayList<String> terms, 
-			String htmlFilename, String file_format, String subdomain) throws XMLStreamException {
+			String htmlFilename, String file_format, String subdomain, String licenseURL) throws XMLStreamException {
 		xtw.writeStartElement("cesHeader");
 		xtw.writeAttribute("version", cesDocVersion);
 		xtw.writeStartElement("fileDesc");
@@ -1312,7 +1319,7 @@ public class SampleExporter {
 		xtw.writeStartElement("publicationStmt");   
 		xtw.writeStartElement("distributor");
 		//xtw.writeCharacters("Panacea project");
-		xtw.writeCharacters("PANACEA project");
+		xtw.writeCharacters(researchProject  +" project");
 		xtw.writeEndElement();
 		xtw.writeStartElement("eAddress");
 		xtw.writeAttribute("type", "web");
@@ -1320,10 +1327,16 @@ public class SampleExporter {
 		xtw.writeCharacters("http://www.panacea-lr.eu/");
 		xtw.writeEndElement();
 		xtw.writeStartElement("availability");
-		xtw.writeCharacters("Under review");
+		if (licenseURL!="") {
+			xtw.writeStartElement("license");
+			xtw.writeAttribute("target", licenseURL);
+			xtw.writeCharacters("Distributed under a Creative Commons license");
+		} else {
+			xtw.writeCharacters("Under review");
+		}
 		xtw.writeEndElement();
 		xtw.writeStartElement("pubDate");
-		xtw.writeCharacters("2012");
+		xtw.writeCharacters(year);
 		xtw.writeEndElement();
 		xtw.writeEndElement();
 
@@ -1366,6 +1379,30 @@ public class SampleExporter {
 		xtw.writeEndElement();
 
 		xtw.writeStartElement("textClass");
+
+// FIXME genre
+//		<taxonomy>
+//		 <category xml:id="news">
+//		  <catDesc>Newspapers</catDesc>
+//		 </category>
+//		 <category xml:id="prov">
+//		  <catDesc>Provincial</catDesc>
+//		 </category>
+//		 <category xml:id="sales2">
+//		  <catDesc>Low to average annual sales</catDesc>
+//		 </category>
+//		</taxonomy>
+
+//		 <catRef target="#acprose"/>
+//		 <classCode scheme="http://www.udcc.org">001.9</classCode>
+//		 <keywords scheme="http://authorities.loc.gov">
+//		  <list>
+//		   <item>End of the world</item>
+//		   <item>History - philosophy</item>
+//		  </list>
+//		 </keywords>
+//		</textClass>
+		
 		if (terms!=null){
 			xtw.writeStartElement("keywords");
 			for (String term:terms) {
@@ -1458,5 +1495,19 @@ public class SampleExporter {
 	}
 	public void setHTMLOutput(boolean html){
 		SampleExporter.html = html;
+	}
+
+	/**
+	 * @return the researchProject
+	 */
+	public static String getResearchProject() {
+		return researchProject;
+	}
+
+	/**
+	 * @param researchProject the researchProject to set
+	 */
+	public static void setResearchProject(String researchProject) {
+		SampleExporter.researchProject = researchProject;
 	}
 }
