@@ -41,7 +41,7 @@ public class Classifier implements Serializable{
 	private double SUBCLASSSCORE_TH = 0.2;
 	private double relcontentthr = 0.1;
 	private String _targetLanguage;
-	private int _minTokensNumber = 200;		
+	private int _minTokensNumber = 100;		
 	private String[] _classes;
 	private String[] _targetlangKeys;
 
