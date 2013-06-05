@@ -156,7 +156,7 @@ public class SimpleCrawlHFS {
 		}
 	}
 	
-	//vpapa
+	
 	/**
 	 * @param urls:crawler will stay in this web domain, crawlDbPath: path for loops' results, conf:crawler's configuration
 	 * @return initialize the frontier with the seed URL. Crawler will stay in this web domain. 
@@ -320,6 +320,10 @@ public class SimpleCrawlHFS {
 		double thres = 0;
 		if (options.getTopic()!=null){
 			topic=TopicTools.analyzeTopic(options.getTopic(),options.getLanguage(), conf);
+			if (topic.isEmpty()){
+				LOGGER.error("Even though a file for topic definition is defined, no terms have been found (check the file for existance and/or format).");
+				System.exit(0);
+			}
 			LOGGER.info("Topic analyzed, " + topic.size() + " terms found.");
 			//find the subclasses of the topic definition
 			classes=TopicTools.findSubclasses(topic);
