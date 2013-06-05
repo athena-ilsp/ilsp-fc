@@ -90,7 +90,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
 @SuppressWarnings("deprecation")
 public class SampleExporter {
 	private static final Logger LOGGER = Logger.getLogger(SampleExporter.class);
-	private static int minTokensNumber=100;
+	private static int minTokensNumber=200;
 	//private static String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	//private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static final String cesDocVersion = "0.4";
@@ -256,8 +256,6 @@ public class SampleExporter {
 				ArrayList<String[]> topic = null;
 				if (topicFile!=null) {
 					topic=TopicTools.analyzeTopic(topicFile,language, conf);
-					//topicTermsAll = TopicTools.analyzeTopicALL(topicFile);
-					//topicTermsAll1 =TopicTools.getTopicTerms(topic);
 					topicTermsAll = TopicTools.analyzeTopicALL(topic);
 				}
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
@@ -281,12 +279,10 @@ public class SampleExporter {
 					//ttt=ttt.substring(ttt.indexOf("http:"));
 					//xmlFileListWrt.write(ttt+"\n");
 					xmlFileListWrt.write(xmlFile+"\n");
-					////xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
 				}
 				xmlFileListWrt.close();
-				//vpapa
+				
 				if (html){
-					//String outputfile1 = outputFile+".html";
 					if (xmlFiles.size()>0){
 						String outputfile1 =outputFileHTML;
 						OutputStreamWriter xmlFileListWrt1;
@@ -302,7 +298,6 @@ public class SampleExporter {
 						xmlFileListWrt1.write("</html>");
 						xmlFileListWrt1.close();
 					}
-					//System.exit(0);
 				}
 			}
 
@@ -407,10 +402,7 @@ public class SampleExporter {
 		if (!fs.exists(xmlPath)) fs.mkdirs(xmlPath);
 		TupleEntryIterator contentIter = contentDbTap.openForRead(conf);
 		iter = parseDbTap.openForRead(conf);
-		//String topicFile = options.get_topic();		
-		//ArrayList<String[]> topic = null;
-		//if (topicFile!=null)
-		//	topic=TopicTools.analyzeTopic(topicFile,language);
+		
 		String[] neg_words = null ;
 		if (getNegWordsFile() != null) {
 			String neg_words_filename = getNegWordsFile();
@@ -423,11 +415,9 @@ public class SampleExporter {
 			url = datum.getUrl();
 			//LOGGER.debug("Writing: " + id + " " + url);
 			title = datum.getTitle();
-			//author= datum.getAuthor(); FIXME
-			// author=meta.get("Author");
+			//author= datum.getAuthor(); FIXME			// author=meta.get("Author");
 			if (title==null) title = "";
 			cleanText = datum.getParsedText();
-			//cleanText = cleanText.replaceAll("(\\s|\\xA0){2,}", " ");
 			cleanText = ContentNormalizer.normalizeText(cleanText);
 			//domain = datum.getHostAddress(); FIXME
 			meta = datum.getParsedMeta();
@@ -435,8 +425,8 @@ public class SampleExporter {
 			terms = new ArrayList<String>();
 			if (termsArray!=null){
 				termsArray = termsArray.replace(",","");
-				for (String s: termsArray.split(","))
-					terms.add(s);
+				for (String s: termsArray.split(",|;|:"))
+					terms.add(s.trim());
 			}
 			contentEncoding = meta.get("Content-Encoding");
 			format = meta.get("Content-Type");	
@@ -460,7 +450,6 @@ public class SampleExporter {
 				id++;
 			if (textExport) TextExporter(xmlPath,cleanText,id-1);
 		}
-		//nmastr added these 3 lines
 		iter.close();
 		classIter.close();
 		contentIter.close();
@@ -512,8 +501,6 @@ public class SampleExporter {
 
 			if (datum.getUrl().equals(url)) {
 				String[] subclasses = datum.getSubClasses();
-				//Double[][] subscores = datum.getSubScores();
-				//int count = 0;
 				for (String s: subclasses){
 					subdomains=subdomains.concat(s + ";");
 					//LOGGER.info(url + " " + s + " " + subscores[count][0]);
@@ -523,7 +510,6 @@ public class SampleExporter {
 				return subdomains.substring(0,subdomains.length()-1);
 			}
 		}		
-		//if (subdomains.length()>0) subdomains = subdomains.substring(0,subdomains.length()-2);
 		return null;
 	}
 
@@ -609,7 +595,6 @@ public class SampleExporter {
 		String langidentified ="";
 		String langidentified_total ="";
 		langidentified_total = checkLang(maincontent.toLowerCase());
-		//vpapa
 		String[] langs = lang.split(";");
 		boolean match = false;
 		for (String langi:langs){
@@ -672,7 +657,7 @@ public class SampleExporter {
 			Proxy.newProxyInstance(XMLStreamWriter2.class.getClassLoader(),
 					new Class[] { XMLStreamWriter2.class }, handler);
 			xtw.writeStartDocument();
-			//vpapa
+			
 			if (cesdoc){
 				xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesDoc.xsl' type='text/xsl'");
 			}
@@ -687,7 +672,7 @@ public class SampleExporter {
 			xtw.writeAttribute("xmlns:xsi", cesNameSpace2 );
 
 			//createHeader(xtw, eAddress, pubDate, lang, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
-			createHeader(xtw, eAddress, pubDate, langidentified_total, title, domain, terms, annotation.toUri().getPath(), format, subdomain, licenseURL,genre);
+			createHeader(xtw, eAddress, pubDate, langidentified_total, title, domain, terms, annotation.getName(), format, subdomain, licenseURL,genre);
 
 
 			//System.err.println("Now working on file:+fileNo);
