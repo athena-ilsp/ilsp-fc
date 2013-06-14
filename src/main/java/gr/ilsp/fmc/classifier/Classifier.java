@@ -41,7 +41,7 @@ public class Classifier implements Serializable{
 	private double SUBCLASSSCORE_TH = 0.2;
 	private double relcontentthr = 0.1;
 	private String _targetLanguage;
-	private int _minTokensNumber = 100;		
+	private int _minTokensNumber = 200;		
 	private String[] _classes;
 	private String[] _targetlangKeys;
 
@@ -68,7 +68,7 @@ public class Classifier implements Serializable{
 		_targetlangKeys=langKeys;
 		
 		//if (_targetLanguage.contains(";"))
-		//	_minTokensNumber=100;
+		//	_minTokensNumber=200;
 	}
 	public ClassifierDatum classify(ExtendedParsedDatum parsedDatum) {
 		//String lang = parsedDatum.getLanguage();
@@ -91,6 +91,8 @@ public class Classifier implements Serializable{
 			return null;
 
 		String url = parsedDatum.getUrl();
+		//if (url.contains("wikipedia"))
+		//	return null;
 		//		for (String s:metaMap.keySet()){
 		//			if (s.equals("keywords"))
 		//				keywords = metaMap.get(s);
