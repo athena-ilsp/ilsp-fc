@@ -57,7 +57,7 @@ public class TopicTools {
 			else {
 				BufferedReader in = new BufferedReader(new InputStreamReader(fs.open(p),"UTF-8"));
 				//BufferedReader in = new BufferedReader(new FileReader(temp));
-				//vpapa
+				
 				String str, a, b, c, d, b_or="";
 				String[] langs = lang.split(";");
 				while ((str = in.readLine()) != null) {
@@ -65,7 +65,7 @@ public class TopicTools {
 					a=str.subSequence(0, str.indexOf(":")).toString().trim();
 					b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().toLowerCase().trim();
 					b_or=b;
-					//vpapa
+					
 					int ind=str.indexOf(">");
 					if (langs.length>1){
 						if (ind<0){
@@ -90,11 +90,11 @@ public class TopicTools {
 					//ArrayList<String> stems = analyze(b, lang);
 					if (d.isEmpty())
 						stems = analyze(b, lang);
+					//System.out.println(b+"\t"+stems);
 					b="";
 					//concatenate stems
 					for (String s:stems){ b=b.concat(" "+s);}
 					b = b.trim();
-					//vpapa
 					if (ind>=0)
 						c=str.subSequence(str.indexOf("=")+1, str.indexOf(">")).toString();
 					else
@@ -112,10 +112,12 @@ public class TopicTools {
 							flag=false;
 							topic.remove(jj);
 							topic.add(new String[] {a,b,c,d,b_or});
+							//System.out.println(a+"\t"+b+"\t"+c+"\t"+d+"\t"+b_or);
 						}
 					}
 					if (flag){
 						topic.add(new String[] {a,b,c,d,b_or});
+						//System.out.println(a+"\t"+b+"\t"+c+"\t"+d+"\t"+b_or);
 					}
 					//topic.add(new String[] {a,b,c,d});
 				}
