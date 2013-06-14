@@ -658,9 +658,9 @@ public class SampleExporter {
 					new Class[] { XMLStreamWriter2.class }, handler);
 			xtw.writeStartDocument();
 			
-			if (cesdoc){
-				xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesDoc.xsl' type='text/xsl'");
-			}
+			//if (cesdoc){
+			//	xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesDoc.xsl' type='text/xsl'");
+			//}
 			xtw.writeStartElement("cesDoc");
 			xtw.writeAttribute("version", "0.4");
 			//xtw.writeAttribute("xmlns","http://www.xces.org/schema/2003");
