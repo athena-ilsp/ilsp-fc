@@ -6,16 +6,16 @@
 	</agent>
 	<classifier>
 		<min_content_terms>
-			<value>4</value>
+			<value>5</value>
 			<description>Minimum number of terms that must exist in clean
 				content of each web page in order to be stored.</description>
 		</min_content_terms>
 		<min_unique_content_terms>
-			<value>3</value>
+			<value>4</value>
 			<description>Minimum unique terms that must exist in clean content</description>
 		</min_unique_content_terms>
 		<max_depth>
-			<value>10</value>
+			<value>4</value>
 			<description>Maximum depth to crawl before abandoning a specific path. Depth
 			is increased every time a link is extracted from a non-relevant web page.</description>
 		</max_depth>
@@ -44,7 +44,7 @@
 		<valid_mime_types>
 			<mime_type value="text/html" />
 			<mime_type value="text/plain" />
-			<mime_type value="application/xhtml+xml" />
+			<!-- <mime_type value="application/xhtml+xml" />  -->
 			<description>Accepted mime types</description>
 		</valid_mime_types>
 		<crawl_delay>
