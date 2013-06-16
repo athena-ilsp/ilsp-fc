@@ -1,0 +1,50 @@
+package gr.ilsp.fmc.exporter;
+
+import gr.ilsp.fmc.main.SimpleCrawlHFS;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
+
+public class XSLTransformer {
+	private static Logger logger = Logger.getLogger(SimpleCrawlHFS.class);
+	private TransformerFactory transFact = null;
+	private Transformer transformer= null;
+
+	public XSLTransformer() throws MalformedURLException, IOException, TransformerConfigurationException {
+		Source xsltSource = new StreamSource(new URL("http://nlp.ilsp.gr/xslt/ilsp-fc/cesDoc.xsl").openStream());
+	    transFact = TransformerFactory.newInstance();
+	    transformer = transFact.newTransformer(xsltSource);
+	}
+
+	public void transform (File inFile, File outFile) throws TransformerException {
+        Source xmlSource = new StreamSource(inFile);
+        transformer.transform(xmlSource, new StreamResult(outFile));
+	}
+	
+    public static void main(String[] args) throws Exception {
+        if (args.length < 1) {
+            logger.error("Usage: XSLTransformer xmlfile [xsltfile]");
+            System.exit(1);
+        }
+        
+        File inFile = new File(args[0]);
+        File outFile = new File(FilenameUtils.removeExtension(args[0]) + ".xml.html");  
+        
+        logger.info("Transforming " + inFile.getAbsolutePath() + " to " + outFile.getAbsolutePath());
+        XSLTransformer xslTransformer = new XSLTransformer();
+        xslTransformer.transform(inFile, outFile);
+    }
+}

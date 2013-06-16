@@ -56,6 +56,7 @@ public class SimpleCrawlHFSOptions {
 	private boolean _keepimagefp=false;
 	private boolean _cesAlign = false;
 	private boolean _force = false;
+	private boolean offlineXSLT = false;
 	private String _config;
 	private int _length = 10;
 	private static final Logger LOGGER = Logger.getLogger(SimpleCrawlHFSOptions.class);
@@ -172,6 +173,9 @@ public class SimpleCrawlHFSOptions {
 		options.addOption( OptionBuilder.withLongOpt( "xslt" )
 				.withDescription( "Insert a stylesheet for rendering xml results as html.")
 				.create("xslt") );
+		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
+				.withDescription( "Apply an xsl transformation to generate html files during exporting.")
+				.create("oxslt") );
 		options.addOption( OptionBuilder.withLongOpt( "destination" )
 				.withDescription( "Destination.")
 				.hasArg()
@@ -312,6 +316,11 @@ public class SimpleCrawlHFSOptions {
 			else	
 				_cesAlign  = false;
 
+			if(line.hasOption( "oxslt")) {
+				_cesAlign  = false;
+				offlineXSLT = true;
+			}
+			
 			if(line.hasOption( "type")) {
 				_type = line.getOptionValue("type");
 				if ((_type.equals("p") | _type.equals("q"))& !_language.contains(";")){
@@ -582,4 +591,11 @@ public class SimpleCrawlHFSOptions {
 	public boolean getImpath() {
 		return _keepimagefp;
 	}
+	public boolean isOfflineXSLT() {
+		return offlineXSLT;
+	}
+	public void setOfflineXSLT(boolean offlineXSLT) {
+		this.offlineXSLT = offlineXSLT;
+	}
+
 }

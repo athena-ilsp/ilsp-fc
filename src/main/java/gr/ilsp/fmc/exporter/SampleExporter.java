@@ -50,6 +50,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -60,7 +61,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
@@ -107,6 +111,9 @@ public class SampleExporter {
 	private static String negWordsFile;
 	private static String outputDir="";
 	private static boolean textExport = false;
+
+	private static boolean applyOfflineXSLT = false;
+	private static XSLTransformer xslTransformer = null;
 
 	private static boolean cesdoc = false;
 	private static boolean html = false;
@@ -918,6 +925,17 @@ public class SampleExporter {
 		}
 		xmlFiles.add(xml_file.toString());
 
+		if (SampleExporter.applyOfflineXSLT==true) {
+			File inFile = new File(xml_file.toString());
+			File outFile = new File(FilenameUtils.removeExtension(xml_file.toString()) + ".xml.html");			
+			try {
+				SampleExporter.xslTransformer.transform(inFile, outFile);
+			} catch (TransformerException e) {
+				e.printStackTrace();
+				LOGGER.warn("Could not transform " + inFile.getAbsolutePath() + " to " + outFile.getAbsolutePath());
+			}
+		}
+		
 		return true;
 	}
 
@@ -1277,7 +1295,40 @@ public class SampleExporter {
 	public static void setResearchProject(String researchProject) {
 		SampleExporter.researchProject = researchProject;
 	}
-	
+
+	/**
+	 * @return the applyOfflineXSLT
+	 */
+	public boolean isApplyOfflineXSLT() {
+		return applyOfflineXSLT;
+	}
+
+	/**
+	 * @param applyOfflineXSLT the applyOfflineXSLT to set
+	 */
+	public void setApplyOfflineXSLT(boolean applyOfflineXSLT) {
+		SampleExporter.applyOfflineXSLT = applyOfflineXSLT;
+		if (applyOfflineXSLT==true) {
+			try {
+				SampleExporter.xslTransformer = new XSLTransformer();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TransformerConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (SampleExporter.xslTransformer==null) {
+				LOGGER.warn("Cannot initialize xslTransformer. Will not transorm XML files using xslt.");
+				SampleExporter.applyOfflineXSLT=false;
+			}
+		}
+	}
+
+
 	/*	public static Boolean XMLExporter_OR(Path outputdir, String format, String title, String eAddress,
 	String lang, String html_text, String cleaned_text, int id, String pubDate, String domain, String subdomain,
 	ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words) { //throws Exception {

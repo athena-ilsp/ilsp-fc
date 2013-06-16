@@ -503,8 +503,10 @@ public class SimpleCrawlHFS {
 				se.setStyleExport(options.getAlign()); 
 				se.setOutputFileHTML(options.getOutputFileHTML());
 				se.setHTMLOutput(options.getOutputFileHTML()!=null);
+				se.setApplyOfflineXSLT(options.isOfflineXSLT());
 				se.export(false);
 			}
+			
 			// Finished exporting. Now remove (near) duplicates
 			//System.out.println(outputDirName);
 			//System.out.println(crawlDbPath.getParent().getParent().toString());
