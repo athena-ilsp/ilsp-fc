@@ -52,7 +52,7 @@ public class Classifier implements Serializable{
 	private boolean _keepBoiler = false;
 
 	private int _max_depth;
-
+	private int tt=0;//FIXME
 
 	private static String langIdentified;
 
