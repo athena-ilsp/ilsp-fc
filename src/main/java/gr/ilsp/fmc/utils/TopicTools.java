@@ -75,7 +75,7 @@ public class TopicTools {
 						}
 						d=str.subSequence(ind+1, str.length()).toString().toLowerCase().trim();
 					}else{
-						d=langs[0].toString();
+						d=langs[0].toString().trim();
 					}
 					boolean match = false;
 					for (String tlang:langs){
@@ -96,9 +96,9 @@ public class TopicTools {
 					for (String s:stems){ b=b.concat(" "+s);}
 					b = b.trim();
 					if (ind>=0)
-						c=str.subSequence(str.indexOf("=")+1, str.indexOf(">")).toString();
+						c=str.subSequence(str.indexOf("=")+1, str.indexOf(">")).toString().trim();
 					else
-						c=str.subSequence(str.indexOf("=")+1, str.length()).toString();
+						c=str.subSequence(str.indexOf("=")+1, str.length()).toString().trim();
 					Boolean flag=true;
 					String[] tempstr = new String[1];
 					for (int jj=0;jj<topic.size();jj++){
@@ -108,7 +108,7 @@ public class TopicTools {
 							a=Integer.toString((int)a1);
 							//tempstr[0]=a;
 							//tempstr[0]=a;
-							b_or=tempstr[4];
+							b_or=tempstr[4].trim();
 							flag=false;
 							topic.remove(jj);
 							topic.add(new String[] {a,b,c,d,b_or});
@@ -143,7 +143,7 @@ public class TopicTools {
 				BufferedReader in = new BufferedReader(new FileReader(temp));
 				String str, b;
 				while ((str = in.readLine()) != null) {
-					b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString();
+					b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().trim();
 					topic.add(b);
 				}
 				in.close();
@@ -159,7 +159,7 @@ public class TopicTools {
 		String[] tempstr = new String[1];
 		for (int jj=0;jj<topic.size();jj++){
 			tempstr = topic.get(jj);
-			topic_all.add(tempstr[4]);
+			topic_all.add(tempstr[4].trim());
 		}
 		return topic_all;
 	}
@@ -260,7 +260,7 @@ public class TopicTools {
 			temp_line=tempstr[2];
 			subclasses = temp_line.split(";");
 			for (int kk=0;kk<subclasses.length;kk++){
-				temp.add(subclasses[kk]);
+				temp.add(subclasses[kk].trim());
 			}
 		}
 		String[] new_temp = new String[temp.size()];
