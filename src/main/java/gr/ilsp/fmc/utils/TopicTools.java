@@ -16,6 +16,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 import org.apache.hadoop.fs.FileSystem;
@@ -32,23 +34,19 @@ public class TopicTools {
 	private static Analyzer analyzer = null;
 	private static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
 	//private static int MAX_CONTENT_TERMS = SimpleCrawlHFS.config.getInt("classifier.min_content_terms.value");
-	//private static int MAX_CONTENT_TERMS = 5;
+	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
+
 
 	public static ArrayList<String[]> analyzeTopic(String topicdef, String lang, JobConf conf) {		
 		//topicdef:filename of file with the topic definition
 		//returns an array of strings with three columns (the triplets)
-		//File temp=new File(topicdef);
 		ArrayList<String[]> topic = new ArrayList<String[]>();
 		Path p = new Path(topicdef);
 		//JobConf conf = new JobConf();
 		conf.setJarByClass(SimpleCrawlHFS.class);
 		//System.err.println(conf.get("hadoop.tmp.dir"));
 		//conf.set("hadoop.tmp.dir", "hadoop-temp");
-		//conf.set("fs.default.name", "hdfs://kasos:54310/");
-		//if (!temp.exists()){System.out.println("The file for topic definition does not exist.");}
-		//else {
-		//System.out.println("The file for topic definition exists.");
-		
+				
 		try {
 			FileSystem fs = FileSystem.get(conf);
 			//Path p = new Path(fs.getWorkingDirectory()+"/"+topicdef);
@@ -61,7 +59,9 @@ public class TopicTools {
 				String str, a, b, c, d, b_or="";
 				String[] langs = lang.split(";");
 				while ((str = in.readLine()) != null) {
-					//a=str.subSequence(0, str.indexOf(":")).toString().replaceAll("\\W+","");
+					// Do not bother with commented out or empty lines
+					if (skipLineM.reset(str).matches()) 
+						continue;
 					a=str.subSequence(0, str.indexOf(":")).toString().trim();
 					b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().toLowerCase().trim();
 					b_or=b;
@@ -90,7 +90,7 @@ public class TopicTools {
 					//ArrayList<String> stems = analyze(b, lang);
 					if (d.isEmpty())
 						stems = analyze(b, lang);
-					//System.out.println(b+"\t"+stems);
+					
 					b="";
 					//concatenate stems
 					for (String s:stems){ b=b.concat(" "+s);}
@@ -106,18 +106,14 @@ public class TopicTools {
 						if (tempstr[1].equals(b) & tempstr[3].equals(d)){
 							double a1=Math.round((Double.parseDouble(a)+Double.parseDouble(tempstr[0]))/2);
 							a=Integer.toString((int)a1);
-							//tempstr[0]=a;
-							//tempstr[0]=a;
 							b_or=tempstr[4].trim();
 							flag=false;
 							topic.remove(jj);
 							topic.add(new String[] {a,b,c,d,b_or});
-							//System.out.println(a+"\t"+b+"\t"+c+"\t"+d+"\t"+b_or);
 						}
 					}
 					if (flag){
 						topic.add(new String[] {a,b,c,d,b_or});
-						//System.out.println(a+"\t"+b+"\t"+c+"\t"+d+"\t"+b_or);
 					}
 					//topic.add(new String[] {a,b,c,d});
 				}
@@ -126,7 +122,6 @@ public class TopicTools {
 			}
 		} catch (IOException e) {e.printStackTrace();}
 
-		//System.out.println("The topic definition contains: "+topic.size() +" terms.");
 		return topic;
 	}
 	public static ArrayList<String> analyzeTopicALL(String topicdef) {
@@ -138,11 +133,14 @@ public class TopicTools {
 			System.out.println("The file for topic definition does not exist.");
 		}
 		else {
-			//System.out.println("The file for topic definition exists.");
 			try {
 				BufferedReader in = new BufferedReader(new FileReader(temp));
 				String str, b;
 				while ((str = in.readLine()) != null) {
+					// Do not bother with commented out or empty lines
+					if (skipLineM.reset(str).matches()) 
+						continue;
+					
 					b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().trim();
 					topic.add(b);
 				}
@@ -150,7 +148,6 @@ public class TopicTools {
 			} catch (IOException e) {				
 			}
 		}
-		//System.out.println("The topic definition contains: "+topic.size() +" terms.");
 		return topic;
 	}
 	
@@ -226,27 +223,6 @@ public class TopicTools {
 		return stems;
 	}
 	
-	
-	/*public static String[] findSubclasses(ArrayList<String[]> topic) {
-		// gets the array with triplets and returns an array of strings with the subclasses
-		// i.e. unique of third column of topic
-		String[] temp = new String[topic.size ()];
-		//String[] tempstr = new String[1];
-		String[] tempstr = null;
-
-		for (int ii=0;ii<topic.size();ii++){tempstr =topic.get(ii);	temp[ii]=tempstr[2];}
-		Arrays.sort(temp);
-		int k = 0;
-		for (int i = 0; i < temp.length; i++){
-			if (i > 0 && temp[i].equals(temp[i -1]))
-				continue;
-			temp[k++] = temp[i];
-		}
-		String[] classes = new String[k];
-		System.arraycopy(temp, 0, classes, 0, k);
-		//System.out.println("The topic definition contains: "+classes.length +" classes.");
-		return classes;
-	}*/
 	public static String[] findSubclasses(ArrayList<String[]> topic) {
 		// gets the array with triplets and returns an array of strings with the subclasses
 		// i.e. unique of third column of topic
@@ -301,7 +277,6 @@ public class TopicTools {
 			result = (temp[((temp.length)/2)-1]+temp[(temp.length)/2])/2;
 		}
 		result=MAX_CONTENT_TERMS *result;
-		//System.out.println("The threshold is: "+ result);
 		return result;
 	}
 
