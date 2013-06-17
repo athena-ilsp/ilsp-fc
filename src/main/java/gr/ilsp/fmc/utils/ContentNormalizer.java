@@ -1,7 +1,7 @@
 package gr.ilsp.fmc.utils;
 
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -105,8 +105,8 @@ public class ContentNormalizer {
 	private static String splitParagraphs(String content) {
 		//String text="";
 		
-		int par_id=0;  
-		ArrayList<String> paragraphs =new ArrayList<String>();
+		//int par_id=0;  
+		//ArrayList<String> paragraphs =new ArrayList<String>();
 		String[] lines=content.split("\n");
 		
 		int[] lengths=new int[lines.length];
