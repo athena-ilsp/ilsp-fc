@@ -52,8 +52,7 @@ public class Classifier implements Serializable{
 	private boolean _keepBoiler = false;
 
 	private int _max_depth;
-	private int tt=0;//FIXME
-
+	
 	private static String langIdentified;
 
 	public Classifier(String[] langKeys, String language, String[] classes, ArrayList<String[]> topic, double thres, boolean keepBoiler, int min_uniq_terms, int max_depth){
