@@ -100,25 +100,9 @@ public class DedupMD5 {
 		String string_key="";
 		String pairs="";
 
-		//String tempfile="";
 		for (int ii=0;ii<files.length;ii++){
 			text = extractTextfromXML_clean(files[ii].getAbsolutePath());
-			//System.out.println(files[ii]);
-			//System.out.println(text);
-			/*Writer out;
-			try {
-				out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("C:\\PANACEA\\HS_DE_IT\\eur-lex_f\\e2eb64d8-dd45-462c-9315-ad27a08a95c5\\xml1\\10t.txt"),"UTF-8"));
-				out.write(text);
-				out.close();
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}*/
-
-
+			
 			if (text.isEmpty())
 				continue;
 			texthashkey =calculate(text);
@@ -423,7 +407,7 @@ public class DedupMD5 {
 			System.err.println("Error in writing the output text file. The file does not exist.");
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Error in writing the output text file.");
+			System.err.println("Error in writing the output text file.");
 		}
 	}
 
@@ -435,12 +419,10 @@ public class DedupMD5 {
 			xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputfile1),"UTF-8");
 			xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 			for (int ii=0; ii<urls.length;ii++) {
-				//vpapa added this just for development on windows
 				String ttt = urls[ii].toString();
-				//ttt=ttt.substring(ttt.indexOf("http:"));
-				ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
+				ttt = "<a href=\""+ttt+"\">\n"+ttt+"</a>";
 				//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
-				xmlFileListWrt1.write("<br />"+ttt);
+				xmlFileListWrt1.write("<br />"+ttt+"\n");
 				//xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
 			}
 			xmlFileListWrt1.write("</html>");
@@ -633,11 +615,11 @@ public class DedupMD5 {
 			HashSet<String> fileset=fileshash.get(string_key);
 			Iterator<String> it1 = keys.iterator();
 			counter++;
-			int len = fileTextlength.get(string_key);
+			//int len = fileTextlength.get(string_key);
 			while (it1.hasNext()){
 				string_key1 = it1.next();
 				if (string_key1.equals(string_key)) continue;
-				int len1 = fileTextlength.get(string_key1);
+				//int len1 = fileTextlength.get(string_key1);
 				HashSet<String> fileset1=fileshash.get(string_key1);
 				HashSet intersection = new HashSet(fileset);
 				intersection.retainAll(fileset1);
@@ -746,8 +728,8 @@ public class DedupMD5 {
 					if (parshash.containsKey(string_key)){
 						new_string=parshash.get(string_key)+","+files[ii].getName();
 						parshash.put(string_key, new_string);
-						System.out.println(new_string);
-						System.out.println(pars[jj]);
+						//System.out.println(new_string);
+						//System.out.println(pars[jj]);
 					}else{
 						out.write(pars[jj]+"\n");
 						parshash.put(string_key, files[ii].getName());
@@ -762,7 +744,7 @@ public class DedupMD5 {
 				System.err.println("Error in writing the output text file. The file does not exist.");
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("Error in writing the output text file.");
+				System.err.println("Error in writing the output text file.");
 			}
 		}
 	}
@@ -777,7 +759,7 @@ public class DedupMD5 {
 		else
 			input= new File(temp.substring(tempid+2, temp.length()));
 
-		System.out.println(input.getAbsolutePath());
+		//System.out.println(input.getAbsolutePath());
 		if (!input.exists() || !input.isDirectory()){
 			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
 			System.exit(64);
@@ -796,7 +778,7 @@ public class DedupMD5 {
 			System.exit(64);
 		}
 		else
-			System.out.println(files.length+" files will be processed.");
+			LOGGER.info(files.length+" files will be processed.");
 		//long start = System.nanoTime(); 
 		String text="";
 		String string_key="";
@@ -820,8 +802,8 @@ public class DedupMD5 {
 					if (parshash.containsKey(string_key)){
 						new_string=parshash.get(string_key)+","+files[ii].getName();
 						parshash.put(string_key, new_string);
-						System.out.println(new_string);
-						System.out.println(pars[jj]);
+						//System.out.println(new_string);
+						//System.out.println(pars[jj]);
 					}else{
 						out.write(pars[jj]+"\n");
 						parshash.put(string_key, files[ii].getName());
@@ -836,7 +818,7 @@ public class DedupMD5 {
 				System.err.println("Error in writing the output text file. The file does not exist.");
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("Error in writing the output text file.");
+				System.err.println("Error in writing the output text file.");
 			}
 		}
 	}
