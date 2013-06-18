@@ -298,7 +298,7 @@ public class SampleExporter {
 						String ttt;
 						for (String xmlFile: xmlFiles) {
 							if (applyOfflineXSLT)
-								ttt= "<a href=\""+xmlFile+"\">\n"+xmlFile+".html</a>";
+								ttt= "<a href=\""+xmlFile+".html\">\n"+xmlFile+".html</a>";
 							else
 								ttt= "<a href=\""+xmlFile+"\">\n"+xmlFile+"</a>";
 							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
