@@ -73,9 +73,7 @@ public class Bitexts {
 		    
 	public static void main(String[] args) {
 		
-
 	}
-
 
 	private static void counttoks(File xmldir, String outfile) {
 		ArrayList<String> outlist =new ArrayList<String>();
@@ -151,8 +149,6 @@ public class Bitexts {
 		System.out.println(tokens);
 	}
 
-
-
 	private static void moveoutputfiles(File xmldir, File xmldirnew,	String outfile) {
 		ArrayList<String> outlist =new ArrayList<String>();
 		BufferedReader in;
@@ -176,8 +172,6 @@ public class Bitexts {
 		}
 
 	}
-
-
 
 	private static void checklistfiles(File xmldir, String outfile) {
 		String[] files= xmldir.list();
@@ -213,8 +207,6 @@ public class Bitexts {
 				System.out.println(outlist.get(ii));
 		}
 	}
-
-
 
 	private static void removepages(String outfile, String outfile_new, String removefile) {
 		ArrayList<String> outlist =new ArrayList<String>();
@@ -269,7 +261,6 @@ public class Bitexts {
 			e.printStackTrace();
 		}
 	}
-
 
 	private static void extractURL(File xmldir, String outfile) {
 		System.out.println("AAA");
@@ -353,8 +344,6 @@ public class Bitexts {
 		}
 	}
 
-
-
 	private static void moveoutputfiles(File xmldir, String type,	File newxmldir, String outfile) {
 
 		String[] files= xmldir.list();
@@ -396,8 +385,6 @@ public class Bitexts {
 		System.out.println(pairscounter+" files:"+ pairscounter*5);
 	}
 
-
-
 	private static void copyfile(String f1, String f2) {
 		InputStream inStream = null;
 		OutputStream outStream = null;
@@ -418,8 +405,6 @@ public class Bitexts {
 			e.printStackTrace();
 		}
 	}
-
-
 
 	private static void check_domainess(String txtfile, String langs, double thr) {
 		String str1=null, str2=null;
@@ -474,8 +459,6 @@ public class Bitexts {
 			e.printStackTrace();
 		}
 	}
-
-
 
 	private static void countdomainess(File xmldir, String type, String langs, String otufile) {
 		String[] files= xmldir.list();
@@ -647,8 +630,6 @@ public class Bitexts {
 		}
 	}
 
-
-
 	private static ArrayList<String[]> tttTopic(String topicdef, String lang) {
 		ArrayList<String[]> topic = new ArrayList<String[]>();
 		String str, a, b, c, d ;
@@ -672,8 +653,6 @@ public class Bitexts {
 		}
 		return topic;
 	}
-
-
 
 	private static void counttoks_topic(File xmldir, String type,	String[] langs, String outfile) {
 
@@ -797,8 +776,6 @@ public class Bitexts {
 		System.out.println(type+" > PAIRS:\t"+pairscounter+"\tLANGS/TOKENS:\t"+ langs[0]+ "\twith\t"+ tokens[0]+ "\tAND\t" + langs[1]+ " with "+ tokens[1]);
 
 	}
-
-
 
 	private static void counttoks(File xmldir, String type, String[] langs, String outfile) {
 
@@ -933,8 +910,6 @@ public class Bitexts {
 		}
 		System.out.println(type+" > PAIRS:\t"+pairscounter+"\tLANGS/TOKENS:\t"+ langs[0]+ "\twith\t"+ tokens[0]+ "\tAND\t" + langs[1]+ " with "+ tokens[1]);
 	}
-
-
 
 	public static HashMap<String, String[]> excludepairsIM(ArrayList<String[]> pairsIM, HashMap<String, String[]> props) {
 		HashMap<String, String[]> props_short=new HashMap<String, String[]>();
@@ -1698,11 +1673,11 @@ public class Bitexts {
 			//f1 = f1.substring(f1.indexOf("http:"));
 			//f2 = f2.substring(f2.indexOf("http:"));
 			xtw.writeStartDocument();
-			if (cesAlign){
-				xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
+			//if (cesAlign){
+			//	xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
 				//xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
 				//xtw.writeProcessingInstruction("xml-stylesheet", "href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
-			}
+			//}
 			xtw.writeStartElement("cesAlign");
 			xtw.writeAttribute("version", "1.0");
 			xtw.writeAttribute("xmlns:xlink", cesNameSpace );
@@ -1840,10 +1815,6 @@ public class Bitexts {
 			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
 			for (int ii=0; ii<files.length ; ii++){
 				////temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
-				////out.write(temp+fs+files[ii]+"\n");
-				//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-				//ttt=ttt.substring(ttt.indexOf("http:"));
-				//out.write(ttt+"\n");
 				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]);
 				out.write(ttt+"\n");
 			}
@@ -1862,14 +1833,9 @@ public class Bitexts {
 			}
 			for (int ii=0; ii<files.length ; ii++){
 				////temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
-				////out.write(temp+fs+files[ii]+"\n");
-				//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-				//ttt=ttt.substring(ttt.indexOf("http:"));
-				//ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
-				//out.write("<br />"+ttt);
 				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]);
-				ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
-				out.write("<br />"+ttt);
+				ttt = "<a href=\""+ttt+"\">\n"+ttt+"</a>";
+				out.write("<br />"+ttt+"\n");
 			}
 			if (files.length>0){
 				out.write("</html>");
@@ -1925,18 +1891,13 @@ public class Bitexts {
 			String[] files=new String[bitexts.size()];
 			for (int ii=bitexts.size()-1;ii>-1;ii--){
 				files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-				//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-				//ttt=ttt.substring(ttt.indexOf("http:"));
 				String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
 				out.write(ttt+"\n");
 			}
 			files=new String[bitextsIM.size()];
 			for (int ii=bitextsIM.size()-1;ii>-1;ii--){
 				files[ii]=bitextsIM.get(ii)[0]+"_"+bitextsIM.get(ii)[1]+"_"+bitextsIM.get(ii)[4].substring(0, 1)+".xml";
-				//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-				//ttt=ttt.substring(ttt.indexOf("http:"));
 				String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
-				//ttt=ttt.substring(ttt.indexOf("http:"));
 				out.write(ttt+"\n");
 			}
 			out.close();
@@ -1946,28 +1907,22 @@ public class Bitexts {
 		}
 		if (outputFileHTML!=null){
 			try {
-				//FileWriter outFile = new FileWriter(outputFile);
-				//PrintWriter out = new PrintWriter(outFile);
 				Path outputDirName1=new Path(outputDirName);
 				Writer out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileHTML),"UTF-8"));
 				out1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 				String[] files=new String[bitexts.size()];
 				for (int ii=bitexts.size()-1;ii>-1;ii--){
 					files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-					//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-					//ttt=ttt.substring(ttt.indexOf("http:"));
 					String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
-					ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
-					out1.write("<br />"+ttt);
+					ttt = "<a href=\""+ttt+"\">\n"+ttt+"</a>";
+					out1.write("<br />"+ttt+"\n");
 				}
 				files=new String[bitextsIM.size()];
 				for (int ii=bitextsIM.size()-1;ii>-1;ii--){
 					files[ii]=bitextsIM.get(ii)[0]+"_"+bitextsIM.get(ii)[1]+"_"+bitextsIM.get(ii)[4].substring(0, 1)+".xml";
-					//String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]).replace(VAR_RES_CACHE,HTTP_PATH);
-					//ttt=ttt.substring(ttt.indexOf("http:"));
 					String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
-					ttt = "<a href=\""+ttt+"\">"+ttt+"</a>";
-					out1.write("<br />"+ttt);
+					ttt = "<a href=\""+ttt+"\">\n"+ttt+"</a>";
+					out1.write("<br />"+ttt+"\n");
 				}
 				out1.write("</html>");
 				out1.close();
