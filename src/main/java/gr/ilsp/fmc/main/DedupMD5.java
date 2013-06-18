@@ -51,9 +51,10 @@ public class DedupMD5 {
 	//private static final String HTTP_PATH = "http://sifnos.ilsp.gr/soaplab2-axis";
 	//private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	//private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
+	//private static boolean applyOfflineXSLT = false;
 
-
-	public static void dedup(String indirname, String outputfilename, String outputHTMLfilename){
+	public static void dedup(String indirname, String outputfilename, String outputHTMLfilename,
+									boolean applyOfflineXSLT){
 		//modify indirname to be valid for windows
 		String temp = indirname+fs+"xml";
 		int tempid=temp.indexOf(":");
@@ -84,14 +85,11 @@ public class DedupMD5 {
 		};
 		File[] files=input.listFiles(filter);
 		if (files.length<2){
-			//System.err.println("The input list contains less than 2 files.");
 			LOGGER.info("The input list contains less than 2 files.");
 			return;
-			//System.exit(64);
 		}
 		else
 			LOGGER.info(files.length+" files will be processed.");
-			//System.out.println(files.length+" files will be processed.");
 		//long start = System.nanoTime(); 
 		long start = System.currentTimeMillis();
 		String text="";
@@ -155,7 +153,7 @@ public class DedupMD5 {
 		writetextfile(out_textfile.getAbsolutePath(),urlList);
 		if (html){
 			File out_HTMLfile =new File(outputHTMLfilename);
-			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList);
+			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList,applyOfflineXSLT);
 		}
 
 		long elapsedTime = System.currentTimeMillis()-start;
@@ -166,7 +164,8 @@ public class DedupMD5 {
 
 
 
-	public static void dedupNew(String indirname, String outputfilename, String outputHTMLfilename){
+	public static void dedupNew(String indirname, String outputfilename, String outputHTMLfilename,
+			 boolean applyOfflineXSLT){
 		//modify indirname to be valid for windows
 		String temp = indirname+"/xml";
 		int tempid=temp.indexOf(":");
@@ -254,7 +253,7 @@ public class DedupMD5 {
 		writetextfile(out_textfile.getAbsolutePath(),urlList);
 		if (html){
 			File out_HTMLfile =new File(outputHTMLfilename);
-			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList);
+			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList,applyOfflineXSLT);
 		}
 
 		//long elapsedTime = System.nanoTime() - start;
@@ -411,7 +410,8 @@ public class DedupMD5 {
 		}
 	}
 
-	private static void writeHTMLfile(String filename, String urlList) {
+	private static void writeHTMLfile(String filename, String urlList,
+			boolean applyOfflineXSLT2) {
 		String outputfile1 =filename;
 		String[] urls=urlList.split("\n");
 		OutputStreamWriter xmlFileListWrt1;
@@ -420,7 +420,11 @@ public class DedupMD5 {
 			xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 			for (int ii=0; ii<urls.length;ii++) {
 				String ttt = urls[ii].toString();
-				ttt = "<a href=\""+ttt+"\">\n"+ttt+"</a>";
+				if (applyOfflineXSLT2)
+					ttt = "<a href=\""+ttt+"\">\n"+ttt+".html</a>";
+				else
+					ttt = "<a href=\""+ttt+"\">\n"+ttt+"</a>";
+					
 				//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
 				xmlFileListWrt1.write("<br />"+ttt+"\n");
 				//xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
@@ -509,35 +513,11 @@ public class DedupMD5 {
 						+ "destination directory is unwriteable: " + parent);
 		}
 		FileUtils.copyFile(fromFile,toFile);
-		/*FileInputStream from = null;
-				FileOutputStream to = null;
-				try {
-					from = new FileInputStream(fromFile);
-					to = new FileOutputStream(toFile);
-					byte[] buffer = new byte[4096];
-					int bytesRead;
-
-					while ((bytesRead = from.read(buffer)) != -1)
-						to.write(buffer, 0, bytesRead); // write
-				} finally {
-					if (from != null)
-						try {
-							from.close();
-						} catch (IOException e) {
-							;
-						}
-						if (to != null)
-							try {
-								to.close();
-							} catch (IOException e) {
-								;
-							}
-				}*/
 	}
 
 
-
-	public static void dedupnew(String indirname, String outputfilename, String outputHTMLfilename) {
+	public static void dedupnew(String indirname, String outputfilename, String outputHTMLfilename, 
+												boolean applyOfflineXSLT) {
 		//modify indirname to be valid for windows
 		String temp = indirname+fs+"xml";
 		int tempid=temp.indexOf(":");
@@ -568,20 +548,15 @@ public class DedupMD5 {
 		};
 		File[] files=input.listFiles(filter);
 		if (files.length<2){
-			//System.err.println("The input list contains less than 2 files.");
 			LOGGER.info("The input list contains less than 2 files.");
 			return;
-			//System.exit(64);
 		}
-		//else
-		//	System.out.println(files.length+" files will be processed.");
+		
 		//long start = System.nanoTime(); 
 		long start = System.currentTimeMillis();
 		String text="";
 		String string_key="";
-		//String pairs="";
 		byte[] parhashkey =null;
-		//String tempfile="";
 		HashMap<String, HashSet<String>> fileshash= new HashMap<String, HashSet<String>>();
 		HashMap<String, HashSet<Integer>> fileslengthhash= new HashMap<String, HashSet<Integer>>();
 		HashMap<String, Integer> fileTextlength= new HashMap<String, Integer>();
@@ -615,11 +590,9 @@ public class DedupMD5 {
 			HashSet<String> fileset=fileshash.get(string_key);
 			Iterator<String> it1 = keys.iterator();
 			counter++;
-			//int len = fileTextlength.get(string_key);
 			while (it1.hasNext()){
 				string_key1 = it1.next();
 				if (string_key1.equals(string_key)) continue;
-				//int len1 = fileTextlength.get(string_key1);
 				HashSet<String> fileset1=fileshash.get(string_key1);
 				HashSet intersection = new HashSet(fileset);
 				intersection.retainAll(fileset1);
@@ -655,19 +628,14 @@ public class DedupMD5 {
 			//string_key = files1[ii].getName();
 			//try {
 			sourcefile = files1[ii].getName(); //freqs.get(string_key).filename;
-			
 			String temp1 = outputdir.getAbsolutePath().replace("\\","/");
-			//temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
-			//temp1=temp1.substring(temp1.indexOf("http:"));
-			//urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
 			urlList=urlList + temp1+fs+sourcefile+"\n";
-			
 			counter++;
 		}
 		writetextfile(out_textfile.getAbsolutePath(),urlList);
 		if (html){
 			File out_HTMLfile =new File(outputHTMLfilename);
-			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList);
+			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList,applyOfflineXSLT);
 		}
 
 		long elapsedTime = System.currentTimeMillis()-start;
@@ -676,7 +644,7 @@ public class DedupMD5 {
 		LOGGER.info("New Deduplication completed in " + elapsedTime + " milliseconds. "+ counter +  " files remained.");
 	}
 
-	public static void deduppars(String indirname, String outputfilename, String outputHTMLfilename) {
+	/*public static void deduppars(String indirname, String outputfilename, String outputHTMLfilename) {
 		//modify indirname to be valid for windows
 		String temp = indirname+fs+"data";
 		String dir_txts = temp+fs+"pars_dedup_txt";
@@ -748,8 +716,9 @@ public class DedupMD5 {
 			}
 		}
 	}
+*/
 
-	public static void deduppars(String indirname) {
+	/*public static void deduppars(String indirname) {
 		//modify indirname to be valid for windows
 		String temp = indirname;
 		String dir_txts = temp+fs+"pars_dedup_txt";
@@ -822,4 +791,5 @@ public class DedupMD5 {
 			}
 		}
 	}
+*/
 }
