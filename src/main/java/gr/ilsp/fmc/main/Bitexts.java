@@ -9,9 +9,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
+//import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+//import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -22,22 +22,22 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+//import java.util.List;
+//import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+//import java.util.regex.Matcher;
+//import java.util.regex.Pattern;
 
-import javax.imageio.ImageIO;
+//import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.hadoop.fs.FileSystem;
+//import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
+//import org.apache.hadoop.mapred.JobConf;
 
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.stax2.XMLOutputFactory2;
@@ -52,7 +52,7 @@ import org.xml.sax.SAXException;
 public class Bitexts {
 	private static final String cesDocVersion = "1.0";
 	private static final String LANGUAGE_ELE = "language";
-	private static final String EADDRESS = "eAddress";
+	//private static final String EADDRESS = "eAddress";
 	//private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	//private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static String cesNameSpace = "http://www.w3.org/1999/xlink";
@@ -75,7 +75,7 @@ public class Bitexts {
 		
 	}
 
-	private static void counttoks(File xmldir, String outfile) {
+/*	private static void counttoks(File xmldir, String outfile) {
 		ArrayList<String> outlist =new ArrayList<String>();
 		BufferedReader in;
 		String str="";
@@ -147,9 +147,9 @@ public class Bitexts {
 		}
 		System.out.println(counter+ " files");
 		System.out.println(tokens);
-	}
+	}*/
 
-	private static void moveoutputfiles(File xmldir, File xmldirnew,	String outfile) {
+/*	private static void moveoutputfiles(File xmldir, File xmldirnew,	String outfile) {
 		ArrayList<String> outlist =new ArrayList<String>();
 		BufferedReader in;
 		String str="";
@@ -170,10 +170,9 @@ public class Bitexts {
 			copyfile(xmldir.toString()+fs+f1,xmldirnew.toString()+fs+f1);
 			copyfile(xmldir.toString()+fs+f1h,xmldirnew.toString()+fs+f1h);
 		}
+	}*/
 
-	}
-
-	private static void checklistfiles(File xmldir, String outfile) {
+/*	private static void checklistfiles(File xmldir, String outfile) {
 		String[] files= xmldir.list();
 		ArrayList<String> outlist =new ArrayList<String>();
 		BufferedReader in;
@@ -206,9 +205,9 @@ public class Bitexts {
 			if (!found)
 				System.out.println(outlist.get(ii));
 		}
-	}
+	}*/
 
-	private static void removepages(String outfile, String outfile_new, String removefile) {
+/*	private static void removepages(String outfile, String outfile_new, String removefile) {
 		ArrayList<String> outlist =new ArrayList<String>();
 		//ArrayList<String> outlist_new =new ArrayList<String>();
 		ArrayList<String> removelist =new ArrayList<String>();
@@ -260,9 +259,9 @@ public class Bitexts {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
-	private static void extractURL(File xmldir, String outfile) {
+/*	private static void extractURL(File xmldir, String outfile) {
 		System.out.println("AAA");
 		String[] files= xmldir.list();
 		ArrayList<String> outlist =new ArrayList<String>();
@@ -342,9 +341,9 @@ public class Bitexts {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
-	private static void moveoutputfiles(File xmldir, String type,	File newxmldir, String outfile) {
+/*	private static void moveoutputfiles(File xmldir, String type,	File newxmldir, String outfile) {
 
 		String[] files= xmldir.list();
 		int pairscounter=0;
@@ -383,9 +382,9 @@ public class Bitexts {
 			copyfile(xmldir.toString()+fs+fileAlign.getName(),newxmldir.toString()+fs+fileAlign.getName());
 		}
 		System.out.println(pairscounter+" files:"+ pairscounter*5);
-	}
+	}*/
 
-	private static void copyfile(String f1, String f2) {
+/*	private static void copyfile(String f1, String f2) {
 		InputStream inStream = null;
 		OutputStream outStream = null;
 		try{
@@ -404,9 +403,9 @@ public class Bitexts {
 		}catch(IOException e){
 			e.printStackTrace();
 		}
-	}
+	}*/
 
-	private static void check_domainess(String txtfile, String langs, double thr) {
+/*	private static void check_domainess(String txtfile, String langs, double thr) {
 		String str1=null, str2=null;
 
 		BufferedReader in;
@@ -458,9 +457,9 @@ public class Bitexts {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
-	private static void countdomainess(File xmldir, String type, String langs, String otufile) {
+/*	private static void countdomainess(File xmldir, String type, String langs, String otufile) {
 		String[] files= xmldir.list();
 		int pairscounter=0;
 		String topicdef="C:\\PANACEA\\AUTOMOTIVE\\Automotive-seed-terms-de_en.txt";
@@ -628,9 +627,9 @@ public class Bitexts {
 				System.out.println("PROBLEM: "+ f1+"_"+f2);
 			}
 		}
-	}
+	}*/
 
-	private static ArrayList<String[]> tttTopic(String topicdef, String lang) {
+/*	private static ArrayList<String[]> tttTopic(String topicdef, String lang) {
 		ArrayList<String[]> topic = new ArrayList<String[]>();
 		String str, a, b, c, d ;
 		//String[] langs = lang.split(";");
@@ -652,9 +651,9 @@ public class Bitexts {
 			e.printStackTrace();
 		}
 		return topic;
-	}
+	}*/
 
-	private static void counttoks_topic(File xmldir, String type,	String[] langs, String outfile) {
+/*	private static void counttoks_topic(File xmldir, String type,	String[] langs, String outfile) {
 
 		ArrayList<String> outlist =new ArrayList<String>();
 		BufferedReader in;
@@ -774,10 +773,9 @@ public class Bitexts {
 			System.out.println(f2+":"+temp);
 		}
 		System.out.println(type+" > PAIRS:\t"+pairscounter+"\tLANGS/TOKENS:\t"+ langs[0]+ "\twith\t"+ tokens[0]+ "\tAND\t" + langs[1]+ " with "+ tokens[1]);
+	}*/
 
-	}
-
-	private static void counttoks(File xmldir, String type, String[] langs, String outfile) {
+/*	private static void counttoks(File xmldir, String type, String[] langs, String outfile) {
 
 		ArrayList<String> outlist =new ArrayList<String>();
 		BufferedReader in;
@@ -909,7 +907,7 @@ public class Bitexts {
 			System.out.println(f2+":"+temp);
 		}
 		System.out.println(type+" > PAIRS:\t"+pairscounter+"\tLANGS/TOKENS:\t"+ langs[0]+ "\twith\t"+ tokens[0]+ "\tAND\t" + langs[1]+ " with "+ tokens[1]);
-	}
+	}*/
 
 	public static HashMap<String, String[]> excludepairsIM(ArrayList<String[]> pairsIM, HashMap<String, String[]> props) {
 		HashMap<String, String[]> props_short=new HashMap<String, String[]>();
@@ -1238,9 +1236,6 @@ public class Bitexts {
 		}
 		return res;
 	}
-
-
-
 
 
 	public static String[][] representXML(File xmldir) throws FileNotFoundException, XMLStreamException {
