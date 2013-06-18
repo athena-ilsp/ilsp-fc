@@ -99,18 +99,21 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
 			inputstream = urlc.getInputStream();
     		
     		_parser = new PDFParser(inputstream);
+    		COSDocument cosDoc=null;
+    		PDDocument pdDoc=null;
     		//_parser = new PDFParser(_input);
     		try {
     			_parser.parse();
-    			COSDocument cosDoc = _parser.getDocument();
+    			//COSDocument
+    			cosDoc = _parser.getDocument();
     			PDFTextStripper pdfStripper = new PDFTextStripper();
-    			PDDocument pdDoc = new PDDocument(cosDoc);
+    			//PDDocument 
+    			pdDoc = new PDDocument(cosDoc);
     			PDDocumentInformation pdDocInfo=new PDDocumentInformation();
     			pdDocInfo=pdDoc.getDocumentInformation();
     			//System.out.println("author:"+pdDocInfo.getAuthor());
     			//System.out.println("title:"+pdDocInfo.getTitle());
     			//int page_nums=pdDoc.getNumberOfPages();
-    			Map skata=pdDoc.getPageMap();
     			
     			_metadata.set(Metadata.AUTHOR, pdDocInfo.getAuthor());
     			_metadata.set(Metadata.TITLE, pdDocInfo.getTitle());
@@ -130,6 +133,8 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
     		} catch (Exception e){
     			System.out.println("An exception occured in parsing the PDF Document.");
     			e.printStackTrace();
+    			 if (cosDoc != null) cosDoc.close();
+    			 if (pdDoc != null) pdDoc.close();
     		}
     		  		
             return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, /*_contentExtractor.getContent()*/content, lang,
