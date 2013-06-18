@@ -118,7 +118,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
         try {
         	URL baseUrl = getContentLocation(fetchedDatum);
         	metadata.add(Metadata.CONTENT_LOCATION, baseUrl.toExternalForm());
-        	System.out.println(baseUrl);
+        	//System.out.println(baseUrl);
         	//System.out.println(metadata.get("Content-Type"));
         	Callable<ExtendedParsedDatum> c;
         	if (metadata.get("Content-Type").equals("application/pdf")){
