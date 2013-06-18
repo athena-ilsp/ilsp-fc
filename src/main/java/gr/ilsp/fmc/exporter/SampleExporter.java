@@ -926,8 +926,8 @@ public class SampleExporter {
 		xmlFiles.add(xml_file.toString());
 
 		if (SampleExporter.applyOfflineXSLT==true) {
-			File inFile = new File(xml_file.toString());
-			File outFile = new File(FilenameUtils.removeExtension(xml_file.toString()) + ".xml.html");			
+			File inFile = new File(xml_file.toUri());
+			File outFile = new File(FilenameUtils.removeExtension(inFile.getAbsolutePath()) + ".xml.html");			
 			try {
 				SampleExporter.xslTransformer.transform(inFile, outFile);
 			} catch (TransformerException e) {
