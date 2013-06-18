@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -78,6 +80,7 @@ public class SimpleCrawlHFS {
 
 	private static String operation = "crawlandexport";
 
+	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	
 	/**
 	 * @param outputDirName to store the downloaded HTML, the created cesDoc or/and cesAling XML files 
@@ -135,7 +138,9 @@ public class SimpleCrawlHFS {
 			//UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
 			//FIXME if there is an empty line in the seed urls list, Exception running tool
 			while ((line=rdr.readLine())!=null){
-				byte[] bts = line.getBytes("UTF-8");
+				if (skipLineM.reset(line).matches()) 
+					continue;
+				byte[] bts = line.trim().getBytes("UTF-8");
 				if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
 					byte[] bts2 = new byte[bts.length-3];
 					for (int i = 3; i<bts.length;i++)
@@ -171,6 +176,8 @@ public class SimpleCrawlHFS {
 			String line = "";
 			//UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
 			while ((line=rdr.readLine())!=null){
+				if (skipLineM.reset(line).matches()) 
+					continue;
 				byte[] bts = line.getBytes("UTF-8");
 				if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
 					byte[] bts2 = new byte[bts.length-3];
@@ -252,7 +259,6 @@ public class SimpleCrawlHFS {
 		conf = new JobConf();
 		conf.setJarByClass(SimpleCrawlHFS.class);
 		//Added this for concurrency issues
-		//LOGGER.info("Hadoop tmp dir: " + conf.get("hadoop.tmp.dir"));
 		conf.set("hadoop.tmp.dir", conf.get("hadoop.tmp.dir")+UUID.randomUUID().toString());
 		//LOGGER.info("Hadoop tmp dir now: " + conf.get("hadoop.tmp.dir"));
 		conf.set("mapred.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred");
