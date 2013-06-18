@@ -295,9 +295,12 @@ public class SampleExporter {
 						OutputStreamWriter xmlFileListWrt1;
 						xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputfile1),"UTF-8");
 						xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
-
+						String ttt;
 						for (String xmlFile: xmlFiles) {
-							String ttt = "<a href=\""+xmlFile+"\">\n"+xmlFile+"</a>";
+							if (applyOfflineXSLT)
+								ttt= "<a href=\""+xmlFile+"\">\n"+xmlFile+".html</a>";
+							else
+								ttt= "<a href=\""+xmlFile+"\">\n"+xmlFile+"</a>";
 							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
 							xmlFileListWrt1.write("<br />"+ttt+"\n");
 						}
@@ -1119,6 +1122,7 @@ public class SampleExporter {
 			xtw.writeStartElement("license");
 			xtw.writeAttribute("target", licenseURL);
 			xtw.writeCharacters("Distributed under a Creative Commons license");
+			xtw.writeEndElement();
 		} else {
 			xtw.writeCharacters("Under review");
 		}
