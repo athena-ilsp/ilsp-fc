@@ -119,11 +119,15 @@ public class DedupMD5 {
 					delete(temp2);
 					temp2 = temp2.replace("."+input_type,".html");
 					delete(temp2);
+					temp2 = temp2.replace("."+input_type,".xml.html");
+					delete(temp2);
 				}else{
 					//System.out.println("OUT"+"\t"+t.filename);
 					String temp2 = input.getPath()+fs+t.filename;
 					delete(temp2);
 					temp2 = temp2.replace("."+input_type,".html");
+					delete(temp2);
+					temp2 = temp2.replace("."+input_type,".xml.html");
 					delete(temp2);
 				}
 			}
@@ -162,104 +166,6 @@ public class DedupMD5 {
 		LOGGER.info("Deduplication completed in " + elapsedTime + " milliseconds. "+ counter +  " files remained.");
 	}
 
-
-
-	public static void dedupNew(String indirname, String outputfilename, String outputHTMLfilename,
-			 boolean applyOfflineXSLT){
-		//modify indirname to be valid for windows
-		String temp = indirname+"/xml";
-		int tempid=temp.indexOf(":");
-		if (tempid<0)
-			input= new File(temp);
-		else
-			input= new File(temp.substring(tempid+2, temp.length()));
-		if (!input.exists() || !input.isDirectory()){
-			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
-			System.exit(64);
-		}
-		out_textfile =new File(outputfilename);
-		if (!out_textfile.exists()){
-			System.err.println( "List of cesdoc files does not exist!!!!!!!!" );			
-			System.exit(64);
-		}
-
-		if (!(outputHTMLfilename==null)){
-			html=true;
-		}
-		File outputdir= new File(input.getParent()+fs+"xmlDedup");
-		outputdir.mkdir();
-
-		FilenameFilter filter = new FilenameFilter() {			
-			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type));
-			}
-		};
-		File[] files=input.listFiles(filter);
-		if (files.length<2){
-			System.err.println("The input list contains less than 2 files.");
-			//return;
-			System.exit(64);
-		}
-		//else
-			//System.out.println(files.length+" files will be processed.");
-		//long start = System.nanoTime(); 
-		String text="";
-		HashMap<String, TextAttr> freqs = new HashMap<String, TextAttr>();
-		byte[] texthashkey =null;
-		String string_key="";
-		String pairs="";
-		//String tempfile="";
-		for (int ii=0;ii<files.length;ii++){
-			text = extractTextfromXML_clean(files[ii].getAbsolutePath());
-			if (text.isEmpty())
-				continue;
-			texthashkey =calculate(text);
-			string_key="";
-			for (int jj=0;jj<texthashkey.length;jj++) {
-				string_key += texthashkey[jj];
-			}
-			TextAttr t= new TextAttr(text.length(),files[ii].getName());
-			if (freqs.containsKey(string_key)) {
-				pairs = pairs + t.filename+ "\t\t" + freqs.get(string_key).filename + "\n";
-				if (t.length>freqs.get(string_key).length)
-					freqs.put(string_key, t);
-			}
-			else
-				freqs.put(string_key, t);
-		}
-		Set<String> keys=freqs.keySet();
-		Iterator<String> it = keys.iterator();
-		String urlList = "";
-		String sourcefile="";
-		//int counter=0;
-		while (it.hasNext()){
-			string_key = it.next();
-			try {
-				sourcefile = freqs.get(string_key).filename;
-				copy(input.getAbsolutePath()+fs+sourcefile,outputdir.getAbsolutePath()+fs+sourcefile);
-				String temp1 = outputdir.getAbsolutePath().replace("\\","/");
-				//temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
-				//temp1=temp1.substring(temp1.indexOf("http:"));
-				//urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
-				urlList=urlList + temp1+fs+sourcefile+"\n";
-				
-				//counter++;
-				sourcefile = freqs.get(string_key).filename.replace(".xml", ".html");
-				copy(input.getPath()+fs+sourcefile,outputdir.getPath()+fs+sourcefile);
-			} catch (IOException e) {
-				System.err.println(e.getMessage());
-			}
-		}
-		writetextfile(out_textfile.getAbsolutePath(),urlList);
-		if (html){
-			File out_HTMLfile =new File(outputHTMLfilename);
-			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList,applyOfflineXSLT);
-		}
-
-		//long elapsedTime = System.nanoTime() - start;
-		//System.out.println(counter + " files remained."); 
-		//System.out.println("Duration: "+elapsedTime);
-	}
 
 	private static class TextAttr {
 		public int length;
@@ -421,7 +327,7 @@ public class DedupMD5 {
 			for (int ii=0; ii<urls.length;ii++) {
 				String ttt = urls[ii].toString();
 				if (applyOfflineXSLT2)
-					ttt = "<a href=\""+ttt+"\">\n"+ttt+".html</a>";
+					ttt = "<a href=\""+ttt+".html\">\n"+ttt+".html</a>";
 				else
 					ttt = "<a href=\""+ttt+"\">\n"+ttt+"</a>";
 					
@@ -610,11 +516,15 @@ public class DedupMD5 {
 						delete(temp2);
 						temp2 = temp2.replace("."+input_type,".html");
 						delete(temp2);
+						temp2 = temp2.replace("."+input_type,".xml.html");
+						delete(temp2);
 					}else{
 						//System.out.println("OUT"+"\t"+t.filename);
 						String temp2 = input.getPath()+fs+string_key1;
 						delete(temp2);
 						temp2 = temp2.replace("."+input_type,".html");
+						delete(temp2);
+						temp2 = temp2.replace("."+input_type,".xml.html");
 						delete(temp2);
 					}
 				}
@@ -792,4 +702,116 @@ public class DedupMD5 {
 		}
 	}
 */
+	
+	/*public static void dedupNew(String indirname, String outputfilename, String outputHTMLfilename,
+			 boolean applyOfflineXSLT){
+		//modify indirname to be valid for windows
+		String temp = indirname+"/xml";
+		int tempid=temp.indexOf(":");
+		if (tempid<0)
+			input= new File(temp);
+		else
+			input= new File(temp.substring(tempid+2, temp.length()));
+		if (!input.exists() || !input.isDirectory()){
+			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
+			System.exit(64);
+		}
+		out_textfile =new File(outputfilename);
+		if (!out_textfile.exists()){
+			System.err.println( "List of cesdoc files does not exist!!!!!!!!" );			
+			System.exit(64);
+		}
+
+		if (!(outputHTMLfilename==null)){
+			html=true;
+		}
+		File outputdir= new File(input.getParent()+fs+"xmlDedup");
+		outputdir.mkdir();
+
+		FilenameFilter filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type));
+			}
+		};
+		File[] files=input.listFiles(filter);
+		if (files.length<2){
+			System.err.println("The input list contains less than 2 files.");
+			//return;
+			System.exit(64);
+		}
+		//else
+			//System.out.println(files.length+" files will be processed.");
+		//long start = System.nanoTime(); 
+		String text="";
+		HashMap<String, TextAttr> freqs = new HashMap<String, TextAttr>();
+		byte[] texthashkey =null;
+		String string_key="";
+		String pairs="";
+		//String tempfile="";
+		for (int ii=0;ii<files.length;ii++){
+			text = extractTextfromXML_clean(files[ii].getAbsolutePath());
+			if (text.isEmpty())
+				continue;
+			texthashkey =calculate(text);
+			string_key="";
+			for (int jj=0;jj<texthashkey.length;jj++) {
+				string_key += texthashkey[jj];
+			}
+			TextAttr t= new TextAttr(text.length(),files[ii].getName());
+			if (freqs.containsKey(string_key)) {
+				pairs = pairs + t.filename+ "\t\t" + freqs.get(string_key).filename + "\n";
+				if (t.length>freqs.get(string_key).length){
+					freqs.put(string_key, t);
+					String temp2 = input.getPath()+fs+freqs.get(string_key).filename;
+					delete(temp2);
+					temp2 = temp2.replace("."+input_type,".html");
+					delete(temp2);
+					temp2 = temp2.replace("."+input_type,".xml.html");
+					delete(temp2);
+				}else{
+					String temp2 = input.getPath()+fs+t.filename;
+					delete(temp2);
+					temp2 = temp2.replace("."+input_type,".html");
+					delete(temp2);
+					temp2 = temp2.replace("."+input_type,".xml.html");
+					delete(temp2);
+				}
+			}
+			else
+				freqs.put(string_key, t);
+		}
+		Set<String> keys=freqs.keySet();
+		Iterator<String> it = keys.iterator();
+		String urlList = "";
+		String sourcefile="";
+		//int counter=0;
+		while (it.hasNext()){
+			string_key = it.next();
+			try {
+				sourcefile = freqs.get(string_key).filename;
+				copy(input.getAbsolutePath()+fs+sourcefile,outputdir.getAbsolutePath()+fs+sourcefile);
+				String temp1 = outputdir.getAbsolutePath().replace("\\","/");
+				//temp1 = temp1.replace(VAR_RES_CACHE,HTTP_PATH);
+				//temp1=temp1.substring(temp1.indexOf("http:"));
+				//urlList=urlList + temp1.replace(VAR_RES_CACHE, HTTP_PATH)+fs+sourcefile+"\n";
+				urlList=urlList + temp1+fs+sourcefile+"\n";
+				
+				//counter++;
+				sourcefile = freqs.get(string_key).filename.replace(".xml", ".html");
+				copy(input.getPath()+fs+sourcefile,outputdir.getPath()+fs+sourcefile);
+			} catch (IOException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+		writetextfile(out_textfile.getAbsolutePath(),urlList);
+		if (html){
+			File out_HTMLfile =new File(outputHTMLfilename);
+			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList,applyOfflineXSLT);
+		}
+
+		//long elapsedTime = System.nanoTime() - start;
+		//System.out.println(counter + " files remained."); 
+		//System.out.println("Duration: "+elapsedTime);
+	}*/
+	
 }
