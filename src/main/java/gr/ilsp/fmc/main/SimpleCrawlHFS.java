@@ -201,9 +201,19 @@ public class SimpleCrawlHFS {
 
 	public static void main(String[] args) {
 		
-		if (args.length==0){LOGGER.info("Usage: SimpleCrawlHFS [crawl|export|config]");
-		System.exit(-1);
+		if (args.length==0){
+			LOGGER.info("Usage: SimpleCrawlHFS [crawl|export|config]");
+			System.exit(-1);
 		}
+		
+		if (helpAsked(args)){
+			try {
+				crawl(args);
+			} catch (IOException e) {
+				LOGGER.error(e.getMessage());
+			}
+		}
+		
 		operation = args[0].toLowerCase();
 		if (operation.equals("export")){
 			SampleExporter.main(args);
@@ -214,7 +224,6 @@ public class SimpleCrawlHFS {
 				XMLConfiguration xml;
 				try {
 					xml = new XMLConfiguration(default_config);
-					//xml.load();
 					xml.save(out);
 					LOGGER.info("Saved default config file at " + out);
 				} catch (ConfigurationException e) {
@@ -229,9 +238,20 @@ public class SimpleCrawlHFS {
 				LOGGER.error(e.getMessage());
 			}
 		} else {
+			
 			LOGGER.error("Invalid operation.");
 			System.exit(-1);
 		}
+	}
+
+	private static boolean helpAsked(String[] args) {
+		
+		for (int ii=0; ii<args.length;ii++){
+			if (args[ii].equals("-h") | args[ii].equals("-help") | args[ii].equals("--help") | args[ii].equals("--h")){
+				return true;
+			}		
+		}
+		return false;
 	}
 
 	private static void crawl(String[] args) throws IOException {
