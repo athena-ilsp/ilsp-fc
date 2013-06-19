@@ -119,7 +119,7 @@ public class DedupMD5 {
 					delete(temp2);
 					temp2 = temp2.replace("."+input_type,".html");
 					delete(temp2);
-					temp2 = temp2.replace("."+input_type,".xml.html");
+					temp2 = temp2.replace(".html",".xml.html");
 					delete(temp2);
 				}else{
 					//System.out.println("OUT"+"\t"+t.filename);
@@ -127,7 +127,7 @@ public class DedupMD5 {
 					delete(temp2);
 					temp2 = temp2.replace("."+input_type,".html");
 					delete(temp2);
-					temp2 = temp2.replace("."+input_type,".xml.html");
+					temp2 = temp2.replace(".html",".xml.html");
 					delete(temp2);
 				}
 			}
@@ -325,7 +325,9 @@ public class DedupMD5 {
 			xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputfile1),"UTF-8");
 			xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 			for (int ii=0; ii<urls.length;ii++) {
-				String ttt = urls[ii].toString();
+				//String ttt = urls[ii];//.toString();
+				File qq=new File(urls[ii]);
+				String ttt=qq.toURI().toString();
 				if (applyOfflineXSLT2)
 					ttt = "<a href=\""+ttt+".html\">\n"+ttt+".html</a>";
 				else
@@ -516,7 +518,7 @@ public class DedupMD5 {
 						delete(temp2);
 						temp2 = temp2.replace("."+input_type,".html");
 						delete(temp2);
-						temp2 = temp2.replace("."+input_type,".xml.html");
+						temp2 = temp2.replace(".html",".xml.html");
 						delete(temp2);
 					}else{
 						//System.out.println("OUT"+"\t"+t.filename);
@@ -524,7 +526,7 @@ public class DedupMD5 {
 						delete(temp2);
 						temp2 = temp2.replace("."+input_type,".html");
 						delete(temp2);
-						temp2 = temp2.replace("."+input_type,".xml.html");
+						temp2 = temp2.replace(".html",".xml.html");
 						delete(temp2);
 					}
 				}
