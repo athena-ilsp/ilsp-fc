@@ -117,6 +117,7 @@ public class SampleExporter {
 
 	private static boolean cesdoc = false;
 	private static boolean html = false;
+	private static String[] mimetypes;
 	private static SampleExporterOptions options = null;
 	static Analyzer analyzer = null;
 	static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
@@ -420,7 +421,8 @@ public class SampleExporter {
 			TupleEntry entry = iter.next();
 			ExtendedParsedDatum datum = new ExtendedParsedDatum(entry);			
 			url = datum.getUrl();
-			//LOGGER.debug("Writing: " + id + " " + url);
+			LOGGER.debug("Writing: " + id + " " + url);
+			//System.out.println("Writing: " + id + " " + url);
 			title = datum.getTitle();
 			//author= datum.getAuthor(); FIXME			// author=meta.get("Author");
 			if (title==null) title = "";
@@ -576,8 +578,22 @@ public class SampleExporter {
 			String lang, String html_text, String cleaned_text, int id, String pubDate, String domain, String subdomain,
 			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words, String licenseURL, String genre) { //throws Exception {
 
-		String maincontent="";
-		if (format.contains("text/html")){
+		String maincontent=""; 
+		//FIXME The handling if different mime types should change.
+		//The accepted MIME types are declared in the crawler's config file.
+		boolean validformat=false;
+		for (int ii=0;ii<mimetypes.length;ii++){
+			if (format.equals(mimetypes[ii])){
+				validformat=true;
+				break;
+			}
+		}
+		if (!validformat)
+			return false;
+			
+		if (format.contains("application/pdf"))
+			maincontent=cleaned_text;
+		else{ // (format.contains("text/html")) 
 
 			String[] temp = cleaned_text.split("\n");
 			for (int jj=0;jj<temp.length;jj++){
@@ -589,9 +605,7 @@ public class SampleExporter {
 			maincontent = maincontent.replaceAll("</text>", "");
 			maincontent = maincontent.replaceAll("<text type.*>", "");
 		}
-		if (format.contains("application/pdf"))
-			maincontent=cleaned_text;
-
+		
 		StringTokenizer tkzr = new StringTokenizer(maincontent);
 
 		if (tkzr.countTokens()<minTokensNumber){
@@ -615,12 +629,14 @@ public class SampleExporter {
 		//Filename of files to be written.
 		String temp_id=Integer.toString(id);
 		String html_filename="";
-		if (format.contains("text/html"))
-			html_filename = temp_id+".html";
+		//if (format.contains("text/html"))
+		//	html_filename = temp_id+".html";
 
 		if (format.contains("application/pdf")){
 			html_filename = temp_id+".pdf";
 			html_text=cleaned_text;
+		}else{
+			html_filename = temp_id+".html";
 		}
 		Path xml_file = new Path(outputdir,temp_id+".xml");
 		Path annotation = new Path(outputdir,html_filename);
@@ -1282,7 +1298,9 @@ public class SampleExporter {
 	public void setHTMLOutput(boolean html){
 		SampleExporter.html = html;
 	}
-
+	public void setAcceptedMimeTypes(String[] mimes){
+		SampleExporter.mimetypes = mimes;
+	}
 	/**
 	 * @return the researchProject
 	 */
