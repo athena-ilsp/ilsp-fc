@@ -366,7 +366,8 @@ public class SimpleCrawlHFS {
 		if (options.isDebug()) 
 			System.setProperty("fmc.root.level", "DEBUG");            
 		else 
-			System.setProperty("fmc.root.level", "ERROR"); //System.setProperty("fmc.root.level", "INFO");
+			System.setProperty("fmc.root.level", "ERROR");
+		    //System.setProperty("fmc.root.level", "INFO");
 
 		if (options.getLoggingAppender() != null) 
 			System.setProperty("fmc.appender", options.getLoggingAppender()); // Set console vs. DRFA vs. something else
