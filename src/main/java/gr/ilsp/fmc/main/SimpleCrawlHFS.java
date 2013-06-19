@@ -531,6 +531,7 @@ public class SimpleCrawlHFS {
 				se.setOutputFileHTML(options.getOutputFileHTML());
 				se.setHTMLOutput(options.getOutputFileHTML()!=null);
 				se.setApplyOfflineXSLT(options.isOfflineXSLT());
+				se.setAcceptedMimeTypes(mimes);
 				se.export(false);
 			}
 			
