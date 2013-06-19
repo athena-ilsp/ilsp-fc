@@ -73,6 +73,9 @@ public class SampleExporterOptions {
 		options.addOption( OptionBuilder.withLongOpt( "html" )
 				.withDescription( "outputlist in html format" )				
 				.create("ofh") );
+		//options.addOption( OptionBuilder.withLongOpt( "mimes" )
+		//		.withDescription( "MimeTypes that the exporter can handle" )				
+		//		.create("mime") );
 		return options;
 	}
     
