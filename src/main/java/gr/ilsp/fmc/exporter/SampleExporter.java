@@ -281,10 +281,7 @@ public class SampleExporter {
 				OutputStreamWriter xmlFileListWrt;
 				xmlFileListWrt = new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8");
 				for (String xmlFile: xmlFiles) {
-					//added this just for development on windows
 					//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
-					//ttt=ttt.substring(ttt.indexOf("http:"));
-					//xmlFileListWrt.write(ttt+"\n");
 					xmlFileListWrt.write(xmlFile+"\n");
 				}
 				xmlFileListWrt.close();
