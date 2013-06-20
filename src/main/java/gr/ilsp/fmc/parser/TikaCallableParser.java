@@ -84,7 +84,6 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             if (respoCharset!=null && respoCharset!=_metadata.get(Metadata.CONTENT_ENCODING))
             	_metadata.set(Metadata.CONTENT_ENCODING, respoCharset);
             
-            
             ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
             
             // Check each link for creative commons licenses
