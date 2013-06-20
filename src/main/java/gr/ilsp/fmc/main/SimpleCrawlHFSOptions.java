@@ -31,11 +31,11 @@ import com.google.common.net.InternetDomainName;
 
 public class SimpleCrawlHFSOptions {
 	public static int NO_CRAWL_DURATION = 0;
-	private  final String APPNAME = "SimpleCrawlHFS crawl";
+	private  final String APPNAME = "SimpleCrawlHFS crawlandexport";
 	private  Options options;
 	private  String _domain=null;
 	private  String _maindomain=null;
-	private  String _descr="test";
+	private  String _descr=null;
 	private  String _filter=null;
 	private  boolean _debug = false;
 	private  String _loggingAppender = null;
@@ -72,8 +72,8 @@ public class SimpleCrawlHFSOptions {
 	private  Options createOptions() {
 		options = new Options();
 
-		options.addOption( OptionBuilder.withLongOpt( "crawlDescription" )
-				.withDescription( "A descriptive title for the job" )
+		options.addOption( OptionBuilder.withLongOpt( "TargetedDomainTitle" )
+				.withDescription( "A descriptive title for the targeted domain" )
 				.hasArg()
 				.create("dom") );
 		//vpapa changed use of option -d
@@ -270,7 +270,26 @@ public class SimpleCrawlHFSOptions {
 			}			
 			if(line.hasOption( "tc")) {
 				_topic = line.getOptionValue("tc");
-			}			
+			}	
+			if(line.hasOption( "dom")) {
+				if (_topic==null){
+					LOGGER.error("The targeted domain is defined but " +
+							"a topic definition is not applied. " +
+							"Regarding Topic definition and targeted domain," +
+							" you should either define both or none of them.");
+					help();
+				}else
+					_descr = line.getOptionValue("dom");
+			}else{
+				if (_topic!=null){
+					LOGGER.error("Even though a topic definition is applied " +
+							"the targeted domain is not defined. "+
+							"Regarding Topic definition and targeted domain," +
+							"you should either define both or none of them.");
+					help();
+				}
+			}
+				
 			if(line.hasOption( "lang")) {
 				_language = line.getOptionValue("lang");
 				String[] langs=_language.split(";");
@@ -396,9 +415,6 @@ public class SimpleCrawlHFSOptions {
 			if (line.hasOption( "filter")) {
 				_filter = line.getOptionValue("filter");
 			} 
-			if (line.hasOption( "dom")) {
-				_descr = line.getOptionValue("dom");
-			}
 
 			if(line.hasOption( "d")) {
 				if (_type.equals("m")){
@@ -524,7 +540,9 @@ public class SimpleCrawlHFSOptions {
 		return ws_dir;
 	}
 	
-	public String getTopic() { return _topic;}
+	public String getTopic() {
+		return _topic;
+	}
 	public  String getDomain() {
 		return _domain;
 	}
@@ -571,13 +589,15 @@ public class SimpleCrawlHFSOptions {
 		return _config;
 	}
 
-
 	public int getlength() {
 		return _length;
 	}
-	//vpapa
+	
 	public String getType() {
 		return _type;
+	}
+	public String getTargetedDomain() {
+		return _descr;
 	}
 	public String getFilter() {
 		return _filter;
