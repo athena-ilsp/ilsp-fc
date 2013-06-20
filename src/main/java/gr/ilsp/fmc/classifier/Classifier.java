@@ -77,7 +77,7 @@ public class Classifier implements Serializable{
 		Map<String,String> metaMap = parsedDatum.getParsedMeta();
 		String keywords = "";
 		String meta = "";
-		
+		//System.out.println(parsedDatum.getUrl());
 		String content = parsedDatum.getParsedText().toLowerCase();
 		//if (_keepBoiler & parsedDatum.getParsedMeta().get("Content-Type").contains("text/html"))  
 		//	content = cleanContent(content);
@@ -86,6 +86,8 @@ public class Classifier implements Serializable{
 
 		StringTokenizer tkzr = new StringTokenizer(content);
 		int length_in_tok=tkzr.countTokens();
+		
+		//System.out.println(length_in_tok);
 		if (length_in_tok<_minTokensNumber)
 			return null;
 
@@ -129,7 +131,7 @@ public class Classifier implements Serializable{
 					break;
 				}
 			}
-			//vpapa added comment
+			//vpapa commented out
 			/*if (!match && content.length()>20){
 				Detector detector = null;			
 				try {
@@ -231,6 +233,8 @@ public class Classifier implements Serializable{
 			subscores1[i][1] = temp[0][1];
 		}
 		//System.out.println("The total score is "+total_score);
+		//ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore,length_in_tok);
+		total_relscore=scores4[scores4.length-1][1]; //rel score is based on content only.
 		ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore,length_in_tok);
 		//ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore);
 		return result;
