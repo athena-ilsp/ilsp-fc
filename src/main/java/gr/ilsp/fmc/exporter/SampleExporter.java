@@ -118,6 +118,7 @@ public class SampleExporter {
 	private static boolean cesdoc = false;
 	private static boolean html = false;
 	private static String[] mimetypes;
+	private static String targeteddomain;
 	private static SampleExporterOptions options = null;
 	static Analyzer analyzer = null;
 	static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
@@ -267,7 +268,7 @@ public class SampleExporter {
 					topicTermsAll = TopicTools.analyzeTopicALL(topic);
 				}
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
-					id = exportToXml(conf,curDirPath,language, id,topic);
+					id = exportToXml(conf,curDirPath,language, id,topic,targeteddomain);
 					int curLoop = CrawlDirUtils.extractLoopNumber(curDirPath);
 					if (curLoop != prevLoop + 1) {
 						LOGGER.warn(String.format("Missing directories between %d and %d", prevLoop, curLoop));
@@ -375,18 +376,19 @@ public class SampleExporter {
 
 	}
 
-	private static int exportToXml(JobConf conf, Path curDirPath, String language, int id, ArrayList<String[]> topic) throws IOException {
+	private static int exportToXml(JobConf conf, Path curDirPath, String language,
+			int id, ArrayList<String[]> topic, String targeteddomain) throws IOException {
 		TupleEntryIterator iter;
 		String title = "";
 		String cleanText = "";
 		String htmlText = "";
-		String domain = "";
 		String genre="";
 		String format = "";	
 		String subdomains = "";
 		String contentEncoding = "";
 		//String author ="";
 		String licenseURL="";
+		double relscore;
 		//String pubdate="";
 		//String publisher="";
 		
@@ -401,6 +403,7 @@ public class SampleExporter {
 		Path classifierPath = new Path(curDirPath, CrawlConfig.CLASSIFIER_SUBDIR_NAME);
 		Tap classifierDbTap = new Hfs(new SequenceFile(ClassifierDatum.FIELDS), classifierPath.toUri().toString());
 		TupleEntryIterator classIter = classifierDbTap.openForRead(conf);
+		TupleEntryIterator classIter1 = classifierDbTap.openForRead(conf);
 		Path xmlPath = null;
 		if (outputDir.length()==0)
 			xmlPath = new Path(curDirPath.getParent(), CrawlConfig.XML_SUBDIR_NAME);
@@ -442,7 +445,7 @@ public class SampleExporter {
 			format = validFormat(format);
 			htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			subdomains = getSubdomains(url, curDirPath,classIter);
-			
+			relscore = getRelscore(url, curDirPath,classIter1);
 			licenseURL = meta.get(Metadata.LICENSE_URL);
 
 			//if (format.contains("text/html"))
@@ -455,7 +458,7 @@ public class SampleExporter {
 			//	LOGGER.info("PDF should be created"); //FIXME (examine if we get the content required to create the pdf file
 			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			//}
-			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", domain, subdomains, terms, topic, neg_words, licenseURL, genre ))
+			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore ))
 				id++;
 			if (textExport) TextExporter(xmlPath,cleanText,id-1);
 		}
@@ -464,6 +467,24 @@ public class SampleExporter {
 		contentIter.close();
 
 		return id;		
+	}
+
+	private static double getRelscore(String url, Path curDirPath,
+			TupleEntryIterator contentIter) {
+		while (contentIter.hasNext()){
+			TupleEntry entry = contentIter.next();
+			ClassifierDatum datum = new ClassifierDatum(entry);
+
+			if (datum.getUrl().equals(url)) {
+				//double relscore = datum.getSubClasses();
+				double relscore = datum.getTotRelScore();
+				if (relscore < 1) 
+					return relscore;
+				else
+					return 1;
+			}
+		}		
+		return 0;
 	}
 
 	private static String getHtml(String url, Path curDirPath, TupleEntryIterator contentIter, String contentEncoding){
@@ -576,10 +597,11 @@ public class SampleExporter {
 
 	public static Boolean XMLExporter(Path outputdir, String format, String title, String eAddress,
 			String lang, String html_text, String cleaned_text, int id, String pubDate, String domain, String subdomain,
-			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words, String licenseURL, String genre) { //throws Exception {
+			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words, String licenseURL, String genre,
+			double domain_confidence) { //throws Exception {
 
 		String maincontent=""; 
-		//FIXME The handling if different mime types should change.
+		//FIXME The handling of different mime types should change.
 		//The accepted MIME types are declared in the crawler's config file.
 		boolean validformat=false;
 		for (int ii=0;ii<mimetypes.length;ii++){
@@ -655,7 +677,6 @@ public class SampleExporter {
 			//throw new Exception("Problem in encoding during writing HTML");
 		}
 
-
 		//Write the XML file
 		int parId = 1;
 
@@ -695,7 +716,8 @@ public class SampleExporter {
 			xtw.writeAttribute("xmlns:xsi", cesNameSpace2 );
 
 			//createHeader(xtw, eAddress, pubDate, lang, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
-			createHeader(xtw, eAddress, pubDate, langidentified_total, title, domain, terms, annotation.getName(), format, subdomain, licenseURL,genre);
+			createHeader(xtw, eAddress, pubDate, langidentified_total, title, domain, terms, 
+					annotation.getName(), format, subdomain, licenseURL,genre,domain_confidence);
 
 
 			//System.err.println("Now working on file:+fileNo);
@@ -1101,7 +1123,8 @@ public class SampleExporter {
 
 	private static void createHeader(XMLStreamWriter2 xtw, String url, String pubDate,
 			String language, String title, String domain, ArrayList<String> terms, 
-			String htmlFilename, String file_format, String subdomain, String licenseURL, String genre) throws XMLStreamException {
+			String htmlFilename, String file_format, String subdomain, String licenseURL, 
+			String genre, double domain_confidence) throws XMLStreamException {
 		xtw.writeStartElement("cesHeader");
 		xtw.writeAttribute("version", cesDocVersion);
 		xtw.writeStartElement("fileDesc");
@@ -1218,6 +1241,8 @@ public class SampleExporter {
 			xtw.writeEndElement();
 		}
 		xtw.writeStartElement("domain");
+		if (domain_confidence>0)
+			xtw.writeAttribute("confidence", Double.toString(domain_confidence));
 		xtw.writeCharacters(domain);
 		xtw.writeEndElement();
 		xtw.writeStartElement("subdomain");
@@ -1300,6 +1325,9 @@ public class SampleExporter {
 	}
 	public void setAcceptedMimeTypes(String[] mimes){
 		SampleExporter.mimetypes = mimes;
+	}
+	public void setTargetedDomain(String targeteddomain){
+		SampleExporter.targeteddomain = targeteddomain;
 	}
 	/**
 	 * @return the researchProject
