@@ -386,11 +386,11 @@ public class SampleExporter {
 		String format = "";	
 		String subdomains = "";
 		String contentEncoding = "";
-		//String author ="";
+		String author ="";
 		String licenseURL="";
 		double relscore;
 		//String pubdate="";
-		//String publisher="";
+		String publisher="";
 		
 		ArrayList<String> terms = null;
 		String url = "";
@@ -427,12 +427,13 @@ public class SampleExporter {
 			LOGGER.debug("Writing: " + id + " " + url);
 			//System.out.println("Writing: " + id + " " + url);
 			title = datum.getTitle();
-			//author= datum.getAuthor(); FIXME			// author=meta.get("Author");
 			if (title==null) title = "";
 			cleanText = datum.getParsedText();
 			cleanText = ContentNormalizer.normalizeText(cleanText);
 			//domain = datum.getHostAddress(); FIXME
 			meta = datum.getParsedMeta();
+			author=meta.get("Author");
+			publisher=meta.get("Publisher");
 			String termsArray = meta.get("keywords");
 			terms = new ArrayList<String>();
 			if (termsArray!=null){
@@ -445,6 +446,7 @@ public class SampleExporter {
 			format = validFormat(format);
 			htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			subdomains = getSubdomains(url, curDirPath,classIter);
+			//classIter = classifierDbTap.openForRead(conf);
 			relscore = getRelscore(url, curDirPath,classIter1);
 			licenseURL = meta.get(Metadata.LICENSE_URL);
 
@@ -458,7 +460,7 @@ public class SampleExporter {
 			//	LOGGER.info("PDF should be created"); //FIXME (examine if we get the content required to create the pdf file
 			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			//}
-			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore ))
+			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", author, publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore ))
 				id++;
 			if (textExport) TextExporter(xmlPath,cleanText,id-1);
 		}
@@ -596,8 +598,9 @@ public class SampleExporter {
 	}
 
 	public static Boolean XMLExporter(Path outputdir, String format, String title, String eAddress,
-			String lang, String html_text, String cleaned_text, int id, String pubDate, String domain, String subdomain,
-			ArrayList<String> terms, ArrayList<String[]> topic, String[] neg_words, String licenseURL, String genre,
+			String lang, String html_text, String cleaned_text, int id, String pubDate, String author,String publisher,  
+			String domain, String subdomain, ArrayList<String> terms, ArrayList<String[]> topic,
+			String[] neg_words, String licenseURL, String genre,
 			double domain_confidence) { //throws Exception {
 
 		String maincontent=""; 
@@ -716,7 +719,7 @@ public class SampleExporter {
 			xtw.writeAttribute("xmlns:xsi", cesNameSpace2 );
 
 			//createHeader(xtw, eAddress, pubDate, lang, title, domain, terms, annotation.toUri().getPath(), format, subdomain);
-			createHeader(xtw, eAddress, pubDate, langidentified_total, title, domain, terms, 
+			createHeader(xtw, eAddress, pubDate, author, publisher, langidentified_total, title, domain, terms, 
 					annotation.getName(), format, subdomain, licenseURL,genre,domain_confidence);
 
 
@@ -1121,7 +1124,7 @@ public class SampleExporter {
 		return type;		
 	}
 
-	private static void createHeader(XMLStreamWriter2 xtw, String url, String pubDate,
+	private static void createHeader(XMLStreamWriter2 xtw, String url, String pubDate,String author,String publisher,
 			String language, String title, String domain, ArrayList<String> terms, 
 			String htmlFilename, String file_format, String subdomain, String licenseURL, 
 			String genre, double domain_confidence) throws XMLStreamException {
@@ -1175,7 +1178,8 @@ public class SampleExporter {
 		xtw.writeCharacters(title.toString());
 		xtw.writeEndElement();
 		xtw.writeStartElement("author");
-		xtw.writeCharacters("");
+		if (author==null){author="";}
+		xtw.writeCharacters(author);
 		xtw.writeEndElement();
 		xtw.writeStartElement("imprint");
 		
@@ -1184,7 +1188,8 @@ public class SampleExporter {
 		xtw.writeEndElement();
 		
 		xtw.writeStartElement("publisher");
-		xtw.writeCharacters("");
+		if (publisher==null){publisher="";}
+		xtw.writeCharacters(publisher);
 		xtw.writeEndElement();
 		xtw.writeStartElement("pubDate");
 		xtw.writeCharacters(pubDate);
@@ -1243,6 +1248,7 @@ public class SampleExporter {
 		xtw.writeStartElement("domain");
 		if (domain_confidence>0)
 			xtw.writeAttribute("confidence", Double.toString(domain_confidence));
+		if (domain==null){	domain="";}
 		xtw.writeCharacters(domain);
 		xtw.writeEndElement();
 		xtw.writeStartElement("subdomain");
