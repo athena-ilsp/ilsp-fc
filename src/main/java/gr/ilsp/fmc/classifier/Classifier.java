@@ -234,8 +234,9 @@ public class Classifier implements Serializable{
 		}
 		//System.out.println("The total score is "+total_score);
 		//ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore,length_in_tok);
-		total_relscore=scores4[scores4.length-1][1]; //rel score is based on content only.
-		ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore/2,length_in_tok);
+		total_relscore=scores4[scores4.length-1][1]/2; //rel score is based on content only.
+		total_relscore=(double) (Math.round(total_relscore*1000))/1000;
+		ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore,length_in_tok);
 		//ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore);
 		return result;
 	}
