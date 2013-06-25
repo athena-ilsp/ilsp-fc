@@ -284,6 +284,7 @@ public class SampleExporter {
 				xmlFileListWrt = new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8");
 				for (String xmlFile: xmlFiles) {
 					//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
+					//File tempfile = new File(xmlFile);//xmlFileListWrt.write(tempfile.getAbsolutePath()+"\n");
 					xmlFileListWrt.write(xmlFile+"\n");
 				}
 				xmlFileListWrt.close();
@@ -964,7 +965,8 @@ public class SampleExporter {
 				LOGGER.error(e.getMessage());
 			}
 		}
-		xmlFiles.add(xml_file.toString());
+		//xmlFiles.add(xml_file.toString());
+		xmlFiles.add(xml_file.toUri().toString());
 
 		if (SampleExporter.applyOfflineXSLT==true) {
 			File inFile = new File(xml_file.toUri());
