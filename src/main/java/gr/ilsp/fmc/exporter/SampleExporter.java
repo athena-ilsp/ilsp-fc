@@ -51,6 +51,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -123,11 +124,12 @@ public class SampleExporter {
 	static Analyzer analyzer = null;
 	static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
 	private static ArrayList<String> topicTermsAll = null;
-	private static ArrayList<String> xmlFiles = new ArrayList<String>();
+	private static ArrayList<File> xmlFiles = new ArrayList<File>();
 	private static String outputFile = null;
 	private static String outputFileHTML = null;
 	private static String researchProject = "ILSP";
-
+	private static String fs1 = System.getProperty("file.separator");
+	
 	private static void processStatus(JobConf conf, Path curDirPath) throws IOException {
 		Path statusPath = new Path(curDirPath, CrawlConfig.STATUS_SUBDIR_NAME);
 		Tap statusTap = new Hfs(new TextLine(), statusPath.toUri().toString());
@@ -282,10 +284,10 @@ public class SampleExporter {
 
 				OutputStreamWriter xmlFileListWrt;
 				xmlFileListWrt = new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8");
-				for (String xmlFile: xmlFiles) {
+				for (File xmlFile: xmlFiles) {
 					//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
-					//File tempfile = new File(xmlFile);//xmlFileListWrt.write(tempfile.getAbsolutePath()+"\n");
-					xmlFileListWrt.write(xmlFile+"\n");
+					//Path tempPath = new Path(xmlFile);//xmlFileListWrt.write(tempfile.getAbsolutePath()+"\n");
+					xmlFileListWrt.write(xmlFile.getAbsolutePath()+"\n");
 				}
 				xmlFileListWrt.close();
 				
@@ -296,11 +298,13 @@ public class SampleExporter {
 						xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputfile1),"UTF-8");
 						xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
 						String ttt;
-						for (String xmlFile: xmlFiles) {
+						for (File xmlFile: xmlFiles) {
+							URL fileURL = xmlFile.toURI().toURL();
+							//xmlFile1=xmlFile+".html";
 							if (applyOfflineXSLT)
-								ttt= "<a href=\""+xmlFile+".html\">\n"+xmlFile+".html</a>";
+								ttt= "<a href=\""+fileURL+".html\">\n"+fileURL+".html</a>";
 							else
-								ttt= "<a href=\""+xmlFile+"\">\n"+xmlFile+"</a>";
+								ttt= "<a href=\""+fileURL+"\">\n"+fileURL+"</a>";
 							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
 							xmlFileListWrt1.write("<br />"+ttt+"\n");
 						}
@@ -664,7 +668,10 @@ public class SampleExporter {
 		}else{
 			html_filename = temp_id+".html";
 		}
-		Path xml_file = new Path(outputdir,temp_id+".xml");
+		//Path xml_file1 = new Path(outputdir,temp_id+".xml");
+		Path xml_file = new Path("file", "",
+				(FilenameUtils.concat(outputdir.toUri().getPath(),  temp_id + ".xml" )));
+
 		Path annotation = new Path(outputdir,html_filename);
 		OutputStreamWriter tmpwrt;
 		try {
@@ -965,8 +972,10 @@ public class SampleExporter {
 				LOGGER.error(e.getMessage());
 			}
 		}
+		
 		//xmlFiles.add(xml_file.toString());
-		xmlFiles.add(xml_file.toUri().toString());
+		xmlFiles.add(new File(xml_file.toUri()));
+		//xmlFiles.add(xml_file.toUri().toString());
 
 		if (SampleExporter.applyOfflineXSLT==true) {
 			File inFile = new File(xml_file.toUri());
