@@ -499,7 +499,7 @@ public class SimpleCrawlHFSWorkflow {
 		//based on the score of the page they came from, the anchor text and the surrounding
 		//text.
 		//ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth ));
-		//vpapa
+		
 		ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(), 
 				new Classifier(langKeys,language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth));
 		Pipe urlsFromClassifier = new Pipe("urls from classifier", classifyPipe.getClassifierTailPipe());
