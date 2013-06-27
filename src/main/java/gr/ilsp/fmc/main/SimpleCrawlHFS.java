@@ -33,6 +33,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
@@ -683,6 +684,13 @@ public class SimpleCrawlHFS {
 				}
 				LOGGER.info("Total tokens: "+ total_tokens);
 			}
+			
+			//Detele every dir created for each run
+			//File runDirs[] = new File(outputDirName).listFiles();
+			//for (File runDir:runDirs){
+			//	if (!runDir.getName().equals("xml"))
+			//		FileUtils.deleteDirectory(runDir);
+			//}
 			System.exit(0);
 			
 		} catch (PlannerException e) {
