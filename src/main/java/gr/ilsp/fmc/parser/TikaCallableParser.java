@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.log4j.Logger;
 //import org.apache.tika.detect.DefaultDetector;
 //import org.apache.tika.detect.Detector;
 //import org.apache.tika.mime.MimeTypes;
@@ -38,8 +39,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	private static final String HTTP_PROTOCOL = "http";
 	private static final String CREATIVECOMMONS_ORG_STR = "creativecommons.org";
 	//private static final String REL_LICENSE_LOCATION = "rel";
-
-
+	private static final Logger LOGGER = Logger.getLogger(TikaCallableParser.class);
     // Simplistic language code pattern used when there are more than one languages specified
     // FUTURE KKr - improve this to handle en-US, and "eng" for those using old-style language codes.
     //private static final Pattern LANGUAGE_CODE_PATTERN = Pattern.compile("([a-z]{2})([,;-]).*");
@@ -84,25 +84,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             if (respoCharset!=null && respoCharset!=_metadata.get(Metadata.CONTENT_ENCODING))
             	_metadata.set(Metadata.CONTENT_ENCODING, respoCharset);
             
-            ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
-            
-            // Check each link for creative commons licenses
-            for (ExtendedOutlink extendedOutlink : outlinks) {
-            	URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
-            	//System.out.println(url.getProtocol());
-            	//System.out.println(url.getHost());
-            	// check that it's a CC license URL
-				if (HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol()) &&
-						CREATIVECOMMONS_ORG_STR.equalsIgnoreCase(url.getHost()) &&
-						url.getPath() != null &&
-						url.getPath().startsWith(LICENSES_STR) &&
-						url.getPath().length() > LICENSES_STR.length()) {
-	            	_metadata.set(Metadata.LICENSE_URL, url.toString());
-	            	break;
-				}
-            }
-            
-            //String lang = _extractLanguage ? detectLanguage(_metadata, profilingHandler) : "";
+          //String lang = _extractLanguage ? detectLanguage(_metadata, profilingHandler) : "";
             String lang = "";
             _input.reset();
             
@@ -120,6 +102,27 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             //Remove all consecutive occasions of whitespace characters 
             content = ContentNormalizer.normalizeText(content);
             //System.out.println(content);
+            
+            ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
+            
+            // Check each link for creative commons licenses
+            for (ExtendedOutlink extendedOutlink : outlinks) {
+            	try {
+					URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
+					// check that it's a CC license URL
+					if (HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol()) &&
+							CREATIVECOMMONS_ORG_STR.equalsIgnoreCase(url.getHost()) &&
+							url.getPath() != null &&
+							url.getPath().startsWith(LICENSES_STR) &&
+							url.getPath().length() > LICENSES_STR.length()) {
+						_metadata.set(Metadata.LICENSE_URL, url.toString());
+						break;
+					}
+				} catch (Exception e) {
+					LOGGER.debug("reached");
+				}
+            }
+            
             return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, /*_contentExtractor.getContent()*/content, lang,
                             _metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
         } catch (Exception e) {
