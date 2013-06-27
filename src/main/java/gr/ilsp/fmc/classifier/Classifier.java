@@ -170,7 +170,7 @@ public class Classifier implements Serializable{
 		double relcontentscore = contentScores[contentScores.length-1][1];
 		//added for running without topic
 		if (_thres==0.0); relcontentthr=-0.1;
-		if (contentscore>=_thres && relcontentscore>relcontentthr){//FIXME relscore????
+		if (contentscore>=_thres && relcontentscore>relcontentthr){//TODO relscore????
 			//ClassifierDatum result = new ClassifierDatum(url, new String[1],new String[1][2], 0.0, 0.0);
 			//System.out.println(url +" STORED "+ contentscore +"\t"+ relcontentscore);
 			return result;
