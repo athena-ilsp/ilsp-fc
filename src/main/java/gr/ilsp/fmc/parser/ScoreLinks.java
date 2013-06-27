@@ -66,10 +66,8 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 		double score = datum.getTupleEntry().getDouble(ClassifierDatum.TOTABSCORE) / outlinks.length;
 		int crawlDepth = (Integer) datum.getPayloadValue(CrawlDbDatum.CRAWL_DEPTH);
 		double vv=datum.getTupleEntry().getDouble(ClassifierDatum.TOTABSCORE);
-		//String vpvp= datum.getUrl();
-		
-		
-		//vpapa added this for tunneling reasons when crawling without topic
+				
+		//added this for tunneling reasons when crawling without topic
 		if (_classifier.getTopic()!=null){ 
 			if (score>0.0) 
 				crawlDepth = -1;
@@ -100,22 +98,10 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 				if (_classifier.getTopic()!=null){ 
 					linkScore = _classifier.rankLink(linktext, linktext1,pagelang,vv);
 					//linkScore += _classifier.rankLink(linktext1,pagelang,vv);
-					//if (linkScore>200){
-						//System.out.print(url+"\t");
-						//System.out.print(Double.toString(linkScore)+"\t");
-						//System.out.println(linktext);
-					//}
 					//linkScore = linkScore+_classifier.rankLink1(url);
 				}else{
 					linkScore = _classifier.rankLinkNotopic(linktext, linktext1,pagelang,vv);
 				}
-				//System.out.println(linktext);
-				//if (linkScore>=2500){
-				//	//vpapa	
-				//System.out.print(url);
-				//	System.out.print(linkScore);
-				//}
-				//}
 				if (url==null) continue;
 				url = url.replaceAll("[\n\r]", "");         
 				resultDatum = new ExtendedUrlDatum(url);                    
