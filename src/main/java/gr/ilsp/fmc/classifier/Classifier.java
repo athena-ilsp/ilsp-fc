@@ -41,7 +41,8 @@ public class Classifier implements Serializable{
 	private double SUBCLASSSCORE_TH = 0.2;
 	private double relcontentthr = 0.1;
 	private String _targetLanguage;
-	private int _minTokensNumber = 200;		
+	//private int _minTokensNumber = 200;		
+	private int _minTokensNumber;
 	private String[] _classes;
 	private String[] _targetlangKeys;
 
@@ -55,7 +56,9 @@ public class Classifier implements Serializable{
 	
 	private static String langIdentified;
 
-	public Classifier(String[] langKeys, String language, String[] classes, ArrayList<String[]> topic, double thres, boolean keepBoiler, int min_uniq_terms, int max_depth){
+	public Classifier(String[] langKeys, String language, String[] classes, 
+			ArrayList<String[]> topic, double thres, boolean keepBoiler, 
+			int min_uniq_terms, int max_depth, int minTokensNumber){
 		_targetLanguage = language;
 		_classes = classes;
 		_topic = topic;
@@ -63,11 +66,8 @@ public class Classifier implements Serializable{
 		_keepBoiler  = keepBoiler;
 		_min_uniq_terms = min_uniq_terms;
 		_max_depth = max_depth;
-		//vpapa
 		_targetlangKeys=langKeys;
-		
-		//if (_targetLanguage.contains(";"))
-		//	_minTokensNumber=200;
+		_minTokensNumber=minTokensNumber;
 	}
 	public ClassifierDatum classify(ExtendedParsedDatum parsedDatum) {
 		//String lang = parsedDatum.getLanguage();
@@ -88,6 +88,7 @@ public class Classifier implements Serializable{
 		int length_in_tok=tkzr.countTokens();
 		
 		//System.out.println(length_in_tok);
+		//LOGGER.error(_minTokensNumber);
 		if (length_in_tok<_minTokensNumber)
 			return null;
 
@@ -833,7 +834,7 @@ public class Classifier implements Serializable{
 				}
 				m++;
 			}
-			if (type==1 & vv>_thres){
+			if (type==1 & vv>=_thres){
 				//link's text implies that the link points to candidate translation
 				score +=2;
 				return score;
