@@ -22,6 +22,7 @@ public class SampleExporterOptions {
 	
 	private String APPNAME = "SimpleCrawlHFS export";
 	private int _length;
+	private int _minTokensNumber;
 	private boolean _textexport=false;
 	private boolean _cesdoc=false;
 	private boolean _html=false;
@@ -51,6 +52,10 @@ public class SampleExporterOptions {
 				.withDescription( "Minimum number of tokens per text block" )	
 				.hasArg()
 				.create("len") );
+		options.addOption( OptionBuilder.withLongOpt( "Minlength" )
+				.withDescription( "Minimum number of tokens in clean content" )	
+				.hasArg()
+				.create("mtlen") );
 		options.addOption( OptionBuilder.withLongOpt( "negwords" )
 				.withDescription( "Path to file containing negative words")
 				.hasArg()
@@ -101,6 +106,9 @@ public class SampleExporterOptions {
 			} 
 			if(line.hasOption( "len")) {
 				_length = Integer.parseInt(line.getOptionValue("len"));
+			} 
+			if(line.hasOption( "mtlen")) {
+				_minTokensNumber = Integer.parseInt(line.getOptionValue("mtlen"));
 			} 
 			if(line.hasOption( "n")) {
 				_negwords = line.getOptionValue("n");
@@ -156,10 +164,12 @@ public class SampleExporterOptions {
 	public int get_length() {
 		return _length;
 	}
+	public int get_minTokenslength() {
+		return _minTokensNumber;
+	}
 	public boolean get_textexport(){
 		return _textexport;
 	}
-	//vpapa
 	public boolean get_style(){
 		return _cesdoc;
 	}
