@@ -3,6 +3,7 @@ package gr.ilsp.fmc.main;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 //import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,6 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -47,6 +50,7 @@ public class SimpleCrawlHFSOptions {
 	private  int _threads = 10;
 	private  int _numLoops = 1;
 	private  int _crawlDuration = 10;	
+	private int _minTokensNumber=200;
 	private String _topic=null;
 	private String _language;
 	private String[] _langKeys;
@@ -63,7 +67,7 @@ public class SimpleCrawlHFSOptions {
 	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
 	private String ws_dir;
 	private static String fs = System.getProperty("file.separator");
-
+	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 
 	public SimpleCrawlHFSOptions() {
 		createOptions();
@@ -154,6 +158,10 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "Minimum number of tokens per text block" )	
 				.hasArg()
 				.create("len") );
+		options.addOption( OptionBuilder.withLongOpt( "minlength" )
+				.withDescription( "Minimum number of tokens in cleaned document" )	
+				.hasArg()
+				.create("mtlen") );
 		options.addOption( OptionBuilder.withLongOpt( "type" )
 				.withDescription( "Crawling for monolingual (m), parallel (p), comparable (q)" )	
 				.hasArg()
@@ -197,7 +205,7 @@ public class SimpleCrawlHFSOptions {
 				_agentName = line.getOptionValue("a");
 			}			
 			else help();
-			
+
 			if (line.hasOption( "dest")) {
 				ws_dir = line.getOptionValue("dest")+fs;
 			}else{
@@ -257,7 +265,7 @@ public class SimpleCrawlHFSOptions {
 					_outputFileHTML=null;
 			}
 			else help();
-			
+
 			if(line.hasOption( "t")) {
 				_threads = Integer.parseInt(line.getOptionValue("t"));
 			}			
@@ -289,7 +297,7 @@ public class SimpleCrawlHFSOptions {
 					help();
 				}
 			}
-				
+
 			if(line.hasOption( "lang")) {
 				_language = line.getOptionValue("lang");
 				String[] langs=_language.split(";");
@@ -330,6 +338,10 @@ public class SimpleCrawlHFSOptions {
 			if(line.hasOption( "len")) {
 				_length = Integer.parseInt(line.getOptionValue("len"));
 			} 
+			if(line.hasOption( "mtlen")) {
+				_minTokensNumber = Integer.parseInt(line.getOptionValue("mtlen"));
+			} 
+			
 			if(line.hasOption( "xslt")) 
 				_cesAlign  = true;
 			else	
@@ -339,7 +351,7 @@ public class SimpleCrawlHFSOptions {
 				_cesAlign  = false;
 				offlineXSLT = true;
 			}
-			
+
 			if(line.hasOption( "type")) {
 				_type = line.getOptionValue("type");
 				if ((_type.equals("p") | _type.equals("q"))& !_language.contains(";")){
@@ -350,55 +362,75 @@ public class SimpleCrawlHFSOptions {
 				if (_type.equals("p")){
 					URL url;
 					try {
-						String temp=Bitexts.readFileAsString(_urls);
-						String seeds[] =temp.split("\n");
-						if (seeds.length==1){
-							url = new URL(temp);
-							String host = url.getHost();
-							if (host.substring(0, 3).equals("www")){
-								host=host.substring(4);
-							}
-							String mainhost=processhost(host);
-							if (mainhost.substring(0, 3).equals("www")){
-								mainhost=host.substring(4);
-							}
-							_domain=host;
-							_maindomain=mainhost;
-							System.out.println(_domain);
-							System.out.println(_maindomain);
-						}		
-						else{
-							String firsthost=new URL(seeds[0]).getHost();
-							for (int ii=1;ii<seeds.length;ii++){
-								url = new URL(seeds[ii]);
-								String host = url.getHost();
-								if (!host.equals(firsthost)){
-									System.out.println("FC does not support two webdomains in seed list for bilingual crawling. Use the filter argument to confine FC within these webdomains.");
-									if (!line.hasOption( "filter"))
-									System.exit(0);				
-									else{
-										_domain=null;
-										_maindomain=null;
-									}
-								}else{
-									if (host.substring(0, 3).equals("www")){
+						//String temp=Bitexts.readFileAsString(_urls);//temp.split("\n");
+						ArrayList<String> seed_list =new ArrayList<String>();
+						BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(_urls),"utf8"));
+						String cur_line="";
+						while ((cur_line=rdr.readLine())!=null){
+							if (skipLineM.reset(cur_line).matches()) 
+								continue;
+							seed_list.add(cur_line);
+						}
+						if (!seed_list.isEmpty()){
+							String[] seeds=new String[seed_list.size()];
+							for (int ii=0;ii<seeds.length;ii++)
+								seeds[ii]=seed_list.get(ii);
+							if (seeds.length==1){
+								try {
+									url = new URL(seeds[0]);
+									String host = url.getHost();
+									if (host.substring(0, 3).equals("www"))
 										host=host.substring(4);
-									}
 									String mainhost=processhost(host);
-									if (mainhost.substring(0, 3).equals("www")){
+									if (mainhost.substring(0, 3).equals("www"))
 										mainhost=host.substring(4);
-									}
 									_domain=host;
 									_maindomain=mainhost;
-									System.out.println(_domain);
-									System.out.println(_maindomain);
+									LOGGER.info(_domain);
+									LOGGER.info(_maindomain);
+								} catch (MalformedURLException e) {
+									LOGGER.error("Seed URL is not valid: "+seeds[0]);
+									help();
 								}
-							}	
-						}	
-					} catch (MalformedURLException e) {
-						LOGGER.error("Seed URL is not valid.");
-						help();
-						//e.printStackTrace();
+							}else{
+								String firsthost="";
+								for (int ii=0;ii<seeds.length;ii++){
+									try {
+										if (ii==0)
+											firsthost = new URL(seeds[ii]).getHost();
+										url = new URL(seeds[ii]);
+										String host = url.getHost();
+										if (!host.equals(firsthost)){
+											System.out.println("Since the provided seed list for bilingual crawling includes more than on webdomains, " +
+													" USE the filter argument to confine FC within these webdomains.");
+											if (!line.hasOption( "filter"))
+												System.exit(0);				
+											else{
+												_domain=null;
+												_maindomain=null;
+											}
+										}else{
+											if (host.substring(0, 3).equals("www"))
+												host=host.substring(4);
+											String mainhost=processhost(host);
+											if (mainhost.substring(0, 3).equals("www"))
+												mainhost=host.substring(4);
+											_domain=host;
+											_maindomain=mainhost;
+											LOGGER.info(_domain);
+											LOGGER.info(_maindomain);
+										}
+									}catch (MalformedURLException e) {
+										LOGGER.error("Seed URL is not valid:"+seeds[ii]);
+										//help();
+										//e.printStackTrace();
+									}		
+								} 
+							}
+						}else{
+							LOGGER.error("There is no valid seed URL.");
+							help();
+						}
 					} catch (IOException e) {
 						LOGGER.error("The seed URL file does not exist.");
 						help();
@@ -532,14 +564,14 @@ public class SimpleCrawlHFSOptions {
 	public String getLanguage() { 
 		return _language;
 	}
-	//vpapa
+
 	public String[] getLangKeys() {
 		return _langKeys;
 	}
 	public String getDest() {
 		return ws_dir;
 	}
-	
+
 	public String getTopic() {
 		return _topic;
 	}
@@ -592,7 +624,11 @@ public class SimpleCrawlHFSOptions {
 	public int getlength() {
 		return _length;
 	}
-	
+
+	public int getTokensNumber() {
+		return _minTokensNumber;
+	}
+
 	public String getType() {
 		return _type;
 	}
@@ -616,6 +652,9 @@ public class SimpleCrawlHFSOptions {
 	}
 	public void setOfflineXSLT(boolean offlineXSLT) {
 		this.offlineXSLT = offlineXSLT;
+	}
+	public int getminTokenslength() {
+		return _minTokensNumber;
 	}
 
 }
