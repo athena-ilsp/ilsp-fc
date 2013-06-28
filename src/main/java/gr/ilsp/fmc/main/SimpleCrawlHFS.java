@@ -33,7 +33,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.io.FileUtils;
+//import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
@@ -524,6 +524,7 @@ public class SimpleCrawlHFS {
 			if (operation.equals("crawlandexport")) {
 				SampleExporter se = new SampleExporter();
 				se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
+				se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
 				se.setLanguage(options.getLanguage());
 				se.setCrawlDirName(outputDirName);
 				se.setOutputFile(options.getOutputFile());	
