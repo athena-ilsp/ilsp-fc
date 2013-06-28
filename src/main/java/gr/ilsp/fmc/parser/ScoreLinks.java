@@ -79,9 +79,6 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 			datum.setPayloadValue(CrawlDbDatum.CRAWL_DEPTH, crawlDepth + 1);        
 			TupleEntryCollector collector = funcCall.getOutputCollector();
 			//ExtendedUrlDatum[] datums = new ExtendedUrlDatum[outlinks.length];
-			//System.out.print(vpvp+"\t");
-			//System.out.print("OUTLINKS: "+outlinks.length+"\t");
-			//System.out.println("SCORE: "+vv);
 			//String normtext1 = ContentNormalizer.normalizeText(datum.getParsedText()).toLowerCase();
 			String normtext = Classifier.cleanContent(datum.getParsedText()).toLowerCase();
 			//String alltext = datum.getParsedText();
@@ -91,10 +88,10 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 				String linktext1 = outlink.getAnchor();
 				//System.out.println(outlink.getSurroundText());
 				String url = outlink.getToUrl();
-				//vpapa
 				double linkScore = 0.0;
+				//System.out.println(outlink.toString());
+				//System.out.println(outlink.getAnchor());
 				//if (_filter!=null)
-				//if (url.contains("europa.eu/legislation_summaries/")){
 				if (_classifier.getTopic()!=null){ 
 					linkScore = _classifier.rankLink(linktext, linktext1,pagelang,vv);
 					//linkScore += _classifier.rankLink(linktext1,pagelang,vv);
@@ -102,6 +99,8 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 				}else{
 					linkScore = _classifier.rankLinkNotopic(linktext, linktext1,pagelang,vv);
 				}
+				//System.out.println(linkScore);
+				//System.out.println("----------------");
 				if (url==null) continue;
 				url = url.replaceAll("[\n\r]", "");         
 				resultDatum = new ExtendedUrlDatum(url);                    
