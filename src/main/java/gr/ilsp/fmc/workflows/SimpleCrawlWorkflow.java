@@ -257,7 +257,7 @@ public class SimpleCrawlWorkflow {
     
     public static Flow createFlow(Path inputDir, Path curLoopDirPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
                     BaseUrlFilter urlFilter, int maxThreads, boolean debug, String persistentDbLocation, String dbname, String language,String[] langKeys, 
-                    String[] classes, ArrayList<String[]> topic, double thres, int min_uniq_terms, int max_depth) throws Throwable {
+                    String[] classes, ArrayList<String[]> topic, double thres, int min_uniq_terms, int max_depth, int minTokensNumber) throws Throwable {
         //JobConf conf = HadoopUtils.getDefaultJobConf(CrawlConfig.CRAWL_STACKSIZE_KB);
     	JobConf conf = new JobConf();
         conf.setJarByClass(SimpleCrawl.class);
@@ -300,7 +300,11 @@ public class SimpleCrawlWorkflow {
         //The results from the parser are forwared to the classifier
         //ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(language,classes, topic, thres, false,min_uniq_terms,max_depth));
         //vpapa
-        ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(langKeys,language,classes, topic, thres, false,min_uniq_terms,max_depth));
+        ClassifierPipe classifyPipe = new ClassifierPipe
+        		(parsePipe.getTailPipe(),
+        		new Classifier(langKeys,language,classes,
+        		topic, thres, false,min_uniq_terms,
+        		max_depth,minTokensNumber));
         Pipe urlsFromClassifier = new Pipe("urls from classifier", classifyPipe.getClassifierTailPipe());
         urlsFromClassifier = new Each(urlsFromClassifier, new SelectUrlOnlyFunction());
         Pipe finalContentPipe = new CoGroup(contentPipe, new Fields(ExtendedUrlDatum.URL_FN),
