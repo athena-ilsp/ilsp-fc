@@ -87,6 +87,7 @@ public class SimpleCrawlHFSWorkflow {
 	private static String _mainhost;
 	private static String _targlang;
 	private static String _type;
+	//private static int _minTokensNumber;
 	//hostsMap and newHostsMap represent the pairs of hosts-occurences globally and per-run respectively
 	private static HashMap<Integer,Integer> hostsMap = new HashMap<Integer,Integer>();
 	private static HashMap<Integer,Integer> hostsIpMap = new HashMap<Integer,Integer>();
@@ -259,19 +260,24 @@ public class SimpleCrawlHFSWorkflow {
 
 	}
 
-	public static Flow createFlow060(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
-			BaseUrlFilter urlFilter, String[] classes, ArrayList<String[]> topic, double thres,int min_uniq_terms,int max_depth, SimpleCrawlHFSOptions options) throws Throwable {
+	public static Flow createFlow060(Path curWorkingDirPath, Path crawlDbPath, 
+			UserAgent userAgent, FetcherPolicy fetcherPolicy,
+			BaseUrlFilter urlFilter, String[] classes, ArrayList<String[]> topic,
+			double thres,int min_uniq_terms,int max_depth,
+			SimpleCrawlHFSOptions options) throws Throwable {
 		int maxThreads = options.getThreads();
 		boolean debug = options.isDebug();
 		boolean keepBoiler = options.keepBoiler();
 		//vpapa
 		String subfilter = options.getFilter();
 		String initial_host = options.getDomain();
+		int minTokensNumber = options.getTokensNumber();
 		_subfilter=subfilter;
 		_inithost = initial_host;
 		String language = options.getLanguage();
 		_targlang = language;
 		_type =options.getType();
+		//_minTokensNumber=options.getTokensNumber();
 		String[] langKeys = options.getLangKeys();
 		JobConf conf = SimpleCrawlHFS.conf;
 		//System.err.println(conf.get("hadoop.tmp.dir"));
@@ -353,7 +359,8 @@ public class SimpleCrawlHFSWorkflow {
 		//text.
 		//ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth ));
 		//vpapa
-		ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(langKeys,language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth));
+		ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(langKeys,language,classes, topic, thres,keepBoiler,
+				min_uniq_terms, max_depth, minTokensNumber));
 		Pipe urlsFromClassifier = new Pipe("urls from classifier", classifyPipe.getClassifierTailPipe());
 		urlsFromClassifier = new Each(urlsFromClassifier, new SelectUrlOnlyFunction());
 		//The classifier's and parser's results are forwarded to their final pipes for writing
@@ -413,6 +420,7 @@ public class SimpleCrawlHFSWorkflow {
 		//vpapa
 		String subfilter = options.getFilter();
 		String initial_host = options.getDomain();
+		int minTokensNumber = options.getTokensNumber();
 		_subfilter=subfilter;
 		_inithost = initial_host;
 		_mainhost=options.getMainDomain();
@@ -501,7 +509,8 @@ public class SimpleCrawlHFSWorkflow {
 		//ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth ));
 		
 		ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(), 
-				new Classifier(langKeys,language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth));
+				new Classifier(langKeys,language,classes, topic, thres,keepBoiler,
+						min_uniq_terms, max_depth,minTokensNumber));
 		Pipe urlsFromClassifier = new Pipe("urls from classifier", classifyPipe.getClassifierTailPipe());
 		urlsFromClassifier = new Each(urlsFromClassifier, new SelectUrlOnlyFunction());
 
