@@ -51,7 +51,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
-import java.net.URI;
+//import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -95,7 +95,8 @@ import com.cybozu.labs.langdetect.LangDetectException;
 @SuppressWarnings("deprecation")
 public class SampleExporter {
 	private static final Logger LOGGER = Logger.getLogger(SampleExporter.class);
-	private static int minTokensNumber=200;
+	//private static int minTokensNumber=200;
+	//private static int minTokensNumber;
 	//private static String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	//private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static final String cesDocVersion = "0.4";
@@ -106,6 +107,7 @@ public class SampleExporter {
 	private static String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));//FIXME
 
 	private static int MIN_TOKENS_PER_PARAGRAPH;
+	private static int MIN_TOKENS_NUMBER;
 	private static String crawlDirName;
 	private static String language;
 	private static String topic;
@@ -128,7 +130,7 @@ public class SampleExporter {
 	private static String outputFile = null;
 	private static String outputFileHTML = null;
 	private static String researchProject = "ILSP";
-	private static String fs1 = System.getProperty("file.separator");
+	//private static String fs1 = System.getProperty("file.separator");
 	
 	private static void processStatus(JobConf conf, Path curDirPath) throws IOException {
 		Path statusPath = new Path(curDirPath, CrawlConfig.STATUS_SUBDIR_NAME);
@@ -355,6 +357,7 @@ public class SampleExporter {
 		options = new SampleExporterOptions();
 		options.parseOptions(args);
 		se.setMIN_TOKENS_PER_PARAGRAPH(options.get_length());
+		se.setMIN_TOKENS_NUMBER(options.get_minTokenslength());
 		se.setCrawlDirName (options.get_inputdir());
 		se.setOutputFile(options.get_inputdir() + System.getProperty("file.separator") + "outputlist.txt");
 		
@@ -638,7 +641,7 @@ public class SampleExporter {
 		
 		StringTokenizer tkzr = new StringTokenizer(maincontent);
 
-		if (tkzr.countTokens()<minTokensNumber){
+		if (tkzr.countTokens()<MIN_TOKENS_NUMBER){
 			//			System.out.println("CUT: "+ eAddress);
 			return false;		
 		}
@@ -1286,6 +1289,9 @@ public class SampleExporter {
 
 	public void setMIN_TOKENS_PER_PARAGRAPH(int mIN_TOKENS_PER_PARAGRAPH) {
 		MIN_TOKENS_PER_PARAGRAPH = mIN_TOKENS_PER_PARAGRAPH;
+	}
+	public void setMIN_TOKENS_NUMBER(int mIN_TOKENS_NUMBER) {
+		MIN_TOKENS_NUMBER = mIN_TOKENS_NUMBER;
 	}
 	public static String getCrawlDirName() {
 		return crawlDirName;
