@@ -126,6 +126,7 @@ public class SimpleCrawl {
 		int max_depth = SimpleCrawl.config.getInt("classifier.max_depth.value");
 		// Before we get too far along, see if the domain looks valid.
 		String domain = options.getDomain();
+		int minTokensNumber=options.getTokensNumber();
 		String urls = null;
 		if (domain==null) urls = options.getUrls();
 		else {
@@ -244,7 +245,7 @@ public class SimpleCrawl {
 						setLoopLoggerFile(curLoopDirName, curLoop);
 						Flow flow = SimpleCrawlWorkflow.createFlow(inputPath, curLoopDir, userAgent, defaultPolicy, urlFilter, 
 								options.getThreads(), options.isDebug(), options.getDbHost(), options.getDbName(), options.getLanguage(),options.getLangKeys(),
-								classes, topic, thres, min_uniq_terms, max_depth);
+								classes, topic, thres, min_uniq_terms, max_depth, minTokensNumber);
 
 						flow.complete();
 						// flow.writeDOT("build/valid-flow.dot");
