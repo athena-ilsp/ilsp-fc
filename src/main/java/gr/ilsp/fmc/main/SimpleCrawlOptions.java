@@ -28,6 +28,7 @@ public class SimpleCrawlOptions {
 	private  int _threads = 10;
 	private  int _numLoops = 1;
 	private  int _crawlDuration = 0;
+	private int _minTokensNumber=200;
 	private  String _dbHost;
 	private String _topic;
 	private String _language;
@@ -255,4 +256,5 @@ public class SimpleCrawlOptions {
 	}
 	//vpapa
 	public String[] getLangKeys() { return _langKeys;}
+	public int getTokensNumber() { return _minTokensNumber;}
 }
