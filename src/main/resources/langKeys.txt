@@ -1,7 +1,7 @@
-en>EN,en,English,(en),English [en],[en],english,United Kingdom, English Edition
+en>EN,en,English,(en),English [en],[en],english,United Kingdom,English Edition,english (en)
 fr>FR,fr,French,français,(fr),Français [fr],[fr],Français
-el>EL,el,Greek,ελληνικά,(el),[el],Ελληνική,Ελληνικά,Επιλογή γλώσσας,Greece, Greek Edition
-de>DE,de,German,Deutsch,(de),Deutsch [de],[de],Germany
+el>EL,el,Greek,ελληνικά,(el),[el],Ελληνική,Ελληνικά,Επιλογή γλώσσας,Greece, Greek Edition, ελληνικά (el)
+de>DE,de,German,Deutsch,(de),Deutsch [de],[de],Germany,Deutsch (de)
 it>IT,it,Italian,italiano,(it),[it],Italy
 es>ES,es,Spanish,español,(es),Español [es],[es],Español,Spain,España (ES)
 pt>PT,pt,Portuguese,Português,português,português [pt],português (pt)
