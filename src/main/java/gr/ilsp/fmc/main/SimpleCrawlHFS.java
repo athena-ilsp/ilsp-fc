@@ -595,12 +595,26 @@ public class SimpleCrawlHFS {
 							out_temp.delete();
 						System.exit(0);
 					}
+					//find pairs based on URLs
+					ArrayList<String[]> bitextsURLs=new ArrayList<String[]>();
+					HashMap<String, String> filesURLS = Bitexts.findURLs(xmldir);
+					bitextsURLs=Bitexts.findpairsURLs(filesURLS,props);
+					if (bitextsURLs.size()>0){
+						LOGGER.info(bitextsURLs.size()+ " pairs found (based on URLs).");
+						Bitexts.writeXMLs(outputDirName,bitextsURLs,options.getAlign());
+						props_short = Bitexts.excludepairsIM(bitextsURLs,props);
+						LOGGER.info(props_short.size()+ " files still remained for pair detection.");
+					}else{
+						LOGGER.info("No pairs found (based on URLs)");
+						props_short=props;
+					}
+					
 					//find pairs based on common images
 					ArrayList<String[]> bitextsIM=new ArrayList<String[]>();
 					
 					HashMap<String, String[]> imagesInHTML=ImageExtractor.findImages(xmldir,options.getImpath());
 					if (imagesInHTML.size()>1){
-						bitextsIM=Bitexts.findpairsIM(imagesInHTML,props);
+						bitextsIM=Bitexts.findpairsIM(imagesInHTML,props_short);
 						if (bitextsIM.size()>0){
 							LOGGER.info(bitextsIM.size()+ " pairs found (based on images).");
 							Bitexts.writeXMLs(outputDirName,bitextsIM,options.getAlign());
