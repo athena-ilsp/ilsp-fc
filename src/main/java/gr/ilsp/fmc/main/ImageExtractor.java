@@ -49,7 +49,7 @@ public class ImageExtractor {
 		ImageExtractor ie = new ImageExtractor();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-5).equals(".html"));
+				return (arg1.substring(arg1.length()-5).equals(".html") & !arg1.contains(".xml"));
 			}
 		};
 		String[] files= xmldir.list(filter);
@@ -90,7 +90,8 @@ public class ImageExtractor {
 		while (imit.hasNext()){	
 			temp_im = imit.next();
 			//System.out.println(temp_im+"_"+all_images.get(temp_im) );
-			if (all_images.get(temp_im)>=thr || all_images.get(temp_im)>=10 || all_images.get(temp_im)==1){
+			//if (all_images.get(temp_im)>=thr || all_images.get(temp_im)>=10 || all_images.get(temp_im)==1){
+			if (all_images.get(temp_im)>=10 || all_images.get(temp_im)==1){
 				boilerimages.add(temp_im);
 				//System.out.println("DISCARD_IMAGE: "+ temp_im);
 			}
