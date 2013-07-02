@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 //import java.util.List;
+//import java.util.List;
 //import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -44,6 +45,7 @@ import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
 import org.codehaus.stax2.XMLStreamWriter2;
 import org.codehaus.stax2.evt.XMLEvent2;
+//import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -72,6 +74,29 @@ public class Bitexts {
 	private static int minnumofpars=3;
 		    
 	public static void main(String[] args) {
+		
+		File xmldir = new File("C:\\QTLaunchPad\\Medicine\\EN-DE\\1428e784-e4f7-4ed4-8785-68cc187f1080\\xml");
+		ArrayList<String[]> bitextsURLs=new ArrayList<String[]>();
+		HashMap<String, String> filesURLS = findURLs(xmldir);
+		HashMap<String, String[]> props;
+		try {
+			props = representXML_NEW(xmldir);
+			bitextsURLs=Bitexts.findpairsURLs(filesURLS,props);
+			for (int ii=0;ii<bitextsURLs.size();ii++){
+				System.out.println(bitextsURLs.get(ii)[0]);
+				System.out.println(bitextsURLs.get(ii)[1]);
+				System.out.println(bitextsURLs.get(ii)[2]);
+				System.out.println(bitextsURLs.get(ii)[3]);
+				
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
 		
 	}
 
@@ -1074,6 +1099,7 @@ public class Bitexts {
 						if (p1>p2) dist=p2/p1; else dist=p1/p2;
 						if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
 						if (jac>=jac_thr && dist>=0.6 && disttok > 0.3 && Math.abs(l1-l2)<2.0){ //
+						//if (jac>=jac_thr && dist>=0.6 && disttok > 0.3){ //
 							//System.out.println(key_im +"_im:"+mySet1.size()+"-----"+key+"_im:"+mySet2.size()+"_"+jac);
 							//if (jac*dist>temp_pair_score){
 							if (jac>temp_pair_score){
@@ -1928,13 +1954,13 @@ public class Bitexts {
 		}
 	}
 
-	public static String extractURLfromXML(String inputString) {
+	public static String extractURLfromXML(File xmldir, String inputString) {
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
 		try {
 			db = dbf.newDocumentBuilder();
-			Document doc = db.parse(inputString);
+			Document doc = db.parse(xmldir.getAbsolutePath()+fs+inputString);
 			doc.getDocumentElement().normalize();
 			NodeList nodeLstP = doc.getElementsByTagName("eAddress");
 			for(int s=0; s<nodeLstP.getLength() ; s++){
@@ -1974,7 +2000,8 @@ public class Bitexts {
 
 
 
-	public static String[] calcStats(HashMap<String, String[]> props, HashMap<String, String[]> props_short,ArrayList<String[]> bitextsIM, ArrayList<String[]> bitexts) {
+	public static String[] calcStats(HashMap<String, String[]> props, HashMap<String, String[]> props_short,
+			ArrayList<String[]> bitextsIM, ArrayList<String[]> bitexts, ArrayList<String[]> bitextsURLs) {
 		String[] stats=new String[4];
 
 		//if (bitextsIM!=null){
@@ -2042,6 +2069,141 @@ public class Bitexts {
 		if (stats[0]==null)
 			return null;
 		return stats;
+	}
+
+	public static HashMap<String, String> findURLs(File xmldir) {
+		
+		HashMap<String, String> result = new HashMap<String, String>();
+		FilenameFilter filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.substring(arg1.length()-4).equals(".xml"));
+			}
+		};
+		String[] files= xmldir.list(filter);
+		for (int ii=0; ii<files.length ; ii++){
+			String key=files[ii].substring(0, files[ii].indexOf("."));
+			String keyurl= extractURLfromXML(xmldir,files[ii]);
+			result.put(key,keyurl);
+		}
+		return result;
+	}
+
+	public static ArrayList<String[]> findpairsURLs(
+			HashMap<String, String> filesURLS, HashMap<String, String[]> props) {
+		ArrayList<String[]> result=new ArrayList<String[]>();
+		ArrayList<String> paired=new ArrayList<String>();
+		Set<String> files_keys=filesURLS.keySet();
+		Iterator<String> files_it = files_keys.iterator();
+		String key, key1, file_url, file_url1;
+		while (files_it.hasNext()){
+			key = files_it.next();
+			String[] pair=new String[5];
+			if (paired.contains(key)) continue;
+			if (props.get(key)==null) 
+				continue;
+			String lang1=props.get(key)[1];
+			file_url=filesURLS.get(key);              
+			Iterator<String> files_it1 = files_keys.iterator();
+			while (files_it1.hasNext()){
+				key1 = files_it1.next();
+				if (paired.contains(key1)) continue;
+				if (props.get(key1)==null) continue;
+				String lang2=props.get(key1)[1];
+				if (!lang1.equals(lang2)){
+					file_url1=filesURLS.get(key1);
+					if (file_url.replace("_"+lang1, "_"+lang2).equals(file_url1)
+							| file_url.replace("/"+lang1+"/", "/"+lang2+"/").equals(file_url1)
+							| file_url.replace("lang=1", "lang=2").equals(file_url1)
+							| file_url.replace("lang,1", "lang,2").equals(file_url1)){
+						pair[0]=key;
+						pair[1]=key1;
+						pair[2]=lang1;
+						pair[3]=lang2;
+						pair[4]="u";
+						result.add(pair);
+						paired.add(key);
+						paired.add(key1);
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	public static String[] calcStats1(HashMap<String, String[]> props,
+			ArrayList<String[]> bitexts) {
+		String[] stats=new String[4];
+
+		if (!bitexts.isEmpty()){
+			stats[0]=bitexts.get(0)[2];
+			stats[1]=Integer.toString(0);
+			stats[2]=bitexts.get(0)[3];
+			stats[3]=Integer.toString(0);
+			for (int ii=0;ii<bitexts.size();ii++){
+				String p1 = bitexts.get(ii)[0];
+				String p2 = bitexts.get(ii)[1];
+				String[] attr1=props.get(p1);
+				String[] attr2=props.get(p2);
+				//System.out.println(p1+" in "+attr1[1]+":"+attr1[3]+"\t"+p2+" in "+attr2[1]+":"+attr2[3]);
+				if (attr1[1].equals(stats[0]))
+					stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[4]));
+				if (attr1[1].equals(stats[2]))
+					stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[4])); 
+				if (attr2[1].equals(stats[0]))
+					stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[4])); 
+				if (attr2[1].equals(stats[2]))
+					stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[4]));
+			}
+		}else
+			return null;
+		return stats;
+	}
+
+	public static String[] totalStats(String[] statsURLS, String[] statsIM,
+			String[] statsSTRUCT) {
+		String[] stats=new String[4];
+		if (statsURLS!=null){
+			stats=statsURLS;
+			if (statsIM!=null){
+				if (stats[0].equals(statsIM[0])){
+					stats[1] = Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(statsIM[1]));
+					stats[3] = Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(statsIM[3]));
+				}else{
+					stats[1] = Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(statsIM[3]));
+					stats[3] = Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(statsIM[1]));
+				}	
+			}
+			if (statsSTRUCT!=null){
+				if (stats[0].equals(statsSTRUCT[0])){
+					stats[1] = Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(statsSTRUCT[1]));
+					stats[3] = Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(statsSTRUCT[3]));
+				}else{
+					stats[1] = Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(statsSTRUCT[3]));
+					stats[3] = Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(statsSTRUCT[1]));
+				}	
+			}
+		}else{
+			if (statsIM!=null){
+				stats=statsIM;
+				if (statsSTRUCT!=null){
+					if (stats[0].equals(statsSTRUCT[0])){
+						stats[1] = Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(statsSTRUCT[1]));
+						stats[3] = Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(statsSTRUCT[3]));
+					}else{
+						stats[1] = Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(statsSTRUCT[3]));
+						stats[3] = Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(statsSTRUCT[1]));
+					}	
+				}
+			}else{
+				if (statsSTRUCT!=null){
+					stats=statsSTRUCT;
+				}else
+					return null;
+			}
+		}
+		return stats;
+		
 	}
 
 	/*@SuppressWarnings("restriction")
