@@ -618,7 +618,7 @@ public class SimpleCrawlHFS {
 						if (bitextsIM.size()>0){
 							LOGGER.info(bitextsIM.size()+ " pairs found (based on images).");
 							Bitexts.writeXMLs(outputDirName,bitextsIM,options.getAlign());
-							props_short = Bitexts.excludepairsIM(bitextsIM,props);
+							props_short = Bitexts.excludepairsIM(bitextsIM,props_short);
 							LOGGER.info(props_short.size()+ " files still remained for pair detection.");
 						}else{
 							LOGGER.info("No pairs found (based on images)");
@@ -642,9 +642,13 @@ public class SimpleCrawlHFS {
 						LOGGER.info("No pairs found (based on structure)");
 						Bitexts.writeOutList(outputDirName,options.getOutputFile());
 					}
-					int total_pairs= bitexts.size()+bitextsIM.size();
+					int total_pairs= bitextsURLs.size()+bitexts.size()+bitextsIM.size();
 					LOGGER.info("Total pairs found: "+ total_pairs);
-					String[] stats=Bitexts.calcStats(props,props_short, bitextsIM,bitexts);
+					String[] statsURLS=Bitexts.calcStats1(props,bitextsURLs);
+					String[] statsIM=Bitexts.calcStats1(props,bitextsIM);
+					String[] statsSTRUCT=Bitexts.calcStats1(props,bitexts);
+					String[] stats=Bitexts.totalStats(statsURLS,statsIM,statsSTRUCT);	
+					//String[] stats=Bitexts.calcStats(props,props_short, bitextsIM,bitexts,bitextsURLs);
 					if (stats!=null){
 						LOGGER.info("Tokens in "+stats[0] +" : "+ stats[1]);
 						LOGGER.info("Tokens in "+stats[2] +" : "+ stats[3]);
