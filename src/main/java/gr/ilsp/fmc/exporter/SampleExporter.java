@@ -432,6 +432,8 @@ public class SampleExporter {
 			TupleEntry entry = iter.next();
 			ExtendedParsedDatum datum = new ExtendedParsedDatum(entry);			
 			url = datum.getUrl();
+			//if (!url.contains("/cipp/md_medica/"))
+	        //    continue;
 			LOGGER.debug("Writing: " + id + " " + url);
 			//System.out.println("Writing: " + id + " " + url);
 			title = datum.getTitle();
