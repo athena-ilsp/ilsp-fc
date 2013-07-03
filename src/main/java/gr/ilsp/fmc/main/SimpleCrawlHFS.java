@@ -622,7 +622,7 @@ public class SimpleCrawlHFS {
 							LOGGER.info(props_short.size()+ " files still remained for pair detection.");
 						}else{
 							LOGGER.info("No pairs found (based on images)");
-							props_short=props;
+							//props_short=props;
 						}
 					}
 					
