@@ -22,6 +22,7 @@ public class XSLTransformer {
 	private static Logger logger = Logger.getLogger(SimpleCrawlHFS.class);
 	private TransformerFactory transFact = null;
 	private Transformer transformer= null;
+	private String baseDir= null;
 
 	public XSLTransformer() throws MalformedURLException, IOException, TransformerConfigurationException {
 		Source xsltSource = new StreamSource(new URL("http://nlp.ilsp.gr/xslt/ilsp-fc/cesDoc.xsl").openStream());
@@ -29,8 +30,18 @@ public class XSLTransformer {
 	    transformer = transFact.newTransformer(xsltSource);
 	}
 
+	public XSLTransformer(String urlStr) throws MalformedURLException, IOException, TransformerConfigurationException {
+		Source xsltSource = new StreamSource(new URL(urlStr).openStream());
+	    transFact = TransformerFactory.newInstance();
+	    transformer = transFact.newTransformer(xsltSource);	    
+	}
+
 	public void transform (File inFile, File outFile) throws TransformerException {
-        Source xmlSource = new StreamSource(inFile);
+	    if (getBaseDir()!=null) {
+	    	logger.debug(getBaseDir());
+	    	transformer.setParameter("baseDir", getBaseDir());
+	    }
+		Source xmlSource = new StreamSource(inFile);
         transformer.transform(xmlSource, new StreamResult(outFile));
 	}
 	
@@ -44,7 +55,22 @@ public class XSLTransformer {
         File outFile = new File(FilenameUtils.removeExtension(args[0]) + ".xml.html");  
         
         logger.info("Transforming " + inFile.getAbsolutePath() + " to " + outFile.getAbsolutePath());
-        XSLTransformer xslTransformer = new XSLTransformer();
+        XSLTransformer xslTransformer = new XSLTransformer("http://nlp.ilsp.gr/xslt/ilsp-fc/cesAlign.xsl");
+        xslTransformer.setBaseDir(inFile.getParent());
         xslTransformer.transform(inFile, outFile);
     }
+
+	/**
+	 * @return the baseDir
+	 */
+	public String getBaseDir() {
+		return baseDir;
+	}
+
+	/**
+	 * @param baseDir the baseDir to set
+	 */
+	public void setBaseDir(String baseDir) {
+		this.baseDir = baseDir+System.getProperty("file.separator");
+	}
 }
