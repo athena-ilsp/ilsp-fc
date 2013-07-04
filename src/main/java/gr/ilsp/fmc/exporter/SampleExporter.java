@@ -440,14 +440,13 @@ public class SampleExporter {
 			if (title==null) title = "";
 			cleanText = datum.getParsedText();
 			cleanText = ContentNormalizer.normalizeText(cleanText);
-			//domain = datum.getHostAddress(); FIXME
 			meta = datum.getParsedMeta();
 			author=meta.get("Author");
 			publisher=meta.get("Publisher");
 			String termsArray = meta.get("keywords");
 			terms = new ArrayList<String>();
 			if (termsArray!=null){
-				termsArray = termsArray.replace(",","");
+				//termsArray = termsArray.replace(",","");
 				for (String s: termsArray.split(",|;|:"))
 					terms.add(s.trim());
 			}
@@ -642,7 +641,8 @@ public class SampleExporter {
 		}
 		
 		StringTokenizer tkzr = new StringTokenizer(maincontent);
-
+		LOGGER.debug(eAddress);
+		LOGGER.debug(tkzr.countTokens());
 		if (tkzr.countTokens()<MIN_TOKENS_NUMBER){
 			//			System.out.println("CUT: "+ eAddress);
 			return false;		
@@ -1341,7 +1341,7 @@ public class SampleExporter {
 	public void setTextExport(boolean textexport){
 		SampleExporter.textExport = textexport;
 	}
-	//vpapa
+	
 	public void setStyleExport(boolean cesdoc){
 		SampleExporter.cesdoc = cesdoc;
 	}
