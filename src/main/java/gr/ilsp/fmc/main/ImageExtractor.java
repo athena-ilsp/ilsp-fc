@@ -90,8 +90,8 @@ public class ImageExtractor {
 		while (imit.hasNext()){	
 			temp_im = imit.next();
 			//System.out.println(temp_im+"_"+all_images.get(temp_im) );
-			//if (all_images.get(temp_im)>=thr || all_images.get(temp_im)>=10 || all_images.get(temp_im)==1){
-			if (all_images.get(temp_im)>=10 || all_images.get(temp_im)==1){
+			if (all_images.get(temp_im)>=thr || all_images.get(temp_im)>=10 || all_images.get(temp_im)==1){
+			//if (all_images.get(temp_im)>=10 || all_images.get(temp_im)==1){
 				boilerimages.add(temp_im);
 				//System.out.println("DISCARD_IMAGE: "+ temp_im);
 			}
