@@ -595,14 +595,17 @@ public class SimpleCrawlHFS {
 							out_temp.delete();
 						System.exit(0);
 					}
+					ArrayList<String[]> bitextsALL=new ArrayList<String[]>();
 					//find pairs based on URLs
 					ArrayList<String[]> bitextsURLs=new ArrayList<String[]>();
 					HashMap<String, String> filesURLS = Bitexts.findURLs(xmldir);
 					bitextsURLs=Bitexts.findpairsURLs(filesURLS,props);
 					if (bitextsURLs.size()>0){
 						LOGGER.info(bitextsURLs.size()+ " pairs found (based on URLs).");
-						Bitexts.writeXMLs(outputDirName,bitextsURLs,options.getAlign());
+						Bitexts.writeXMLs(outputDirName,bitextsURLs,options.getAlign(),options.isOfflineXSLT());
 						props_short = Bitexts.excludepairsIM(bitextsURLs,props);
+						for (int ii=0;ii<bitextsURLs.size();ii++)
+							bitextsALL.add(bitextsURLs.get(ii));
 						LOGGER.info(props_short.size()+ " files still remained for pair detection.");
 					}else{
 						LOGGER.info("No pairs found (based on URLs)");
@@ -617,12 +620,14 @@ public class SimpleCrawlHFS {
 						bitextsIM=Bitexts.findpairsIM(imagesInHTML,props_short);
 						if (bitextsIM.size()>0){
 							LOGGER.info(bitextsIM.size()+ " pairs found (based on images).");
-							Bitexts.writeXMLs(outputDirName,bitextsIM,options.getAlign());
+							Bitexts.writeXMLs(outputDirName,bitextsIM,options.getAlign(),options.isOfflineXSLT());
 							props_short = Bitexts.excludepairsIM(bitextsIM,props_short);
 							LOGGER.info(props_short.size()+ " files still remained for pair detection.");
+							for (int ii=0;ii<bitextsIM.size();ii++)
+								bitextsALL.add(bitextsIM.get(ii));
 						}else{
 							LOGGER.info("No pairs found (based on images)");
-							//props_short=props;
+							props_short=props;
 						}
 					}
 					
@@ -631,24 +636,22 @@ public class SimpleCrawlHFS {
 					double[][] w=Bitexts.readRes("Ws19_last.txt");
 					
 					ArrayList<String[]> pairs_new  = Bitexts.findpairsXML_SVM_NEW(xmldir,props_short,sv,w,b);
-					ArrayList<String[]> bitexts = Bitexts.findBestPairs_SVM_NEW(pairs_new);
-					if (bitexts.size()>0){
-						Bitexts.writeXMLs(outputDirName,bitexts,options.getAlign());
-						bitexts = Bitexts.sortbyLength(bitexts);
-						Bitexts.writeOutList(outputDirName,options.getOutputFile(),options.getOutputFileHTML(),bitexts,bitextsIM);
-						LOGGER.info("Pairs found (based on structure): "+bitexts.size() );
-					}
-					else{
+					ArrayList<String[]> bitextsSTRUCT = Bitexts.findBestPairs_SVM_NEW(pairs_new);
+					if (bitextsSTRUCT.size()>0){
+						Bitexts.writeXMLs(outputDirName,bitextsSTRUCT,options.getAlign(),options.isOfflineXSLT());
+						//bitexts = Bitexts.sortbyLength(bitexts);
+						//Bitexts.writeOutList(outputDirName,options.getOutputFile(),options.getOutputFileHTML(),bitexts,bitextsIM);
+						LOGGER.info("Pairs found (based on structure): "+bitextsSTRUCT.size());
+						for (int ii=0;ii<bitextsSTRUCT.size();ii++)
+							bitextsALL.add(bitextsSTRUCT.get(ii));
+					}else
 						LOGGER.info("No pairs found (based on structure)");
-						Bitexts.writeOutList(outputDirName,options.getOutputFile());
-					}
-					int total_pairs= bitextsURLs.size()+bitexts.size()+bitextsIM.size();
-					LOGGER.info("Total pairs found: "+ total_pairs);
-					String[] statsURLS=Bitexts.calcStats1(props,bitextsURLs);
-					String[] statsIM=Bitexts.calcStats1(props,bitextsIM);
-					String[] statsSTRUCT=Bitexts.calcStats1(props,bitexts);
-					String[] stats=Bitexts.totalStats(statsURLS,statsIM,statsSTRUCT);	
-					//String[] stats=Bitexts.calcStats(props,props_short, bitextsIM,bitexts,bitextsURLs);
+					
+					bitextsALL = Bitexts.sortbyLength(bitextsALL);
+					Bitexts.writeOutList(outputDirName,options.getOutputFile(),options.getOutputFileHTML(),bitextsALL);
+					LOGGER.info("Total pairs found: "+ bitextsALL.size());
+					String[] stats=Bitexts.calcStats1(props,bitextsALL);
+					//String[] stats=Bitexts.calcStats(props,props_short, bitextsIM, bitexts, bitextsURLs);
 					if (stats!=null){
 						LOGGER.info("Tokens in "+stats[0] +" : "+ stats[1]);
 						LOGGER.info("Tokens in "+stats[2] +" : "+ stats[3]);
