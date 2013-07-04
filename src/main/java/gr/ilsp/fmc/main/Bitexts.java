@@ -1,4 +1,7 @@
 package gr.ilsp.fmc.main;
+
+import gr.ilsp.fmc.exporter.XSLTransformer;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,14 +32,18 @@ import java.util.Set;
 import java.util.StringTokenizer;
 //import java.util.regex.Matcher;
 //import java.util.regex.Pattern;
-
+import org.apache.log4j.Logger;
 //import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 
 //import org.apache.hadoop.fs.FileSystem;
+//import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.Path;
 //import org.apache.hadoop.mapred.JobConf;
 
@@ -52,6 +59,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class Bitexts {
+	private static final Logger LOGGER = Logger.getLogger(Bitexts.class);
 	private static final String cesDocVersion = "1.0";
 	private static final String LANGUAGE_ELE = "language";
 	//private static final String EADDRESS = "eAddress";
@@ -72,10 +80,11 @@ public class Bitexts {
 	private static double jac_thr=0.6;
 	private static int im_dif_thr=3;
 	private static int minnumofpars=3;
-		    
+	private static XSLTransformer xslTransformer = null;
+	private static String cesAlingURL="http://nlp.ilsp.gr/xslt/ilsp-fc/cesAlign.xsl";
 	public static void main(String[] args) {
-		
-		File xmldir = new File("C:\\QTLaunchPad\\Medicine\\EN-DE\\1428e784-e4f7-4ed4-8785-68cc187f1080\\xml");
+
+		File xmldir = new File("C:\\QTLaunchPad\\Medicine\\EN-DE\\b50977c5-3596-410d-989b-8b7132e404f0\\xml");
 		ArrayList<String[]> bitextsURLs=new ArrayList<String[]>();
 		HashMap<String, String> filesURLS = findURLs(xmldir);
 		HashMap<String, String[]> props;
@@ -87,20 +96,20 @@ public class Bitexts {
 				System.out.println(bitextsURLs.get(ii)[1]);
 				System.out.println(bitextsURLs.get(ii)[2]);
 				System.out.println(bitextsURLs.get(ii)[3]);
-				
+
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (XMLStreamException e) {
 			e.printStackTrace();
 		}
-		
-		
-		
-		
+
+
+
+
 	}
 
-/*	private static void counttoks(File xmldir, String outfile) {
+	/*	private static void counttoks(File xmldir, String outfile) {
 		ArrayList<String> outlist =new ArrayList<String>();
 		BufferedReader in;
 		String str="";
@@ -174,7 +183,7 @@ public class Bitexts {
 		System.out.println(tokens);
 	}*/
 
-/*	private static void moveoutputfiles(File xmldir, File xmldirnew,	String outfile) {
+	/*	private static void moveoutputfiles(File xmldir, File xmldirnew,	String outfile) {
 		ArrayList<String> outlist =new ArrayList<String>();
 		BufferedReader in;
 		String str="";
@@ -197,7 +206,7 @@ public class Bitexts {
 		}
 	}*/
 
-/*	private static void checklistfiles(File xmldir, String outfile) {
+	/*	private static void checklistfiles(File xmldir, String outfile) {
 		String[] files= xmldir.list();
 		ArrayList<String> outlist =new ArrayList<String>();
 		BufferedReader in;
@@ -232,7 +241,7 @@ public class Bitexts {
 		}
 	}*/
 
-/*	private static void removepages(String outfile, String outfile_new, String removefile) {
+	/*	private static void removepages(String outfile, String outfile_new, String removefile) {
 		ArrayList<String> outlist =new ArrayList<String>();
 		//ArrayList<String> outlist_new =new ArrayList<String>();
 		ArrayList<String> removelist =new ArrayList<String>();
@@ -286,7 +295,7 @@ public class Bitexts {
 		}
 	}*/
 
-/*	private static void extractURL(File xmldir, String outfile) {
+	/*	private static void extractURL(File xmldir, String outfile) {
 		System.out.println("AAA");
 		String[] files= xmldir.list();
 		ArrayList<String> outlist =new ArrayList<String>();
@@ -368,7 +377,7 @@ public class Bitexts {
 		}
 	}*/
 
-/*	private static void moveoutputfiles(File xmldir, String type,	File newxmldir, String outfile) {
+	/*	private static void moveoutputfiles(File xmldir, String type,	File newxmldir, String outfile) {
 
 		String[] files= xmldir.list();
 		int pairscounter=0;
@@ -409,7 +418,7 @@ public class Bitexts {
 		System.out.println(pairscounter+" files:"+ pairscounter*5);
 	}*/
 
-/*	private static void copyfile(String f1, String f2) {
+	/*	private static void copyfile(String f1, String f2) {
 		InputStream inStream = null;
 		OutputStream outStream = null;
 		try{
@@ -430,7 +439,7 @@ public class Bitexts {
 		}
 	}*/
 
-/*	private static void check_domainess(String txtfile, String langs, double thr) {
+	/*	private static void check_domainess(String txtfile, String langs, double thr) {
 		String str1=null, str2=null;
 
 		BufferedReader in;
@@ -484,7 +493,7 @@ public class Bitexts {
 		}
 	}*/
 
-/*	private static void countdomainess(File xmldir, String type, String langs, String otufile) {
+	/*	private static void countdomainess(File xmldir, String type, String langs, String otufile) {
 		String[] files= xmldir.list();
 		int pairscounter=0;
 		String topicdef="C:\\PANACEA\\AUTOMOTIVE\\Automotive-seed-terms-de_en.txt";
@@ -654,153 +663,8 @@ public class Bitexts {
 		}
 	}*/
 
-/*	private static ArrayList<String[]> tttTopic(String topicdef, String lang) {
-		ArrayList<String[]> topic = new ArrayList<String[]>();
-		String str, a, b, c, d ;
-		//String[] langs = lang.split(";");
-		BufferedReader in;
-		try {
-			in = new BufferedReader(new FileReader(topicdef));
-			while ((str = in.readLine()) != null) {
-				a=str.subSequence(0, str.indexOf(":")).toString().trim();
-				b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().toLowerCase().trim();
-				int ind=str.indexOf(">");
-				d=str.subSequence(ind+1, str.length()).toString().toLowerCase().trim();
-				topic.add(new String[] {a,b,d});
-			}
-			in.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return topic;
-	}*/
 
-/*	private static void counttoks_topic(File xmldir, String type,	String[] langs, String outfile) {
-
-		ArrayList<String> outlist =new ArrayList<String>();
-		BufferedReader in;
-		String str="";
-		try {
-			in = new BufferedReader(new FileReader(outfile));
-			while ((str = in.readLine()) != null) {
-				outlist.add(str.substring(str.lastIndexOf("/")+1));
-			}
-			in.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-
-		String[] files= xmldir.list();
-		int pairscounter=0;
-		int[] tokens = new int[2];
-
-		for (int ii=0; ii<files.length ; ii++){
-			File fileAlign=new File(files[ii]);
-			String fileAlignName = fileAlign.getName();
-			if (fileAlignName.length()<9 || !fileAlignName.contains(type)) continue;
-			String f1 = fileAlignName.substring(0, fileAlignName.indexOf("_"))+".xml";
-			String f2 = fileAlignName.substring(fileAlignName.indexOf("_")+1, fileAlignName.lastIndexOf("_"))+".xml";
-			if (!outlist.contains(f1.substring(0,f1.length()-4)+"_"+f2.substring(0,f2.length()-4)+type+".xml"))
-				continue;
-			pairscounter++;
-			int temp=0;
-			try {
-				int eventType=0;
-				String lang="", curElement="";
-				XMLInputFactory2 xmlif = null;
-				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
-				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,Boolean.FALSE);
-				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,Boolean.FALSE);
-				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
-				xmlif.configureForSpeed();
-				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+f1),"UTF-8");
-				while (xmlr.hasNext()) {
-					eventType = xmlr.next();
-					if (eventType == XMLEvent2.START_ELEMENT){
-						curElement = xmlr.getLocalName().toString();
-						if (curElement.equals(LANGUAGE_ELE)) {
-							lang=xmlr.getAttributeValue(0);
-						}else{
-							if (curElement.equals("p")){
-								int attrs=xmlr.getAttributeCount();
-								for (int m=1;m<attrs;m++){
-									//System.out.println(xmlr.getAttributeLocalName(m).toString());
-									if (xmlr.getAttributeLocalName(m).toString().equals("topic")){
-										String tempstr1 = xmlr.getElementText();
-										StringTokenizer st = new StringTokenizer(tempstr1);	
-										temp = temp+st.countTokens();
-									}
-								}
-							}
-						}
-					}else
-						curElement = "";
-				}
-				if (lang.equals(langs[0]))
-					tokens[0]=tokens[0]+temp;
-				else
-					tokens[1]=tokens[1]+temp;
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (XMLStreamException e) {
-				e.printStackTrace();
-			}
-			System.out.println(f1+":"+temp);
-			temp=0;
-			try {
-				int eventType=0;
-				String lang="", curElement="";
-				XMLInputFactory2 xmlif = null;
-				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
-				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,Boolean.FALSE);
-				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,Boolean.FALSE);
-				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
-				xmlif.configureForSpeed();
-				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+f2),"UTF-8");
-
-				while (xmlr.hasNext()) {
-					eventType = xmlr.next();
-					if (eventType == XMLEvent2.START_ELEMENT){
-						curElement = xmlr.getLocalName().toString();
-						if (curElement.equals(LANGUAGE_ELE)) {
-							lang=xmlr.getAttributeValue(0);
-						}else{
-							if (curElement.equals("p")){
-								int attrs=xmlr.getAttributeCount();
-								//int t=-1;
-								for (int m=1;m<attrs;m++){
-									if (xmlr.getAttributeLocalName(m).toString().equals("topic")){
-										String tempstr1 = xmlr.getElementText();
-										StringTokenizer st = new StringTokenizer(tempstr1);	
-										temp = temp+st.countTokens();
-									}
-								}
-							}
-						}
-					}else
-						curElement = "";
-				}
-				if (lang.equals(langs[0]))
-					tokens[0]=tokens[0]+temp;
-				else
-					tokens[1]=tokens[1]+temp;
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (XMLStreamException e) {
-				e.printStackTrace();
-			}
-			System.out.println(f2+":"+temp);
-		}
-		System.out.println(type+" > PAIRS:\t"+pairscounter+"\tLANGS/TOKENS:\t"+ langs[0]+ "\twith\t"+ tokens[0]+ "\tAND\t" + langs[1]+ " with "+ tokens[1]);
-	}*/
-
-/*	private static void counttoks(File xmldir, String type, String[] langs, String outfile) {
+	/*	private static void counttoks(File xmldir, String type, String[] langs, String outfile) {
 
 		ArrayList<String> outlist =new ArrayList<String>();
 		BufferedReader in;
@@ -1036,7 +900,8 @@ public class Bitexts {
 								if (tl[mm]>0)
 									tflength = tflength+tl[mm];
 							}
-							String pairlength = Integer.toString(tflength+sflength);
+							String pairlength = Integer.toString(Integer.parseInt(props.get(sf)[4])+
+									Integer.parseInt(props.get(tf)[4]));
 							pairs.add(new String[] {sf,tf,fileprops[1],fileprops2[1],Double.toString(inv_res),pairlength});
 						}
 					}
@@ -1099,7 +964,7 @@ public class Bitexts {
 						if (p1>p2) dist=p2/p1; else dist=p1/p2;
 						if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
 						if (jac>=jac_thr && dist>=0.6 && disttok > 0.3 && Math.abs(l1-l2)<2.0){ //
-						//if (jac>=jac_thr && dist>=0.6 && disttok > 0.3){ //
+							//if (jac>=jac_thr && dist>=0.6 && disttok > 0.3){ //
 							//System.out.println(key_im +"_im:"+mySet1.size()+"-----"+key+"_im:"+mySet2.size()+"_"+jac);
 							//if (jac*dist>temp_pair_score){
 							if (jac>temp_pair_score){
@@ -1126,7 +991,8 @@ public class Bitexts {
 			String temp2=pairsIM.get(ii)[1];
 			for (int jj=ii+1;jj<pairsIM.size();jj++){
 				if (pairsIM.get(jj)[1].equals(temp1) && pairsIM.get(jj)[0].equals(temp2)){
-					result.add(new String[] {temp1,temp2,pairsIM.get(ii)[2], pairsIM.get(ii)[3],"im"});
+					result.add(new String[] {temp1,temp2,pairsIM.get(ii)[2], pairsIM.get(ii)[3],"im",
+							Integer.toString(Integer.parseInt(props.get(temp1)[4])+Integer.parseInt(props.get(temp2)[4]))});
 					//System.out.println(temp1+"_"+temp2);
 				}
 			}
@@ -1372,6 +1238,7 @@ public class Bitexts {
 		return res;
 	}
 
+
 	public static double[][] readRes(String filename) throws IOException {
 		ArrayList<double[]> tempparam=new ArrayList<double[]>();
 		URL svURL = ReadResources.class.getClassLoader().getResource(filename);
@@ -1399,6 +1266,7 @@ public class Bitexts {
 		}
 		return param;
 	}
+
 
 	public static ArrayList<String[]> findpairsXML_SVM(File xmldir, String[][] AAA, double[][] sv, double[][] w, double[][] b) {
 		ArrayList<String[]> pairs = new ArrayList<String[]>();
@@ -1487,6 +1355,7 @@ public class Bitexts {
 		return pairs;
 	}
 
+
 	private static double SVM_test(double f1, double f2, double f3,
 			double[][] sv, double[][] w, double[][] b, double degree) {
 		Double res=0.0;
@@ -1504,6 +1373,7 @@ public class Bitexts {
 		res=res+b[0][0];
 		return res;
 	}
+
 
 	public static ArrayList<String[]> findBestPairs_SVM(ArrayList<String[]> pairs) {
 		ArrayList<String[]> bitexts=new ArrayList<String[]>();
@@ -1556,6 +1426,7 @@ public class Bitexts {
 		//System.out.println("END");
 		return bitexts;
 	}
+
 
 
 	public static ArrayList<String[]> findBestPairs_SVM_NEW(ArrayList<String[]> pairs) {
@@ -1659,34 +1530,78 @@ public class Bitexts {
 		return bitexts;
 	}
 
-	/*private static int maxArray(int[][] num) {
-		int res=0;
-		for (int ii=0;ii<num.length;ii++){
-			res=Math.max(res, num[ii][0]);
-		}
-		for (int ii=0;ii<num.length;ii++){
-			res=Math.max(res, num[ii][1]);
-		}
-		return res;
-	}*/
 
+	public static void writeXMLs(String outdir,ArrayList<String[]> bitexts, boolean cesAlign, boolean oxslt) throws XMLStreamException, IOException{
 
-	public static void writeXMLs(String outdir,ArrayList<String[]> bitexts, boolean cesAlign) throws XMLStreamException, IOException{
+		if (oxslt) {
+			try {
+				xslTransformer = new XSLTransformer(cesAlingURL);
+				xslTransformer.setBaseDir(outdir+fs+"xml");
+			} catch (TransformerConfigurationException e1) {
+				e1.printStackTrace();
+			}
+		}
+		File inFile = null, outFile = null;
 		for (int ii=0;ii<bitexts.size();ii++){
 			String f1=bitexts.get(ii)[0];
 			String f2=bitexts.get(ii)[1];
 			String l1=bitexts.get(ii)[2];
 			String l2=bitexts.get(ii)[3];
 			String confid=bitexts.get(ii)[4];
-			Path outdir1 = new Path(outdir);
+			//Path outdir1 = new Path(outdir);
 			String curXMLName= outdir+fs+"xml"+fs+f1+"_"+f2+"_"+confid.substring(0, 1)+".xml";
+			
+			writeCesAling(curXMLName,f1+".xml",f2+".xml",l1,l2,confid,cesAlign);
+			if (oxslt) {
+				try {
+					inFile = new File(curXMLName);
+					outFile = new File(FilenameUtils.removeExtension(inFile.getAbsolutePath()) + ".xml.html");			
+					xslTransformer.transform(inFile, outFile);
+										
+					//f1=f1+".xml.html";
+					//f2=f2+".xml.html";
+					//String curXMLName_temp= outdir+fs+"xml"+fs+f1+"_"+f2+"_"+confid.substring(0, 1)+"temp.xml";
+					//writeCesAling(curXMLName_temp,f1+".xml.html",f2+".xml.html",l1,l2,confid,cesAlign);
+					//inFile = new File(curXMLName_temp);
+					//outFile = new File(FilenameUtils.removeExtension(inFile.getAbsolutePath()) + ".xml.html");			
+					//xslTransformer.transform(inFile, outFile);
+					//File destFile=new File(outFile.getAbsolutePath().replace("temp.xml.html", ".xml.html"));
+					//FileUtils.copyFile(outFile, destFile);
+					//DedupMD5.delete(outFile.getAbsolutePath());
+					//String curXMLName_temp= outdir+fs+"xml"+fs+f1+"_"+f2+"_"+confid.substring(0, 1)+".xml.html";
+					String cesAlignText = readFileAsString(outFile.getAbsolutePath());
+					cesAlignText = cesAlignText.replace(f1+".xml", f1+".xml.html");
+					cesAlignText = cesAlignText.replace(f2+".xml", f2+".xml.html");
+					OutputStreamWriter tmpwrt;
+					try {
+						tmpwrt = new OutputStreamWriter(new FileOutputStream(outFile.getAbsolutePath()),"UTF-8");
+						tmpwrt.write(cesAlignText);
+						tmpwrt.close();
+					} catch (UnsupportedEncodingException e1) {
+						e1.printStackTrace();
+					} catch (FileNotFoundException e1) {
+						e1.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} catch (TransformerException e) {
+					e.printStackTrace();
+					LOGGER.warn("Could not transform " + inFile.getAbsolutePath() + " to " + outFile.getAbsolutePath());
+				}
+			}
+		}
+	}
 
-			XMLOutputFactory2 xof = (XMLOutputFactory2) XMLOutputFactory2.newInstance();
-			OutputStreamWriter wrt = new OutputStreamWriter(new FileOutputStream(curXMLName),"UTF-8");
+
+	private static void writeCesAling(String curXMLName, String f1, String f2,
+			String l1, String l2, String confid, boolean cesAlign) {
+
+		XMLOutputFactory2 xof = (XMLOutputFactory2) XMLOutputFactory2.newInstance();
+		OutputStreamWriter wrt;
+		try {
+			wrt = new OutputStreamWriter(new FileOutputStream(curXMLName),"UTF-8");
 			XMLStreamWriter2 xtw = (XMLStreamWriter2) xof.createXMLStreamWriter(wrt);
 			//System.err.println("Attempting to write "+curXMLName);
-			f1 = outdir1.toString()+fs+"xml"+fs+f1+".xml";
-			f2 = outdir1.toString()+fs+"xml"+fs+f2+".xml";
 			//String v1 =outdir.replace(VAR_RES_CACHE,HTTP_PATH);
 			//f1 = f1.replace(VAR_RES_CACHE,HTTP_PATH);
 			//f2 = f2.replace(VAR_RES_CACHE,HTTP_PATH);
@@ -1696,21 +1611,28 @@ public class Bitexts {
 			xtw.writeStartDocument();
 			//if (cesAlign){
 			//	xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
-				//xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
-				//xtw.writeProcessingInstruction("xml-stylesheet", "href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
+			//xtw.writeProcessingInstruction("xml-stylesheet href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
+			//xtw.writeProcessingInstruction("xml-stylesheet", "href='http://nlp.ilsp.gr/panacea/xces-xslt/cesAlign.xsl' type='text/xsl'");
 			//}
 			xtw.writeStartElement("cesAlign");
 			xtw.writeAttribute("version", "1.0");
 			xtw.writeAttribute("xmlns:xlink", cesNameSpace );
 			xtw.writeAttribute("xmlns", cesNameSpace1 );
 			xtw.writeAttribute("xmlns:xsi", cesNameSpace2 );
-
 			//xtw.writeAttribute("xmlns", "http://www.xces.org/schema/2003");
 			createHeader(xtw, f1, f2, l1, l2,confid,cesAlign);
 			xtw.writeEndDocument();
 			xtw.flush();
 			xtw.close();
 			wrt.close();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -1755,11 +1677,13 @@ public class Bitexts {
 		//return dist;
 	}
 
+
 	private static int min3(int i, int j, int k) {
 		int l = Math.min(i, j);
 		int res = Math.min(l, k);
 		return res;
 	}
+
 
 	private static int[] readlist(String fn) {
 		File f=new File(fn);
@@ -1797,6 +1721,7 @@ public class Bitexts {
 
 	}
 
+
 	private static void createHeader(XMLStreamWriter2 xtw, String f1, 
 			String f2,String l1, String l2, String confid, boolean cesAlign) throws XMLStreamException {
 		xtw.writeStartElement("cesHeader");
@@ -1820,10 +1745,11 @@ public class Bitexts {
 		xtw.writeEndElement(); //cesHeader
 	}
 
-	public static void writeOutList(String outputDirName, String outputFile) {
+	/*public static void writeOutList(String outputDirName, String outputFile,
+			String outputHFile) {
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.contains("_"));
+				return (arg1.contains("_") & !arg1.contains("xml.html"));
 			}
 		};
 		File xmldir=new File(outputDirName+fs+"xml");
@@ -1836,37 +1762,42 @@ public class Bitexts {
 			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
 			for (int ii=0; ii<files.length ; ii++){
 				////temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
-				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]);
-				out.write(ttt+"\n");
+				File ttt = new File(outputDirName1.toString()+fs+"xml"+fs+files[ii]);
+				out.write(ttt.getAbsolutePath()+"\n");
 			}
 			out.close();
 		} catch (IOException e){
 			System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
 			e.printStackTrace();
 		}
-		try {
-			//FileWriter outFile = new FileWriter(outputFile);
-			//PrintWriter out = new PrintWriter(outFile);
-			Path outputDirName1=new Path(outputDirName);
-			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile+".html"),"UTF-8"));
-			if (files.length>0){
-				out.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");	
+		if (outputHFile!=null){
+			FilenameFilter filterH = new FilenameFilter() {			
+				public boolean accept(File arg0, String arg1) {
+					return (arg1.contains("_") & arg1.contains("xml.html"));
+				}
+			};
+			try {
+				Path outputDirName1=new Path(outputDirName);
+				Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile+".html"),"UTF-8"));
+				if (files.length>0){
+					out.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");	
+				}
+				for (int ii=0; ii<files.length ; ii++){
+					////temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
+					File ttt = new File(outputDirName1.toString()+fs+"xml"+fs+files[ii]);
+					out.write("<br />"+"<a href=\""+ttt.getAbsolutePath()+"\">\n"+ttt.getAbsolutePath()+"</a>"+"\n");
+				}
+				if (files.length>0){
+					out.write("</html>");
+				}
+				out.close();
+			} catch (IOException e){
+				System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
+				e.printStackTrace();
 			}
-			for (int ii=0; ii<files.length ; ii++){
-				////temp=xmldir.getAbsolutePath().replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "");
-				String ttt = (outputDirName1.toString()+fs+"xml"+fs+files[ii]);
-				ttt = "<a href=\""+ttt+"\">\n"+ttt+"</a>";
-				out.write("<br />"+ttt+"\n");
-			}
-			if (files.length>0){
-				out.write("</html>");
-			}
-			out.close();
-		} catch (IOException e){
-			System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
-			e.printStackTrace();
 		}
 	}
+	 */
 
 	public static String readFileAsString(String filePath) throws java.io.IOException{
 		byte[] buffer = new byte[(int) new File(filePath).length()];
@@ -1875,6 +1806,7 @@ public class Bitexts {
 		f.close();
 		return new String(buffer);
 	}
+
 
 	public static ArrayList<String[]> sortbyLength(ArrayList<String[]> bitexts) {
 		ArrayList<String[]> new_bitexts=new ArrayList<String[]>();
@@ -1904,22 +1836,20 @@ public class Bitexts {
 	}
 
 
+
+
 	public static void writeOutList(String outputDirName, String outputFile, 
-			String outputFileHTML, ArrayList<String[]> bitexts, ArrayList<String[]> bitextsIM) {
+			String outputFileHTML, ArrayList<String[]> bitexts) {
+		String filename;
+		File ttt;
 		try {
 			Path outputDirName1=new Path(outputDirName);
 			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
-			String[] files=new String[bitexts.size()];
+			//=new String[bitexts.size()];
 			for (int ii=bitexts.size()-1;ii>-1;ii--){
-				files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-				String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
-				out.write(ttt+"\n");
-			}
-			files=new String[bitextsIM.size()];
-			for (int ii=bitextsIM.size()-1;ii>-1;ii--){
-				files[ii]=bitextsIM.get(ii)[0]+"_"+bitextsIM.get(ii)[1]+"_"+bitextsIM.get(ii)[4].substring(0, 1)+".xml";
-				String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
-				out.write(ttt+"\n");
+				filename=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
+				//ttt = new File(outputDirName1.toString()+fs+"xml"+fs+filename);
+				out.write(outputDirName1.toString()+fs+"xml"+fs+filename+"\n");
 			}
 			out.close();
 		} catch (IOException e){
@@ -1931,19 +1861,10 @@ public class Bitexts {
 				Path outputDirName1=new Path(outputDirName);
 				Writer out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileHTML),"UTF-8"));
 				out1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
-				String[] files=new String[bitexts.size()];
 				for (int ii=bitexts.size()-1;ii>-1;ii--){
-					files[ii]=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-					String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
-					ttt = "<a href=\""+ttt+"\">\n"+ttt+"</a>";
-					out1.write("<br />"+ttt+"\n");
-				}
-				files=new String[bitextsIM.size()];
-				for (int ii=bitextsIM.size()-1;ii>-1;ii--){
-					files[ii]=bitextsIM.get(ii)[0]+"_"+bitextsIM.get(ii)[1]+"_"+bitextsIM.get(ii)[4].substring(0, 1)+".xml";
-					String ttt = outputDirName1.toString()+fs+"xml"+fs+files[ii];
-					ttt = "<a href=\""+ttt+"\">\n"+ttt+"</a>";
-					out1.write("<br />"+ttt+"\n");
+					filename=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml.html";
+					ttt = new File(outputDirName1.toString()+fs+"xml"+fs+filename);
+					out1.write("<br />"+"<a href=\""+ttt.toURI().toString()+"\">\n"+ttt.toURI().toString()+"</a>"+"\n");
 				}
 				out1.write("</html>");
 				out1.close();
@@ -1953,6 +1874,8 @@ public class Bitexts {
 			}	
 		}
 	}
+
+
 
 	public static String extractURLfromXML(File xmldir, String inputString) {
 		String result="";
@@ -1981,6 +1904,7 @@ public class Bitexts {
 	}
 
 
+
 	public static String readfile(File txtfile) {
 		String str=null, text=null;
 		StringBuffer contents = new StringBuffer();
@@ -1997,6 +1921,7 @@ public class Bitexts {
 		text = contents.toString();
 		return text;
 	}
+
 
 
 
@@ -2071,8 +1996,9 @@ public class Bitexts {
 		return stats;
 	}
 
+
 	public static HashMap<String, String> findURLs(File xmldir) {
-		
+
 		HashMap<String, String> result = new HashMap<String, String>();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
@@ -2097,7 +2023,7 @@ public class Bitexts {
 		String key, key1, file_url, file_url1;
 		while (files_it.hasNext()){
 			key = files_it.next();
-			String[] pair=new String[5];
+			String[] pair=new String[6];
 			if (paired.contains(key)) continue;
 			if (props.get(key)==null) 
 				continue;
@@ -2120,6 +2046,7 @@ public class Bitexts {
 						pair[2]=lang1;
 						pair[3]=lang2;
 						pair[4]="u";
+						pair[5]=Integer.toString(Integer.parseInt(props.get(key)[4])+Integer.parseInt(props.get(key1)[4]));
 						result.add(pair);
 						paired.add(key);
 						paired.add(key1);
@@ -2130,6 +2057,7 @@ public class Bitexts {
 		}
 		return result;
 	}
+
 
 	public static String[] calcStats1(HashMap<String, String[]> props,
 			ArrayList<String[]> bitexts) {
@@ -2159,6 +2087,7 @@ public class Bitexts {
 			return null;
 		return stats;
 	}
+
 
 	public static String[] totalStats(String[] statsURLS, String[] statsIM,
 			String[] statsSTRUCT) {
@@ -2203,801 +2132,7 @@ public class Bitexts {
 			}
 		}
 		return stats;
-		
+
 	}
-
-	/*@SuppressWarnings("restriction")
-	public static String[][] representXML_old(File xmldir) throws FileNotFoundException, XMLStreamException {
-		FilenameFilter filter = new FilenameFilter() {			
-			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-4).equals(".xml"));
-			}
-		};
-		String[] files= xmldir.list(filter);
-		String[][] res = new String[files.length][3];
-		String url="", lang="", curElement="";//previous_element="";
-
-		for (int ii=0; ii<files.length ; ii++){
-			//System.out.println(ii);
-			int pcounter=0;
-			OutputStreamWriter xmlFileListWrt = null;
-			boolean topic=false;
-			try {
-				xmlFileListWrt = new OutputStreamWriter(new FileOutputStream
-						(xmldir.getPath()+"/"+files[ii]+".txt"),"UTF-8");
-				int eventType=0;
-				XMLInputFactory2 xmlif = null;
-				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
-				xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,
-						Boolean.FALSE);
-				xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,
-						Boolean.FALSE);
-				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
-				xmlif.configureForSpeed();
-				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.
-				createXMLStreamReader(new FileInputStream(xmldir.getPath()+"/"+files[ii]),"UTF-8");
-				//System.err.println("Parsing :"+files[ii]);
-				while (xmlr.hasNext()) {
-					eventType = xmlr.next();
-					if (eventType == XMLEvent2.START_ELEMENT){
-						curElement = xmlr.getLocalName().toString();
-						//previous_element="";
-						if (curElement.equals(LANGUAGE_ELE)) {
-							//System.out.println(xmlr.isStartElement());
-							lang=xmlr.getAttributeValue(0);
-							res[ii][1]=lang;
-						}else{
-							if (curElement.equals(URL_ELE)){
-								//System.out.println(xmlr.isStartElement());
-								if (xmlr.getAttributeCount()<1){
-									url=xmlr.getElementText();
-									int k=0, level=0, ind=0;
-									while (k<url.length()){
-										ind=url.indexOf("/", k);
-										if (ind>0){
-											k = ind+1;
-											level=level+1;
-										}else
-											k=url.length();
-									}
-									if (url.endsWith("/"))
-										level=level-1;
-									level=level-2; 
-									res[ii][0]=Integer.toString(level);
-								}
-							}else{
-								if (curElement.equals("p")){
-									pcounter=pcounter+1;
-									//System.out.println(xmlr.isStartElement());
-									int attrs=xmlr.getAttributeCount();
-									//previous_element=curElement;
-									//System.out.println(xmlr.getElementText());
-									int t=-1, t1=0;
-									for (int m=1;m<attrs;m++){
-										//System.out.println(xmlr.getAttributeLocalName(m));
-										//System.out.println(xmlr.getAttributeValue(m));
-										//System.out.println(xmlr.getAttributeAsQName(m));
-										if (xmlr.getAttributeValue(m).equals("boilerplate")){
-											t=0; 
-											break;
-										}
-										if (xmlr.getAttributeValue(m).equals("title"))
-											t=-2; 
-										if (xmlr.getAttributeValue(m).equals("heading"))
-											t=-3; 
-										if (xmlr.getAttributeValue(m).equals("listitem"))
-											t=-4;
-										if (xmlr.getAttributeLocalName(m).equals("topic")){
-											topic=true;
-											t1=-5;
-										}
-									}
-									if (t<0){
-										if (t==-2)
-											xmlFileListWrt.write("-2"+"\n");
-										if (t==-3)
-											xmlFileListWrt.write("-3"+"\n");
-										if (t==-4)
-											xmlFileListWrt.write("-4"+"\n");
-									}
-									if (t1<0)
-										xmlFileListWrt.write("-5"+"\n");	
-									if (t<0 | t1<0) {
-										//if (t<0) {
-										int temp = xmlr.getElementText().length();
-										xmlFileListWrt.write(Integer.toString(temp)+"\n");
-									}
-								}
-							}
-						}
-					}else{
-						curElement = "";
-					}
-				}
-				res[ii][2]=Integer.toString(pcounter);
-				xmlFileListWrt.close();
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			//if (!topic){
-			//	res[ii][1]="";
-			//	res[ii][0]="";
-			//	res[ii][2]="";
-			//}
-		}
-		return res;
-	}	*/
-
-	/*public static ArrayList<String[]> findpairsXML_old(File xmldir, String[][] AAA) {
-		ArrayList<String[]> pairs = new ArrayList<String[]>();
-		FilenameFilter filter = new FilenameFilter() {			
-			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-4).equals(".xml"));
-			}
-		};
-		String[] files= xmldir.list(filter);
-		//int[] tl=new int[9];
-		//tl[0]=-1; tl[1]=-2; tl[2]=27; tl[3]=-2; tl[4]=39; tl[5]=-4; tl[6]=-5; tl[7]=-4; tl[8]=-1;
-		//int[] sl=new int[10];
-		//sl[0]=-1; sl[1]=-2; sl[2]=27; sl[3]=-2; sl[4]=38; sl[5]=-4; sl[6]=-5; sl[7]=-4; sl[8]=-6; sl[9]=-1;
-		for (int ii=0; ii<files.length ; ii++){
-			if (AAA[ii][0].isEmpty())
-				continue;
-			String sf = files[ii].substring(0, files[ii].indexOf("."));
-			int sf_level = Integer.parseInt(AAA[ii][0]);
-			int[] sl =readlist(xmldir.getPath()+ "/"+sf+".xml.txt");
-			int sl_length = sl.length;
-			double sl_par = Double.parseDouble(AAA[ii][2]);
-			String filepair="";
-			String langpair="";
-			int dist_old=1000000, dist_new;
-			for (int jj=ii+1; jj<files.length ; jj++){
-				if (AAA[jj][0].isEmpty())
-					continue;
-				double tl_par = Double.parseDouble(AAA[jj][2]);
-				if (!AAA[ii][1].equals(AAA[jj][1]) & Math.abs(sf_level-Integer.parseInt(AAA[jj][0]))<2 
-						& (Math.abs(sl_par-tl_par)/Math.max(sl_par, tl_par))<pars_thres) {
-					String tf = files[jj].substring(0, files[jj].indexOf("."));
-					int[] tl =readlist(xmldir.getPath()+ "/"+tf+".xml.txt");
-					int tl_length = tl.length;
-					if ((Double.parseDouble(Integer.toString(Math.abs(sl_length-tl_length)))/
-							Double.parseDouble(Integer.toString(Math.min(sl_length,tl_length)))<=length_thres)
-							|| (Math.abs(sl_length-tl_length)<10)){
-						//System.out.println(sf+ " with "+ tf);
-						dist_new = editDist(sl,tl);
-						if (dist_new<dist_old & dist_new<=Math.min(sl_length,tl_length)/2){
-							filepair=sf+"_"+tf;
-							langpair = AAA[ii][1]+"_"+AAA[jj][1];
-							dist_old=dist_new;
-							//System.out.println(sf+"_"+tf+" l1:"+sl_length+" l2:"+tl_length+
-							//		" dist: "+dist_old+ " p1:"+sl_par+" p2:"+tl_par);
-						}
-					}
-				}
-			}
-			if (!filepair.isEmpty()){
-				//System.out.println(pair+"_"+dist_old);
-				pairs.add(new String[] {filepair,langpair,Integer.toString(dist_old)});
-			}
-		}
-		return pairs;
-	}*/
-
-	/*public static ArrayList<String[]> findBestPairs_old(ArrayList<String[]> pairs) {
-		ArrayList<String[]> bitexts=new ArrayList<String[]>();
-		Double[] new_temp1 = new Double[pairs.size()];
-		String[][] pairlist = new String[pairs.size()][4];
-		Double[] editdist =  new Double[pairs.size()];
-		for (int i = 0; i < new_temp1.length; i++){
-			new_temp1[i] =Double.parseDouble(pairs.get(i)[2]);
-			editdist[i] =Double.parseDouble(pairs.get(i)[2]);
-			int ind = pairs.get(i)[0].indexOf("_");
-			pairlist[i][0]=pairs.get(i)[0].substring(0, ind);
-			pairlist[i][1]=pairs.get(i)[0].substring(ind+1);
-			int ind1 = pairs.get(i)[1].indexOf("_");
-			pairlist[i][2]=pairs.get(i)[1].substring(0, ind1);
-			pairlist[i][3]=pairs.get(i)[1].substring(ind1+1);
-		}
-		Arrays.sort(new_temp1);
-		int kk = 0;
-		for (int i = 0; i < new_temp1.length; i++){
-			if (i > 0 && new_temp1[i].equals(new_temp1[i -1]))
-				continue;
-			new_temp1[kk++] = new_temp1[i];
-		}
-		Double[] new_temp = new Double[kk];
-		System.arraycopy(new_temp1, 0, new_temp, 0, kk);
-		//
-		//ArrayList<String[]> bitexts_temp=new ArrayList<String[]>();
-		for (int i = 0; i < new_temp.length; i++){
-			ArrayList<String> filesToRem=new ArrayList<String>();
-			//System.out.print(new_temp[i]+">");
-			for (int j = 0; j < pairlist.length; j++){
-				if (!pairlist[j][0].isEmpty() & !pairlist[j][1].isEmpty()){
-					if (new_temp[i].equals(editdist[j])){
-						String f1 = pairlist[j][0];
-						String f2 = pairlist[j][1];
-						String l1 = pairlist[j][2];
-						String l2 = pairlist[j][3];
-						//System.out.print("FOUND: "+f1 +" and "+ f2+" | ");
-						boolean found=false;
-						for(int k=0; k<filesToRem.size();k++){
-							if (f1.equals(filesToRem.get(k)) | f2.equals(filesToRem.get(k))){
-								found=true;
-								filesToRem.add(f1);
-								filesToRem.add(f2);
-								//System.out.print("REMOVE: "+f1 +" and "+ f2+" | ");
-								break;
-							}
-						}
-						if (!found){
-							bitexts.add(new String[] {f1, f2,l1,l2});
-							//System.out.print(f1+"_"+f2+ " | ");
-							//System.out.print("REMOVE: "+f1 +" and "+ f2+" | ");
-							filesToRem.add(f1);
-							filesToRem.add(f2);
-						}
-					}
-				}
-			}
-			for (int j = 0; j < pairlist.length; j++){
-				for(int k=0; k<filesToRem.size();k++){
-					if (pairlist[j][0].equals(filesToRem.get(k)) | pairlist[j][1].equals(filesToRem.get(k))){
-						pairlist[j][0]="";
-						pairlist[j][1]="";
-					}
-				}
-			}
-			//System.out.println();	
-		}
-		//System.out.println("END");
-		return bitexts;
-	}*/
-
-
-	/*public static String readFileAsString(String filePath) throws java.io.IOException{
-		byte[] buffer = new byte[(int) new File(filePath).length()];
-		BufferedInputStream f = new BufferedInputStream(new FileInputStream(filePath));
-		f.read(buffer);
-		return new String(buffer);
-	}*/
-
-	/*public static void runbitextor(File newdir) {
-		try {
-			copy( "config.xml", newdir.getParent()+"/config.xml");
-			Process proc;
-			String command = "/usr/local/bin/bitextor ";
-			command += String.format("-d %s ",newdir.getPath());
-			command += String.format("-l %s ",newdir.getParent()+"/logfile.log");
-			command += String.format("-c %s ",newdir.getParent()+"/config.xml");
-			System.out.println(command);
-			//Run Bitextor
-			try {
-				proc = Runtime.getRuntime().exec(command);
-				parseStreams(proc, false);
-				proc.waitFor();
-
-			} catch (IOException ex){
-				System.err.println("Error while running bitextor, aborting...");
-				System.exit(64);
-			} catch (InterruptedException e) {
-				System.err.println("Error while running bitextor, Interruption exception occured, aborting...");
-				System.exit(64);
-			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-	}*/
-
-	/*public static void parseStreams(Process proc,Boolean display) throws IOException{
-		String s;
-		BufferedReader stdInput = new BufferedReader(new 
-				InputStreamReader(proc.getInputStream()));
-		BufferedReader stdError = new BufferedReader(new 
-				InputStreamReader(proc.getErrorStream()));	     	    
-		while ((s = stdInput.readLine()) != null) {
-			if (display)
-				System.err.println(s);
-		}
-		while ((s = stdError.readLine()) != null) {
-			if (display)
-				System.err.println(s);
-		}
-	} */
-
-	/*public static File mirrorsite(String outputdir) {
-		//File sitedir = new File(outputdir+"/xml");
-		File sitedir = new File(outputdir);
-		//FilenameFilter filter = new XMLFilter();
-		FilenameFilter filter = new FilenameFilter() {			
-			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-4).equals(".xml"));
-			}
-		};
-		String[] files= sitedir.list(filter);
-		int numoffiles=files.length;		
-		System.out.println("num of files: "+ numoffiles);
-		File newdir= new File(sitedir.getPath()+ "/downloadedsite");
-		if (numoffiles<1){
-			System.err.println("Only " + numoffiles + "file has been downloaded");
-			System.err.println("Abort");
-			return null;
-			//System.exit(0);
-		}else {
-			//Create a new directory called "downloadedsite" to put downloaded HTML
-			//The directory should be in the temp directory
-			newdir.mkdir();
-		}
-		int filecount=0;
-		String url="", fileid="";
-		for (int ii=0; ii<numoffiles ; ii++){
-			filecount++;
-			fileid=files[ii].substring(0, files[ii].lastIndexOf("."));
-			url = extractURLfromXML(sitedir.getPath()+"/"+files[ii]);
-			File struct=new File(newdir.getPath() + "/" + url.substring(url.indexOf("/"), url.lastIndexOf("/")));
-			struct.mkdirs();
-			//String sourcefile = sitedir.getPath()+"/"+fileid+".html";
-			//String targetfile = struct.getPath()+"/"+fileid+".html";
-			String sourcefile = sitedir.getPath()+"/"+fileid+".html";
-			String targetfile = struct.getPath()+"/"+fileid+".html";
-			try {
-				copy(sourcefile, targetfile);
-			} catch (IOException e) {
-				System.err.println(e.getMessage());
-			}
-		}
-		return newdir;
-	}*/
-
-	/*public static String extractURLfromXML(String inputString) {
-		String result="";
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db;
-		try {
-			db = dbf.newDocumentBuilder();
-			Document doc = db.parse(inputString);
-			doc.getDocumentElement().normalize();
-			NodeList nodeLstP = doc.getElementsByTagName("eAddress");
-			for(int s=0; s<nodeLstP.getLength() ; s++){
-				Element NameElement = (Element)nodeLstP.item(s);
-				if (!NameElement.hasAttribute("type")){
-					result+=NameElement.getTextContent();
-					break;
-				}
-			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}*/
-
-	/*public static void copy(String fromFileName, String toFileName)	throws IOException {
-		File fromFile = new File(fromFileName);
-		File toFile = new File(toFileName);
-
-		if (!fromFile.exists())
-			throw new IOException("FileCopy: " + "no such source file: "
-					+ fromFileName);
-		if (!fromFile.isFile())
-			throw new IOException("FileCopy: " + "can't copy directory: "
-					+ fromFileName);
-		if (!fromFile.canRead())
-			throw new IOException("FileCopy: " + "source file is unreadable: "
-					+ fromFileName);
-
-		if (toFile.isDirectory())
-			toFile = new File(toFile, fromFile.getName());
-
-		if (toFile.exists()) {
-			if (!toFile.canWrite())
-				throw new IOException("FileCopy: "
-						+ "destination file is unwriteable: " + toFileName);
-			System.out.print("Overwrite existing file " + toFile.getName()
-					+ "? (Y/N): ");
-			System.out.flush();
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					System.in));
-			String response = in.readLine();
-			if (!response.equals("Y") && !response.equals("y"))
-				throw new IOException("FileCopy: "
-						+ "existing file was not overwritten.");
-		} else {
-			String parent = toFile.getParent();
-			if (parent == null)
-				parent = System.getProperty("user.dir");
-			File dir = new File(parent);
-			if (!dir.exists())
-				throw new IOException("FileCopy: "
-						+ "destination directory doesn't exist: " + parent);
-			if (dir.isFile())
-				throw new IOException("FileCopy: "
-						+ "destination is not a directory: " + parent);
-			if (!dir.canWrite())
-				throw new IOException("FileCopy: "
-						+ "destination directory is unwriteable: " + parent);
-		}
-
-		FileInputStream from = null;
-		FileOutputStream to = null;
-		try {
-			from = new FileInputStream(fromFile);
-			to = new FileOutputStream(toFile);
-			byte[] buffer = new byte[4096];
-			int bytesRead;
-
-			while ((bytesRead = from.read(buffer)) != -1)
-				to.write(buffer, 0, bytesRead); // write
-		} finally {
-			if (from != null)
-				try {
-					from.close();
-				} catch (IOException e) {
-					;
-				}
-				if (to != null)
-					try {
-						to.close();
-					} catch (IOException e) {
-						;
-					}
-		}
-	}*/
-
-	/*@SuppressWarnings("restriction")
-	public static void writeXMLs(String f1,String f2, String l1, String l2) throws UnsupportedEncodingException, FileNotFoundException, XMLStreamException{
-		String ff1 = f1.substring(f1.lastIndexOf("/")+1, f1.lastIndexOf("."));
-		String ff2 = f2.substring(f2.lastIndexOf("/")+1, f2.lastIndexOf("."));
-		String curXMLName=f1.substring(0, f1.lastIndexOf("/"))+"/"+ff1+"_"+ff2+".xml";
-
-		XMLOutputFactory2 xof = (XMLOutputFactory2) XMLOutputFactory2.newInstance();
-		OutputStreamWriter wrt = new OutputStreamWriter(new FileOutputStream(curXMLName),"UTF-8");
-		XMLStreamWriter2 xtw = (XMLStreamWriter2) xof.createXMLStreamWriter(wrt);
-		System.err.println("Attempting to write "+curXMLName);
-		f1 = f1.replace(VAR_RES_CACHE,HTTP_PATH);
-		f2 = f2.replace(VAR_RES_CACHE,HTTP_PATH);
-		xtw.writeStartDocument();
-		xtw.writeStartElement("cesAlign");
-		xtw.writeAttribute("version", "1.0");
-		//xtw.writeAttribute("xmlns", "http://www.xces.org/schema/2003");
-		createHeader(xtw, f1, f2, l1, l2);
-		xtw.writeEndDocument();
-		xtw.flush();
-		xtw.close();
-	}*/
-
-
-
-	/*@SuppressWarnings("restriction")
-	public static String readElemInXML(String fn, String element) throws FileNotFoundException, XMLStreamException {
-		String lang="", curElement="";
-		int eventType=0;
-		XMLInputFactory2 xmlif = null;
-		try {
-			xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
-			xmlif.setProperty(XMLInputFactory2.IS_REPLACING_ENTITY_REFERENCES,
-					Boolean.FALSE);
-			xmlif.setProperty(XMLInputFactory2.IS_SUPPORTING_EXTERNAL_ENTITIES,
-					Boolean.FALSE);
-			xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
-			xmlif.configureForSpeed();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.
-		createXMLStreamReader(new FileInputStream(fn),"UTF-8");
-		//System.err.println("Parsing :"+fn);
-		System.out.println("Parsing :"+fn);
-		//fn = fn.replace(VAR_RES_CACHE,HTTP_PATH);
-		while (xmlr.hasNext()) {
-			eventType = xmlr.next();
-			if (eventType == XMLEvent2.START_ELEMENT){
-				curElement = xmlr.getLocalName().toString();
-				if (curElement.equals(LANGUAGE_ELE)) {
-					lang=xmlr.getAttributeValue(0);
-					break;
-				}
-			}
-		}
-		//vpapa
-		xmlr.close();
-		return lang;
-	}*/
-
-
-
-
-	/*public static boolean deleteDir(File dir) {
-		if (dir.isDirectory()) {
-			String[] children = dir.list();
-			for (int i=0; i<children.length; i++) {
-				boolean success = deleteDir(new File(dir, children[i]));
-				if (!success) {
-					return false;
-				}
-			}
-		}
-		// The directory is now empty so delete it
-		return dir.delete();
-	} */
-
-	/*class XMLFilter implements FilenameFilter {
-		public boolean accept(File dir, String name) {
-			return (name.endsWith(".xml"));
-		}
-	}*/
-
-	//end of vpapa
-
-	/*public static void findbitexts(File newdir, File outFile) {
-		String logData="";
-		try {
-			logData = readFileAsString(newdir.getParent()+"/logfile.log");
-		} catch (IOException e) {
-			System.err.println("Error while reading log file, aborting...");
-			System.exit(64);
-		}
-		String searchtext1 = "The bitext between ";
-		String searchtext2a = " has been created>> Edit distance: ";
-		String searchtext2 = "%.";
-		String searchtext3 = " and ";
-		String f1="", f2="";
-		ArrayList<Double> editdist = new ArrayList<Double>();
-		ArrayList<String[]> pairlist = new ArrayList<String[]>();
-		int qnew1=0, qold1=0, qnew2=0, qold2=0, id=0, q3;
-		String sent="", listoffiles="", l1, l2;
-		double s1, s2, s;
-		//parse Bitextor's logdata to find pairs and distances  
-		while (qnew1>=qold1) {
-			qold1=qnew1+1;
-			qnew1=logData.substring(qold1+1, logData.length()).indexOf(searchtext1)+qold1;
-			qold2=qnew2+1;
-			qnew2=logData.substring(qold2, logData.length()).indexOf(searchtext2)+qold2;
-			if (qnew1>qold1) {
-				//If a pair has been found (e.g. consisting of <f1> and <f2>),get the language from the corresponding XMLs
-				//create an XCES XML called <f1_f2>, add a line with that file to the output
-				sent=logData.substring(qnew1, qnew2);
-				sent=sent.replace(searchtext2a, "");
-				q3=sent.indexOf(searchtext3);
-
-				f1=sent.substring(searchtext1.length()+1, q3);
-				//System.out.println(f1);
-				f2=sent.substring(q3+searchtext3.length(), sent.lastIndexOf("l")+1);
-				//System.out.println(f2);
-				f1= f1.substring(f1.lastIndexOf("/")+1, f1.lastIndexOf("."));
-				f2= f2.substring(f2.lastIndexOf("/")+1, f2.lastIndexOf("."));
-				try {
-					l1 = readElemInXML(newdir.getParent()+"/"+f1+appendXmlExt,LANGUAGE_ELE);
-					l2 = readElemInXML(newdir.getParent()+"/"+f2+appendXmlExt, LANGUAGE_ELE);
-					s1 = extractTermsfromXML(newdir.getParent()+"/"+f1+appendXmlExt).split(";").length;
-					s2 = extractTermsfromXML(newdir.getParent()+"/"+f2+appendXmlExt).split(";").length;
-					//double s=Math.abs(s1-s2)/Math.max(s1, s2);
-
-					s=Math.abs(s1-s2)/Math.max(s1, s2);
-					System.out.println("f1:"+f1 +" in "+ l1 + " AND f2:"+f2+" in "+l2+" dif: "+ s);
-					if (!l1.equals(l2) & s<=term_thresh){
-						pairlist.add( new String[] {f1, f2, l1 ,l2});
-						editdist.add(Double.parseDouble(sent.substring(sent.lastIndexOf("l")+1)));
-					}
-				}catch (FileNotFoundException e) {
-					System.err.println("Error while finding bitexts, Filenotfound exception, aborting...");
-					System.exit(64);
-				} catch (XMLStreamException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		//unique and sort distances
-		Double[] new_temp1 = new Double[editdist.size()];
-		for (int i = 0; i < new_temp1.length; i++)
-			new_temp1[i] = editdist.get(i);
-		Arrays.sort(new_temp1);
-		int kk = 0;
-		for (int i = 0; i < new_temp1.length; i++){
-			if (i > 0 && new_temp1[i].equals(new_temp1[i -1]))
-				continue;
-			new_temp1[kk++] = new_temp1[i];
-		}
-		Double[] new_temp = new Double[kk];
-		System.arraycopy(new_temp1, 0, new_temp, 0, kk);
-		//find the best pairs
-		ArrayList<String[]> pairs=new ArrayList<String[]>();
-		for (int i = 0; i < new_temp.length; i++){
-			ArrayList<String> filesToRem=new ArrayList<String>();
-			//System.out.print(new_temp[i]+">");
-			for (int j = 0; j < editdist.size(); j++){
-				if (!pairlist.get(j)[0].isEmpty() & !pairlist.get(j)[1].isEmpty()){
-					if (new_temp[i].equals(editdist.get(j))){
-						f1 = pairlist.get(j)[0];
-						f2 = pairlist.get(j)[1];
-						l1 = pairlist.get(j)[2];
-						l2 = pairlist.get(j)[3];
-						//System.out.print("FOUND: "+f1 +" and "+ f2+" | ");
-						boolean found=false;
-						for(int k=0; k<filesToRem.size();k++){
-							if (f1.equals(filesToRem.get(k)) | f2.equals(filesToRem.get(k))){
-								found=true;
-								filesToRem.add(f1);
-								filesToRem.add(f2);
-								//System.out.print("REMOVE: "+f1 +" and "+ f2+" | ");
-								break;
-							}
-						}
-						if (!found){
-							pairs.add(new String[] {f1, f2, l1, l2});
-							System.out.print(f1+"_"+f2+ " | ");
-							//System.out.print("REMOVE: "+f1 +" and "+ f2+" | ");
-							filesToRem.add(f1);
-							filesToRem.add(f2);
-						}
-					}
-				}
-			}
-			for (int j = 0; j < pairlist.size(); j++){
-				for(int k=0; k<filesToRem.size();k++){
-					if (pairlist.get(j)[0].equals(filesToRem.get(k)) | pairlist.get(j)[1].equals(filesToRem.get(k))){
-						pairlist.get(j)[0]="";
-						pairlist.get(j)[1]="";
-					}
-				}
-			}
-			//System.out.println();	
-		}
-		//create cesAligns
-		String ff1, ff2;
-		for (int i = 0; i < pairs.size(); i++){
-			ff1= newdir.getParent()+"/"+pairs.get(i)[0]+appendXmlExt;
-			ff2 = newdir.getParent()+"/"+pairs.get(i)[1]+appendXmlExt;
-			l1 = pairs.get(i)[2];
-			l2 = pairs.get(i)[3];
-			try {
-				writeXMLs(ff1, ff2, l1, l2);
-			} catch (UnsupportedEncodingException e) {
-				System.err.println("Error while creating cesAlign XMLs, UnsupportedEncoding exception, aborting...");
-				e.printStackTrace();
-			} catch (FileNotFoundException e) {
-				System.err.println("Error while creating cesAlign XMLs, Filenotfound exception, aborting...");
-				e.printStackTrace();
-			} catch (XMLStreamException e) {
-				e.printStackTrace();
-			}
-			id++;
-			listoffiles+=newdir.getParent()+"/" + pairs.get(i)[0]+"_"+pairs.get(i)[1]+appendXmlExt +"\n";
-		}
-
-		try {
-			if (!listoffiles.isEmpty()) {
-				listoffiles=listoffiles.replace(VAR_RES_CACHE, HTTP_PATH);
-				Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile.getPath()),"UTF-8"));
-				out.write(listoffiles);
-				out.close();
-				System.err.println(id + " pairs have been created.");
-			}
-			else {
-				System.err.println("No pairs found!");
-				Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile.getPath()),"UTF-8"));
-				out.write(listoffiles);
-				out.close();
-			}
-		}catch (IOException ex){
-			System.err.println("Error while creating final output, aborting...");
-			System.exit(64);
-		}
-	} */
-
-	/*private static String extractTermsfromXML(String fn) {
-		String res="";
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db;
-		try {
-			db = dbf.newDocumentBuilder();
-			Document doc = db.parse(fn);
-			doc.getDocumentElement().normalize();
-			NodeList nodeLstP = doc.getElementsByTagName("p");
-
-			for(int s=0; s<nodeLstP.getLength() ; s++){
-				Element NameElement = (Element)nodeLstP.item(s);
-				if (NameElement.hasAttribute("topic")){
-					//result+=NameElement.getTextContent();
-					res=res+NameElement.getAttribute("topic")+";";
-				//	break;
-				}
-			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return res;
-	}*/
-
-
-	/*public static void findbitexts_old(File newdir, File outFile) {
-		String logData="";
-		try {
-			logData = readFileAsString(newdir.getParent()+"/logfile.log");
-		} catch (IOException e) {
-			System.err.println("Error while reading log file, aborting...");
-			System.exit(64);
-		}
-		System.out.println("Parse Bitextor's logdata");
-		String searchtext1 = "The bitext between ";
-		String searchtext2 = " has been created";
-		String searchtext3 = " and ";
-		String f1="", f2="";
-		int qnew1=0, qold1=0, qnew2=0, qold2=0, id=0, q3;
-		String sent="", listoffiles="";
-		while (qnew1>=qold1) {
-			qold1=qnew1+1;
-			qnew1=logData.substring(qold1+1, logData.length()).indexOf(searchtext1)+qold1;
-			qold2=qnew2+1;
-			qnew2=logData.substring(qold2, logData.length()).indexOf(searchtext2)+qold2;
-			if (qnew1>qold1) {
-				//If a pair has been found (e.g. consisting of <f1> and <f2>),get the language from the corresponding XMLs
-				//create an XCES XML called <f1_f2>, add a line with that file to the output
-				id++;
-				sent=logData.substring(qnew1, qnew2);
-				q3=sent.indexOf(searchtext3);
-				f1=sent.substring(searchtext1.length()+1, q3);
-				//System.out.println(f1);
-				f2=sent.substring(q3+searchtext3.length(), sent.length());
-				//System.out.println(f2);
-				f1= f1.substring(f1.lastIndexOf("/")+1, f1.lastIndexOf("."));
-				f2= f2.substring(f2.lastIndexOf("/")+1, f2.lastIndexOf("."));
-				//System.out.println(f1);
-				//System.out.println(f2);
-				//System.out.println(newdir.getParentFile().getParent()+"/" + f1+"_"+f2+appendXmlExt);
-				listoffiles+=newdir.getParent()+"/" + f1+"_"+f2+appendXmlExt +"\n";
-
-				String ff1 = newdir.getParent()+"/"+f1+appendXmlExt;
-				String ff2 = newdir.getParent()+"/"+f2+appendXmlExt;
-				System.out.println(ff1);
-				System.out.println(ff2);			 
-				try{
-					String l1= readElemInXML(ff1,LANGUAGE_ELE);
-					String l2=readElemInXML(ff2, LANGUAGE_ELE);
-					if (!l1.equals(l2)){
-						System.out.println(ff1+ " in " + l1 +" WITH "+ ff2 + " in "+l2);
-						writeXMLs(ff1, ff2, l1, l2);
-					}
-				} catch (FileNotFoundException e) {
-					System.err.println("Error while creating cesAlign XMLs, Filenotfound exception, aborting...");
-					System.exit(64);
-				} catch (UnsupportedEncodingException e) {
-					System.err.println("Error while creating cesAlign XMLs, UnsupportedEncodingException aborting...");
-					System.exit(64);
-				} catch (XMLStreamException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		try {
-			if (!listoffiles.isEmpty()) {
-				listoffiles=listoffiles.replace(VAR_RES_CACHE, HTTP_PATH);
-				Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile.getPath()),"UTF-8"));
-				out.write(listoffiles);
-				out.close();
-				System.err.println(id + " pairs have been created.");
-			}
-			else {
-				System.err.println("No pairs found!");
-				Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile.getPath()),"UTF-8"));
-				out.write(listoffiles);
-				out.close();
-			}
-		}catch (IOException ex){
-			System.err.println("Error while creating final output, aborting...");
-			System.exit(64);
-		}
-	}	 
-	 */
 
 }
