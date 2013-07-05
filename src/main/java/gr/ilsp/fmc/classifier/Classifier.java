@@ -89,9 +89,10 @@ public class Classifier implements Serializable{
 		
 		//System.out.println(length_in_tok);
 		//LOGGER.error(_minTokensNumber);
-		if (length_in_tok<_minTokensNumber)
+		if (length_in_tok<_minTokensNumber){
+			//LOGGER.info("CUT due to its small clean content length:"+parsedDatum.getUrl());
 			return null;
-
+		}
 		String url = parsedDatum.getUrl();
 		//if (url.contains("wikipedia"))
 		//	return null;
@@ -755,13 +756,15 @@ public class Classifier implements Serializable{
 		}
 		return result;
 	}
+
 	public ArrayList<String[]> getTopic(){
 		return _topic;
 	}
+
 	public int getMaxDepth() { return _max_depth;}
 
 
-	//vpapa added
+	
 	public static String checkLang(String partOfLine) {
 		String langidentified ="";
 		if (partOfLine.length()<5)
