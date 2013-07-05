@@ -73,6 +73,7 @@ public class SimpleCrawlHFS {
 	private static final Logger LOGGER = Logger.getLogger(SimpleCrawlHFS.class);
 	public static CompositeConfiguration config;
 	private static int PAGES_STORED = 0;
+	private static int PAGES_FAILED_CLASSIFICATION=0;
 	private static int PAGES_VISITED = 0;
 	private static int TOKENS_STORED = 0;
 	private static int TOKENS_TARGET = 100000000;
@@ -137,7 +138,7 @@ public class SimpleCrawlHFS {
 			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
 			String line = "";
 			//UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
-			//FIXME if there is an empty line in the seed urls list, Exception running tool
+			ArrayList<String> seedUrls = new ArrayList<String>();
 			while ((line=rdr.readLine())!=null){
 				if (skipLineM.reset(line).matches()) 
 					continue;
@@ -148,6 +149,10 @@ public class SimpleCrawlHFS {
 						bts2[i-3]=bts[i];
 					line = new String(bts2);
 				}
+				if (seedUrls.contains(line))
+					continue;
+				else
+					seedUrls.add(line);
 				if (line.equals("") || line.startsWith("ftp") || line.equals("http://")) continue;
 				//if (!urlValidator.isValid(line) && !line.contains("#")) continue;
 				
@@ -155,13 +160,13 @@ public class SimpleCrawlHFS {
 						UrlStatus.UNFETCHED, 0,0.0);
 				writer.add(datum.getTuple());
 			}
+			LOGGER.info("Starting from "+ seedUrls.size()+ "URLs");
 			rdr.close();
 			writer.close();
 		} catch (IOException e) {
 			throw e;
 		}
 	}
-	
 	
 	/**
 	 * @param urls:crawler will stay in this web domain, crawlDbPath: path for loops' results, conf:crawler's configuration
@@ -176,6 +181,7 @@ public class SimpleCrawlHFS {
 			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
 			String line = "";
 			//UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
+			ArrayList<String> seedUrls = new ArrayList<String>();
 			while ((line=rdr.readLine())!=null){
 				if (skipLineM.reset(line).matches()) 
 					continue;
@@ -186,6 +192,10 @@ public class SimpleCrawlHFS {
 						bts2[i-3]=bts[i];
 					line = new String(bts2);
 				}
+				if (seedUrls.contains(line))
+					continue;
+				else
+					seedUrls.add(line);
 				if (line.equals("") || line.startsWith("ftp") || line.equals("http://")) continue;
 				//if (!urlValidator.isValid(line)&& !line.contains("#")) continue;
 				
@@ -193,6 +203,7 @@ public class SimpleCrawlHFS {
 						UrlStatus.UNFETCHED, 0,0.0);
 				writer.add(datum.getTuple());
 			}
+			LOGGER.info("Starting from "+ seedUrls.size()+ "URLs");
 			rdr.close();
 			writer.close();
 		} catch (IOException e) {
@@ -386,7 +397,7 @@ public class SimpleCrawlHFS {
 			}
 			//If the outputPath does not exist, it is created. Seed URL list (or domain) is imported into the hfs.
 			if (!fs.exists(outputPath)) {
-				LOGGER.info("Creating path: " +outputPath.toString());//vpapa
+				LOGGER.info("Creating path: " +outputPath.toString());
 				fs.mkdirs(outputPath);
 		
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, 0);
@@ -396,8 +407,8 @@ public class SimpleCrawlHFS {
 					
 				setLoopLoggerFile(curLoopDirName, 0);
 				Path crawlDbPath = new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME);
-				if (domain!=null && !isDomainFile){	
-					if (urls!=null) //vpapa
+				if (domain!=null && !isDomainFile){
+					if (urls!=null)
 						importURLOneDomain(urls,crawlDbPath , conf);
 					else
 						importOneDomain(domain,crawlDbPath , conf);
@@ -464,6 +475,7 @@ public class SimpleCrawlHFS {
 								(System.currentTimeMillis()-startTime) + " milliseconds.");
 						float avg = (float)duration/(curLoop-startLoop-1);
 						LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
+						LOGGER.info("Total pages failed classification: " + PAGES_FAILED_CLASSIFICATION );
 						LOGGER.info("Total tokens stored: " + TOKENS_STORED);
 						LOGGER.info("Average run time: " + avg + " milliseconds.");						
 						break;
@@ -483,6 +495,7 @@ public class SimpleCrawlHFS {
 							(System.currentTimeMillis()-startTime) + " milliseconds.");
 					float avg = (float)duration/(curLoop-startLoop-1);
 					LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
+					LOGGER.info("Total pages failed classification: " + PAGES_FAILED_CLASSIFICATION );
 					LOGGER.info("Total tokens stored: " + TOKENS_STORED);
 					LOGGER.info("Average run time: " + avg + " milliseconds.");						
 					break;
@@ -512,6 +525,7 @@ public class SimpleCrawlHFS {
 					DirUtils.clearPreviousLoopDir(fs,outputPath,curLoop);
 
 				LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
+				LOGGER.info("Total pages failed classification: " + PAGES_FAILED_CLASSIFICATION );
 				LOGGER.info("Total tokens stored: " + TOKENS_STORED);
 				stor_vis.add(new int[] {PAGES_STORED,PAGES_VISITED});
 				// flow.writeDOT("build/valid-flow.dot");
@@ -768,6 +782,10 @@ public class SimpleCrawlHFS {
 	public static int incrementTokensStored(Double len) {
 		TOKENS_STORED=(int) (TOKENS_STORED+len);
 		return TOKENS_STORED;
+	}
+
+	public static void incrementPagesCutByClassifier() {
+		PAGES_FAILED_CLASSIFICATION++;
 	}
 	
 	/*	Calculate statistics
