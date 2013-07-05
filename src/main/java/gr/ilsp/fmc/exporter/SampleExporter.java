@@ -435,7 +435,6 @@ public class SampleExporter {
 			//if (!url.contains("/cipp/md_medica/"))
 	        //    continue;
 			LOGGER.debug("Writing: " + id + " " + url);
-			//System.out.println("Writing: " + id + " " + url);
 			title = datum.getTitle();
 			if (title==null) title = "";
 			cleanText = datum.getParsedText();
@@ -952,8 +951,8 @@ public class SampleExporter {
 					parId++;
 				}							
 			} catch (Exception e) {
-				//LOGGER..error("Could not write file with id " + temp_id);	
-				LOGGER.warn("Could not write file with id " + temp_id);
+				//LOGGER.error("Could not write file with id " + temp_id);	
+				LOGGER.info("Could not write file with id " + temp_id);
 				//LOGGER.error(e.getMessage());
 				//e.printStackTrace();
 				return false;
@@ -977,7 +976,6 @@ public class SampleExporter {
 				LOGGER.error(e.getMessage());
 			}
 		}
-		
 		//xmlFiles.add(xml_file.toString());
 		xmlFiles.add(new File(xml_file.toUri()));
 		//xmlFiles.add(xml_file.toUri().toString());
