@@ -98,16 +98,17 @@ public class ClassifierPipe extends SubAssembly {
             
             try {
                 ClassifierDatum classifyResult = _classifier.classify(parsedDatum);
-                if (classifyResult==null) 
+                if (classifyResult==null) {
                 	_flowProcess.increment(ClassifierCounters.CLASSIFIER_DOCUMENTS_FAILED, 1);
-                else {
+                	SimpleCrawlHFS.incrementPagesCutByClassifier();
+                }else {
 	                _flowProcess.increment(ClassifierCounters.CLASSIFIER_DOCUMENTS_PASSED, 1);                
 	                functionCall.getOutputCollector().add(classifyResult.getTuple());
 	                SimpleCrawlHFS.incrementPagesStored();
 	                SimpleCrawlHFS.incrementTokensStored(classifyResult.getLengthInTok());
                 }
             } catch (Exception e) {
-                LOGGER.warn("Error processing " + parsedDatum.getUrl(), e);
+                LOGGER.info("CLASSIFIER_Error processing " + parsedDatum.getUrl(), e);
                 _flowProcess.increment(ClassifierCounters.CLASSIFIER_DOCUMENTS_ABORTED, 1);
                 // TODO KKr - don"t lose datums for documents that couldn"t be parsed
             } finally {
