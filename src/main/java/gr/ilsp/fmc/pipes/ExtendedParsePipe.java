@@ -100,7 +100,7 @@ public class ExtendedParsePipe extends SubAssembly {
                 SimpleCrawlHFS.incrementPagesVisited();
             } catch (Exception e) {
             	//e.printStackTrace();
-                LOGGER.warn("Error processing " + fetchedDatum.getUrl());
+                LOGGER.warn("PARSER_Error processing " + fetchedDatum.getUrl());
                 _flowProcess.increment(ExtendedParserCounters.PARSER_DOCUMENTS_FAILED, 1);
                 // TODO KKr - don't lose datums for documents that couldn't be parsed
             } finally {
