@@ -128,9 +128,9 @@ public class SimpleCrawlHFSWorkflow {
 
 			try {
 				url = new URL(datum.getUrl());
-				//System.out.println("tested: "+url);
+				//LOGGER.info("tested: "+url);
 				host = url.getHost();
-				//vpapa added this to force crawler stay in web site 
+				//force crawler stay in web site 
 				if (_type.equals("p")){
 					if (_inithost!=null && _mainhost!=null){
 						String temp1 = url.getAuthority()+url.getFile();
@@ -417,7 +417,7 @@ public class SimpleCrawlHFSWorkflow {
 		int maxThreads = options.getThreads();
 		boolean debug = options.isDebug();
 		boolean keepBoiler = options.keepBoiler();
-		//vpapa
+		
 		String subfilter = options.getFilter();
 		String initial_host = options.getDomain();
 		int minTokensNumber = options.getTokensNumber();
