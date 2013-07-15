@@ -10,13 +10,14 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.analysis.fr.FrenchAnalyzer;
 import org.apache.lucene.analysis.it.ItalianAnalyzer;
+import org.apache.lucene.analysis.lv.LatvianAnalyzer;
 import org.apache.lucene.analysis.pt.PortugueseAnalyzer;
 import org.apache.lucene.util.Version;
 
 
 public class AnalyzerFactory {
 
-	String[] langs = {"de", "el", "en", "es", "fr", "it", "pt"};
+	String[] langs = {"de", "el", "en", "es", "fr", "it", "pt", "lv"};
 	List<String> langsList = Arrays.asList(langs);
 
 	public Analyzer getAnalyzer (String lang) throws Exception {
@@ -34,6 +35,8 @@ public class AnalyzerFactory {
 			return new ItalianAnalyzer(Version.LUCENE_43);
 		} else	if (lang.equals("pt")) {
 			return new PortugueseAnalyzer(Version.LUCENE_43);
+		} else	if (lang.equals("lv")) {
+			return new LatvianAnalyzer(Version.LUCENE_43);
 		} else {
 			throw new Exception("No analyzer available for language " + lang + ".\n"
 					+ "Available languages are " + langsList.toString() + ".\n");
