@@ -329,7 +329,7 @@ public class SimpleCrawlHFS {
 		if (options.getDomain()!=null) 
 			urls = options.getUrls();
 		
-		URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
+		/*URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
 		LOGGER.debug(urldir );
 		if (urldir.getProtocol()=="jar"){
 			File tempDir = DirUtils.createTempDir();
@@ -348,7 +348,7 @@ public class SimpleCrawlHFS {
 			} catch (URISyntaxException e) {
 				LOGGER.error(e.getMessage());
 			}
-		}
+		}*/
 
 		int min_uniq_terms = SimpleCrawlHFS.config.getInt("classifier.min_unique_content_terms.value");
 		int max_depth = SimpleCrawlHFS.config.getInt("classifier.max_depth.value");//value for tunneling
