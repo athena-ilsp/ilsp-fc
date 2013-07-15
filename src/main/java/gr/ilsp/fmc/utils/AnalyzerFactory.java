@@ -21,19 +21,19 @@ public class AnalyzerFactory {
 
 	public Analyzer getAnalyzer (String lang) throws Exception {
 		if (lang.equals("de")) {
-			return new GermanAnalyzer(Version.LUCENE_40);
+			return new GermanAnalyzer(Version.LUCENE_43);
 		} else	if (lang.equals("el")) {
-			return new GreekAnalyzer(Version.LUCENE_40);
+			return new GreekAnalyzer(Version.LUCENE_43);
 		} else	if (lang.equals("en")) {
-			return new EnglishAnalyzer(Version.LUCENE_40);
+			return new EnglishAnalyzer(Version.LUCENE_43);
 		} else if (lang.equals("es")) {
-			return new SpanishAnalyzer(Version.LUCENE_40);
+			return new SpanishAnalyzer(Version.LUCENE_43);
 		} else	if (lang.equals("fr")) {
-			return new FrenchAnalyzer(Version.LUCENE_40);
+			return new FrenchAnalyzer(Version.LUCENE_43);
 		} else	if (lang.equals("it")) {
-			return new ItalianAnalyzer(Version.LUCENE_40);
+			return new ItalianAnalyzer(Version.LUCENE_43);
 		} else	if (lang.equals("pt")) {
-			return new PortugueseAnalyzer(Version.LUCENE_40);
+			return new PortugueseAnalyzer(Version.LUCENE_43);
 		} else {
 			throw new Exception("No analyzer available for language " + lang + ".\n"
 					+ "Available languages are " + langsList.toString() + ".\n");
