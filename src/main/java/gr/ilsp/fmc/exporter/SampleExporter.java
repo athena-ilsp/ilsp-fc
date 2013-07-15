@@ -31,7 +31,6 @@ import gr.ilsp.fmc.utils.ContentNormalizer;
 import gr.ilsp.fmc.utils.CrawlConfig;
 import gr.ilsp.fmc.utils.DirUtils;
 import gr.ilsp.fmc.utils.JarUtils;
-import gr.ilsp.fmc.utils.LatvianAnalyzer;
 import gr.ilsp.fmc.utils.LithuanianAnalyzer;
 import gr.ilsp.fmc.utils.PrettyPrintHandler;
 import gr.ilsp.fmc.utils.TopicTools;
@@ -1090,10 +1089,7 @@ public class SampleExporter {
 
 	public static ArrayList<String> analyze(String text, String lang) throws IOException  {
 		ArrayList<String> stems = new ArrayList<String>();
-		if (lang.equals("lv")) {
-			stems = LatvianAnalyzer.analyze(text);
-		} 
-		else if (lang.equals("lt")){
+		if (lang.equals("lt")){
 			stems = LithuanianAnalyzer.analyze(text);
 		}
 		else{
