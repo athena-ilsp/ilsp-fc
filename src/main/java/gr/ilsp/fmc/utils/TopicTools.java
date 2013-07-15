@@ -164,15 +164,7 @@ public class TopicTools {
 	
 	public static ArrayList<String> analyze(String text, String lang) throws IOException  {
 		ArrayList<String> stems = new ArrayList<String>();
-		if (lang.equals("lv")) {
-			stems = LatvianAnalyzer.analyze(text);
-			//String totStem = "";
-			//for (String s:ret){
-			//	totStem = totStem + s + " ";
-			//}    		
-			//stems.add(totStem.trim()); //TODO: Convert LatvianAnalyzer to Lucene compatible analyzer
-		}
-		else if (lang.equals("lt")){
+		if (lang.equals("lt")){
 			stems = LithuanianAnalyzer.analyze(text);
 		}
 		else {
@@ -197,10 +189,7 @@ public class TopicTools {
 	
 	public static ArrayList<String> analyze_vp(String text, String lang) throws IOException  {
 		ArrayList<String> stems = new ArrayList<String>();
-		if (lang.equals("lv")) {
-			stems = LatvianAnalyzer.analyze(text);
-		}
-		else if (lang.equals("lt")){
+		if (lang.equals("lt")){
 			stems = LithuanianAnalyzer.analyze(text);
 		}
 		else {
