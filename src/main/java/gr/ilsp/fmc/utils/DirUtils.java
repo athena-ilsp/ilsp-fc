@@ -1,11 +1,12 @@
 package gr.ilsp.fmc.utils;
 
-
-
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -56,6 +57,62 @@ public class DirUtils {
 	public static int getRandomInt () {
 	    return 1 + new Random().nextInt();
 	}
+	
+	/**
+	 * Removes all sub-directories of a parent directory provided as a string.
+	 * Sub-directories whose name equals one of the elements in the
+	 * notToBeDeleted list are not deleted. If notToBeDeleted is null, all
+	 * subdirectories are deleted.
+	 * 
+	 * Usage:
+	 * 
+	 * String testDir = "/tmp/testDir"; //removeSubDirs(testDir, null);
+	 * //Removes all subdirs. removeSubDirs(testDir, Arrays.asList(new
+	 * String[]{"xml", "hey", "yo"})); //Removes all subdirs but xml, hey and yo
+	 * 
+	 * 
+	 * @param parentDir
+	 * @param notToBeDeleted
+	 * @throws IOException
+	 */
+	public static void removeSubDirs(String dirName, List<String> notToBeDeleted)
+			throws IOException {
+		File parentDir = new File(dirName);
+		removeSubDirs(parentDir, notToBeDeleted);
+	}
 
+	/**
+	 * Removes all sub-directories of a parent directory. Sub-directories whose
+	 * name equals one of the elements in the notToBeDeleted list are not
+	 * deleted. If notToBeDeleted is null, all subdirectories are deleted.
+	 * 
+	 * Usage:
+	 * 
+	 * File testDir = newFile("/tmp/testDir"); //removeSubDirs(testDir, null);
+	 * //Removes all subdirs. removeSubDirs(testDir, Arrays.asList(new
+	 * String[]{"xml", "hey", "yo"})); //Removes all subdirs but xml, hey and yo
+	 * 
+	 * @param parentDir
+	 * @param notToBeDeleted
+	 * @throws IOException
+	 */
+	private static void removeSubDirs(File parentDir, List<String> notToBeDeleted) throws IOException {
+		if (parentDir.isDirectory()) {
+			List<File> files = Arrays.asList(parentDir.listFiles());
+			for (File file : files) {
+				LOGGER.debug ("Checking "+file);
+				if (notToBeDeleted!=null && notToBeDeleted.contains(file.getName())) {
+					LOGGER.debug ("Not deleting "+file);
+					continue;
+				}
+				if (file.isDirectory()) {
+					FileUtils.deleteDirectory(file);
+				}
+			}
+		} else {
+			LOGGER.warn(parentDir + " is not a directory.");
+		}
+	}
 
+	
 }
