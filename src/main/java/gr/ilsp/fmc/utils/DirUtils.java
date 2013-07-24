@@ -96,7 +96,7 @@ public class DirUtils {
 	 * @param notToBeDeleted
 	 * @throws IOException
 	 */
-	private static void removeSubDirs(File parentDir, List<String> notToBeDeleted) throws IOException {
+	public static void removeSubDirs(File parentDir, List<String> notToBeDeleted) throws IOException {
 		if (parentDir.isDirectory()) {
 			List<File> files = Arrays.asList(parentDir.listFiles());
 			for (File file : files) {
