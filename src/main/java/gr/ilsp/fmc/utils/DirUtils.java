@@ -59,17 +59,20 @@ public class DirUtils {
 	}
 	
 	/**
-	 * Removes all sub-directories of a parent directory provided as a string.
+	 * Deletes all sub-directories of a parent directory provided as a string.
 	 * Sub-directories whose name equals one of the elements in the
 	 * notToBeDeleted list are not deleted. If notToBeDeleted is null, all
 	 * subdirectories are deleted.
 	 * 
 	 * Usage:
 	 * 
+	 * <pre>
+	 * {@code
 	 * String testDir = "/tmp/testDir"; //removeSubDirs(testDir, null);
 	 * //Removes all subdirs. removeSubDirs(testDir, Arrays.asList(new
 	 * String[]{"xml", "hey", "yo"})); //Removes all subdirs but xml, hey and yo
 	 * 
+	 * </pre>
 	 * 
 	 * @param parentDir
 	 * @param notToBeDeleted
@@ -82,15 +85,18 @@ public class DirUtils {
 	}
 
 	/**
-	 * Removes all sub-directories of a parent directory. Sub-directories whose
+	 * Deletes all sub-directories of a parent directory. Sub-directories whose
 	 * name equals one of the elements in the notToBeDeleted list are not
 	 * deleted. If notToBeDeleted is null, all subdirectories are deleted.
 	 * 
 	 * Usage:
 	 * 
-	 * File testDir = newFile("/tmp/testDir"); //removeSubDirs(testDir, null);
-	 * //Removes all subdirs. removeSubDirs(testDir, Arrays.asList(new
-	 * String[]{"xml", "hey", "yo"})); //Removes all subdirs but xml, hey and yo
+	 * <pre>
+	 * {@code
+	 * File testDir = newFile("/tmp/testDir");
+	 * //removeSubDirs(testDir, null); //Removes all subdirs. 
+	 * removeSubDirs(testDir, Arrays.asList(new String[]{"xml", "hey", "yo"})); //Removes all subdirs but xml, hey and yo
+	 * </pre>
 	 * 
 	 * @param parentDir
 	 * @param notToBeDeleted
