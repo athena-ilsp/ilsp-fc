@@ -430,9 +430,7 @@ public class SampleExporter {
 		while (iter.hasNext()) {
 			TupleEntry entry = iter.next();
 			ExtendedParsedDatum datum = new ExtendedParsedDatum(entry);			
-			url = datum.getUrl();
-			//if (!url.contains("/cipp/md_medica/"))
-	        //    continue;
+			url = datum.getUrl();			
 			LOGGER.debug("Writing: " + id + " " + url);
 			title = datum.getTitle();
 			if (title==null) title = "";
@@ -642,7 +640,8 @@ public class SampleExporter {
 		LOGGER.debug(eAddress);
 		LOGGER.debug(tkzr.countTokens());
 		if (tkzr.countTokens()<MIN_TOKENS_NUMBER){
-			//			System.out.println("CUT: "+ eAddress);
+				//System.out.println("CUT: "+ eAddress);
+				//System.out.println("NoT: "+ tkzr.countTokens());
 			return false;		
 		}
 		String foundt ="";
