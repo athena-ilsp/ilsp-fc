@@ -3,6 +3,7 @@ package gr.ilsp.fmc.main;
 import gr.ilsp.fmc.datums.CrawlDbDatum;
 import gr.ilsp.fmc.exporter.SampleExporter;
 import gr.ilsp.fmc.parser.DomainUrlFilter;
+import gr.ilsp.fmc.utils.BitextUtils;
 import gr.ilsp.fmc.utils.CrawlConfig;
 import gr.ilsp.fmc.utils.DirUtils;
 import gr.ilsp.fmc.utils.JarUtils;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.UUID;
@@ -78,6 +80,8 @@ public class SimpleCrawlHFS {
 	private static int TOKENS_STORED = 0;
 	private static int TOKENS_TARGET = 100000000;
 	private static String fs1 = System.getProperty("file.separator");
+	private static final String resultDir = "xml";
+	private static final String tempFileExt=".xml.txt";
 	public static JobConf conf = null;
 
 	private static String operation = "crawlandexport";
@@ -323,13 +327,13 @@ public class SimpleCrawlHFS {
 				e.printStackTrace();
 			}
 		}		
-		//vpapa
+		
 		if (options.getType().equals("p")) 
 			urls = options.getUrls();
 		if (options.getDomain()!=null) 
 			urls = options.getUrls();
 		
-		/*URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
+		URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
 		LOGGER.debug(urldir );
 		if (urldir.getProtocol()=="jar"){
 			File tempDir = DirUtils.createTempDir();
@@ -348,7 +352,7 @@ public class SimpleCrawlHFS {
 			} catch (URISyntaxException e) {
 				LOGGER.error(e.getMessage());
 			}
-		}*/
+		}
 
 		int min_uniq_terms = SimpleCrawlHFS.config.getInt("classifier.min_unique_content_terms.value");
 		int max_depth = SimpleCrawlHFS.config.getInt("classifier.max_depth.value");//value for tunneling
@@ -553,20 +557,18 @@ public class SimpleCrawlHFS {
 			}
 			
 			// Finished exporting. Now remove (near) duplicates
-			//System.out.println(outputDirName);
-			//System.out.println(crawlDbPath.getParent().getParent().toString());
-			//DedupMD5.dedup(crawlDbPath.getParent().getParent().toString(), options.getOutputFile(),options.getOutputFileHTML());
 			LOGGER.info("Deduplication by using lists and MD5 method.");
 			DedupMD5.dedup(outputDirName, options.getOutputFile(),options.getOutputFileHTML(),
 					options.isOfflineXSLT());
 			LOGGER.info("Deduplication based on common paragraphs.");
 			DedupMD5.dedupnew(outputDirName, options.getOutputFile(), options.getOutputFileHTML(),
 					options.isOfflineXSLT());
-			// Now detect candidate parallel documents if needed.
+			
+			//Detect candidate parallel documents if crawled for parallel.
+			File parentDir =new File(outputDirName+fs1+resultDir); 
 			if (options.getType().equals("p")){	
-				
 				try {				
-					File xmldir = new File(options.getOutputDir()+fs1+"xml");
+					File xmldir = new File(options.getOutputDir()+fs1+resultDir);
 					
 					HashMap<String,String[]> props=Bitexts.representXML_NEW(xmldir);
 					HashMap<String,String[]> props_short = new HashMap<String,String[]>();
@@ -610,7 +612,8 @@ public class SimpleCrawlHFS {
 						System.exit(0);
 					}
 					ArrayList<String[]> bitextsALL=new ArrayList<String[]>();
-					//find pairs based on URLs
+					
+					//Find pairs based on URLs
 					ArrayList<String[]> bitextsURLs=new ArrayList<String[]>();
 					HashMap<String, String> filesURLS = Bitexts.findURLs(xmldir);
 					bitextsURLs=Bitexts.findpairsURLs(filesURLS,props);
@@ -626,9 +629,8 @@ public class SimpleCrawlHFS {
 						props_short=props;
 					}
 					
-					//find pairs based on common images
+					//Find pairs based on common images
 					ArrayList<String[]> bitextsIM=new ArrayList<String[]>();
-					
 					HashMap<String, String[]> imagesInHTML=ImageExtractor.findImages(xmldir,options.getImpath());
 					if (imagesInHTML.size()>1){
 						bitextsIM=Bitexts.findpairsIM(imagesInHTML,props_short);
@@ -639,12 +641,11 @@ public class SimpleCrawlHFS {
 							LOGGER.info(props_short.size()+ " files still remained for pair detection.");
 							for (int ii=0;ii<bitextsIM.size();ii++)
 								bitextsALL.add(bitextsIM.get(ii));
-						}else//{
+						}else
 							LOGGER.info("No pairs found (based on images)");
-							//props_short=props;
-						//}
 					}
 					
+					//Find pairs based on similar structures
 					double[][] sv=Bitexts.readRes("SVs19_last.txt");
 					double[][] b=Bitexts.readRes("B19_last.txt");
 					double[][] w=Bitexts.readRes("Ws19_last.txt");
@@ -653,29 +654,30 @@ public class SimpleCrawlHFS {
 					ArrayList<String[]> bitextsSTRUCT = Bitexts.findBestPairs_SVM_NEW(pairs_new);
 					if (bitextsSTRUCT.size()>0){
 						Bitexts.writeXMLs(outputDirName,bitextsSTRUCT,options.getAlign(),options.isOfflineXSLT());
-						//bitexts = Bitexts.sortbyLength(bitexts);
-						//Bitexts.writeOutList(outputDirName,options.getOutputFile(),options.getOutputFileHTML(),bitexts,bitextsIM);
 						LOGGER.info("Pairs found (based on structure): "+bitextsSTRUCT.size());
 						for (int ii=0;ii<bitextsSTRUCT.size();ii++)
 							bitextsALL.add(bitextsSTRUCT.get(ii));
 					}else
 						LOGGER.info("No pairs found (based on structure)");
 					
+					//Total results
 					bitextsALL = Bitexts.sortbyLength(bitextsALL);
-					Bitexts.writeOutList(outputDirName,options.getOutputFile(),options.getOutputFileHTML(),bitextsALL);
+					Bitexts.writeOutList(outputDirName,options.getOutputFile(),options.getOutputFileHTML(),bitextsALL,options.getDest());
 					LOGGER.info("Total pairs found: "+ bitextsALL.size());
 					String[] stats=Bitexts.calcStats1(props,bitextsALL);
-					//String[] stats=Bitexts.calcStats(props,props_short, bitextsIM, bitexts, bitextsURLs);
 					if (stats!=null){
 						LOGGER.info("Tokens in "+stats[0] +" : "+ stats[1]);
 						LOGGER.info("Tokens in "+stats[2] +" : "+ stats[3]);
 					}
+					BitextUtils.removeTempFiles(parentDir,tempFileExt);
+					BitextUtils.removeRedundantFiles(parentDir, bitextsALL);
+					
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				} catch (XMLStreamException e1) {
 					e1.printStackTrace();
 				}
-				
+								
 				//System.out.println("Mirroring site ...");
 				//File newdir=Bitexts.mirrorsite(options.getOutputDir()+"/xml");
 				//File outFile = new File(options.getOutputFile());
@@ -693,11 +695,12 @@ public class SimpleCrawlHFS {
 			}
 			//crawl for comparable
 			if (options.getType().equals("q")){
-			//put Nikos module based on aligned topics
+				//put Nikos module based on aligned topics
 			}
+			//crawled for monolingual
 			if (options.getType().equals("m")){
 				File input1=null;
-				String temp = outputDirName+fs1+"xml";
+				String temp = outputDirName+fs1+resultDir;
 				int tempid=temp.indexOf(":");
 				if (tempid<0 || tempid<2)
 					input1= new File(temp);
@@ -721,12 +724,11 @@ public class SimpleCrawlHFS {
 				LOGGER.info("Total tokens: "+ total_tokens);
 			}
 			
-			//Detele every dir created for each run
-			//File runDirs[] = new File(outputDirName).listFiles();
-			//for (File runDir:runDirs){
-			//	if (!runDir.getName().equals("xml"))
-			//		FileUtils.deleteDirectory(runDir);
-			//}
+			//Delete every dir created for each run
+			List<String> notToBeDeleted= new ArrayList<String>();
+			notToBeDeleted.add(resultDir);
+			DirUtils.removeSubDirs(parentDir.getParent(), notToBeDeleted);
+						
 			System.exit(0);
 			
 		} catch (PlannerException e) {
@@ -788,76 +790,5 @@ public class SimpleCrawlHFS {
 		PAGES_FAILED_CLASSIFICATION++;
 	}
 	
-	/*	Calculate statistics
-	 * File input1=new File("C:\\Users\\vpapa\\workspace\\ilsp-fc\\target\\xml");
-	FilenameFilter filter = new FilenameFilter() {			
-		public boolean accept(File arg0, String arg1) {
-			return (arg1.substring(arg1.length()-4).equals(".xml"));
-		}
-	};
-	File[] files=input1.listFiles(filter);
-	String text="", text1="";
-	//int total_tokens=0;
-	ArrayList<String> web_doms = new ArrayList<String>();
-	ArrayList<Integer> web_toks = new ArrayList<Integer>();
-	Writer out_out;
-	Writer out_out1;
-	try {
-		out_out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("C:\\Users\\vpapa\\workspace\\ilsp-fc\\target\\stats.txt"),"UTF-8"));
-		out_out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("C:\\Users\\vpapa\\workspace\\ilsp-fc\\target\\stats_total.txt"),"UTF-8"));
-		for (int ii=0;ii<files.length;ii++){
-			//System.out.println(files[ii].getAbsolutePath());
-			text = DedupMD5.extractTextfromXML_clean(files[ii].getAbsolutePath());
-			text1 = Bitexts.extractURLfromXML(files[ii].getAbsolutePath());
-			String web_doma="";
-			int index=0;
-			for (int k=1;k<4;k++){
-				index = text1.indexOf("/", index+1);
-			}
-			web_doma = text1.substring(0, index);
-			//System.out.println(text);
-			StringTokenizer tkzr = new StringTokenizer(text);
-			int length_in_tok = tkzr.countTokens();
-			out_out.write(files[ii].getName()+"\t");
-			out_out.write(Integer.toString(length_in_tok)+"\t");
-			out_out.write(web_doma+"\n");
-			boolean found=false;
-			if (ii==0){
-				web_doms.add(web_doma);
-				web_toks.add(length_in_tok);
-			}else{
-				for (int k=0;k<web_doms.size();k++){
-					if (web_doma.equals(web_doms.get(k))){
-						found=true;
-						web_toks.set(k,web_toks.get(k)+length_in_tok);
-						break;
-					}
-				}
-				if (!found){
-					web_doms.add(web_doma);
-					web_toks.add(length_in_tok);
-				}
-			}
-			//total_tokens=total_tokens+length_in_tok;
-		}
-		out_out.close();
-		for (int k=0;k<web_doms.size();k++){
-			out_out1.write(web_doms.get(k)+"\t");
-			out_out1.write(web_toks.get(k)+"\t");
-			out_out1.write("\n");	
-		}
-		out_out1.close();
-	} catch (UnsupportedEncodingException e) {
-		e.printStackTrace();
-		System.err.println("Error in writing the output text file. The encoding is not supported.");
-	} catch (FileNotFoundException e) {
-		e.printStackTrace();
-		System.err.println("Error in writing the output text file. The file does not exist.");
-	} catch (IOException e) {
-		e.printStackTrace();
-		System.out.println("Error in writing the output text file.");
-	}
-	System.out.println("END");//"Total tokens: "+ total_tokens);
-*/
 	
 }
