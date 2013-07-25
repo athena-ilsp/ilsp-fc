@@ -55,13 +55,38 @@ public class BitextUtils {
 				}
 				
 				if (!ids.contains(basename)) { // Finally delete all redundant files
-					LOGGER.info("Deleting redundant " +file);
+					LOGGER.debug("Deleting redundant " +file);
 					file.delete();					
 				}
 			}
 		} else {
 			LOGGER.warn(parentDir + " is not a directory.");
 		}
+	}
+	
+	/**
+	 * 
+	 * <B>Use carefully.</B>
+	 * 
+	 * Deletes all tempfiles (txt files containing the fingerprints of cesDoc files) of a bilingual crawl.
+	 * All files end with (tempfileext) are deleted.
+	 * 
+	 * @param parentDir
+	 * @param tempfileext
+	 */
+	
+	public static void removeTempFiles(File parentDir, final String tempfileext) {
+		if (parentDir.isDirectory()) {			
+			List<File> files = Arrays.asList(parentDir.listFiles());
+			for (File file: files) {
+				if (file.isDirectory() || file.getName().contains(UNDERSCORE)) { // Skip directories and cesAlignFiles
+					continue;
+				}
+				if (file.getName().endsWith(tempfileext))
+					file.delete();
+			}
+		} else 
+			LOGGER.warn(parentDir + " is not a directory.");
 	}
 	
 	public static void main(String[] args) throws IOException {
