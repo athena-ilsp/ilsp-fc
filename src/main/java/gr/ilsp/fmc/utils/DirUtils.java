@@ -102,7 +102,7 @@ public class DirUtils {
 	 * @param notToBeDeleted
 	 * @throws IOException
 	 */
-	public static void removeSubDirs(File parentDir, List<String> notToBeDeleted) throws IOException {
+	public static void removeSubDirs(File parentDir, List<String> notToBeDeleted) /*throws IOException*/ {
 		if (parentDir.isDirectory()) {
 			List<File> files = Arrays.asList(parentDir.listFiles());
 			for (File file : files) {
@@ -112,7 +112,14 @@ public class DirUtils {
 					continue;
 				}
 				if (file.isDirectory()) {
-					FileUtils.deleteDirectory(file);
+					try {
+						FileUtils.deleteDirectory(file);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						//e.printStackTrace();
+						LOGGER.debug("Unable to delete run dir: "+ file);
+						continue;
+					}
 				}
 			}
 		} else {
