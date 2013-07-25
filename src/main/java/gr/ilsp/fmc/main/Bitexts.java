@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+//import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,6 +74,7 @@ public class Bitexts {
 	//private final static double term_thresh=0.5;
 	//private static int diagonal_beam=5;
 	private static final String URL_ELE = "eAddress";
+	private static final String resultDir = "xml";
 	private static double text_thres=0.4;
 	private static double length_thres=0.4;
 	private static double pars_thres=0.4;
@@ -82,6 +84,7 @@ public class Bitexts {
 	private static int minnumofpars=3;
 	private static XSLTransformer xslTransformer = null;
 	private static String cesAlingURL="http://nlp.ilsp.gr/xslt/ilsp-fc/cesAlign.xsl";
+	
 	public static void main(String[] args) {
 
 		File xmldir = new File("C:\\QTLaunchPad\\Medicine\\EN-DE\\b50977c5-3596-410d-989b-8b7132e404f0\\xml");
@@ -918,10 +921,8 @@ public class Bitexts {
 		Iterator<String> files_im_it = files_im_keys.iterator();
 		String key_im, key;
 		String temp_pair="";
-		//ArrayList<String> paired=new ArrayList<String>();
 		while (files_im_it.hasNext()){
 			key_im = files_im_it.next();
-			//if (paired.contains(key_im)) continue;
 			if (props.get(key_im)==null) continue;
 			String lang1=props.get(key_im)[1];
 			Set<String> mySet1 = new HashSet<String>();
@@ -931,14 +932,11 @@ public class Bitexts {
 			if (mySet1.isEmpty()) continue;
 			Set<String> all_files_keys=props.keySet();
 			Iterator<String> all_files_it = all_files_keys.iterator();
-			//ArrayList<String> temp_paired=new ArrayList<String>();
-			//ArrayList<Double> temp_paired_scores=new ArrayList<Double>();
 			temp_pair="";
 			double temp_pair_score=0.0;
 			String temp_lang=null;
 			while (all_files_it.hasNext()){
 				key = all_files_it.next();
-				//if (paired.contains(key)) continue;
 				if (props.get(key)==null) continue;
 				String lang2=props.get(key)[1];
 				if (!lang1.equals(lang2)){
@@ -963,27 +961,19 @@ public class Bitexts {
 						double disttok=0.0;
 						if (p1>p2) dist=p2/p1; else dist=p1/p2;
 						if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
-						if (jac>=jac_thr && dist>=0.6 && disttok > 0.3 && Math.abs(l1-l2)<2.0){ //
-							//if (jac>=jac_thr && dist>=0.6 && disttok > 0.3){ //
-							//System.out.println(key_im +"_im:"+mySet1.size()+"-----"+key+"_im:"+mySet2.size()+"_"+jac);
-							//if (jac*dist>temp_pair_score){
+						if (jac>=jac_thr && dist>=0.6 && disttok > 0.3 && Math.abs(l1-l2)<2.0){ 
 							if (jac>temp_pair_score){
 								temp_pair=key;
 								temp_pair_score=jac*dist;
-								//System.out.println(key_im+"->"+key+" with "+jac);
 							}
 							temp_lang=lang2;
 						}
 					}
 				}
 			}
-			//if (temp_paired.size()==1){
-			if (!temp_pair.isEmpty()){
-				//	paired.add(key_im);
-				//	paired.add(temp_paired.get(0));
+
+			if (!temp_pair.isEmpty())
 				pairsIM.add(new String[] {key_im,temp_pair,lang1, temp_lang});
-				//System.out.println(key_im+"_"+temp_pair);
-			}
 		}
 		ArrayList<String[]> result=new ArrayList<String[]>();
 		for (int ii=0;ii<pairsIM.size();ii++){
@@ -993,7 +983,6 @@ public class Bitexts {
 				if (pairsIM.get(jj)[1].equals(temp1) && pairsIM.get(jj)[0].equals(temp2)){
 					result.add(new String[] {temp1,temp2,pairsIM.get(ii)[2], pairsIM.get(ii)[3],"im",
 							Integer.toString(Integer.parseInt(props.get(temp1)[4])+Integer.parseInt(props.get(temp2)[4]))});
-					//System.out.println(temp1+"_"+temp2);
 				}
 			}
 		}
@@ -1140,10 +1129,8 @@ public class Bitexts {
 		String[][] res = new String[files.length][3];
 		String url="", lang="", curElement="";
 		for (int ii=0; ii<files.length ; ii++){
-			//System.out.println(ii);
 			int pcounter=0;
 			OutputStreamWriter xmlFileListWrt = null;
-			//boolean topic=false;
 			try {
 				xmlFileListWrt = new OutputStreamWriter(new FileOutputStream
 						(xmldir.getPath()+fs+files[ii]+".txt"),"UTF-8");
@@ -1536,7 +1523,7 @@ public class Bitexts {
 		if (oxslt) {
 			try {
 				xslTransformer = new XSLTransformer(cesAlingURL);
-				xslTransformer.setBaseDir(outdir+fs+"xml");
+				xslTransformer.setBaseDir(outdir+fs+resultDir);
 			} catch (TransformerConfigurationException e1) {
 				e1.printStackTrace();
 			}
@@ -1549,7 +1536,7 @@ public class Bitexts {
 			String l2=bitexts.get(ii)[3];
 			String confid=bitexts.get(ii)[4];
 			//Path outdir1 = new Path(outdir);
-			String curXMLName= outdir+fs+"xml"+fs+f1+"_"+f2+"_"+confid.substring(0, 1)+".xml";
+			String curXMLName= outdir+fs+resultDir+fs+f1+"_"+f2+"_"+confid.substring(0, 1)+".xml";
 			
 			writeCesAling(curXMLName,f1+".xml",f2+".xml",l1,l2,confid,cesAlign);
 			if (oxslt) {
@@ -1557,18 +1544,6 @@ public class Bitexts {
 					inFile = new File(curXMLName);
 					outFile = new File(FilenameUtils.removeExtension(inFile.getAbsolutePath()) + ".xml.html");			
 					xslTransformer.transform(inFile, outFile);
-										
-					//f1=f1+".xml.html";
-					//f2=f2+".xml.html";
-					//String curXMLName_temp= outdir+fs+"xml"+fs+f1+"_"+f2+"_"+confid.substring(0, 1)+"temp.xml";
-					//writeCesAling(curXMLName_temp,f1+".xml.html",f2+".xml.html",l1,l2,confid,cesAlign);
-					//inFile = new File(curXMLName_temp);
-					//outFile = new File(FilenameUtils.removeExtension(inFile.getAbsolutePath()) + ".xml.html");			
-					//xslTransformer.transform(inFile, outFile);
-					//File destFile=new File(outFile.getAbsolutePath().replace("temp.xml.html", ".xml.html"));
-					//FileUtils.copyFile(outFile, destFile);
-					//DedupMD5.delete(outFile.getAbsolutePath());
-					//String curXMLName_temp= outdir+fs+"xml"+fs+f1+"_"+f2+"_"+confid.substring(0, 1)+".xml.html";
 					String cesAlignText = readFileAsString(outFile.getAbsolutePath());
 					cesAlignText = cesAlignText.replace(f1+".xml", f1+".xml.html");
 					cesAlignText = cesAlignText.replace(f2+".xml", f2+".xml.html");
@@ -1839,17 +1814,29 @@ public class Bitexts {
 
 
 	public static void writeOutList(String outputDirName, String outputFile, 
-			String outputFileHTML, ArrayList<String[]> bitexts) {
+			String outputFileHTML, ArrayList<String[]> bitexts, String definedDest) {
 		String filename;
-		File ttt;
+		String ttt; //File ttt;
+		String outputDirName1= new File(outputDirName).toURI().toString(); //Path outputDirName1=new Path(outputDirName);
+		String tobeReplaced="", outputDirName2="";
+		//if (definedDest.isEmpty())
+		//	tobeReplaced= new File(".").toURI().toString(); //current directory
+		//else			
+		//	tobeReplaced= new File(definedDest).toURI().toString();
+		
+		tobeReplaced= new File(new File(outputFile).getParent()).toURI().toString();
+		
+		//outputDirName2 = new Path(outputDirName1.replace(tobeReplaced, ".."+fs)).toUri().toString();
+		outputDirName2 = new Path(outputDirName1.replace(tobeReplaced, "")).toUri().toString();
+		if (outputDirName2.equals(outputDirName1))
+			ttt = outputDirName;
+		else
+			ttt = outputDirName2;
 		try {
-			Path outputDirName1=new Path(outputDirName);
 			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
-			//=new String[bitexts.size()];
 			for (int ii=bitexts.size()-1;ii>-1;ii--){
 				filename=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-				//ttt = new File(outputDirName1.toString()+fs+"xml"+fs+filename);
-				out.write(outputDirName1.toString()+fs+"xml"+fs+filename+"\n");
+				out.write(ttt+fs+resultDir+fs+filename+"\n");
 			}
 			out.close();
 		} catch (IOException e){
@@ -1858,13 +1845,11 @@ public class Bitexts {
 		}
 		if (outputFileHTML!=null){
 			try {
-				Path outputDirName1=new Path(outputDirName);
 				Writer out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileHTML),"UTF-8"));
 				out1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 				for (int ii=bitexts.size()-1;ii>-1;ii--){
 					filename=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml.html";
-					ttt = new File(outputDirName1.toString()+fs+"xml"+fs+filename);
-					out1.write("<br />"+"<a href=\""+ttt.toURI().toString()+"\">\n"+ttt.toURI().toString()+"</a>"+"\n");
+					out1.write("<br />"+"<a href=\""+ttt+fs+resultDir+fs+filename+"\">\n"+ttt+fs+resultDir+fs+filename+"</a>"+"\n");
 				}
 				out1.write("</html>");
 				out1.close();
@@ -2040,7 +2025,12 @@ public class Bitexts {
 					if (file_url.replace("_"+lang1, "_"+lang2).equals(file_url1)
 							| file_url.replace("/"+lang1+"/", "/"+lang2+"/").equals(file_url1)
 							| file_url.replace("lang=1", "lang=2").equals(file_url1)
-							| file_url.replace("lang,1", "lang,2").equals(file_url1)){
+							| file_url.replace("lang,1", "lang,2").equals(file_url1)
+							| file_url.replace("per", "abs").equals(file_url1)
+							| file_url.replace("lang="+lang1, "lang="+lang2).equals(file_url1)
+							/*| file_url.toLowerCase().replace("langid=1", "langid=2").equals(file_url1.toLowerCase())*/
+							| file_url.replace("g.htm", "e.htm").equals(file_url1)
+							| file_url.replace("gr.htm", "en.htm").equals(file_url1)){
 						pair[0]=key;
 						pair[1]=key1;
 						pair[2]=lang1;
