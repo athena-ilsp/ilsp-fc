@@ -12,9 +12,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
+
 public class DirUtils {
 	private static final Logger LOGGER = Logger.getLogger(DirUtils.class);
-	
+	//private static String fs1 = System.getProperty("file.separator");
 	@SuppressWarnings("deprecation")
 	public static void clearPreviousLoopDir(FileSystem fs, Path outputPath, int curLoop) {
 		Path dir;
@@ -35,6 +36,7 @@ public class DirUtils {
 				crawldb = new Path(dir,CrawlConfig.CRAWLDB_SUBDIR_NAME);
 				if (index == curLoop-2 && fs.exists(crawldb)){
 					fs.delete(crawldb);
+					LOGGER.info("Deleted: "+crawldb);
 					return;
 				}				
 			}
@@ -117,7 +119,7 @@ public class DirUtils {
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						//e.printStackTrace();
-						LOGGER.debug("Unable to delete run dir: "+ file);
+						LOGGER.info("Unable to delete run dir: "+ file);
 						continue;
 					}
 				}
@@ -127,5 +129,72 @@ public class DirUtils {
 		}
 	}
 
+	//@SuppressWarnings("deprecation")
+	public static void deleteLoopDirs(FileSystem fs, Path outputPath, List<String> notToBeDeleted) {
+		Path crawldir, crawldb, crawlcontent, crawlclassif, crawlparse;
+		try {
+			FileStatus[] crawldirs = listStatus(fs, outputPath);
+			for (FileStatus status : crawldirs) {
+				if (/*!status.isDir()* ||*/ notToBeDeleted.contains(status.getPath().getName())){ 
+					continue;
+				}else{
+					//System.out.println(status.getPath());
+					crawldir =status.getPath();
+					
+					crawldb = new Path(crawldir,CrawlConfig.CRAWLDB_SUBDIR_NAME);
+					FileStatus[] crawldirfile = listStatus(fs, crawldb);
+					for (FileStatus statusfile : crawldirfile) {
+						//System.out.println(statusfile.getPath());
+						fs.delete(statusfile.getPath(),true);
+					}
+					fs.delete(crawldb,true);
+					
+					crawlcontent = new Path(crawldir,CrawlConfig.CONTENT_SUBDIR_NAME);
+					crawldirfile = listStatus(fs, crawlcontent);
+					for (FileStatus statusfile : crawldirfile) {
+						//System.out.println(statusfile.getPath());
+						fs.delete(statusfile.getPath(),true);
+					}
+					fs.delete(crawlcontent,true);
+					
+					crawlclassif = new Path(crawldir,CrawlConfig.CLASSIFIER_SUBDIR_NAME);
+					crawldirfile = listStatus(fs, crawlclassif);
+					for (FileStatus statusfile : crawldirfile) {
+						//System.out.println(statusfile.getPath());
+						fs.delete(statusfile.getPath(),true);
+					}
+					fs.delete(crawlclassif,true);
+					
+					crawlparse = new Path(crawldir,CrawlConfig.PARSE_SUBDIR_NAME);
+					crawldirfile = listStatus(fs, crawlparse);
+					for (FileStatus statusfile : crawldirfile) {
+						//System.out.println(statusfile.getPath());
+						fs.delete(statusfile.getPath(),true);
+					}
+					fs.delete(crawlparse,true);
+					
+					fs.delete(crawldir,true);
+					/*fs.deleteOnExit(crawldb);
+					fs.deleteOnExit(crawlcontent);
+					fs.deleteOnExit(crawlclassif);
+					fs.deleteOnExit(crawlparse);
+					fs.deleteOnExit(crawldir);*/
+				}
+					
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private static FileStatus[] listStatus(FileSystem fs, Path path) throws IOException {
+	    FileStatus[] result = fs.listStatus(path);
+	    if (result == null) {
+	        result = new FileStatus[0];
+	    }
+	    
+	    return result;
+	}
 	
 }
