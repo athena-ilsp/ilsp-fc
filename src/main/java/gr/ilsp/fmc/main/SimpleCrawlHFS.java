@@ -35,6 +35,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.io.FileUtils;
 //import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -207,7 +208,7 @@ public class SimpleCrawlHFS {
 						UrlStatus.UNFETCHED, 0,0.0);
 				writer.add(datum.getTuple());
 			}
-			LOGGER.info("Starting from "+ seedUrls.size()+ "URLs");
+			LOGGER.info("Starting from "+ seedUrls.size()+ " URLs");
 			rdr.close();
 			writer.close();
 		} catch (IOException e) {
@@ -296,7 +297,6 @@ public class SimpleCrawlHFS {
 		conf.setJarByClass(SimpleCrawlHFS.class);
 		//Added this for concurrency issues
 		conf.set("hadoop.tmp.dir", conf.get("hadoop.tmp.dir")+UUID.randomUUID().toString());
-		//LOGGER.info("Hadoop tmp dir now: " + conf.get("hadoop.tmp.dir"));
 		conf.set("mapred.dir",conf.get("hadoop.tmp.dir") + fs1+"mapred");
 		conf.set("mapred.local.dir",conf.get("mapred.dir") + fs1+"local");
 		conf.set("mapred.system.dir",conf.get("mapred.dir") + fs1+"system");		
@@ -405,9 +405,12 @@ public class SimpleCrawlHFS {
 				fs.mkdirs(outputPath);
 		
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, 0);
+				
+				//fs.deleteOnExit(curLoopDir);
+				
 				String curLoopDirName = curLoopDir.toUri().toString();
 				if (curLoopDirName.startsWith("file:/"))
-					curLoopDirName = curLoopDirName.substring(5); //vpapa 6->5
+					curLoopDirName = curLoopDirName.substring(5); 
 					
 				setLoopLoggerFile(curLoopDirName, 0);
 				Path crawlDbPath = new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME);
@@ -508,9 +511,12 @@ public class SimpleCrawlHFS {
 				//current loop, the crawl db directory, the policy for the Fetcher, the URL filter, the
 				//topic and classes arrays, the term threshold and the crawl options
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, curLoop);
+				
+				//fs.deleteOnExit(curLoopDir);
+				
 				String curLoopDirName = curLoopDir.toUri().toString();
 				if (curLoopDirName.startsWith("file:/"))
-					curLoopDirName = curLoopDirName.substring(5); //vpapa 6->5
+					curLoopDirName = curLoopDirName.substring(5); 
 				setLoopLoggerFile(curLoopDirName, curLoop);	
 				LOGGER.debug( conf.toString());
 				for(int il =0; il<conf.getLocalDirs().length;il++) 
@@ -534,6 +540,7 @@ public class SimpleCrawlHFS {
 				stor_vis.add(new int[] {PAGES_STORED,PAGES_VISITED});
 				// flow.writeDOT("build/valid-flow.dot");
 
+				//fs.deleteOnExit(curLoopDir);
 				// Input for the next round is our current output
 				crawlDbPath = new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME);
 				//inputPath = curLoopDir;
@@ -724,11 +731,16 @@ public class SimpleCrawlHFS {
 				LOGGER.info("Total tokens: "+ total_tokens);
 			}
 			
+			File hadoopTempFile=new File(conf.get("hadoop.tmp.dir"));
+			FileUtils.deleteDirectory(hadoopTempFile);
+			
 			//Delete every dir created for each run
 			List<String> notToBeDeleted= new ArrayList<String>();
 			notToBeDeleted.add(resultDir);
-			DirUtils.removeSubDirs(parentDir.getParent(), notToBeDeleted);
-						
+			
+			DirUtils.deleteLoopDirs(fs, outputPath, notToBeDeleted);
+			fs.close();
+			//DirUtils.removeSubDirs(parentDir.getParentFile(), notToBeDeleted);
 			System.exit(0);
 			
 		} catch (PlannerException e) {
