@@ -344,6 +344,7 @@ public class SampleExporter {
 
 				}
 			}
+			//fs.close();
 		} catch (Throwable t) {
 			LOGGER.error("Exception running tool", t);
 			System.exit(-1);
