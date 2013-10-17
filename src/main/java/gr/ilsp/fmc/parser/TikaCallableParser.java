@@ -89,6 +89,12 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             _input.reset();
             
             BufferedReader reader = new BufferedReader(new InputStreamReader(_input,_metadata.get(Metadata.CONTENT_ENCODING)));            
+            /*String test_str="",sCurrentLine="";
+            while ((sCurrentLine = reader.readLine()) != null) {
+				test_str=test_str+"\n"+sCurrentLine;
+				System.out.println(sCurrentLine);
+			}
+            */
             String content = "";
             if (_keepBoiler) {            	
             	content = gr.ilsp.boilerpipe.extractors.NumWordsRulesExtractor.INSTANCE.getText(reader,true);
