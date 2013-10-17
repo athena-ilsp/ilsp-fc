@@ -84,10 +84,10 @@ public class Bitexts {
 	private static int minnumofpars=3;
 	private static XSLTransformer xslTransformer = null;
 	private static String cesAlingURL="http://nlp.ilsp.gr/xslt/ilsp-fc/cesAlign.xsl";
-	
+
 	public static void main(String[] args) {
 
-		File xmldir = new File("C:\\QTLaunchPad\\Medicine\\EN-DE\\b50977c5-3596-410d-989b-8b7132e404f0\\xml");
+		/*File xmldir = new File("C:\\QTLaunchPad\\Medicine\\EN-DE\\b50977c5-3596-410d-989b-8b7132e404f0\\xml");
 		ArrayList<String[]> bitextsURLs=new ArrayList<String[]>();
 		HashMap<String, String> filesURLS = findURLs(xmldir);
 		HashMap<String, String[]> props;
@@ -105,11 +105,74 @@ public class Bitexts {
 			e.printStackTrace();
 		} catch (XMLStreamException e) {
 			e.printStackTrace();
+		}*/
+		/*String pair_type="_l";
+		String path_file="C:\\ABUMATRAN\\data\\987085bf-189d-4389-8692-1d3e061a7395\\xml";
+		File xmldir = new File(path_file);
+		String[] filesinXML= xmldir.list();
+		ArrayList<String> targetfiles = new ArrayList<String>();
+		for (int ii=0;ii<filesinXML.length;ii++){
+			if (filesinXML[ii].contains(pair_type) & !filesinXML[ii].contains("html")){
+				System.out.println(filesinXML[ii]);
+				String[] temp=filesinXML[ii].split("_");	System.out.println(temp[0]); System.out.println(temp[1]);
+				targetfiles.add(path_file+"\\"+temp[0]+".xml");  
+				targetfiles.add(path_file+"\\"+temp[1]+".xml");
+			}
 		}
-
-
-
-
+		int l1_toks = 0, l2_toks=0;
+		System.out.println("TOTAL FILES: "+targetfiles.size());
+		for (int ii=0;ii<targetfiles.size();ii++){
+			try {
+				String tmp=readFileAsString(targetfiles.get(ii));
+				if (tmp.contains("<language iso639=\"hr\"/>")){
+					System.out.println("hr: "+targetfiles.get(ii));
+					String result="";
+					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+					DocumentBuilder db;
+					db = dbf.newDocumentBuilder();
+					Document doc = db.parse(targetfiles.get(ii));
+					doc.getDocumentElement().normalize();
+					NodeList nodeLstP = doc.getElementsByTagName("p");
+					for (int s=0; s<nodeLstP.getLength() ; s++){
+						Element NameElement = (Element)nodeLstP.item(s);
+						if (!NameElement.hasAttribute("crawlinfo")){
+							StringTokenizer tkzr = new StringTokenizer(NameElement.getTextContent());
+							//result=result+" "+NameElement.getTextContent();
+							l1_toks = l1_toks + tkzr.countTokens();
+						}
+					}
+					System.out.println(result);
+				}else{
+					System.out.println("en: "+targetfiles.get(ii));
+					String result="";
+					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+					DocumentBuilder db;
+					db = dbf.newDocumentBuilder();
+					Document doc = db.parse(targetfiles.get(ii));
+					doc.getDocumentElement().normalize();
+					NodeList nodeLstP = doc.getElementsByTagName("p");
+					for (int s=0; s<nodeLstP.getLength() ; s++){
+						Element NameElement = (Element)nodeLstP.item(s);
+						if (!NameElement.hasAttribute("crawlinfo")){
+							StringTokenizer tkzr = new StringTokenizer(NameElement.getTextContent());
+							//result=result+" "+NameElement.getTextContent();
+							l2_toks = l2_toks + tkzr.countTokens();
+						}
+					}
+					System.out.println(result);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		System.out.println("TOTAL FILES: "+targetfiles.size());
+		System.out.println("aaaa");*/
 	}
 
 	/*	private static void counttoks(File xmldir, String outfile) {
@@ -1537,7 +1600,7 @@ public class Bitexts {
 			String confid=bitexts.get(ii)[4];
 			//Path outdir1 = new Path(outdir);
 			String curXMLName= outdir+fs+resultDir+fs+f1+"_"+f2+"_"+confid.substring(0, 1)+".xml";
-			
+
 			writeCesAling(curXMLName,f1+".xml",f2+".xml",l1,l2,confid,cesAlign);
 			if (oxslt) {
 				try {
@@ -1823,9 +1886,9 @@ public class Bitexts {
 		//	tobeReplaced= new File(".").toURI().toString(); //current directory
 		//else			
 		//	tobeReplaced= new File(definedDest).toURI().toString();
-		
+
 		tobeReplaced= new File(new File(outputFile).getParent()).toURI().toString();
-		
+
 		//outputDirName2 = new Path(outputDirName1.replace(tobeReplaced, ".."+fs)).toUri().toString();
 		outputDirName2 = new Path(outputDirName1.replace(tobeReplaced, "")).toUri().toString();
 		if (outputDirName2.equals(outputDirName1))
@@ -1846,12 +1909,14 @@ public class Bitexts {
 		if (outputFileHTML!=null){
 			try {
 				Writer out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileHTML),"UTF-8"));
-				out1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
-				for (int ii=bitexts.size()-1;ii>-1;ii--){
-					filename=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml.html";
-					out1.write("<br />"+"<a href=\""+ttt+fs+resultDir+fs+filename+"\">\n"+ttt+fs+resultDir+fs+filename+"</a>"+"\n");
+				if (bitexts.size()>0){
+					out1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+					for (int ii=bitexts.size()-1;ii>-1;ii--){
+						filename=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml.html";
+						out1.write("<br />"+"<a href=\""+ttt+fs+resultDir+fs+filename+"\">\n"+ttt+fs+resultDir+fs+filename+"</a>"+"\n");
+					}
+					out1.write("</html>");
 				}
-				out1.write("</html>");
 				out1.close();
 			} catch (IOException e){
 				System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
@@ -2024,13 +2089,24 @@ public class Bitexts {
 					file_url1=filesURLS.get(key1);
 					if (file_url.replace("_"+lang1, "_"+lang2).equals(file_url1)
 							| file_url.replace("/"+lang1+"/", "/"+lang2+"/").equals(file_url1)
+							| file_url.replace("/"+lang1+"/", "").equals(file_url1) | file_url1.replace("/"+lang2+"/", "").equals(file_url)
 							| file_url.replace("lang=1", "lang=2").equals(file_url1)
 							| file_url.replace("lang,1", "lang,2").equals(file_url1)
-							| file_url.replace("per", "abs").equals(file_url1)
+							//| file_url.replace("per", "abs").equals(file_url1)
 							| file_url.replace("lang="+lang1, "lang="+lang2).equals(file_url1)
-							/*| file_url.toLowerCase().replace("langid=1", "langid=2").equals(file_url1.toLowerCase())*/
-							| file_url.replace("g.htm", "e.htm").equals(file_url1)
-							| file_url.replace("gr.htm", "en.htm").equals(file_url1)){
+							| file_url.toLowerCase().replace("langid=1", "langid=2").equals(file_url1.toLowerCase())
+							| file_url.replace("lang,1","lang,2").equals(file_url1) | file_url.replace("lang,2","lang,1").equals(file_url1)	
+							//| file_url.replace("g.htm", "e.htm").equals(file_url1)
+							//| file_url.replace("gr.htm", "en.htm").equals(file_url1)
+							//| file_url.replace("=gr", "=en").equals(file_url1)
+							//| file_url.replace("lang=gr", "").equals(file_url1)
+							//| file_url.replace("/gr/", "/en/").equals(file_url1)//)
+							|(file_url.substring(0, file_url.length()-4).equals(file_url1.substring(0, file_url1.length()-4)) &
+									file_url.endsWith("="+lang1) & file_url1.endsWith("="+lang2)))
+					//if	(file_url.replace("lang,2","lang,1").equals(file_url1) | file_url.replace("lang,1","lang,2").equals(file_url1))
+					{
+						System.out.println(file_url1);
+						System.out.println(file_url);
 						pair[0]=key;
 						pair[1]=key1;
 						pair[2]=lang1;
@@ -2122,7 +2198,43 @@ public class Bitexts {
 			}
 		}
 		return stats;
+	}
 
+	public static String[] calcStats2(HashMap<String, String[]> props,
+			ArrayList<String[]> bitexts, String type) {
+		String[] stats=new String[4];
+
+		if (!bitexts.isEmpty()){
+			int jj=0;
+			for (jj=0;jj<bitexts.size();jj++){
+				if (bitexts.get(jj)[4].equals(type)){
+					stats[0]=bitexts.get(jj)[2];
+					stats[1]=Integer.toString(0);
+					stats[2]=bitexts.get(jj)[3];
+					stats[3]=Integer.toString(0);
+					break;
+				}
+			}
+			for (int ii=jj;ii<bitexts.size();ii++){
+				if (bitexts.get(ii)[4].equals(type)){
+					String p1 = bitexts.get(ii)[0];
+					String p2 = bitexts.get(ii)[1];
+					String[] attr1=props.get(p1);
+					String[] attr2=props.get(p2);
+					//System.out.println(p1+" in "+attr1[1]+":"+attr1[3]+"\t"+p2+" in "+attr2[1]+":"+attr2[3]);
+					if (attr1[1].equals(stats[0]))
+						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr1[4]));
+					if (attr1[1].equals(stats[2]))
+						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr1[4])); 
+					if (attr2[1].equals(stats[0]))
+						stats[1]=Integer.toString(Integer.parseInt(stats[1])+Integer.parseInt(attr2[4])); 
+					if (attr2[1].equals(stats[2]))
+						stats[3]=Integer.toString(Integer.parseInt(stats[3])+Integer.parseInt(attr2[4]));
+				}
+			}
+		}else
+			return null;
+		return stats;
 	}
 
 }
