@@ -722,6 +722,8 @@ public class Classifier implements Serializable{
 	//vpapa
 	private boolean containLangKeys(String text, int m) {
 		boolean result = false;
+		if  (_targetlangKeys[m].isEmpty())
+			return result;
 		String[] keys= _targetlangKeys[m].split(",");
 		String[] words= text.toLowerCase().split(" ");
 		if (words.length>10)
