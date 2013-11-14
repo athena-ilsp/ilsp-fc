@@ -624,6 +624,7 @@ public class SimpleCrawlHFS {
 					ArrayList<String[]> bitextsURLs=new ArrayList<String[]>();
 					HashMap<String, String> filesURLS = Bitexts.findURLs(xmldir);
 					bitextsURLs=Bitexts.findpairsURLs(filesURLS,props);
+					//bitextsURLs=Bitexts.findpairsURLs_dist(filesURLS,props);
 					if (bitextsURLs.size()>0){
 						LOGGER.info(bitextsURLs.size()+ " pairs found (based on URLs).");
 						Bitexts.writeXMLs(outputDirName,bitextsURLs,options.getAlign(),options.isOfflineXSLT());
