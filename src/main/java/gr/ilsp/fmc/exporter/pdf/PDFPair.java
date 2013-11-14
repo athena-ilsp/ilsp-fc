@@ -101,8 +101,10 @@ public class PDFPair {
 			translation2.setAttribute("lang", language2, nsXml);
 			translation2.setAttribute("trans.loc", StringUtils.replace(pdfFile2.getName(), ".pdf", ".xml"));
 			
-			XMLOutputter xmlOutputer = new XMLOutputter();
-			xmlOutputer.setFormat(Format.getPrettyFormat());
+			XMLOutputter xmlOutputter = new XMLOutputter();
+			Format format = Format.getPrettyFormat();
+			format.setLineSeparator("\n");
+			xmlOutputter.setFormat(format);
 			String cesAlignF =  FilenameUtils.concat(outputDir.getAbsolutePath(), 
 					(
 							StringUtils.replace(pdfFile1.getName(), ".pdf", "") 
@@ -111,7 +113,7 @@ public class PDFPair {
 							+ ".xml"
 					));
 			logger.debug(cesAlignF);
-			xmlOutputer.output(cesAlign,new FileWriter(cesAlignF));
+			xmlOutputter.output(cesAlign,new FileWriter(cesAlignF));
 
 			
 		} catch (Exception e) {

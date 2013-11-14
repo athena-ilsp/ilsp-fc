@@ -177,9 +177,11 @@ public class PDFDoc {
 		upDateCesHeader(cesDoc, pdfFile);
 		upDateCesDocBody(cesDoc, textFile);
 		
-		XMLOutputter xmlOutputer = new XMLOutputter();
-		xmlOutputer.setFormat(Format.getPrettyFormat());
-		xmlOutputer.output(cesDoc, 
+		XMLOutputter xmlOutputter = new XMLOutputter();
+		Format format = Format.getPrettyFormat();
+		format.setLineSeparator("\n");
+		xmlOutputter.setFormat(format);
+		xmlOutputter.output(cesDoc, 
 				new FileWriter(FilenameUtils.concat(outputDir.getAbsolutePath(), 
 				StringUtils.replace(pdfFile.getName(), ".pdf", ".xml"))));
 	}
