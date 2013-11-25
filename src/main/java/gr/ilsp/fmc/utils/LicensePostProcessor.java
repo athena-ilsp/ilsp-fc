@@ -86,17 +86,20 @@ public class LicensePostProcessor {
 					Element availability = header.getChild("fileDesc", ns).getChild("publicationStmt", ns).getChild(AVAILABILITY, ns);
 					availability.setText("");
 					availability.addContent(licenseFromText);
-
 				}
 			}
 			
 			if (moveLicenseInfo && hasLicenseInfoInPublicationStmt(header)) {
 				moveLicenseInfo(header);
 			}
+			
 			File outFile = new File(xmlFile.getAbsoluteFile() + ".out");
 			XMLOutputter xmlOutputer = new XMLOutputter();
 			xmlOutputer.setFormat(Format.getPrettyFormat());
 			xmlOutputer.output(doc, new FileWriter(outFile));
+			
+			//outFile.renameTo(xmlFile);
+			
 		}
 	}
 	
