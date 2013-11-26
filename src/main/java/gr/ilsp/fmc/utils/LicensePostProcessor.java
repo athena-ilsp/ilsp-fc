@@ -61,18 +61,18 @@ public class LicensePostProcessor {
 	
 	public static void main(String... args) throws Exception {
 		File directory = new File(args[0]);
-
+		//File directory = new File("C:\\QTLaunchPad\\MEDICAL\\EL\\qtlp_20131010_140423\\e4118e7c-c941-4f5c-aca1-b69d81a315f3\\xml");
 		logger.info("Input Directory: " + directory.toString());
 		LicensePostProcessor lpp = new LicensePostProcessor();
 		lpp.setDirectory(directory);
 		lpp.run();
 	}
 
-	private void run() throws FileNotFoundException,  IOException, JDOMException {
+	public void run() throws FileNotFoundException,  IOException, JDOMException {
 		
 		Vector<File> fileList = FileUtils.listFiles(this.getDirectory(), this.getSff(), false);
 		for (File xmlFile: fileList) {
-			logger.info("Parsing " + xmlFile.getAbsolutePath());
+			//logger.info("Parsing " + xmlFile.getAbsolutePath());
 					
 			SAXBuilder builder = new SAXBuilder();	
 			Document doc = (Document) builder.build(xmlFile);
@@ -86,7 +86,10 @@ public class LicensePostProcessor {
 					Element availability = header.getChild("fileDesc", ns).getChild("publicationStmt", ns).getChild(AVAILABILITY, ns);
 					availability.setText("");
 					availability.addContent(licenseFromText);
+					System.out.println("LINECENSE in TEXT: "+ xmlFile.getName());
 				}
+			}else{
+				System.out.println(xmlFile.getName());
 			}
 			
 			if (moveLicenseInfo && hasLicenseInfoInPublicationStmt(header)) {
