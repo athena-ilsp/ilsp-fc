@@ -165,9 +165,13 @@ public class Classifier implements Serializable{
 		Double[][] metaScores=rankText(meta,META_WEIGHT ,_topic,_classes,false);		
 		Double[][] contentScores=rankText(content,CONTENT_WEIGHT ,_topic,_classes, true);
 		//System.out.println("Score:" + titleScores[titleScores.length-1][0] + " " +contentScores[contentScores.length-1][0]);
+		if (contentScores==null)
+			return null;
 		ClassifierDatum result=classifyText(titleScores,keywordsScores,metaScores,contentScores,
 				TOTABSCORE_TH,TOTRELSCORE_TH,SUBCLASSSCORE_TH,_classes, url, length_in_tok);
 		//System.out.println(parsedDatum.getUrl() + " " + TOTABSCORE_TH);
+		if (result==null)
+			return null;
 		double contentscore = contentScores[contentScores.length-1][0];
 		double relcontentscore = contentScores[contentScores.length-1][1];
 		//added for running without topic
@@ -223,6 +227,8 @@ public class Classifier implements Serializable{
 					subscores.add(new Double[][]{new Double[] {sums[ii][0],sums[ii][1]}});
 				}
 			}
+		}else{
+			return null;
 		}
 		String[] subclasses1=new String[subclasses.size()];
 		for (int i=0;i<subclasses.size();i++){
@@ -397,15 +403,14 @@ public class Classifier implements Serializable{
 				//get the position of a found term
 				termpos.add(Integer.toString(matcher.start()));
 				matches++;
+				
 			}
-			//int qq=0;
-			//for (int nn=0;nn<termpos.size();nn++){
-			//	qq = Integer.parseInt(termpos.get(nn));
-			//	//System.out.println(str.subSequence(qq, qq+30));				
-			//}
+			
 			if (matches>0){
 				if (weight>0.0){
 					uniqueTermsFound++;
+					//System.out.println(term);
+					//System.out.println(uniqueTermsFound);
 				}
 				//add found term
 				//termfound.add(term);
@@ -438,10 +443,11 @@ public class Classifier implements Serializable{
 		//Check if found terms in the content are equal or above the predefined threshold
 		if (isContent) {
 			if (uniqueTermsFound<_min_uniq_terms && _min_uniq_terms>0) {
-				for (int ii=0;ii<classes.length;ii++){
-					scores[ii][0] = 0.0;	scores[ii][1] = 0.0;
-				}
-				return scores;
+				//for (int ii=0;ii<classes.length;ii++){
+				//	scores[ii][0] =-1000000.0;	scores[ii][1] = -1000000.0;
+				//}
+				//return scores;
+				return null;
 			}
 		}
 		//calculate scores with the weight of the text (the location weight) 
