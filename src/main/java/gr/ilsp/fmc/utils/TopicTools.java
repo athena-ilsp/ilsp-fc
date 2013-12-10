@@ -1,6 +1,7 @@
 package gr.ilsp.fmc.utils;
 
 
+//import gr.ilsp.fmc.exporter.SampleExporter;
 import gr.ilsp.fmc.main.SimpleCrawlHFS;
 
 
@@ -23,6 +24,7 @@ import java.util.regex.Pattern;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -31,6 +33,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 @SuppressWarnings("deprecation")
 public class TopicTools {
+	private static final Logger LOGGER = Logger.getLogger(TopicTools.class);
 	private static Analyzer analyzer = null;
 	private static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
 	//private static int MAX_CONTENT_TERMS = SimpleCrawlHFS.config.getInt("classifier.min_content_terms.value");
@@ -51,7 +54,7 @@ public class TopicTools {
 			FileSystem fs = FileSystem.get(conf);
 			//Path p = new Path(fs.getWorkingDirectory()+"/"+topicdef);
 			if (!fs.exists(p)) 
-				System.out.println("The file for topic definition does not exist.");
+				LOGGER.info("The file for topic definition does not exist.");
 			else {
 				BufferedReader in = new BufferedReader(new InputStreamReader(fs.open(p),"UTF-8"));
 				//BufferedReader in = new BufferedReader(new FileReader(temp));
@@ -69,7 +72,7 @@ public class TopicTools {
 					int ind=str.indexOf(">");
 					if (langs.length>1){
 						if (ind<0){
-							System.out.println("Even though the target languages are more than 1," +
+							LOGGER.info("Even though the target languages are more than 1," +
 									" the language of term '"+str+"' is not defined. Modify the topic definition properly.");
 							System.exit(0);	
 						}
@@ -114,6 +117,7 @@ public class TopicTools {
 					}
 					if (flag){
 						topic.add(new String[] {a,b,c,d,b_or});
+						//LOGGER.info(b+"\t"+b_or);
 					}
 					//topic.add(new String[] {a,b,c,d});
 				}
@@ -129,9 +133,8 @@ public class TopicTools {
 		//returns an array of strings with three columns (the triplets)
 		File temp=new File(topicdef);
 		ArrayList<String> topic = new ArrayList<String>();
-		if (!temp.exists()){
-			System.out.println("The file for topic definition does not exist.");
-		}
+		if (!temp.exists())
+			LOGGER.info("The file for topic definition does not exist.");
 		else {
 			try {
 				BufferedReader in = new BufferedReader(new FileReader(temp));
