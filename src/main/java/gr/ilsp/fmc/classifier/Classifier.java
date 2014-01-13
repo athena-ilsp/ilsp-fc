@@ -36,10 +36,10 @@ public class Classifier implements Serializable{
 	private double KEYWORDS_WEIGHT = 4;
 	private double META_WEIGHT = 2;
 	private double CONTENT_WEIGHT = 1;
-	private double TOTABSCORE_TH = 0.0;
-	private double TOTRELSCORE_TH = 0.2;
-	private double SUBCLASSSCORE_TH = 0.2;
-	private double relcontentthr = 0.1;
+	//private double TOTABSCORE_TH = 0.0;
+	//private double TOTRELSCORE_TH = 0.2;
+	//private double SUBCLASSSCORE_TH = 0.2;
+	//private double relcontentthr = 0.1;
 	private String _targetLanguage;
 	//private int _minTokensNumber = 200;		
 	private int _minTokensNumber;
@@ -48,7 +48,8 @@ public class Classifier implements Serializable{
 
 	private ArrayList<String[]> _topic;
 
-	private double _thres;
+	private double _absthres;
+	private double _relthres;
 	private static int _min_uniq_terms;
 	private boolean _keepBoiler = false;
 
@@ -57,12 +58,13 @@ public class Classifier implements Serializable{
 	private static String langIdentified;
 
 	public Classifier(String[] langKeys, String language, String[] classes, 
-			ArrayList<String[]> topic, double thres, boolean keepBoiler, 
+			ArrayList<String[]> topic, double abs_thres, double rel_thres, boolean keepBoiler, 
 			int min_uniq_terms, int max_depth, int minTokensNumber){
 		_targetLanguage = language;
 		_classes = classes;
 		_topic = topic;
-		_thres = thres;
+		_absthres = abs_thres;
+		_relthres = rel_thres;
 		_keepBoiler  = keepBoiler;
 		_min_uniq_terms = min_uniq_terms;
 		_max_depth = max_depth;
@@ -133,24 +135,7 @@ public class Classifier implements Serializable{
 					break;
 				}
 			}
-			//vpapa commented out
-			/*if (!match && content.length()>20){
-				Detector detector = null;			
-				try {
-					detector = DetectorFactory.create();
-					detector.append(content);
-					langIdentified = detector.detect();										
-				} catch (LangDetectException e) {
-					langIdentified = "";
-				}	
-				//vpapa
-				for (String lang:langs){
-					if (langIdentified.equals(lang)){
-						match = true;
-						break;
-					}
-				}				
-			}*/
+			
 			if (!match)
 				return null;
 		}
@@ -167,16 +152,20 @@ public class Classifier implements Serializable{
 		//System.out.println("Score:" + titleScores[titleScores.length-1][0] + " " +contentScores[contentScores.length-1][0]);
 		if (contentScores==null)
 			return null;
+		//ClassifierDatum result=classifyText(titleScores,keywordsScores,metaScores,contentScores,
+		//		TOTABSCORE_TH,TOTRELSCORE_TH,SUBCLASSSCORE_TH,_classes, url, length_in_tok);
 		ClassifierDatum result=classifyText(titleScores,keywordsScores,metaScores,contentScores,
-				TOTABSCORE_TH,TOTRELSCORE_TH,SUBCLASSSCORE_TH,_classes, url, length_in_tok);
+				_absthres,_relthres,_relthres,_classes, url, length_in_tok);
 		//System.out.println(parsedDatum.getUrl() + " " + TOTABSCORE_TH);
 		if (result==null)
 			return null;
 		double contentscore = contentScores[contentScores.length-1][0];
 		double relcontentscore = contentScores[contentScores.length-1][1];
 		//added for running without topic
-		if (_thres==0.0); relcontentthr=-0.1;
-		if (contentscore>=_thres && relcontentscore>relcontentthr){//TODO relscore????
+		if (_absthres==0.0){
+			_relthres=-0.1;
+		}
+		if (contentscore>=_absthres && relcontentscore>_relthres){//TODO relthres value????
 			//ClassifierDatum result = new ClassifierDatum(url, new String[1],new String[1][2], 0.0, 0.0);
 			//System.out.println(url +" STORED "+ contentscore +"\t"+ relcontentscore);
 			return result;
@@ -241,7 +230,6 @@ public class Classifier implements Serializable{
 			subscores1[i][1] = temp[0][1];
 		}
 		//System.out.println("The total score is "+total_score);
-		//ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore,length_in_tok);
 		total_relscore=scores4[scores4.length-1][1]/2; //rel score is based on content only.
 		total_relscore=(double) (Math.round(total_relscore*1000))/1000;
 		ClassifierDatum result = new ClassifierDatum(url, subclasses1,subscores1, total_score, total_relscore,length_in_tok);
@@ -407,6 +395,7 @@ public class Classifier implements Serializable{
 			}
 			
 			if (matches>0){
+				//System.out.println(term+ " "+ matches);
 				if (weight>0.0){
 					uniqueTermsFound++;
 					//System.out.println(term);
@@ -454,7 +443,8 @@ public class Classifier implements Serializable{
 		//and the relative scores
 		for (int ii=0;ii<classes.length;ii++){
 			scores[ii][0] = scores[ii][0]*w;
-			scores[ii][1] = scores[ii][0]/words_num; 
+			if (isContent)
+				scores[ii][1] = scores[ii][0]/words_num;
 			scores[classes.length][0] =scores[ii][0]+scores[classes.length][0];
 			scores[classes.length][1] =scores[ii][1]+scores[classes.length][1];			
 		}		
@@ -684,18 +674,18 @@ public class Classifier implements Serializable{
 					}
 					m++;
 				}
-				if (type==1 & vv>_thres){
+				if (type==1 & vv>=_absthres){
 					//link's text implies that the link points to candidate translation
-					score +=10000*_thres;
+					score +=10000*_absthres;
 					return score;
 				}
 			}
 			if (matchT & matchL){
 				StringTokenizer tkzr = new StringTokenizer(text);
-				if (!langidentified_link.equals(pagelang) & tkzr.countTokens()>3 & vv>_thres){
-					score+=10*_thres; //text and link are in dif. langs but both in targ. langs
+				if (!langidentified_link.equals(pagelang) & tkzr.countTokens()>3 & vv>=_absthres){
+					score+=10*_absthres; //text and link are in dif. langs but both in targ. langs
 				}else{
-					score+=_thres;  //text and link are in same langs and in targ. langs
+					score+=_absthres;  //text and link are in same langs and in targ. langs
 				}
 				stems = TopicTools.analyze(text, langidentified_link);
 			}
@@ -845,7 +835,7 @@ public class Classifier implements Serializable{
 				}
 				m++;
 			}
-			if (type==1 & vv>=_thres){
+			if (type==1 & vv>=_absthres){
 				//link's text implies that the link points to candidate translation
 				score +=2;
 				return score;
@@ -853,7 +843,7 @@ public class Classifier implements Serializable{
 		}
 		if (matchT & matchL){
 			StringTokenizer tkzr = new StringTokenizer(text);
-			if (!langidentified_link.equals(pagelang) & tkzr.countTokens()>3 & vv>_thres){
+			if (!langidentified_link.equals(pagelang) & tkzr.countTokens()>3 & vv>=_absthres){
 				score+=1; //text and link are in dif. langs but both in targ. langs
 			}else{
 				score+=1;  //text and link are in same langs and in targ. langs
