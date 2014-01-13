@@ -457,7 +457,7 @@ public class SimpleCrawlHFSOptions {
 					}else{
 						URL url;
 						try {
-							String temp=Bitexts.readFileAsString(_urls);
+							String temp=ReadResources.readFileAsString(_urls);
 							url = new URL(temp);
 							String host = url.getHost();
 							if (host.substring(0, 3).equals("www")){
