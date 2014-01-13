@@ -252,18 +252,18 @@ public class SimpleCrawlHFSWorkflow {
 
 	public static Flow createFlow(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
 			BaseUrlFilter urlFilter, String[] classes, ArrayList<String[]> topic, 
-			double thres, int min_uniq_terms,int max_depth,
+			double abs_thres, double rel_thres, int min_uniq_terms,int max_depth,
 			SimpleCrawlHFSOptions options) throws Throwable {
 
 		return createFlow071(curWorkingDirPath, crawlDbPath, userAgent, fetcherPolicy,
-				urlFilter, classes, topic, thres, min_uniq_terms, max_depth, options);				
+				urlFilter, classes, topic, abs_thres, rel_thres, min_uniq_terms, max_depth, options);				
 
 	}
 
 	public static Flow createFlow060(Path curWorkingDirPath, Path crawlDbPath, 
 			UserAgent userAgent, FetcherPolicy fetcherPolicy,
 			BaseUrlFilter urlFilter, String[] classes, ArrayList<String[]> topic,
-			double thres,int min_uniq_terms,int max_depth,
+			double absthres, double rel_thres,int min_uniq_terms,int max_depth,
 			SimpleCrawlHFSOptions options) throws Throwable {
 		int maxThreads = options.getThreads();
 		boolean debug = options.isDebug();
@@ -359,7 +359,7 @@ public class SimpleCrawlHFSWorkflow {
 		//text.
 		//ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth ));
 		//vpapa
-		ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(langKeys,language,classes, topic, thres,keepBoiler,
+		ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(langKeys,language,classes, topic, absthres, rel_thres, keepBoiler,
 				min_uniq_terms, max_depth, minTokensNumber));
 		Pipe urlsFromClassifier = new Pipe("urls from classifier", classifyPipe.getClassifierTailPipe());
 		urlsFromClassifier = new Each(urlsFromClassifier, new SelectUrlOnlyFunction());
@@ -413,7 +413,7 @@ public class SimpleCrawlHFSWorkflow {
 	}
 
 	public static Flow createFlow071(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
-			BaseUrlFilter urlFilter, String[] classes, ArrayList<String[]> topic, double thres,int min_uniq_terms,int max_depth, SimpleCrawlHFSOptions options) throws Throwable {
+			BaseUrlFilter urlFilter, String[] classes, ArrayList<String[]> topic, double abs_thres,double rel_thres, int min_uniq_terms,int max_depth, SimpleCrawlHFSOptions options) throws Throwable {
 		int maxThreads = options.getThreads();
 		boolean debug = options.isDebug();
 		boolean keepBoiler = options.keepBoiler();
@@ -509,7 +509,7 @@ public class SimpleCrawlHFSWorkflow {
 		//ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth ));
 		
 		ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(), 
-				new Classifier(langKeys,language,classes, topic, thres,keepBoiler,
+				new Classifier(langKeys,language,classes, topic, abs_thres,rel_thres, keepBoiler,
 						min_uniq_terms, max_depth,minTokensNumber));
 		Pipe urlsFromClassifier = new Pipe("urls from classifier", classifyPipe.getClassifierTailPipe());
 		urlsFromClassifier = new Each(urlsFromClassifier, new SelectUrlOnlyFunction());
