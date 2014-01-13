@@ -37,6 +37,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
     
 	private static final String LICENSES_STR = "/licenses/";
 	private static final String HTTP_PROTOCOL = "http";
+	private static final String HTTPS_PROTOCOL = "https";
 	private static final String CREATIVECOMMONS_ORG_STR = "creativecommons.org";
 	//private static final String REL_LICENSE_LOCATION = "rel";
 	private static final Logger LOGGER = Logger.getLogger(TikaCallableParser.class);
@@ -116,7 +117,8 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             	try {
 					URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
 					// check that it's a CC license URL
-					if (HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol()) &&
+					if ((HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol())
+							| HTTPS_PROTOCOL.equalsIgnoreCase(url.getProtocol())) &&
 							CREATIVECOMMONS_ORG_STR.equalsIgnoreCase(url.getHost()) &&
 							url.getPath() != null &&
 							url.getPath().startsWith(LICENSES_STR) &&
