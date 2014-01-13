@@ -355,11 +355,12 @@ public class SimpleCrawlHFS {
 		}
 
 		int min_uniq_terms = SimpleCrawlHFS.config.getInt("classifier.min_unique_content_terms.value");
+		double rel_thres = SimpleCrawlHFS.config.getDouble("classifier.relative_relevance_threshold.value");
 		int max_depth = SimpleCrawlHFS.config.getInt("classifier.max_depth.value");//value for tunneling
 		//Analyze the topic and create the classes and topic variables. Term threshold
 		//is calculate based on the median weight of the terms and the minimum number
 		//of terms each text must have as defined on the config file.
-		double thres = 0;
+		double abs_thres = 0;
 		if (options.getTopic()!=null){
 			topic=TopicTools.analyzeTopic(options.getTopic(),options.getLanguage(), conf);
 			if (topic.isEmpty()){
@@ -370,12 +371,13 @@ public class SimpleCrawlHFS {
 			//find the subclasses of the topic definition
 			classes=TopicTools.findSubclasses(topic);
 			LOGGER.info(classes.length + " classes found.");
-			thres = TopicTools.calculateThreshold(topic,
+			abs_thres = TopicTools.calculateThreshold(topic,
 					SimpleCrawlHFS.config.getInt("classifier.min_content_terms.value"));
-			LOGGER.info("Classifier threshold calculated: "+ thres);
+			LOGGER.info("Classifier threshold calculated: "+ abs_thres);
 		} else{ 
 			LOGGER.info("Running with no topic.");
 			min_uniq_terms=0;
+			rel_thres=0;
 		}
 
 		String outputDirName = options.getOutputDir();
@@ -524,7 +526,7 @@ public class SimpleCrawlHFS {
 
 				//System.out.println("LOOP "+ Integer.toString(curLoop));
 				Flow flow = SimpleCrawlHFSWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlFilter, 
-						classes, topic, thres,min_uniq_terms,max_depth,options);							
+						classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options);							
 				flow.complete();
 				//LOGGER.info("Hadoop tmp dir = " + conf.get("hadoop.tmp.dir"));
 
