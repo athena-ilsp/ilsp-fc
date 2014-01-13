@@ -58,7 +58,7 @@ public class ImageExtractor {
 				
 				File htmlfile=new File(xmldir.toString()+fs+files[ii]);
 				//System.out.println(ii+">"+htmlfile.getName());
-				String html = Bitexts.readFileAsString(htmlfile.getAbsolutePath());
+				String html = ReadResources.readFileAsString(htmlfile.getAbsolutePath());
 				Document doc = Jsoup.parse(html);
 				List<String> images = ie.getImages(doc,keep);
 				if (!images.isEmpty()){
