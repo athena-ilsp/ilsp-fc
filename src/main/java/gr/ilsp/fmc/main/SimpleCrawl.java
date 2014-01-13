@@ -149,7 +149,8 @@ public class SimpleCrawl {
 		topic=TopicTools.analyzeTopic(options.getTopic(),options.getLanguage(), null);//FIXME
 		//find the subclasses of the topic definition
 		classes=TopicTools.findSubclasses(topic);
-		double thres = TopicTools.calculateThreshold(topic,5);
+		double absthres = TopicTools.calculateThreshold(topic,5);
+		double relthres = SimpleCrawlHFS.config.getDouble("classifier.relative_relevance_threshold.value");
 		String outputDirName = options.getOutputDir();
 		if (options.isDebug()) {
 			System.setProperty("fmc.root.level", "DEBUG");            
@@ -245,7 +246,7 @@ public class SimpleCrawl {
 						setLoopLoggerFile(curLoopDirName, curLoop);
 						Flow flow = SimpleCrawlWorkflow.createFlow(inputPath, curLoopDir, userAgent, defaultPolicy, urlFilter, 
 								options.getThreads(), options.isDebug(), options.getDbHost(), options.getDbName(), options.getLanguage(),options.getLangKeys(),
-								classes, topic, thres, min_uniq_terms, max_depth, minTokensNumber);
+								classes, topic, absthres, relthres, min_uniq_terms, max_depth, minTokensNumber);
 
 						flow.complete();
 						// flow.writeDOT("build/valid-flow.dot");
