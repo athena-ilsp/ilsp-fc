@@ -1,9 +1,10 @@
 package gr.ilsp.fmc.main;
 
 import gr.ilsp.fmc.exporter.SampleExporter;
+import gr.ilsp.fmc.utils.TopicTools;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
+//import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+//import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -44,164 +46,41 @@ public class DedupMD5 {
 	private static File out_textfile;
 	private static boolean html=false;
 	private static String input_type="xml";
-	private static int MIN_TOKEN_LEN=3;
+	private static int MIN_TOKEN_LEN=3;	//tokens with less than MIN_TOKEN_LEN are excluded
 	private static float QUANT_RATE= (float) 0.01;
-	private static int QAUNT_DEFAULT=5;
+	private static int QAUNT_DEFAULT=5; // quantization interval 
+	private static double inter_thr=0.75;
 	private static String fs = System.getProperty("file.separator");
+	private static String methodtype="0";
 	//private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	//private static final String HTTP_PATH = "http://sifnos.ilsp.gr/soaplab2-axis";
 	//private static final String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	//private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	//private static boolean applyOfflineXSLT = false;
 
-	public static void dedupOnParagraphs(String indirname, String outputfilename, String outputHTMLfilename, 
-			boolean applyOfflineXSLT) {
-		//modify indirname to be valid for windows
-		String temp = indirname+fs+"xml";
-		int tempid=temp.indexOf(":");
-		if (tempid<0 || tempid<2)
-			input= new File(temp);
-		else
-			input= new File(temp.substring(tempid+2, temp.length()));
-
-		//System.out.println(input.getAbsolutePath());
-		if (!input.exists() || !input.isDirectory()){
-			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
-			System.exit(64);
+	public static void main(String[] args) {
+		//String outputDirName = "C:\\QTLaunchPad\\MEDICAL\\DE\\qtlp_20131105_082542\\a3187c0f-8be0-45d7-9208-82cfeb2d4097";
+		String outputDirName =args[0];
+		String file1 = outputDirName+fs+args[1];
+		String file2 = outputDirName+fs+args[2];
+		methodtype = args[3];
+		if (methodtype.equals("1")){
+			LOGGER.info("Deduplication by using lists and MD5 method.");
+			DedupMD5.dedup(outputDirName, file1,file2,true);
 		}
-		out_textfile =new File(outputfilename);
-		if (!out_textfile.exists()){
-			System.err.println( "List of cesdoc files does not exist!!!!!!!!" );			
-			System.exit(64);
+		if (methodtype.equals("2")){
+			LOGGER.info("Deduplication based on common paragraphs.");
+			DedupMD5.dedupnew(outputDirName, file1,file2,true);
 		}
-		if (!(outputHTMLfilename==null)){
-			html=true;
+		if (methodtype.equals("0")){
+			LOGGER.info("Deduplication by using lists and MD5 method.");
+			DedupMD5.dedup(outputDirName, file1,file2,true);
+			LOGGER.info("Deduplication based on common paragraphs.");
+			DedupMD5.dedupnew(outputDirName, file1,file2,true);
 		}
-		File outputdir= new File(input.getParent()+fs+"xml");
-		//outputdir.mkdir();
-		FilenameFilter filter = new FilenameFilter() {			
-			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type));
-			}
-		};
-		File[] files=input.listFiles(filter);
-		if (files.length<2){
-			LOGGER.info("The input list contains less than 2 files.");
-			return;
-		}
-
-		//long start = System.nanoTime(); 
-		long start = System.currentTimeMillis();
-		String text="";
-		String string_key="";
-		byte[] parhashkey =null;
-		HashMap<String, HashSet<String>> fileshash= new HashMap<String, HashSet<String>>();
-		HashMap<String, HashSet<Integer>> fileslengthhash= new HashMap<String, HashSet<Integer>>();
-		HashMap<String, Integer> fileTextlength= new HashMap<String, Integer>();
-		int cents=0;
-		for (int ii=0;ii<files.length;ii++){
-			text = extractTextfromXML_clean(files[ii].getAbsolutePath());
-			String[] pars=text.split("\n");
-			List<String> filelist=new ArrayList<String>();
-			List<Integer> filelengthlist=new ArrayList<Integer>();
-			for (int jj=0;jj<pars.length;jj++){
-				parhashkey=MD5Hash.digest(pars[jj]).getDigest();
-				string_key="";
-				for (int kk=0;kk<parhashkey.length;kk++) {
-					string_key += parhashkey[kk];
-				}
-				filelist.add(string_key);
-				filelengthlist.add(pars[jj].length());
-			}
-			HashSet<String> fileset= new HashSet<String>(filelist);
-			fileshash.put(files[ii].getName().toString(), fileset);
-			HashSet<Integer> filelengthset= new HashSet<Integer>(filelengthlist);
-			fileslengthhash.put(files[ii].getName().toString(), filelengthset);
-			fileTextlength.put(files[ii].getName().toString(), text.length());
-			if (ii/100>cents){
-				cents++;
-				LOGGER.info("Lists for more than "+ cents*100+" files have been created.");
-			}
-		}
-		Set<String> keys=fileshash.keySet();
-		Iterator<String> it = keys.iterator();
-		String urlList="", string_key1 = "";
-		String sourcefile="";
-		int counter=0;
-		while (it.hasNext()){
-			string_key = it.next();
-			HashSet<String> fileset=fileshash.get(string_key);
-			Iterator<String> it1 = keys.iterator();
-			counter++;
-			while (it1.hasNext()){
-				string_key1 = it1.next();
-				if (string_key1.equals(string_key)) continue;
-				HashSet<String> fileset1=fileshash.get(string_key1);
-				HashSet intersection = new HashSet(fileset);
-				intersection.retainAll(fileset1);
-				double t=Double.parseDouble(Integer.toString(fileset.size()));
-				double t1=Double.parseDouble(Integer.toString(fileset1.size()));
-				double ti=Double.parseDouble(Integer.toString(intersection.size()));
-
-				double tu=t+t1-ti;
-				if (ti/t >0.9 || ti/t1 >0.9 || ti/tu >0.9){
-					//System.out.println(string_key+" pair with "+ string_key1);
-					if (fileTextlength.get(string_key1)>fileTextlength.get(string_key)){
-						//System.out.println("OUT"+"\t"+freqs.get(string_key).filename);
-						//freqs.put(string_key, t);
-						String temp2 = input.getPath()+fs+string_key;
-						delete(temp2);
-						temp2 = temp2.replace("."+input_type,".html");
-						delete(temp2);
-						temp2 = temp2.replace(".html",".xml.html");
-						delete(temp2);
-					}else{
-						//System.out.println("OUT"+"\t"+t.filename);
-						String temp2 = input.getPath()+fs+string_key1;
-						delete(temp2);
-						temp2 = temp2.replace("."+input_type,".html");
-						delete(temp2);
-						temp2 = temp2.replace(".html",".xml.html");
-						delete(temp2);
-					}
-				}
-
-			}
-		}
-		File[] files1=input.listFiles(filter);
-		counter=0;
-		//while (it.hasNext()){
-		for (int ii=0;ii<files1.length;ii++){
-			//string_key = files1[ii].getName();
-			//try {
-			sourcefile = files1[ii].getName(); //freqs.get(string_key).filename;
-			String temp1 = outputdir.getAbsolutePath().replace("\\","/");
-			urlList=urlList + temp1+fs+sourcefile+"\n";
-			counter++;
-		}
-		writetextfile(out_textfile.getAbsolutePath(),urlList);
-		if (html){
-			File out_HTMLfile =new File(outputHTMLfilename);
-			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList,applyOfflineXSLT);
-		}
-
-		long elapsedTime = System.currentTimeMillis()-start;
-		//System.out.println(counter + " files remained."); 
-		//System.out.println("Duration: "+elapsedTime);
-		LOGGER.info("New Deduplication completed in " + elapsedTime + " milliseconds. "+ counter +  " files remained.");
+		Bitexts.counttokens(outputDirName+fs+"xml","xml","crawlinfo=");
+		System.out.println("tokens calculated.");
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 	public static void dedup(String indirname, String outputfilename, String outputHTMLfilename,
 			boolean applyOfflineXSLT){
@@ -213,7 +92,6 @@ public class DedupMD5 {
 		else
 			input= new File(temp.substring(tempid+2, temp.length()));
 
-		//System.out.println(input.getAbsolutePath());
 		if (!input.exists() || !input.isDirectory()){
 			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
 			System.exit(64);
@@ -227,7 +105,6 @@ public class DedupMD5 {
 			html=true;
 		}
 		File outputdir= new File(input.getParent()+fs+"xml");
-		//outputdir.mkdir();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
 				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type));
@@ -240,7 +117,7 @@ public class DedupMD5 {
 		}
 		else
 			LOGGER.info(files.length+" files will be processed.");
-		//long start = System.nanoTime(); 
+
 		long start = System.currentTimeMillis();
 		String text="";
 		HashMap<String, TextAttr> freqs = new HashMap<String, TextAttr>();
@@ -250,7 +127,8 @@ public class DedupMD5 {
 
 		for (int ii=0;ii<files.length;ii++){
 			text = extractTextfromXML_clean(files[ii].getAbsolutePath());
-
+			LOGGER.debug(files[ii].getAbsolutePath());
+			LOGGER.debug(text);
 			if (text.isEmpty())
 				continue;
 			texthashkey =calculate(text);
@@ -260,33 +138,31 @@ public class DedupMD5 {
 			}
 			TextAttr t= new TextAttr(text.length(),files[ii].getName());
 			if (freqs.containsKey(string_key)) {
-
 				pairs = pairs + t.filename+ "\t\t" + freqs.get(string_key).filename + "\n";
 				if (t.length>freqs.get(string_key).length){
-					//System.out.println("OUT"+"\t"+freqs.get(string_key).filename);
+					LOGGER.debug("OUT"+"\t"+freqs.get(string_key).filename);
 					freqs.put(string_key, t);
 					String temp2 = input.getPath()+fs+freqs.get(string_key).filename;
-					delete(temp2);
+					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
 					temp2 = temp2.replace("."+input_type,".html");
-					delete(temp2);
+					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
 					temp2 = temp2.replace(".html",".xml.html");
-					delete(temp2);
+					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
 				}else{
-					//System.out.println("OUT"+"\t"+t.filename);
+					LOGGER.debug("OUT"+"\t"+t.filename);
 					String temp2 = input.getPath()+fs+t.filename;
-					delete(temp2);
+					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
 					temp2 = temp2.replace("."+input_type,".html");
-					delete(temp2);
+					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
 					temp2 = temp2.replace(".html",".xml.html");
-					delete(temp2);
+					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
 				}
 			}
 			else{
-				//System.out.println("IN"+"\t"+t.filename);
 				freqs.put(string_key, t);
 			}
 		}
-		//System.out.println(pairs);
+		LOGGER.debug(pairs);
 		Set<String> keys=freqs.keySet();
 		Iterator<String> it = keys.iterator();
 		String urlList = "";
@@ -304,15 +180,13 @@ public class DedupMD5 {
 			counter++;
 		}
 
-		writetextfile(out_textfile.getAbsolutePath(),urlList);
+		ReadResources.writetextfile(out_textfile.getAbsolutePath(),urlList);
 		if (html){
 			File out_HTMLfile =new File(outputHTMLfilename);
 			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList,applyOfflineXSLT);
 		}
 
 		long elapsedTime = System.currentTimeMillis()-start;
-		//System.out.println(counter + " files remained."); 
-		//System.out.println("Duration: "+elapsedTime);
 		LOGGER.info("Deduplication completed in " + elapsedTime + " milliseconds. "+ counter +  " files remained.");
 	}
 
@@ -448,7 +322,34 @@ public class DedupMD5 {
 		return result;
 	}
 
-	private static void writetextfile(String filename,String text) {
+	
+	public static String extractLangfromXML(String inputString) {
+		String result="";
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db;
+		try {
+			db = dbf.newDocumentBuilder();
+			Document doc = db.parse(inputString);
+			doc.getDocumentElement().normalize();
+			NodeList nodeLstP = doc.getElementsByTagName("language");
+			for(int s=0; s<nodeLstP.getLength() ; s++){
+				Element NameElement = (Element)nodeLstP.item(s);
+				if (NameElement.hasAttribute("iso639")){
+					result+=NameElement.getAttributeNode("iso639").getTextContent();
+				}
+			}
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	
+	/*static void writetextfile(String filename,String text) {
 		Writer out;
 		try {
 			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),"UTF-8"));
@@ -464,9 +365,9 @@ public class DedupMD5 {
 			e.printStackTrace();
 			System.err.println("Error in writing the output text file.");
 		}
-	}
+	}*/
 
-	private static void writeHTMLfile(String filename, String urlList,
+	static void writeHTMLfile(String filename, String urlList,
 			boolean applyOfflineXSLT2) {
 		String outputfile1 =filename;
 		String[] urls=urlList.split("\n");
@@ -502,7 +403,7 @@ public class DedupMD5 {
 		}
 	}
 
-	public static void delete(String fileName) {
+	/*public static void delete(String fileName) {
 		try {
 			// Construct a File object for the file to be deleted.
 			File target = new File(fileName);
@@ -523,7 +424,7 @@ public class DedupMD5 {
 			System.err.println("Unable to delete " + fileName + "("
 					+ e.getMessage() + ")");
 		}
-	}
+	}*/
 
 	public static void copy(String fromFileName, String toFileName)
 			throws IOException {
@@ -585,7 +486,6 @@ public class DedupMD5 {
 		else
 			input= new File(temp.substring(tempid+2, temp.length()));
 
-		//System.out.println(input.getAbsolutePath());
 		if (!input.exists() || !input.isDirectory()){
 			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
 			System.exit(64);
@@ -599,7 +499,6 @@ public class DedupMD5 {
 			html=true;
 		}
 		File outputdir= new File(input.getParent()+fs+"xml");
-		//outputdir.mkdir();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
 				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type));
@@ -611,34 +510,61 @@ public class DedupMD5 {
 			return;
 		}
 
-		//long start = System.nanoTime(); 
 		long start = System.currentTimeMillis();
 		String text="";
 		String string_key="";
 		byte[] parhashkey =null;
 		HashMap<String, HashSet<String>> fileshash= new HashMap<String, HashSet<String>>();
-		HashMap<String, HashSet<Integer>> fileslengthhash= new HashMap<String, HashSet<Integer>>();
+		//HashMap<String, HashSet<Integer>> fileslengthhash= new HashMap<String, HashSet<Integer>>();
 		HashMap<String, Integer> fileTextlength= new HashMap<String, Integer>();
 		int cents=0;
+		HashMap<String, List<Integer>> filename_parlengths = new HashMap<String, List<Integer>>();
+		HashMap<String, List<String>> filename_parkeys = new HashMap<String, List<String>>();
 		for (int ii=0;ii<files.length;ii++){
 			text = extractTextfromXML_clean(files[ii].getAbsolutePath());
+			String langIdentified = extractLangfromXML(files[ii].getAbsolutePath());
 			String[] pars=text.split("\n");
 			List<String> filelist=new ArrayList<String>();
 			List<Integer> filelengthlist=new ArrayList<Integer>();
 			for (int jj=0;jj<pars.length;jj++){
-				parhashkey=MD5Hash.digest(pars[jj]).getDigest();
+				//stem the paragraph
+				String tempstr=pars[jj].replaceAll("[0-9]", "");
+				ArrayList<String> stems =new ArrayList<String>();
+				try {
+					stems = TopicTools.analyze(tempstr, langIdentified);
+				} catch (IOException e) {
+					LOGGER.warn(e.getMessage());
+				}
+				//concatenate stems 
+				tempstr="";
+				for (String s:stems){ tempstr+=" "+s;}
+				tempstr = tempstr.trim();
+				
+				LOGGER.debug(tempstr);
+				parhashkey=MD5Hash.digest(tempstr).getDigest();
 				string_key="";
 				for (int kk=0;kk<parhashkey.length;kk++) {
 					string_key += parhashkey[kk];
 				}
 				filelist.add(string_key);
-				filelengthlist.add(pars[jj].length());
+				//filelengthlist.add(pars[jj].length());
+				StringTokenizer st = new StringTokenizer(pars[jj]);	
+				filelengthlist.add(st.countTokens());
 			}
 			HashSet<String> fileset= new HashSet<String>(filelist);
 			fileshash.put(files[ii].getName().toString(), fileset);
-			HashSet<Integer> filelengthset= new HashSet<Integer>(filelengthlist);
-			fileslengthhash.put(files[ii].getName().toString(), filelengthset);
+			//HashSet<Integer> filelengthset= new HashSet<Integer>(filelengthlist);
+			//fileslengthhash.put(files[ii].getName().toString(), filelengthset);
+			
 			fileTextlength.put(files[ii].getName().toString(), text.length());
+			int len_in_toks = 0;
+			for (int jj=0;jj<filelengthlist.size();jj++){
+				len_in_toks+=filelengthlist.get(jj);
+			}
+			fileTextlength.put(files[ii].getName().toString(),len_in_toks);
+			filename_parlengths.put(files[ii].getName().toString(), filelengthlist);
+			filename_parkeys.put(files[ii].getName().toString(), filelist);
+			
 			if (ii/100>cents){
 				cents++;
 				LOGGER.info("Lists for more than "+ cents*100+" files have been created.");
@@ -648,69 +574,246 @@ public class DedupMD5 {
 		Iterator<String> it = keys.iterator();
 		String urlList="", string_key1 = "";
 		String sourcefile="";
+		ArrayList<String> checked = new ArrayList<String>();
+		
 		int counter=0;
+		cents=0;
 		while (it.hasNext()){
 			string_key = it.next();
-			HashSet<String> fileset=fileshash.get(string_key);
+			if (checked.contains(string_key))	continue;
+			//HashSet<String> fileset=fileshash.get(string_key);
 			Iterator<String> it1 = keys.iterator();
 			counter++;
 			while (it1.hasNext()){
 				string_key1 = it1.next();
 				if (string_key1.equals(string_key)) continue;
-				HashSet<String> fileset1=fileshash.get(string_key1);
+				if (checked.contains(string_key) | checked.contains(string_key1))	continue;
+				
+				//intersection of 2 lists and count tokens of common paragraphs
+				double common_pars_length=0;
+				List<String> tempkeylist = filename_parkeys.get(string_key);
+				double t=Double.parseDouble(Integer.toString(tempkeylist.size()));
+				List<String> tempkeylist1 = filename_parkeys.get(string_key1); 
+				List<Integer> tempparlist1 = filename_parlengths.get(string_key1); 
+				double t1=Double.parseDouble(Integer.toString(tempkeylist1.size()));
+				for(int i = tempkeylist1.size() - 1; i > -1; --i){
+				    String str = tempkeylist1.get(i);
+				    
+				    if(!tempkeylist.remove(str)){
+				    	tempkeylist1.remove(str);
+				    }else{
+				    	common_pars_length+=tempparlist1.get(i);
+				    }
+				}
+				double ti=Double.parseDouble(Integer.toString(tempkeylist1.size()));
+				
+				/*HashSet<String> fileset1=fileshash.get(string_key1);
 				HashSet intersection = new HashSet(fileset);
 				intersection.retainAll(fileset1);
 				double t=Double.parseDouble(Integer.toString(fileset.size()));
 				double t1=Double.parseDouble(Integer.toString(fileset1.size()));
-				double ti=Double.parseDouble(Integer.toString(intersection.size()));
-
-				double tu=t+t1-ti;
-				if (ti/t >0.9 || ti/t1 >0.9 || ti/tu >0.9){
-					//System.out.println(string_key+" pair with "+ string_key1);
+				double ti=Double.parseDouble(Integer.toString(intersection.size()));*/
+				//double tu=t+t1-ti;
+				//if (ti/t >0.9 || ti/t1 >0.9 || ti/tu >0.9){
+				//double tu=t+t1-2*ti;
+				if (ti/t >inter_thr || ti/t1 >inter_thr 
+						|| common_pars_length/fileTextlength.get(string_key1) > inter_thr
+						|| common_pars_length/fileTextlength.get(string_key) >inter_thr){ //|| ti/tu >inter_thr	
+					System.out.println(string_key+" pair with "+ string_key1);
 					if (fileTextlength.get(string_key1)>fileTextlength.get(string_key)){
 						//System.out.println("OUT"+"\t"+freqs.get(string_key).filename);
 						//freqs.put(string_key, t);
 						String temp2 = input.getPath()+fs+string_key;
-						delete(temp2);
+						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+						/*try {
+							FileUtils.forceDelete(new File(temp2));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}*/
 						temp2 = temp2.replace("."+input_type,".html");
-						delete(temp2);
+						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
 						temp2 = temp2.replace(".html",".xml.html");
-						delete(temp2);
+						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+						checked.add(string_key);
 					}else{
 						//System.out.println("OUT"+"\t"+t.filename);
 						String temp2 = input.getPath()+fs+string_key1;
-						delete(temp2);
+						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
 						temp2 = temp2.replace("."+input_type,".html");
-						delete(temp2);
+						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
 						temp2 = temp2.replace(".html",".xml.html");
-						delete(temp2);
+						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+						checked.add(string_key1);
 					}
 				}
-
+			}
+			checked.add(string_key);
+			
+			if (counter/1000>cents){
+				cents++;
+				LOGGER.info("more than "+ cents*1000+" files have been checked.");
 			}
 		}
 		File[] files1=input.listFiles(filter);
 		counter=0;
-		//while (it.hasNext()){
 		for (int ii=0;ii<files1.length;ii++){
-			//string_key = files1[ii].getName();
-			//try {
 			sourcefile = files1[ii].getName(); //freqs.get(string_key).filename;
 			String temp1 = outputdir.getAbsolutePath().replace("\\","/");
 			urlList=urlList + temp1+fs+sourcefile+"\n";
 			counter++;
 		}
-		writetextfile(out_textfile.getAbsolutePath(),urlList);
+		ReadResources.writetextfile(out_textfile.getAbsolutePath(),urlList);
 		if (html){
 			File out_HTMLfile =new File(outputHTMLfilename);
 			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList,applyOfflineXSLT);
 		}
 
 		long elapsedTime = System.currentTimeMillis()-start;
-		//System.out.println(counter + " files remained."); 
-		//System.out.println("Duration: "+elapsedTime);
 		LOGGER.info("New Deduplication completed in " + elapsedTime + " milliseconds. "+ counter +  " files remained.");
 	}
+
+
+	/*public static void dedupOnParagraphs(String indirname, String outputfilename, String outputHTMLfilename, 
+	boolean applyOfflineXSLT) {
+//modify indirname to be valid for windows
+String temp = indirname+fs+"xml";
+int tempid=temp.indexOf(":");
+if (tempid<0 || tempid<2)
+	input= new File(temp);
+else
+	input= new File(temp.substring(tempid+2, temp.length()));
+
+//System.out.println(input.getAbsolutePath());
+if (!input.exists() || !input.isDirectory()){
+	System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
+	System.exit(64);
+}
+out_textfile =new File(outputfilename);
+if (!out_textfile.exists()){
+	System.err.println( "List of cesdoc files does not exist!!!!!!!!" );			
+	System.exit(64);
+}
+if (!(outputHTMLfilename==null)){
+	html=true;
+}
+File outputdir= new File(input.getParent()+fs+"xml");
+//outputdir.mkdir();
+FilenameFilter filter = new FilenameFilter() {			
+	public boolean accept(File arg0, String arg1) {
+		return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type));
+	}
+};
+File[] files=input.listFiles(filter);
+if (files.length<2){
+	LOGGER.info("The input list contains less than 2 files.");
+	return;
+}
+
+//long start = System.nanoTime(); 
+long start = System.currentTimeMillis();
+String text="";
+String string_key="";
+byte[] parhashkey =null;
+HashMap<String, HashSet<String>> fileshash= new HashMap<String, HashSet<String>>();
+HashMap<String, HashSet<Integer>> fileslengthhash= new HashMap<String, HashSet<Integer>>();
+HashMap<String, Integer> fileTextlength= new HashMap<String, Integer>();
+int cents=0;
+for (int ii=0;ii<files.length;ii++){
+	text = extractTextfromXML_clean(files[ii].getAbsolutePath());
+	String[] pars=text.split("\n");
+	List<String> filelist=new ArrayList<String>();
+	List<Integer> filelengthlist=new ArrayList<Integer>();
+	for (int jj=0;jj<pars.length;jj++){
+		parhashkey=MD5Hash.digest(pars[jj]).getDigest();
+		string_key="";
+		for (int kk=0;kk<parhashkey.length;kk++) {
+			string_key += parhashkey[kk];
+		}
+		filelist.add(string_key);
+		filelengthlist.add(pars[jj].length());
+	}
+	HashSet<String> fileset= new HashSet<String>(filelist);
+	fileshash.put(files[ii].getName().toString(), fileset);
+	HashSet<Integer> filelengthset= new HashSet<Integer>(filelengthlist);
+	fileslengthhash.put(files[ii].getName().toString(), filelengthset);
+	fileTextlength.put(files[ii].getName().toString(), text.length());
+	if (ii/100>cents){
+		cents++;
+		LOGGER.info("Lists for more than "+ cents*100+" files have been created.");
+	}
+}
+Set<String> keys=fileshash.keySet();
+Iterator<String> it = keys.iterator();
+String urlList="", string_key1 = "";
+String sourcefile="";
+int counter=0;
+while (it.hasNext()){
+	string_key = it.next();
+	HashSet<String> fileset=fileshash.get(string_key);
+	Iterator<String> it1 = keys.iterator();
+	counter++;
+	while (it1.hasNext()){
+		string_key1 = it1.next();
+		if (string_key1.equals(string_key)) continue;
+		HashSet<String> fileset1=fileshash.get(string_key1);
+		HashSet intersection = new HashSet(fileset);
+		intersection.retainAll(fileset1);
+		double t=Double.parseDouble(Integer.toString(fileset.size()));
+		double t1=Double.parseDouble(Integer.toString(fileset1.size()));
+		double ti=Double.parseDouble(Integer.toString(intersection.size()));
+
+		//double tu=t+t1-ti;
+		//if (ti/t >0.9 || ti/t1 >0.9 || ti/tu >0.9){
+		double tu=t+t1-2*ti;
+			if (ti/t >inter_thr || ti/t1 >inter_thr || ti/tu >inter_thr){	
+			//System.out.println(string_key+" pair with "+ string_key1);
+			if (fileTextlength.get(string_key1)>fileTextlength.get(string_key)){
+				//System.out.println("OUT"+"\t"+freqs.get(string_key).filename);
+				//freqs.put(string_key, t);
+				String temp2 = input.getPath()+fs+string_key;
+				gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+				temp2 = temp2.replace("."+input_type,".html");
+				gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+				temp2 = temp2.replace(".html",".xml.html");
+				gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+			}else{
+				//System.out.println("OUT"+"\t"+t.filename);
+				String temp2 = input.getPath()+fs+string_key1;
+				gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+				temp2 = temp2.replace("."+input_type,".html");
+				gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+				temp2 = temp2.replace(".html",".xml.html");
+				gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+			}
+		}
+
+	}
+}
+File[] files1=input.listFiles(filter);
+counter=0;
+//while (it.hasNext()){
+for (int ii=0;ii<files1.length;ii++){
+	//string_key = files1[ii].getName();
+	//try {
+	sourcefile = files1[ii].getName(); //freqs.get(string_key).filename;
+	String temp1 = outputdir.getAbsolutePath().replace("\\","/");
+	urlList=urlList + temp1+fs+sourcefile+"\n";
+	counter++;
+}
+ReadResources.writetextfile(out_textfile.getAbsolutePath(),urlList);
+if (html){
+	File out_HTMLfile =new File(outputHTMLfilename);
+	writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList,applyOfflineXSLT);
+}
+
+long elapsedTime = System.currentTimeMillis()-start;
+//System.out.println(counter + " files remained."); 
+//System.out.println("Duration: "+elapsedTime);
+LOGGER.info("New Deduplication completed in " + elapsedTime + " milliseconds. "+ counter +  " files remained.");
+}
+	 */
+
 
 	/*public static void deduppars(String indirname, String outputfilename, String outputHTMLfilename) {
 		//modify indirname to be valid for windows
