@@ -215,4 +215,28 @@ public class FileUtils {
 	}
 
 	
+	public static void delete(String fileName) {
+		try {
+			// Construct a File object for the file to be deleted.
+			File target = new File(fileName);
+
+			if (!target.exists()) {
+				//System.err.println("File " + fileName
+				//		+ " not present to begin with!");
+				return;
+			}
+
+			// Quick, now, delete it immediately:
+			target.delete();
+			//if (!target.delete())
+			//System.err.println("** Deleted " + fileName + " **");
+			//else
+			//System.err.println("Failed to delete " + fileName);
+		} catch (SecurityException e) {
+			System.err.println("Unable to delete " + fileName + "("
+					+ e.getMessage() + ")");
+		}
+	}
+	
+	
 }
