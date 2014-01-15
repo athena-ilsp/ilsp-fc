@@ -764,7 +764,7 @@ public class SimpleCrawlHFS {
 				String text="";
 				int total_tokens=0;
 				for (int ii=0;ii<files.length;ii++){
-					text = DedupMD5.extractTextfromXML_clean(files[ii].getAbsolutePath());
+					text = ReadResources.extractTextfromXML_clean(files[ii].getAbsolutePath(),"p","crawlinfo");
 					StringTokenizer tkzr = new StringTokenizer(text);
 					int length_in_tok=tkzr.countTokens();
 					total_tokens=total_tokens+length_in_tok;
