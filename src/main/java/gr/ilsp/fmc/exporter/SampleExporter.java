@@ -65,6 +65,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
@@ -129,6 +130,7 @@ public class SampleExporter {
 	private static String outputFile = null;
 	private static String outputFileHTML = null;
 	private static String researchProject = "ILSP";
+	private static final String text_cc_separ = ";";
 	//private static String fs1 = System.getProperty("file.separator");
 	
 	private static void processStatus(JobConf conf, Path curDirPath) throws IOException {
@@ -1158,24 +1160,29 @@ public class SampleExporter {
 		xtw.writeEndElement();
 		xtw.writeStartElement("publicationStmt");   
 		xtw.writeStartElement("distributor");
-		//xtw.writeCharacters("Panacea project");
 		xtw.writeCharacters(researchProject  +" project");
 		xtw.writeEndElement();
 		xtw.writeStartElement("eAddress");
 		xtw.writeAttribute("type", "web");
-		//xtw.writeCharacters("http://www.panacea-lr.eu/");
 		xtw.writeCharacters("project_website");
 		xtw.writeEndElement();
-		xtw.writeStartElement("availability");
-		if (licenseURL!="" & licenseURL!=null) {
+		
+		/*if (licenseURL!="" & licenseURL!=null) {
 			xtw.writeStartElement("license");
 			xtw.writeAttribute("target", licenseURL);
 			xtw.writeCharacters("Distributed under a Creative Commons license");
 			xtw.writeEndElement();
 		} else {
 			xtw.writeCharacters("Under review");
+		}*/
+		
+		//if (licenseURL.isEmpty() || licenseURL==null) {
+		if (StringUtils.isEmpty(licenseURL)){
+			xtw.writeStartElement("availability");
+			xtw.writeCharacters("Under review");
+			xtw.writeEndElement();
 		}
-		xtw.writeEndElement();
+		
 		xtw.writeStartElement("pubDate");
 		xtw.writeCharacters(year);
 		xtw.writeEndElement();
@@ -1207,6 +1214,16 @@ public class SampleExporter {
 		xtw.writeStartElement("eAddress");
 		xtw.writeCharacters(url);
 		xtw.writeEndElement();
+
+		//if (licenseURL!="" & licenseURL!=null) {
+		if (!StringUtils.isEmpty(licenseURL)){
+			xtw.writeStartElement("license");
+			String[] t1 =  licenseURL.split(text_cc_separ);
+			xtw.writeAttribute("target", t1[1]);
+			xtw.writeCharacters(t1[0]);
+			xtw.writeEndElement();
+		} 
+		
 		xtw.writeEndElement();
 
 		xtw.writeEndElement();
