@@ -14,6 +14,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+//import java.util.regex.Matcher;
+//import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 //import org.apache.tika.detect.DefaultDetector;
@@ -39,6 +41,12 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	private static final String HTTP_PROTOCOL = "http";
 	private static final String HTTPS_PROTOCOL = "https";
 	private static final String CREATIVECOMMONS_ORG_STR = "creativecommons.org";
+	//private Matcher CCMatcher = Pattern.compile(".*Creative Commons.*", Pattern.CASE_INSENSITIVE).matcher("");
+	private static final String CC_pattern= "Creative Commons";
+	private static final String default_CCurl_in_text= "http://creativecommons.org/licenses/by/3.0/";
+	private static final String default_CCcomment_in_url = "Distributed under a Creative Commons license";
+	private static final String default_CCcomment_in_text = "Distributed under a Creative Commons license (auto detected in document)";
+	private static final String text_cc_separ = ";";
 	//private static final String REL_LICENSE_LOCATION = "rel";
 	private static final Logger LOGGER = Logger.getLogger(TikaCallableParser.class);
     // Simplistic language code pattern used when there are more than one languages specified
@@ -113,6 +121,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
             
             // Check each link for creative commons licenses
+            boolean found_CClink=false;
             for (ExtendedOutlink extendedOutlink : outlinks) {
             	try {
 					URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
@@ -123,14 +132,21 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 							url.getPath() != null &&
 							url.getPath().startsWith(LICENSES_STR) &&
 							url.getPath().length() > LICENSES_STR.length()) {
-						_metadata.set(Metadata.LICENSE_URL, url.toString());
+						_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_url+text_cc_separ+url.toString());
+						found_CClink=true;
 						break;
 					}
 				} catch (Exception e) {
 					LOGGER.debug("reached");
 				}
             }
-            
+            // if a creative commons license is mentioned in the content 
+            if (!found_CClink){
+           		//if (CCMatcher.reset(content).matches())
+            	if (content.contains(CC_pattern)){
+           			_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_text+text_cc_separ+default_CCurl_in_text);	
+           		}
+            }
             return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, /*_contentExtractor.getContent()*/content, lang,
                             _metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
         } catch (Exception e) {
