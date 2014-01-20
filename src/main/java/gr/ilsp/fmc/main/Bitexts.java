@@ -2,7 +2,7 @@ package gr.ilsp.fmc.main;
 
 import gr.ilsp.fmc.exporter.XSLTransformer;
 
-import java.io.BufferedInputStream;
+//import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -44,6 +44,7 @@ import javax.xml.transform.TransformerException;
 
 //import org.apache.hadoop.fs.FileSystem;
 //import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.Path;
 //import org.apache.hadoop.mapred.JobConf;
@@ -86,7 +87,344 @@ public class Bitexts {
 	private static String cesAlingURL="http://nlp.ilsp.gr/xslt/ilsp-fc/cesAlign.xsl";
 
 	public static void main(String[] args) {
+		//task1//
+		String parent_dir  ="C:\\QTLaunchPad\\AUTOMOTIVE\\EN-EL\\"; 
+		String pair_list ="C:\\QTLaunchPad\\AUTOMOTIVE\\EN-EL\\total_pairs.txt";
+		//task2//
+		String list_with_attricutes_of_files =
+				"C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\EN_AUTOMOTIVE_results_nonCC.txt";
+		//task3/
+		String xml_dir="C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\qtlp_20131227_132408\\e401c679-d4d1-4099-8711-a3b97d634614\\xml";
+		String xmlCC_dir="C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\qtlp_20131227_132408\\e401c679-d4d1-4099-8711-a3b97d634614\\xml_CC";
+		String nonCC_list="C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\output_AUTOMOTIVE_EN_nonCC.txt";
+		String CC_list="C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\output_AUTOMOTIVE_EN_CC.txt";
+		String licensed_list="C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\AUTOMOTIVE_EN_licensed.txt";
+		String pathstring="qtlp_20131227_132408/e401c679-d4d1-4099-8711-a3b97d634614/xml/";
+		//task4/
+		String target_dir =
+		"C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\qtlp_20131227_132408\\e401c679-d4d1-4099-8711-a3b97d634614\\xml";
+		String exten="xml";
+		String exclude_str="crawlinfo=";
+		//task5//
+		String removefilelist="C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\to_remove.txt";
+		String path_file_t="C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\qtlp_20131227_132408\\e401c679-d4d1-4099-8711-a3b97d634614\\xml";
+		int task=4;
+		
+		if (task==1){
+			pdf_pairs(pair_list, parent_dir);
+			System.out.println("existance of pdf files in list of pairs is checked");
+		}
+		if (task==2){
+			//list of attributes are extracted by QueryXMLwithXpath class
+			print_unique_sites_in_collection(list_with_attricutes_of_files);
+			System.out.println("unique sites in collection is printed");
+		}
+		if (task==3){
+			discriminate_CC_from_nonCC(xml_dir, xmlCC_dir, licensed_list, nonCC_list, CC_list, pathstring);
+			System.out.println("files with CC licensed are moved from XML to XML_CC");
+		}
+		if (task==4){
+			counttokens(target_dir,exten,exclude_str);
+			System.out.println("tokens calculated.");
+		}
+		if (task==5){
+			//remove files from collection
+			try {
+				String tmp1 = ReadResources.readFileAsString(removefilelist);
+				String[] filestoremove = tmp1.split("\n");	
+				ArrayList<String> filestoremoveList=new ArrayList<String>();
+				for (int ii=0;ii<filestoremove.length;ii++){
+					filestoremoveList.add(filestoremove[ii]);
+				}
+				File xmldir = new File(path_file_t);
+				String[] filesinXML= xmldir.list();
+				for (int ii=0;ii<filesinXML.length;ii++){
+					if (filesinXML[ii].endsWith("xml")){
+						if (filestoremoveList.contains(filesinXML[ii])){
+							File tempfile=new File(path_file_t+"\\"+filesinXML[ii]);
+							System.out.println(tempfile.getName());
+							tempfile.delete();
+							tempfile=new File(path_file_t+"\\"+filesinXML[ii]+".html");
+							System.out.println(tempfile.getName());
+							tempfile.delete();
+							String tt = filesinXML[ii].substring(0, filesinXML[ii].indexOf("."));
+							tempfile=new File(path_file_t+"\\"+tt+".html");
+							System.out.println(tempfile.getName());
+							tempfile.delete();
+						}
+					}
+				}
+				
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			
+			
+			
+			
+		}
+		
+		/*try {
+			String tmp=readFileAsString("C:\\QTLaunchPad\\MEDICAL\\EN-DE\\check_urls_dist.txt");
+			String[] strings=tmp.split("\n");
+			for (int ii=0;ii<strings.length;ii++){
+				String tmp1=strings[ii];
+				for (int jj=0;jj<strings.length;jj++){
+					double q=editDist(tmp1,strings[jj]);
+					System.out.println(ii+"->"+jj+"="+q);
+				}
+				System.out.println("---------");
+			}
+			//System.out.println(q12 + " " +q13+ " "+ q23);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+	
+		
+		
+				
+/*		
+		String path_file="C:\\QTLaunchPad\\MEDICAL\\PT\\qtlp_20131004_102319\\27da9c44-1389-4a6d-93f9-59174b8eb1d2\\xml";
+		String tmp1;
+		try {
+			tmp1 = readFileAsString("C:\\QTLaunchPad\\MEDICAL\\EL\\to_remove.txt");
+			String[] filestoremove = tmp1.split("\n");	
+			ArrayList<String> filestoremoveList=new ArrayList<String>();
+			for (int ii=0;ii<filestoremove.length;ii++){
+				filestoremoveList.add(filestoremove[ii]);
+			}
+			File xmldir = new File(path_file);
+			String[] filesinXML= xmldir.list();
+			for (int ii=0;ii<filesinXML.length;ii++){
+				if (filesinXML[ii].endsWith("xml")){
+					if (filestoremoveList.contains(filesinXML[ii])){
+						File tempfile=new File(path_file+"\\"+filesinXML[ii]);
+						System.out.println(tempfile.getName());
+						tempfile.delete();
+						tempfile=new File(path_file+"\\"+filesinXML[ii]+".html");
+						System.out.println(tempfile.getName());
+						tempfile.delete();
+						String tt = filesinXML[ii].substring(0, filesinXML[ii].indexOf("."));
+						tempfile=new File(path_file+"\\"+tt+".html");
+						System.out.println(tempfile.getName());
+						tempfile.delete();
+					}
+				}
+			}
+			
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}*/
 
+		String path_file="C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\qtlp_20131227_132408\\e401c679-d4d1-4099-8711-a3b97d634614\\xml_out";
+		String path_file1="C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\qtlp_20131227_132408\\e401c679-d4d1-4099-8711-a3b97d634614\\xml";
+		File xmldir = new File(path_file);
+		String[] filesinXML= xmldir.list();
+		int counter=0;
+		for (int ii=0;ii<filesinXML.length;ii++){
+			if (filesinXML[ii].endsWith("out")){
+				try {	
+					String tt = filesinXML[ii].substring(0,filesinXML[ii].indexOf("."));
+					//copy ".html"
+					File tempfile=new File(path_file+"\\"+tt+".html");
+					File destfile=new File(path_file1+"\\"+tt+".html");
+					//FileUtils.copyFile(tempfile, destfile);
+					FileUtils.moveFile(tempfile, destfile);
+					//copy ".out" as ".xml"
+					tempfile=new File(path_file+"\\"+filesinXML[ii]);
+					destfile=new File(path_file1+"\\"+tt+".xml");
+					//FileUtils.copyFile(tempfile, destfile);
+					FileUtils.moveFile(tempfile, destfile);
+					//copy ".xml.html"
+					tt=filesinXML[ii].substring(0, filesinXML[ii].lastIndexOf("."))+".html";
+					tempfile=new File(path_file+"\\"+tt);
+					destfile=new File(path_file1+"\\"+tt);
+					//FileUtils.copyFile(tempfile, destfile);
+					FileUtils.moveFile(tempfile, destfile);
+					counter++;
+					System.out.println(counter);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		System.out.println("aaaaa");
+
+/*
+		String path_file="C:\\QTLaunchPad\\AUTOMOTIVE\\PT\\qtlp_20131210_192340\\0549bdb9-048d-4c98-9d90-44f69277f0c7\\xml_out";
+		String path_file1="C:\\QTLaunchPad\\AUTOMOTIVE\\PT\\qtlp_20131210_192340\\0549bdb9-048d-4c98-9d90-44f69277f0c7\\xml";
+		File xmldir = new File(path_file);
+		String[] filesinXML= xmldir.list();
+		for (int ii=0;ii<filesinXML.length;ii++){
+			if (filesinXML[ii].endsWith("out")){
+				try {
+					File tempFile=new File(path_file+"\\"+filesinXML[ii]);
+					File destFile=new File(path_file1+"\\"+filesinXML[ii].substring(0, filesinXML[ii].lastIndexOf(".")));
+					FileUtils.copyFile(tempFile, destFile);
+					tempFile=new File(path_file+"\\"+filesinXML[ii].substring(0, filesinXML[ii].lastIndexOf("."))+".html");
+					destFile=new File(destFile+".html");
+					FileUtils.copyFile(tempFile, destFile);
+					tempFile=new File(path_file+"\\"+filesinXML[ii].substring(0, filesinXML[ii].indexOf("."))+".html");
+					destFile=new File(path_file1+"\\"+filesinXML[ii].substring(0, filesinXML[ii].indexOf("."))+".html");
+					FileUtils.copyFile(tempFile, destFile);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
+		//String	
+		path_file="C:\\QTLaunchPad\\AUTOMOTIVE\\PT\\qtlp_20131210_192340\\0549bdb9-048d-4c98-9d90-44f69277f0c7\\xml";
+		String pathstring="qtlp_20131210_192340/0549bdb9-048d-4c98-9d90-44f69277f0c7/xml/";
+		//File 
+		xmldir = new File(path_file);
+		//String[]
+				filesinXML= xmldir.list();
+		String urlList="";
+		for (int ii=0;ii<filesinXML.length;ii++){
+			if (filesinXML[ii].endsWith("xml")){
+				urlList=urlList + pathstring+filesinXML[ii]+"\n";
+			}
+		}
+		DedupMD5.writetextfile("C:\\QTLaunchPad\\AUTOMOTIVE\\PT\\output_AUTOMOTIVE_PT_250_4_4_F.txt",urlList);
+
+		DedupMD5.writeHTMLfile("C:\\QTLaunchPad\\AUTOMOTIVE\\PT\\output_AUTOMOTIVE_PT_250_4_4_F.txt.html",urlList,true);
+
+
+*/
+		//String path_file="C:\\QTLaunchPad\\MEDICAL\\PT\\qtlp_20131004_102319\\27da9c44-1389-4a6d-93f9-59174b8eb1d2\\xml";
+
+		/*	File htmldir = new File(path_file);
+		String[] filesinHTML= htmldir.list();
+		for (int ii=0;ii<filesinHTML.length;ii++){
+			if (filesinHTML[ii].endsWith("html")){
+				File htmlfile=new File (path_file+"\\"+filesinHTML[ii]);
+				htmlfile.delete();
+			}
+		}*/
+		/*String tmp;
+		File xmldir = new File(path_file);
+		String[] filesinXML= xmldir.list();
+		int counter1, counter2;
+		for (int ii=0;ii<filesinXML.length;ii++){
+			if (filesinXML[ii].endsWith("xml")){
+				try {
+					tmp = readFileAsString(path_file+"\\"+filesinXML[ii]);
+					String[] strings=tmp.split("\n");
+					counter1=0;
+					counter2=0;
+					for (int jj=0;jj<strings.length;jj++){
+						String tmp1=strings[jj];
+						if (tmp1.contains("topic=")){
+							counter1++;
+							String[] terms=tmp1.split(";");
+							counter2=terms.length+counter2;
+						}
+					}
+					if (counter2<3){
+						System.out.println(filesinXML[ii]);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}*/
+		//String path_file="C:\\QTLaunchPad\\MEDICAL\\PT\\qtlp_20131004_102319\\27da9c44-1389-4a6d-93f9-59174b8eb1d2\\xml";
+		/*File outdir = new File(path_file);
+		String[] outfilesinXML= outdir.list();
+		for (int ii=0;ii<outfilesinXML.length;ii++){
+			if (outfilesinXML[ii].endsWith("out")){
+				File tempfile=new File(path_file+"\\"+outfilesinXML[ii]);
+				File destFile=new File(path_file+"\\"+outfilesinXML[ii].substring(0, outfilesinXML[ii].lastIndexOf(".")));
+				try {
+					FileUtils.moveFile(tempfile, destFile) ;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}*/
+		/*String path_file="C:\\QTLaunchPad\\AUTOMOTIVE\\EL\\qtlp_20131125_112248\\ee7c9b00-066d-4b8e-851c-7e46f7512ebc\\xml";
+		String path_file1="C:\\QTLaunchPad\\AUTOMOTIVE\\EL\\qtlp_20131125_112248\\ee7c9b00-066d-4b8e-851c-7e46f7512ebc\\xml_new";
+		String tmp1;
+		try {
+			tmp1 = readFileAsString("C:\\QTLaunchPad\\AUTOMOTIVE\\EL\\to_remove.txt");
+			String[] filestoremove = tmp1.split("\n");	
+			ArrayList<String> filestoremoveList=new ArrayList<String>();
+			for (int ii=0;ii<filestoremove.length;ii++){
+				filestoremoveList.add(filestoremove[ii]);
+			}
+			File xmldir = new File(path_file);
+			String[] filesinXML= xmldir.list();
+			for (int ii=0;ii<filesinXML.length;ii++){
+				if (filesinXML[ii].endsWith("xml")){
+					if (!filestoremoveList.contains(filesinXML[ii])){
+						File tempfile=new File(path_file+"\\"+filesinXML[ii]);
+						File destFile=new File(path_file1+"\\"+filesinXML[ii]);
+						FileUtils.copyFile(tempfile, destFile) ;
+						tempfile=new File(path_file+"\\"+filesinXML[ii]+".html");
+						destFile=new File(path_file1+"\\"+filesinXML[ii]+".html");
+						FileUtils.copyFile(tempfile, destFile) ;
+						String tt = filesinXML[ii].substring(0, filesinXML[ii].indexOf("."));
+						tempfile=new File(path_file+"\\"+tt+".html");
+						destFile=new File(path_file1+"\\"+tt+".html");
+						FileUtils.copyFile(tempfile, destFile) ;
+					}
+				}
+			}
+			xmldir = new File(path_file1);
+			filesinXML= xmldir.list();
+			int tokens_num=0;
+			for (int ii=0;ii<filesinXML.length;ii++){
+				if (filesinXML[ii].endsWith("xml")){
+					System.out.println(filesinXML[ii]);
+					tmp1 = readFileAsString(path_file+"\\"+filesinXML[ii]);
+					String[] lines = tmp1.split("\n");
+					for (int jj=0;jj<lines.length;jj++){
+						if (lines[jj].contains("<p id=") & !lines[jj].contains("crawlinfo=")){
+							//System.out.println(lines[jj]);
+							int s=lines[jj].indexOf(">")+1;
+							int e=lines[jj].length()-4;
+							String temp=lines[jj].substring(s, e);
+							StringTokenizer st = new StringTokenizer(temp);	
+							//double words_num=st.countTokens();
+							tokens_num=tokens_num+st.countTokens();
+						}
+					}
+				}
+			}
+			System.out.println(tokens_num);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		 */
+
+		/*	String tmp;
+				try {
+					tmp = readFileAsString(path_file+"\\"+filesinXML[ii]);
+					String[] strings=tmp.split("\n");
+					for (int jj=0;jj<strings.length;jj++){
+						String tmp1=strings[jj];
+						if (tmp1.contains("topic=")){
+							counter1++;
+							String[] terms=tmp1.split(";");
+							counter2=terms.length+counter2;
+						}
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (counter2<3){
+					System.out.println(filesinXML[ii]);
+				}
+			}
+		}*/
 		/*File xmldir = new File("C:\\QTLaunchPad\\Medicine\\EN-DE\\b50977c5-3596-410d-989b-8b7132e404f0\\xml");
 		ArrayList<String[]> bitextsURLs=new ArrayList<String[]>();
 		HashMap<String, String> filesURLS = findURLs(xmldir);
@@ -173,6 +511,38 @@ public class Bitexts {
 		}
 		System.out.println("TOTAL FILES: "+targetfiles.size());
 		System.out.println("aaaa");*/
+	}
+
+	public static void counttokens(String target_dir, String exten, String exclude_str) {
+		File xmldir = new File(target_dir);
+		String[] filesinXML= xmldir.list();
+		String tmp1;
+		int tokens_num=0;
+		for (int ii=0;ii<filesinXML.length;ii++){
+			if (filesinXML[ii].endsWith(exten)){
+				//System.out.println(filesinXML[ii]);
+				try {
+					tmp1 = ReadResources.readFileAsString(target_dir+fs+filesinXML[ii]);
+					String[] lines = tmp1.split("\n");
+					for (int jj=0;jj<lines.length;jj++){
+						if (lines[jj].contains("<p id=") & !lines[jj].contains(exclude_str)){
+							//System.out.println(lines[jj]);
+							int s=lines[jj].indexOf(">")+1;
+							int e=lines[jj].length()-4;
+							String temp=lines[jj].substring(s, e);
+							StringTokenizer st = new StringTokenizer(temp);	
+							//double words_num=st.countTokens();
+							tokens_num=tokens_num+st.countTokens();
+						}
+					}
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
+		System.out.println(tokens_num);
+		
 	}
 
 	/*	private static void counttoks(File xmldir, String outfile) {
@@ -1607,7 +1977,7 @@ public class Bitexts {
 					inFile = new File(curXMLName);
 					outFile = new File(FilenameUtils.removeExtension(inFile.getAbsolutePath()) + ".xml.html");			
 					xslTransformer.transform(inFile, outFile);
-					String cesAlignText = readFileAsString(outFile.getAbsolutePath());
+					String cesAlignText = ReadResources.readFileAsString(outFile.getAbsolutePath());
 					cesAlignText = cesAlignText.replace(f1+".xml", f1+".xml.html");
 					cesAlignText = cesAlignText.replace(f2+".xml", f2+".xml.html");
 					OutputStreamWriter tmpwrt;
@@ -1714,6 +2084,46 @@ public class Bitexts {
 		return d[n][m];
 		//return dist;
 	}
+
+	private static double editDist(String s, String t) {
+		int cost;
+
+		if (s==t)	return 0;
+		if (s.length() == 0) return t.length();
+		if (t.length() == 0) return s.length();
+
+		int[] v0 = new int[t.length() + 1];
+		int[] v1 = new int[t.length() + 1];
+
+		for (int i = 0; i < v0.length; i++)
+			v0[i] = i;
+
+		for (int i = 0; i < s.length(); i++){
+			// calculate v1 (current row distances) from the previous row v0
+			// first element of v1 is A[i+1][0]
+			//   edit distance is delete (i+1) chars from s to match empty t
+			v1[0] = i + 1;
+			// use formula to fill in the rest of the row
+			for (int j = 0; j < t.length(); j++){
+				//System.out.println(s.substring(i, i+1));
+				//System.out.println(t.substring(j, j+1));
+				//System.out.println("----------");
+				if (s.substring(i, i+1).equals(t.substring(j, j+1))) 
+					/*if (s.substring(i, i+1).equals(t.substring(j, j+1))
+	        			| s.substring(i, i+1).equals(t.substring(Math.max(1,j-1), j))
+	        			| s.substring(i, i+1).equals(t.substring(j, Math.min(t.length(), j+1)))) */
+					cost=0;
+				else
+					cost=1;
+				v1[j + 1] = min3(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost);
+			}
+			// copy v1 (current row) to v0 (previous row) for next iteration
+			for (int j = 0; j < v0.length; j++)
+				v0[j] = v1[j];
+		}
+		return v1[t.length()];
+	}
+
 
 
 	private static int min3(int i, int j, int k) {
@@ -1837,13 +2247,7 @@ public class Bitexts {
 	}
 	 */
 
-	public static String readFileAsString(String filePath) throws java.io.IOException{
-		byte[] buffer = new byte[(int) new File(filePath).length()];
-		BufferedInputStream f = new BufferedInputStream(new FileInputStream(filePath));
-		f.read(buffer);
-		f.close();
-		return new String(buffer);
-	}
+	
 
 
 	public static ArrayList<String[]> sortbyLength(ArrayList<String[]> bitexts) {
@@ -2087,6 +2491,9 @@ public class Bitexts {
 				String lang2=props.get(key1)[1];
 				if (!lang1.equals(lang2)){
 					file_url1=filesURLS.get(key1);
+					String tt=file_url.replace("-hel","");
+					//tt = tt.replace("L=1", "L=0");
+					String tt1 = file_url1.replace(".gr.",".");
 					if (file_url.replace("_"+lang1, "_"+lang2).equals(file_url1)
 							| file_url.replace("/"+lang1+"/", "/"+lang2+"/").equals(file_url1)
 							| file_url.replace("/"+lang1+"/", "").equals(file_url1) | file_url1.replace("/"+lang2+"/", "").equals(file_url)
@@ -2096,14 +2503,17 @@ public class Bitexts {
 							| file_url.replace("lang="+lang1, "lang="+lang2).equals(file_url1)
 							| file_url.toLowerCase().replace("langid=1", "langid=2").equals(file_url1.toLowerCase())
 							| file_url.replace("lang,1","lang,2").equals(file_url1) | file_url.replace("lang,2","lang,1").equals(file_url1)	
-							//| file_url.replace("g.htm", "e.htm").equals(file_url1)
+							| file_url.replace("/e/","/").equals(file_url1)
+							| file_url.replace("/gr/","/en/").equals(file_url1)
+							| tt.equals(tt1)
+							//| file_url.replace("english.cgi", "").equals(file_url1)
 							//| file_url.replace("gr.htm", "en.htm").equals(file_url1)
 							//| file_url.replace("=gr", "=en").equals(file_url1)
 							//| file_url.replace("lang=gr", "").equals(file_url1)
 							//| file_url.replace("/gr/", "/en/").equals(file_url1)//)
 							|(file_url.substring(0, file_url.length()-4).equals(file_url1.substring(0, file_url1.length()-4)) &
 									file_url.endsWith("="+lang1) & file_url1.endsWith("="+lang2)))
-					//if	(file_url.replace("lang,2","lang,1").equals(file_url1) | file_url.replace("lang,1","lang,2").equals(file_url1))
+						//if	(file_url.replace("lang,2","lang,1").equals(file_url1) | file_url.replace("lang,1","lang,2").equals(file_url1))
 					{
 						System.out.println(file_url1);
 						System.out.println(file_url);
@@ -2236,5 +2646,263 @@ public class Bitexts {
 			return null;
 		return stats;
 	}
+
+	public static ArrayList<String[]> findpairsURLs_dist(
+			HashMap<String, String> filesURLS, HashMap<String, String[]> props) {
+		ArrayList<String[]> result=new ArrayList<String[]>();
+		ArrayList<String> paired=new ArrayList<String>();
+
+		ArrayList<String> cand_paired=new ArrayList<String>();
+		ArrayList<Double> dist_paired=new ArrayList<Double>();
+
+		Set<String> files_keys=filesURLS.keySet();
+		Iterator<String> files_it = files_keys.iterator();
+		String key, key1, file_url, file_url1;
+		while (files_it.hasNext()){
+			key = files_it.next();
+			//String[] pair=new String[6];
+			if (props.get(key)==null) 
+				continue;
+			String lang1=props.get(key)[1];
+			file_url=filesURLS.get(key);              
+			int ind = file_url.indexOf(".");
+			int ind1 = file_url.indexOf("/",ind);
+			String file_url_file_url="";
+			if (ind1<0)
+				file_url_file_url=file_url.substring(ind, file_url.length());
+			else
+				file_url_file_url=file_url.substring(ind1, file_url.length());
+			Iterator<String> files_it1 = files_keys.iterator();
+			//System.out.println(file_url);
+			while (files_it1.hasNext()){
+				key1 = files_it1.next();
+				if (props.get(key1)==null) continue;
+				String lang2=props.get(key1)[1];
+				if (!lang1.equals(lang2)){
+					file_url1=filesURLS.get(key1);
+					ind = file_url1.indexOf(".");
+					ind1 = file_url1.indexOf("/",ind);
+					String file_url1_file_url1="";
+					if (ind<0)
+						file_url1_file_url1=file_url1.substring(ind, file_url1.length());
+					else
+						file_url1_file_url1=file_url1.substring(ind1, file_url1.length());;
+
+						double  temp_dist=editDist(file_url_file_url,file_url1_file_url1)
+								/Math.max(file_url_file_url.length()-ind, file_url1_file_url1.length()-ind1);
+						//System.out.println(file_url1);
+						dist_paired.add(temp_dist);
+						cand_paired.add(key+"_"+key1);
+						//System.out.println(dist_paired.get(dist_paired.size()-1));
+						//System.out.println("------------------");
+						System.out.println(key+"\t"+key1+"\t"+file_url.length()+"\t"+file_url1.length()+"\t"+temp_dist);
+
+				}
+			}
+		}
+		System.out.println("================");
+
+		int ind=-1, count_files=0, stop=1;
+		double val=1000000; 
+		while (count_files<files_keys.size() & stop==1){
+			for (int ii=0;ii<cand_paired.size();ii++){
+				if (dist_paired.get(ii)<val){
+					ind=ii;
+					val=dist_paired.get(ii);
+				}
+			}
+			if (val>=0.25){
+				stop=0;
+				break;
+			}
+			String  temp_pair=cand_paired.get(ind);
+			String[] temp_files=temp_pair.split("_");
+			if (!paired.contains(temp_files[0]) && !paired.contains(temp_files[1])){
+				String[] pair=new String[6];
+				pair[0]=temp_files[0];
+				pair[1]=temp_files[1];
+				pair[2]=props.get(pair[0])[1];
+				pair[3]=props.get(pair[1])[1];
+				pair[4]="u";
+				pair[5]=Integer.toString(Integer.parseInt(props.get(pair[0])[4])+Integer.parseInt(props.get(pair[1])[4]));
+				result.add(pair);
+				paired.add(pair[0]);
+				paired.add(pair[1]);
+				count_files=count_files+2;
+				System.out.println(temp_files[0]+"_"+temp_files[1]+ " : "+ val);
+				for (int ii=0;ii<cand_paired.size();ii++){
+					temp_pair=cand_paired.get(ii);
+					temp_files=temp_pair.split("_");
+					if (paired.contains(temp_files[0]) | paired.contains(temp_files[1])){
+						dist_paired.set(ii,1000000.0); 
+						val=1000000;
+					}
+				}
+			}/*else{
+				paired.	
+			}*/
+			//dist_paired.set(ind,1000000.0);
+			//val=1000000;
+		}
+
+
+		return result;
+	}
+	////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	///////temp_methods to be removed///////////////////////////////// 
+	private static void pdf_pairs(String pair_list, String parent_dir) {
+		
+		File tempfile = new File(pair_list);
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(tempfile));
+			String str; //, file1, file2;
+			int counter=1;
+			//HashMap<String, Integer> sites = new  HashMap<String, Integer>();
+			while ((str = in.readLine()) != null) {
+				String[] linedata = str.split("\t");			
+				if (linedata.length!=2){
+					System.out.println("problem in line "+counter+ " of " + pair_list);
+					System.exit(0);
+				}
+				//file1=linedata[0].replaceAll("/", fs);		file2=linedata[1].replaceAll("/", fs);
+				File pdf1=new File(parent_dir+fs+linedata[0]);
+				File pdf2=new File(parent_dir+fs+linedata[1]);
+				if (!pdf1.exists()){
+					System.out.println("DOES NOT EXIST file "+ pdf1.getAbsolutePath() + " mentioned in line "+counter+ " of " + pair_list);
+					//System.exit(0);
+				}
+				if (!pdf2.exists()){
+					System.out.println("DOES NOT EXIST file "+ pdf2.getAbsolutePath() + " mentioned in line "+counter+ " of " + pair_list);
+					//System.exit(0);
+				}
+				counter++;
+			}
+		} catch (IOException e) {
+		}
+	}
+	
+	
+	private static void print_unique_sites_in_collection(
+			String list_with_attricutes_of_files) {
+		
+		File tempfile = new File(list_with_attricutes_of_files);
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(tempfile));
+			String str, site, tempstr; //, tempsite;
+			int ind1, ind2, counter; //ind3, ind4 
+			HashMap<String, Integer> sites = new  HashMap<String, Integer>();
+			while ((str = in.readLine()) != null) {
+				String[] linedata = str.split("\t");				
+				site=linedata[2];				ind1=site.indexOf("//");
+				tempstr=site.substring(ind1+2);	ind2=tempstr.indexOf("/")+ind1+2;
+				if (ind2>=site.length()| ind2<0)
+					ind2=site.length()-1;
+				site = site.substring(ind1+2, ind2);	//	ind3 = site.lastIndexOf(".");
+				//tempsite = site.substring(0, ind3);			ind4 = tempsite.lastIndexOf(".");
+				//site = site.substring(ind4+1);
+				if (sites.containsKey(site)){
+					counter = sites.get(site)+1;
+					sites.put(site, counter);
+				}
+				else
+					sites.put(site, 1);
+			}
+			in.close();
+			Set<String> site_keys=sites.keySet();
+			Iterator<String> key = site_keys.iterator();
+			String key_im = "";
+			while (key.hasNext()){
+				key_im = key.next();
+				//LOGGER.info(key_im+"\t"+sites.get(key_im));
+				System.out.println(key_im+"\t"+sites.get(key_im));
+			}
+		} catch (IOException e) {
+		}
+	}
+	
+
+	
+
+
+
+	private static void discriminate_CC_from_nonCC(String xml_dir,
+			String xmlCC_dir, String licensed_list, String nonCC_list, String CC_list, String pathstring) {
+				
+		String tmp1;
+		try {
+			tmp1 = ReadResources.readFileAsString(licensed_list);
+			String[] filestoremove = tmp1.split("\n");	
+			ArrayList<String> filestoremoveList=new ArrayList<String>();
+			for (int ii=0;ii<filestoremove.length;ii++)
+				filestoremoveList.add(filestoremove[ii]);
+			File xmldir = new File(xml_dir);
+			String[] filesinXML= xmldir.list();
+			int counter=0;
+			for (int ii=0;ii<filesinXML.length;ii++){
+				if (filesinXML[ii].endsWith("xml")){
+					if (filestoremoveList.contains(filesinXML[ii])){
+						String tt = filesinXML[ii].substring(0,filesinXML[ii].indexOf("."));
+						//".html"
+						File tempfile=new File(xml_dir+"\\"+tt+".html");
+						File destfile=new File(xmlCC_dir+"\\"+tt+".html");
+						FileUtils.moveFile(tempfile, destfile);
+						//".xml"
+						tempfile=new File(xml_dir+"\\"+filesinXML[ii]);
+						destfile=new File(xmlCC_dir+"\\"+tt+".xml");
+						FileUtils.moveFile(tempfile, destfile);
+						//".xml.html"
+						tt=filesinXML[ii].substring(0, filesinXML[ii].lastIndexOf("."))+".xml.html";
+						tempfile=new File(xml_dir+"\\"+tt);
+						destfile=new File(xmlCC_dir+"\\"+tt);
+						FileUtils.moveFile(tempfile, destfile);
+						
+						counter++;
+						System.out.println(counter);
+					}
+				}
+			}
+			
+		}catch (IOException e1) {
+			e1.printStackTrace();
+		}
+				
+		File xmldir = new File(xml_dir);
+		String[] filesinXML= xmldir.list();
+		for (int ii=0;ii<filesinXML.length;ii++){
+			if (filesinXML[ii].endsWith("html") & !filesinXML[ii].contains("xml.html")){
+				File tempfile=new File(xml_dir+"\\"+filesinXML[ii]);
+				System.out.println(tempfile.getName());
+				tempfile.delete();
+			}
+		}
+		
+		String temp_dir = xmlCC_dir;
+		xmldir = new File(temp_dir);
+		filesinXML= xmldir.list();
+		String urlList="";
+		for (int ii=0;ii<filesinXML.length;ii++){
+			if (filesinXML[ii].endsWith("xml"))
+				urlList=urlList + pathstring+filesinXML[ii]+"\n";
+		}
+		ReadResources.writetextfile(CC_list,urlList);
+		DedupMD5.writeHTMLfile(CC_list+".html",urlList,true);
+		
+		temp_dir = xml_dir;
+		xmldir = new File(temp_dir);
+		filesinXML= xmldir.list();
+		urlList="";
+		for (int ii=0;ii<filesinXML.length;ii++){
+			if (filesinXML[ii].endsWith("xml"))
+				urlList=urlList + pathstring+filesinXML[ii]+"\n";
+		}
+		ReadResources.writetextfile(nonCC_list,urlList);
+		DedupMD5.writeHTMLfile(nonCC_list+".html",urlList,true);
+		
+		
+	}
+	
+	
 
 }
