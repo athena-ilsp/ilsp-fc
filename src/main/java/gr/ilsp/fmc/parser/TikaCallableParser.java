@@ -45,7 +45,8 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	private static final String CC_pattern= "Creative Commons";
 	private static final String default_CCurl_in_text= "http://creativecommons.org/licenses/by/3.0/";
 	private static final String default_CCcomment_in_url = "Distributed under a Creative Commons license";
-	private static final String default_CCcomment_in_text = "Distributed under a Creative Commons license (auto detected in document)";
+	/*private static final String default_CCcomment_in_text = "Distributed under a Creative Commons license (auto detected in document)";*/
+	private static final String default_CCcomment_in_text = "Distributed under a Creative Commons license";
 	private static final String text_cc_separ = ";";
 	//private static final String REL_LICENSE_LOCATION = "rel";
 	private static final Logger LOGGER = Logger.getLogger(TikaCallableParser.class);
