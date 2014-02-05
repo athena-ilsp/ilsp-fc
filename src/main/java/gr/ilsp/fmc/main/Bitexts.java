@@ -1273,7 +1273,7 @@ public class Bitexts {
 		ArrayList<String> already_tested=new ArrayList<String>();
 		while (files_it.hasNext()){
 			key1 = files_it.next();
-			//System.out.println(key1);
+			LOGGER.debug(key1);
 			String[] fileprops = props.get(key1);
 			if (fileprops[0].isEmpty()) continue;
 			String sf = key1;
@@ -2358,7 +2358,6 @@ public class Bitexts {
 	}
 
 
-
 	public static String readfile(File txtfile) {
 		String str=null, text=null;
 		StringBuffer contents = new StringBuffer();
@@ -2371,7 +2370,6 @@ public class Bitexts {
 		} catch (IOException e) {
 			System.err.println("Problem in reading file: " + txtfile.getName());
 		}
-		//System.out.println(contents.toString());
 		text = contents.toString();
 		return text;
 	}
@@ -2383,7 +2381,6 @@ public class Bitexts {
 			ArrayList<String[]> bitextsIM, ArrayList<String[]> bitexts, ArrayList<String[]> bitextsURLs) {
 		String[] stats=new String[4];
 
-		//if (bitextsIM!=null){
 		if (!bitextsIM.isEmpty()){
 			stats[0]=bitextsIM.get(0)[2];
 			stats[1]=Integer.toString(0);
@@ -2469,7 +2466,7 @@ public class Bitexts {
 	}
 
 	public static ArrayList<String[]> findpairsURLs(
-			HashMap<String, String> filesURLS, HashMap<String, String[]> props) {
+			HashMap<String, String> filesURLS, HashMap<String, String[]> props, String[][] urls_repls) {
 		ArrayList<String[]> result=new ArrayList<String[]>();
 		ArrayList<String> paired=new ArrayList<String>();
 		Set<String> files_keys=filesURLS.keySet();
@@ -2484,6 +2481,7 @@ public class Bitexts {
 			String lang1=props.get(key)[1];
 			file_url=filesURLS.get(key);              
 			Iterator<String> files_it1 = files_keys.iterator();
+			boolean match_found;
 			while (files_it1.hasNext()){
 				key1 = files_it1.next();
 				if (paired.contains(key1)) continue;
@@ -2491,29 +2489,24 @@ public class Bitexts {
 				String lang2=props.get(key1)[1];
 				if (!lang1.equals(lang2)){
 					file_url1=filesURLS.get(key1);
-					String tt=file_url.replace("-hel","");
-					//tt = tt.replace("L=1", "L=0");
-					String tt1 = file_url1.replace(".gr.",".");
-					if (file_url.replace("_"+lang1, "_"+lang2).equals(file_url1)
+					match_found=false;
+					for (int ii=0;ii<urls_repls.length;ii++){
+						if (file_url.replace(urls_repls[ii][0],urls_repls[ii][1]).equals(file_url1)){
+							match_found=true;
+							break;
+						}
+					}
+					if (match_found | file_url.replace("_"+lang1, "_"+lang2).equals(file_url1)
 							| file_url.replace("/"+lang1+"/", "/"+lang2+"/").equals(file_url1)
 							| file_url.replace("/"+lang1+"/", "").equals(file_url1) | file_url1.replace("/"+lang2+"/", "").equals(file_url)
 							| file_url.replace("lang=1", "lang=2").equals(file_url1)
 							| file_url.replace("lang,1", "lang,2").equals(file_url1)
-							//| file_url.replace("per", "abs").equals(file_url1)
 							| file_url.replace("lang="+lang1, "lang="+lang2).equals(file_url1)
 							| file_url.toLowerCase().replace("langid=1", "langid=2").equals(file_url1.toLowerCase())
 							| file_url.replace("lang,1","lang,2").equals(file_url1) | file_url.replace("lang,2","lang,1").equals(file_url1)	
-							| file_url.replace("/e/","/").equals(file_url1)
-							| file_url.replace("/gr/","/en/").equals(file_url1)
-							| tt.equals(tt1)
-							//| file_url.replace("english.cgi", "").equals(file_url1)
-							//| file_url.replace("gr.htm", "en.htm").equals(file_url1)
-							//| file_url.replace("=gr", "=en").equals(file_url1)
-							//| file_url.replace("lang=gr", "").equals(file_url1)
-							//| file_url.replace("/gr/", "/en/").equals(file_url1)//)
+							| file_url.replace("/english/","/German/").equals(file_url1)
 							|(file_url.substring(0, file_url.length()-4).equals(file_url1.substring(0, file_url1.length()-4)) &
 									file_url.endsWith("="+lang1) & file_url1.endsWith("="+lang2)))
-						//if	(file_url.replace("lang,2","lang,1").equals(file_url1) | file_url.replace("lang,1","lang,2").equals(file_url1))
 					{
 						System.out.println(file_url1);
 						System.out.println(file_url);
@@ -2899,10 +2892,5 @@ public class Bitexts {
 		}
 		ReadResources.writetextfile(nonCC_list,urlList);
 		DedupMD5.writeHTMLfile(nonCC_list+".html",urlList,true);
-		
-		
 	}
-	
-	
-
 }
