@@ -60,8 +60,8 @@ public class LicensePostProcessor {
 	static Logger logger = LoggerFactory.getLogger(LicensePostProcessor.class.getCanonicalName());
 	
 	public static void main(String... args) throws Exception {
-		File directory = new File(args[0]);
-		//File directory = new File("C:\\QTLaunchPad\\MEDICAL\\DE\\qtlp_20131105_082542\\a3187c0f-8be0-45d7-9208-82cfeb2d4097\\xml");
+		//File directory = new File(args[0]);
+		File directory = new File("C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\qtlp_20131227_132408\\e401c679-d4d1-4099-8711-a3b97d634614\\xml");
 		logger.info("Input Directory: " + directory.toString());
 		LicensePostProcessor lpp = new LicensePostProcessor();
 		lpp.setDirectory(directory);
