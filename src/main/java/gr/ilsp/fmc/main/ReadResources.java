@@ -90,7 +90,8 @@ public class ReadResources {
 		return result;
 	}
     
-    public static String extractTextfromXML_clean(String inputString, String ele_name, String attr_name) {
+    public static String extractTextfromXML_clean
+    (String inputString, String ele_name, String attr_name, boolean included) {
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
@@ -101,9 +102,16 @@ public class ReadResources {
 			NodeList nodeLstP = doc.getElementsByTagName(ele_name);
 			for(int s=0; s<nodeLstP.getLength() ; s++){
 				Element NameElement = (Element)nodeLstP.item(s);
-				if (!NameElement.hasAttribute(attr_name)){
-					result+=NameElement.getTextContent();
-					result+="\n";
+				if (included){
+					if (NameElement.hasAttribute(attr_name)){
+						result+=NameElement.getTextContent();
+						result+="\n";
+					}
+				}else{
+					if (!NameElement.hasAttribute(attr_name)){
+						result+=NameElement.getTextContent();
+						result+="\n";
+					}
 				}
 			}
 		} catch (ParserConfigurationException e) {
