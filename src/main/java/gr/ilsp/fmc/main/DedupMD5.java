@@ -134,9 +134,10 @@ public class DedupMD5 {
 		byte[] texthashkey =null;
 		String string_key="";
 		String pairs="";
-
+		int cents=0;
 		for (int ii=0;ii<files.length;ii++){
-			text = ReadResources.extractTextfromXML_clean(files[ii].getAbsolutePath(),"p","crawlinfo");
+			text = ReadResources.extractTextfromXML_clean
+					(files[ii].getAbsolutePath(),"p","crawlinfo", false);
 			LOGGER.debug(files[ii].getAbsolutePath());
 			if (text.isEmpty())
 				continue;
@@ -169,6 +170,10 @@ public class DedupMD5 {
 			}
 			else{
 				freqs.put(string_key, t);
+			}
+			if (ii/1000>cents){
+				cents++;
+				LOGGER.info("Lists for more than "+ cents*1000+" files have been checked.");
 			}
 		}
 		LOGGER.debug(pairs);
@@ -412,7 +417,8 @@ public class DedupMD5 {
 		HashMap<String, List<Integer>> filename_parlengths = new HashMap<String, List<Integer>>();
 		HashMap<String, List<String>> filename_parkeys = new HashMap<String, List<String>>();
 		for (int ii=0;ii<files.length;ii++){
-			text = ReadResources.extractTextfromXML_clean(files[ii].getAbsolutePath(),"p","crawlinfo");
+			text = ReadResources.extractTextfromXML_clean
+					(files[ii].getAbsolutePath(),"p","crawlinfo", false);
 			//System.out.println(text);
 			String langIdentified = ReadResources.extractLangfromXML(files[ii].getAbsolutePath(), "language", "iso639");
 			String[] pars=text.split("\n");
@@ -438,7 +444,7 @@ public class DedupMD5 {
 				tempstr = tempstr.replaceAll("(\\s){2,}", " ");
 				tempstr = tempstr.trim();
 				if (tempstr.isEmpty()){
-					/*LOGGER.debug*/System.out.println(pars[jj]);
+					LOGGER.debug/*System.out.println*/(pars[jj]);
 					continue;
 				}
 				LOGGER.debug/*System.out.println*/(pars[jj]);
@@ -500,7 +506,8 @@ public class DedupMD5 {
 			List<String> tempkeylist = filename_parkeys.get(string_key);
 			double t=Double.parseDouble(Integer.toString(tempkeylist.size()));
 			if (t==0){
-				System.out.println(string_key);
+				//System.out.println(string_key);
+				LOGGER.info("file "+ string_key + "has empty feature vector.");
 				continue;
 			}
 			counter++;
@@ -518,7 +525,8 @@ public class DedupMD5 {
 				double t1=Double.parseDouble(Integer.toString(tempkeylist1.size()));
 				
 				if (t1==0){
-					System.out.println(string_key1);
+					//System.out.println(string_key1);
+					LOGGER.info("file "+ string_key + "has empty feature vector.");
 					continue;
 				}	
 				//double ti=0;
@@ -556,8 +564,8 @@ public class DedupMD5 {
 						|| common_pars_length/fileTextlength.get(string_key) >inter_thr))
 					||*/ common_pars_length/fileTextlength.get(string_key1) > inter_thr
 					|| common_pars_length/fileTextlength.get(string_key) >inter_thr){	
-					LOGGER.debug(string_key+" pair with "+ string_key1);
-					System.out.println(string_key+" pair with "+ string_key1);
+					LOGGER.info(string_key+" pair with "+ string_key1);
+					//System.out.println(string_key+" pair with "+ string_key1);
 					
 					if (fileTextlength.get(string_key1)>fileTextlength.get(string_key)){
 						//System.out.println("OUT"+"\t"+freqs.get(string_key).filename);
