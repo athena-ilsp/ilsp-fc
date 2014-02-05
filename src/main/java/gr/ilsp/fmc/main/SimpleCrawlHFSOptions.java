@@ -40,6 +40,7 @@ public class SimpleCrawlHFSOptions {
 	private  String _maindomain=null;
 	private  String _descr=null;
 	private  String _filter=null;
+	private String[][] _urls_repls=null;
 	private  boolean _debug = false;
 	private  String _loggingAppender = null;
 	private  String _type="m";
@@ -50,7 +51,7 @@ public class SimpleCrawlHFSOptions {
 	private  int _threads = 10;
 	private  int _numLoops = 1;
 	private  int _crawlDuration = 10;	
-	private int _minTokensNumber=200;
+	private int _minTokensNumber = 200;
 	private String _topic=null;
 	private String _language;
 	private String[] _langKeys;
@@ -188,7 +189,10 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "Destination.")
 				.hasArg()
 				.create("dest") );
-
+		options.addOption( OptionBuilder.withLongOpt( "url_replacements" )
+				.withDescription( "Put the strings to be replaced, separated by ';'.")
+				.hasArg()
+				.create("u_r") );
 		return options;
 	}
 
@@ -360,6 +364,21 @@ public class SimpleCrawlHFSOptions {
 					help();
 				}
 				if (_type.equals("p")){
+					String  temp= line.getOptionValue("u_r");
+					if (!temp.isEmpty() & temp!=null){
+						String[] aa=temp.split("@");
+						String[][] urls_repls =new String[aa.length][2];  
+						for (int ii=0;ii<aa.length;ii++){
+							String[] bb = aa[0].split(";");
+							if (bb.length==1){
+								LOGGER.error("the argument for URL replacements is not correct. Use ; for every pair of replacements.");
+								help();
+							}else{
+								urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = bb[1];
+							}
+						}
+						_urls_repls=urls_repls;
+					}
 					URL url;
 					try {
 						//String temp=Bitexts.readFileAsString(_urls);//temp.split("\n");
@@ -379,11 +398,16 @@ public class SimpleCrawlHFSOptions {
 								try {
 									url = new URL(seeds[0]);
 									String host = url.getHost();
+									if (host.substring(0, 4).equals("www5") | host.substring(0, 4).equals("www2"))
+										host=host.substring(5);
 									if (host.substring(0, 3).equals("www"))
 										host=host.substring(4);
 									String mainhost=processhost(host);
+									if (mainhost.substring(0, 4).equals("www5") | mainhost.substring(0, 4).equals("www2"))
+										mainhost=host.substring(5);
 									if (mainhost.substring(0, 3).equals("www"))
 										mainhost=host.substring(4);
+									
 									_domain=host;
 									_maindomain=mainhost;
 									LOGGER.info(_domain);
@@ -401,18 +425,23 @@ public class SimpleCrawlHFSOptions {
 										url = new URL(seeds[ii]);
 										String host = url.getHost();
 										if (!host.equals(firsthost)){
-											System.out.println("Since the provided seed list for bilingual crawling includes more than on webdomains, " +
+											if (!line.hasOption( "filter")){
+												LOGGER.error("Since the provided seed list for bilingual crawling includes more than on webdomains, " +
 													" USE the filter argument to confine FC within these webdomains.");
-											if (!line.hasOption( "filter"))
 												System.exit(0);				
+											}
 											else{
 												_domain=null;
 												_maindomain=null;
 											}
 										}else{
+											if (host.substring(0, 4).equals("www5") | host.substring(0, 4).equals("www2"))
+												host=host.substring(5);
 											if (host.substring(0, 3).equals("www"))
 												host=host.substring(4);
 											String mainhost=processhost(host);
+											if (mainhost.substring(0, 4).equals("www5") | mainhost.substring(0, 4).equals("www2"))
+												mainhost=host.substring(5);
 											if (mainhost.substring(0, 3).equals("www"))
 												mainhost=host.substring(4);
 											_domain=host;
@@ -511,7 +540,7 @@ public class SimpleCrawlHFSOptions {
 		//return finalhost.substring(0, finalhost.length()-1);
 		return finalhost;
 	}
-	//vpapa
+	
 	private String[] findKeys4lang(String language) {
 		ArrayList<String> langKeys=new ArrayList<String>();
 		String[] langs = _language.split(";");
@@ -551,8 +580,7 @@ public class SimpleCrawlHFSOptions {
 		return result;
 	}
 
-
-
+	
 	public  void help(){
 		printHelp( APPNAME , options );
 		System.exit(0);
@@ -637,6 +665,9 @@ public class SimpleCrawlHFSOptions {
 	}
 	public String getFilter() {
 		return _filter;
+	}
+	public String[][] getUrlReplaces() {
+		return _urls_repls;
 	}
 	public boolean getAlign() {
 		return _cesAlign;
