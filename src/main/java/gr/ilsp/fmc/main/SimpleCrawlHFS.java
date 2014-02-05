@@ -332,7 +332,7 @@ public class SimpleCrawlHFS {
 			urls = options.getUrls();
 		if (options.getDomain()!=null) 
 			urls = options.getUrls();
-
+		//String[][] tttt =options.getUrlReplaces();
 		URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
 		LOGGER.debug(urldir );
 		if (urldir.getProtocol()=="jar"){
@@ -625,7 +625,9 @@ public class SimpleCrawlHFS {
 					//Find pairs based on URLs
 					ArrayList<String[]> bitextsURLs=new ArrayList<String[]>();
 					HashMap<String, String> filesURLS = Bitexts.findURLs(xmldir);
-					bitextsURLs=Bitexts.findpairsURLs(filesURLS,props);
+					
+					//String[][] _url_replaces = Bitexts.checkUrls(options.getUrlReplaces());
+					bitextsURLs=Bitexts.findpairsURLs(filesURLS,props,options.getUrlReplaces());
 					//bitextsURLs=Bitexts.findpairsURLs_dist(filesURLS,props);
 					if (bitextsURLs.size()>0){
 						LOGGER.info(bitextsURLs.size()+ " pairs found (based on URLs).");
@@ -764,7 +766,8 @@ public class SimpleCrawlHFS {
 				String text="";
 				int total_tokens=0;
 				for (int ii=0;ii<files.length;ii++){
-					text = ReadResources.extractTextfromXML_clean(files[ii].getAbsolutePath(),"p","crawlinfo");
+					text = ReadResources.extractTextfromXML_clean
+							(files[ii].getAbsolutePath(),"p","crawlinfo", false);
 					StringTokenizer tkzr = new StringTokenizer(text);
 					int length_in_tok=tkzr.countTokens();
 					total_tokens=total_tokens+length_in_tok;
