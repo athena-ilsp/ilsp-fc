@@ -31,10 +31,10 @@ public class ReadResources {
     	ArrayList<Double> param=new ArrayList<Double>();
         URL svURL = ReadResources.class.getClassLoader().getResource(filename);
         BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
-        String inputLine;
-        while ((inputLine = in.readLine()) != null) {
-              System.out.println(inputLine);
-        }
+        //String inputLine;
+        //while ((inputLine = in.readLine()) != null) {
+        //     System.out.println(inputLine);
+        //}
         in.close();
         return param;
     }
@@ -92,6 +92,7 @@ public class ReadResources {
     
     public static String extractTextfromXML_clean
     (String inputString, String ele_name, String attr_name, boolean included) {
+    	//System.out.println(inputString);
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
