@@ -194,7 +194,7 @@ public class PDFDoc {
 			// Distributor
 			Element distributor = header.
 					getChild("fileDesc", ns).getChild("publicationStmt", ns).getChild("distributor", ns);
-			distributor.setText(project + "/ILSP");
+			distributor.setText(project/* + "/ILSP"*/);
 			Element distributorEAddress = header.
 					getChild("fileDesc", ns).getChild("publicationStmt", ns).getChild("eAddress", ns);
 			distributorEAddress.setText(projectWebSite);
@@ -219,6 +219,11 @@ public class PDFDoc {
 			getChild("textClass", ns).getChild("domain", ns);
 			domain.setAttribute("confidence", "1.0");
 			domain.setText(this.domain);
+			
+			Element genre = header.getChild("profileDesc", ns).
+			getChild("textClass", ns).getChild("genre", ns);
+			//genre.setAttribute("confidence", "1.0");
+			genre.setText(this.genre);
 			
 			Element annotation = header.getChild("profileDesc", ns).
 			getChild("annotations", ns).getChild("annotation", ns);
@@ -271,6 +276,7 @@ public class PDFDoc {
 					continue;
 				} else {
 					Element p = new Element("p", ns);
+					//System.out.println(line.trim());
 					p.setText(line.trim());
 					body.addContent(p);
 				}
