@@ -36,7 +36,7 @@ public class DirUtils {
 				crawldb = new Path(dir,CrawlConfig.CRAWLDB_SUBDIR_NAME);
 				if (index == curLoop-2 && fs.exists(crawldb)){
 					fs.delete(crawldb);
-					LOGGER.info("Deleted: "+crawldb);
+					LOGGER.debug("Deleted: "+crawldb);
 					return;
 				}				
 			}
