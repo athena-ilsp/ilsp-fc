@@ -61,7 +61,11 @@
 		</repository>
 	</repositories>
 	<dependencies>
-
+		<dependency>
+			<groupId>net.sf.jtidy</groupId>
+			<artifactId>jtidy</artifactId>
+			<version>r938</version>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-validator</groupId>
@@ -217,7 +221,7 @@
 							<archive>
 								<manifest>
 									<mainClass>gr.ilsp.fmc.main.SimpleCrawlHFS</mainClass>
-<!-- 									<mainClass>gr.ilsp.fmc.exporter.SampleExporter</mainClass> -->
+									<!-- <mainClass>gr.ilsp.fmc.exporter.SampleExporter</mainClass> -->
 								</manifest>
 							</archive>
 						</configuration>
