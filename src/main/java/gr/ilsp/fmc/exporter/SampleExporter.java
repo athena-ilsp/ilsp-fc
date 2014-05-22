@@ -290,7 +290,7 @@ public class SampleExporter {
 				for (File xmlFile: xmlFiles) {
 					//String ttt = xmlFile.replace(VAR_RES_CACHE,HTTP_PATH);
 					//Path tempPath = new Path(xmlFile);//xmlFileListWrt.write(tempfile.getAbsolutePath()+"\n");
-					xmlFileListWrt.write(xmlFile.getAbsolutePath()+"\n");
+					xmlFileListWrt.write(xmlFile.getAbsolutePath().replace("\\","/")+"\n");
 				}
 				xmlFileListWrt.close();
 				
@@ -305,11 +305,14 @@ public class SampleExporter {
 							URL fileURL = xmlFile.toURI().toURL();
 							//xmlFile1=xmlFile+".html";
 							if (applyOfflineXSLT)
-								ttt= "<a href=\""+fileURL+".html\">\n"+fileURL+".html</a>";
+								ttt= "<a href=\""+fileURL+".html\">\n"+xmlFile.getAbsolutePath()+".html</a>";
+								//ttt= "<a href=\""+fileURL+".html\">\n"+fileURL+".html</a>";
 							else
-								ttt= "<a href=\""+fileURL+"\">\n"+fileURL+"</a>";
+								ttt= "<a href=\""+fileURL+"\">\n"+xmlFile.getAbsolutePath()+"</a>";
+								//ttt= "<a href=\""+fileURL+"\">\n"+fileURL+"</a>";
+							
 							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
-							xmlFileListWrt1.write("<br />"+ttt+"\n");
+							xmlFileListWrt1.write("<br />"+ttt.replace("\\","/")+"\n");
 						}
 
 						xmlFileListWrt1.write("</html>");
@@ -857,6 +860,9 @@ public class SampleExporter {
 								xtw.writeAttribute("type","heading");
 							}
 							else if (!lang.isEmpty()){
+								
+								//String mult_string_forcheck = line.toLowerCase()+" "+ line.toLowerCase()+ " "+line.toLowerCase();
+								//langidentified = checkLang(mult_string_forcheck);
 								langidentified = checkLang(line.toLowerCase());
 								//vpapa
 								if (!langidentified.equals(langidentified_total)){
@@ -1016,7 +1022,7 @@ public class SampleExporter {
 	}*/
 
 	private static String checkLang(String partOfLine) {
-		String langidentified ="";
+		String langidentified ="" /*, langidentified1 =""*/;
 		//LanguageIdentifier LangI=new LanguageIdentifier(partOfLine); 
 		//langidentified = LangI.getLanguage();
 		//added comment below and remove comment from above to change language identifiers
@@ -1025,7 +1031,11 @@ public class SampleExporter {
 		try {
 			detector = DetectorFactory.create();
 			detector.append(partOfLine);
-			langidentified = detector.detect();										
+			langidentified = detector.detect();	
+			//detector.append(partOfLine+ " "+ partOfLine+ " "+ partOfLine+" "+partOfLine);
+			//langidentified1 = detector.detect();
+			//if (!langidentified.equals(langidentified1))
+			//	System.out.println("EEEEEEEEEEEEEEEEEEEEEEE");
 		} catch (LangDetectException e) {
 			//comment this exception
 			//LOGGER.info("language is not identified for this part of text.");
