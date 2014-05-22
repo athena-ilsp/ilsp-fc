@@ -364,14 +364,17 @@ public class SimpleCrawlHFSOptions {
 					help();
 				}
 				if (_type.equals("p")){
-					String  temp= line.getOptionValue("u_r");
-					if (!temp.isEmpty() & temp!=null){
+					String temp= line.getOptionValue("u_r");
+					//if (!temp.isEmpty() & temp!=null){
+					if (temp!=null){
 						String[] aa=temp.split("@");
 						String[][] urls_repls =new String[aa.length][2];  
 						for (int ii=0;ii<aa.length;ii++){
 							String[] bb = aa[0].split(";");
-							if (bb.length==1){
-								LOGGER.error("the argument for URL replacements is not correct. Use ; for every pair of replacements.");
+							if (bb.length<=1){
+								LOGGER.error("the argument for URL replacements is not correct." +
+										" Use ; for every pair of replacements." +
+										"Check that none of the parts is empty.");
 								help();
 							}else{
 								urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = bb[1];
@@ -435,15 +438,21 @@ public class SimpleCrawlHFSOptions {
 												_maindomain=null;
 											}
 										}else{
-											if (host.substring(0, 4).equals("www5") | host.substring(0, 4).equals("www2"))
+											if (host.startsWith("www5") |host.startsWith("www2"))
+											//if (host.substring(0, 4).equals("www5") | host.substring(0, 4).equals("www2"))
 												host=host.substring(5);
-											if (host.substring(0, 3).equals("www"))
-												host=host.substring(4);
+											else{
+												if (host.startsWith("www"))//(host.substring(0, 3).equals("www"))
+													host=host.substring(4);
+											}
 											String mainhost=processhost(host);
-											if (mainhost.substring(0, 4).equals("www5") | mainhost.substring(0, 4).equals("www2"))
+											if (mainhost.startsWith("www5") | mainhost.startsWith("www2"))
+											//if (mainhost.substring(0, 4).equals("www5") | mainhost.substring(0, 4).equals("www2"))
 												mainhost=host.substring(5);
-											if (mainhost.substring(0, 3).equals("www"))
-												mainhost=host.substring(4);
+											else{
+												if (mainhost.startsWith("www"))//(mainhost.substring(0, 3).equals("www"))
+													mainhost=host.substring(4);
+											}
 											_domain=host;
 											_maindomain=mainhost;
 											LOGGER.info(_domain);
@@ -500,8 +509,8 @@ public class SimpleCrawlHFSOptions {
 							_maindomain=mainhost;
 							//_domain="."+host;
 							//_maindomain="."+mainhost;
-							System.out.println(_domain);
-							System.out.println(_maindomain);
+							LOGGER.info(_domain);
+							LOGGER.info(_maindomain);
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -570,7 +579,7 @@ public class SimpleCrawlHFSOptions {
 			}
 			in.close();
 		} catch (IOException e) {
-			System.out.println("Problem in reading the file for langKeys.");
+			LOGGER.error("Problem in reading the file for langKeys.");
 		}
 		//}
 		String[] result=new String[langKeys.size()];
