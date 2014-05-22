@@ -42,7 +42,7 @@ public class PDFCorpus {
 		pdfCorpus.setOutputDir(new File(args[2]));
 
 		List<String> languages = new ArrayList<String>();
-		languages.add("en"); // FIXME: Add options for this. FIXME Assumes order is same with the corpusDescriptionFile
+		languages.add("pt"); // FIXME: Add options for this. FIXME Assumes order is same with the corpusDescriptionFile
 		languages.add("el"); // FIXME: Add options for this
 		pdfCorpus.setLanguages(languages);
 		
@@ -50,7 +50,7 @@ public class PDFCorpus {
 		pdfCorpus.setCrawlDate(sdf.format(pdfCorpus.getCorpusDir().lastModified()));
 
 		pdfCorpus.setGenre("Information"); // FIXME: Add options for this
-		pdfCorpus.setTopWebDomain("http://ec.europa.eu/"); // FIXME: Add options for this		
+		pdfCorpus.setTopWebDomain("http://www.mhcs.health.nsw.gov.au"); // FIXME: Add options for this		
 		pdfCorpus.setDomain("Medical"); // FIXME: Add options for this
 		pdfCorpus.setProject("QTLP"); // FIXME: Add options for this
 		pdfCorpus.setProjectWebSite("http://www.qt21.eu"); // FIXME: Add options for this
