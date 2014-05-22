@@ -125,6 +125,43 @@ public class ReadResources {
 		return result;
 	}
     
+    
+    public static String extractAttrfromXML
+    (String inputString, String ele_name, String attr_name, boolean included) {
+    	//System.out.println(inputString);
+		String result="";
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db;
+		try {
+			db = dbf.newDocumentBuilder();
+			Document doc = db.parse(inputString);
+			doc.getDocumentElement().normalize();
+			NodeList nodeLstP = doc.getElementsByTagName(ele_name);
+			for(int s=0; s<nodeLstP.getLength() ; s++){
+				Element NameElement = (Element)nodeLstP.item(s);
+				if (included){
+					if (NameElement.hasAttribute(attr_name)){
+						result+=NameElement.getAttribute(attr_name);
+						result+="\n";
+					}
+				}else{
+					//if (!NameElement.hasAttribute(attr_name)){
+					//	result+=NameElement.getTextContent();
+					//	result+="\n";
+					//}
+				}
+			}
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+    
+    
     public static void copy(String fromFileName, String toFileName)
 			throws IOException {
 		File fromFile = new File(fromFileName);
@@ -147,12 +184,13 @@ public class ReadResources {
 			if (!toFile.canWrite())
 				throw new IOException("FileCopy: "
 						+ "destination file is unwriteable: " + toFileName);
-			System.out.print("Overwrite existing file " + toFile.getName()
-					+ "? (Y/N): ");
-			System.out.flush();
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					System.in));
-			String response = in.readLine();
+			//System.out.print("Overwrite existing file " + toFile.getName()
+			//		+ "? (Y/N): ");
+			//System.out.flush();
+			//BufferedReader in = new BufferedReader(new InputStreamReader(
+			//		System.in));
+			//String response = in.readLine();
+			String response ="Y";
 			if (!response.equals("Y") && !response.equals("y"))
 				throw new IOException("FileCopy: "
 						+ "existing file was not overwritten.");
