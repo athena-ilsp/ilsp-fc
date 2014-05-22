@@ -153,19 +153,19 @@ public class DedupMD5 {
 					LOGGER.debug("OUT"+"\t"+freqs.get(string_key).filename);
 					freqs.put(string_key, t);
 					String temp2 = input.getPath()+fs+freqs.get(string_key).filename;
-					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+					gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
 					temp2 = temp2.replace("."+input_type,".html");
-					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+					gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
 					temp2 = temp2.replace(".html",".xml.html");
-					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+					gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
 				}else{
 					LOGGER.debug("OUT"+"\t"+t.filename);
 					String temp2 = input.getPath()+fs+t.filename;
-					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+					gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
 					temp2 = temp2.replace("."+input_type,".html");
-					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+					gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
 					temp2 = temp2.replace(".html",".xml.html");
-					gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+					gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
 				}
 			}
 			else{
@@ -200,8 +200,9 @@ public class DedupMD5 {
 			while (it.hasNext()){
 				string_key = it.next();
 				sourcefile = freqs.get(string_key).filename;
-				String temp1 = outputdir.getAbsolutePath().replace("\\","/");
-				urlList=temp1+fs+sourcefile;
+				//String temp1 = outputdir.getAbsolutePath().replace("\\","/");
+				//urlList=temp1+fs+sourcefile;	
+				urlList = (outputdir.getAbsolutePath()+fs+sourcefile).replace("\\","/");
 				out.write(urlList.trim()+"\n");
 				counter++;
 			}
@@ -350,12 +351,14 @@ public class DedupMD5 {
 				//String ttt=qq.toURI().toString();
 				URL fileURL = xmlFile.toURI().toURL();
 				if (applyOfflineXSLT2)
-					ttt = "<a href=\""+fileURL+".html\">\n"+fileURL+".html</a>";
+					ttt= "<a href=\""+fileURL+".html\">\n"+xmlFile.getAbsolutePath()+".html</a>";
+					//ttt = "<a href=\""+fileURL+".html\">\n"+fileURL+".html</a>";
 				else
-					ttt = "<a href=\""+fileURL+"\">\n"+fileURL+"</a>";
+					ttt= "<a href=\""+fileURL+"\">\n"+xmlFile.getAbsolutePath()+"</a>";
+					//ttt = "<a href=\""+fileURL+"\">\n"+fileURL+"</a>";
 
 				//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
-				xmlFileListWrt1.write("<br />"+ttt+"\n");
+				xmlFileListWrt1.write("<br />"+ttt.replace("\\","/")+"\n");
 				//xmlFileListWrt.write(xmlFile.replace(VAR_RES_CACHE, HTTP_PATH).replace("file:", "")   +"\n");
 			}
 			xmlFileListWrt1.write("</html>");
@@ -411,7 +414,6 @@ public class DedupMD5 {
 		String string_key="";
 		byte[] parhashkey =null;
 		HashMap<String, HashSet<String>> fileshash= new HashMap<String, HashSet<String>>();
-		//HashMap<String, HashSet<Integer>> fileslengthhash= new HashMap<String, HashSet<Integer>>();
 		HashMap<String, Integer> fileTextlength= new HashMap<String, Integer>();
 		int cents=0;
 		HashMap<String, List<Integer>> filename_parlengths = new HashMap<String, List<Integer>>();
@@ -419,7 +421,6 @@ public class DedupMD5 {
 		for (int ii=0;ii<files.length;ii++){
 			text = ReadResources.extractTextfromXML_clean
 					(files[ii].getAbsolutePath(),"p","crawlinfo", false);
-			//System.out.println(text);
 			String langIdentified = ReadResources.extractLangfromXML(files[ii].getAbsolutePath(), "language", "iso639");
 			String[] pars=text.split("\n");
 			List<String> filelist=new ArrayList<String>();
@@ -449,29 +450,19 @@ public class DedupMD5 {
 				}
 				LOGGER.debug/*System.out.println*/(pars[jj]);
 				LOGGER.debug/*System.out.println*/(tempstr);
-				//System.out.println(pars[jj]);
-				//System.out.println(tempstr);
 				
 				parhashkey=MD5Hash.digest(tempstr).getDigest();
 				string_key="";
 				for (int kk=0;kk<parhashkey.length;kk++) {
 					string_key += parhashkey[kk];
-				}
-				//if (!filelist.contains(string_key)){ 
+				} 
 				filelist.add(string_key);
-				//}/*else{
-				//	System.out.println(files[ii].getAbsolutePath());//same paragraph in a text
-				//}*/
-				//filelengthlist.add(pars[jj].length());
 				StringTokenizer st = new StringTokenizer(pars[jj]);	
 				filelengthlist.add(st.countTokens());
 			}
 			HashSet<String> fileset= new HashSet<String>(filelist);
 			fileshash.put(files[ii].getName().toString(), fileset);
-			//HashSet<Integer> filelengthset= new HashSet<Integer>(filelengthlist);
-			//fileslengthhash.put(files[ii].getName().toString(), filelengthset);
 			
-			//fileTextlength.put(files[ii].getName().toString(), text.length());
 			int len_in_toks = 0;
 			for (int jj=0;jj<filelengthlist.size();jj++){
 				len_in_toks+=filelengthlist.get(jj);
@@ -479,10 +470,6 @@ public class DedupMD5 {
 			fileTextlength.put(files[ii].getName().toString(),len_in_toks);
 			filename_parlengths.put(files[ii].getName().toString(), filelengthlist);
 			filename_parkeys.put(files[ii].getName().toString(), filelist);
-			if (filelist.isEmpty())
-				System.out.println(files[ii].getName().toString());
-			if (filelengthlist.isEmpty())
-				System.out.println(files[ii].getName().toString());
 			if (ii/100>cents){
 				cents++;
 				LOGGER.info("Lists for more than "+ cents*100+" files have been created.");
@@ -492,7 +479,6 @@ public class DedupMD5 {
 		Iterator<String> it = keys.iterator();
 		String urlList="", string_key1 = "";
 		String sourcefile="";
-		//ArrayList<String> checked = new ArrayList<String>();
 		HashSet<String> checked1 = new HashSet<String>();
 		int counter=0;
 		cents=0;
@@ -501,13 +487,11 @@ public class DedupMD5 {
 			string_key = it.next();
 			if (checked1.contains(string_key))
 				continue;
-			//HashSet<String> fileset=fileshash.get(string_key);
 			Iterator<String> it1 = keys.iterator();
 			List<String> tempkeylist = filename_parkeys.get(string_key);
 			double t=Double.parseDouble(Integer.toString(tempkeylist.size()));
 			if (t==0){
-				//System.out.println(string_key);
-				LOGGER.info("file "+ string_key + "has empty feature vector.");
+				LOGGER.debug("file "+ string_key + "has empty feature vector.");
 				continue;
 			}
 			counter++;
@@ -525,21 +509,12 @@ public class DedupMD5 {
 				double t1=Double.parseDouble(Integer.toString(tempkeylist1.size()));
 				
 				if (t1==0){
-					//System.out.println(string_key1);
 					LOGGER.info("file "+ string_key + "has empty feature vector.");
 					continue;
 				}	
-				//double ti=0;
 				ArrayList<Integer> examined = new ArrayList<Integer>();
 				for(int i = tempkeylist1.size() - 1; i > -1; --i){
 				    String str = tempkeylist1.get(i);
-				    /*if(!tempkeylist.remove(str)){tempkeylist1.remove(str);}
-				     *else{common_pars_length+=tempparlist1.get(i);}*/
-				   /* if(tempkeylist.contains(str)){
-				    	common_pars_length+=tempparlist1.get(i);
-				    	tempkeylist.remove(str);
-				    	//ti++;
-			    	}*/
 				    for (int j=0;j<tempkeylist.size();j++){
 				    	if (tempkeylist.get(j).equals(str) & !examined.contains(j)){
 				    		common_pars_length+=tempparlist1.get(i);
@@ -548,49 +523,33 @@ public class DedupMD5 {
 				    	}
 				    }
 				}
-				//double ti=Double.parseDouble(Integer.toString(tempkeylist1.size()));
 				LOGGER.debug("CHECK: "+ string_key + " with " +t +"\tpars TO\t" +	string_key1 + " with "+ t1+ "pars");
-				/*HashSet<String> fileset1=fileshash.get(string_key1);
-				HashSet intersection = new HashSet(fileset);
-				intersection.retainAll(fileset1);
-				double t=Double.parseDouble(Integer.toString(fileset.size()));
-				double t1=Double.parseDouble(Integer.toString(fileset1.size()));
-				double ti=Double.parseDouble(Integer.toString(intersection.size()));*/
-				//double tu=t+t1-ti;
-				//if (ti/t >0.9 || ti/t1 >0.9 || ti/tu >0.9){
-				//double tu=t+t1-2*ti;
 				if (/*((ti/t >inter_thr || ti/t1 >inter_thr) 
 						&& (common_pars_length/fileTextlength.get(string_key1) > inter_thr
 						|| common_pars_length/fileTextlength.get(string_key) >inter_thr))
 					||*/ common_pars_length/fileTextlength.get(string_key1) > inter_thr
 					|| common_pars_length/fileTextlength.get(string_key) >inter_thr){	
-					LOGGER.info(string_key+" pair with "+ string_key1);
-					//System.out.println(string_key+" pair with "+ string_key1);
+					LOGGER.debug(string_key+" pair with "+ string_key1);
 					
 					if (fileTextlength.get(string_key1)>fileTextlength.get(string_key)){
-						//System.out.println("OUT"+"\t"+freqs.get(string_key).filename);
-						//freqs.put(string_key, t);
 						String temp2 = input.getPath()+fs+string_key;
-						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
-						/*try {		FileUtils.forceDelete(new File(temp2));
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}*/
+						gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
+						LOGGER.debug("deleted	" + string_key);
 						temp2 = temp2.replace("."+input_type,".html");
-						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+						gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
 						temp2 = temp2.replace(".html",".xml.html");
-						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+						gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
 						checked1.add(string_key);
 						filename_parkeys.remove(string_key); 
 						filename_parlengths.remove(string_key);
 					}else{
 						String temp2 = input.getPath()+fs+string_key1;
-						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+						gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
+						LOGGER.debug("deleted	" + string_key1);
 						temp2 = temp2.replace("."+input_type,".html");
-						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+						gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
 						temp2 = temp2.replace(".html",".xml.html");
-						gr.ilsp.fmc.utils.FileUtils.delete(temp2);
+						gr.ilsp.fmc.utils.FcFileUtils.delete(temp2);
 						checked1.add(string_key1);
 						filename_parkeys.remove(string_key1); 
 						filename_parlengths.remove(string_key1);
@@ -600,7 +559,6 @@ public class DedupMD5 {
 			checked1.add(string_key);
 			filename_parkeys.remove(string_key); 
 			filename_parlengths.remove(string_key); 
-			//System.out.println(counter1 +" files");
 			if (counter/1000>cents){
 				cents++;
 				LOGGER.info("more than "+ cents*1000+" files have been checked.");
@@ -614,25 +572,14 @@ public class DedupMD5 {
 		
 		File[] files1=input.listFiles(filter);
 		counter=0;
-		/*for (int ii=0;ii<files1.length;ii++){
-			sourcefile = files1[ii].getName(); //freqs.get(string_key).filename;
-			String temp1 = outputdir.getAbsolutePath().replace("\\","/");
-			urlList=urlList + temp1+fs+sourcefile+"\n";
-			counter++;
-		}
-		ReadResources.writetextfile(out_textfile.getAbsolutePath(),urlList);
-		if (html){
-			File out_HTMLfile =new File(outputHTMLfilename);
-			writeHTMLfile(out_HTMLfile.getAbsolutePath(),urlList,applyOfflineXSLT);
-		}*/
-
 		Writer out;
 		try {
 			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(out_textfile.getAbsolutePath()),"UTF-8"));
 			for (int ii=0;ii<files1.length;ii++){
 				sourcefile = files1[ii].getName(); //freqs.get(string_key).filename;
-				String temp1 = outputdir.getAbsolutePath().replace("\\","/");
-				urlList=temp1+fs+sourcefile;
+				//String temp1 = outputdir.getAbsolutePath().replace("\\","/");
+				//urlList=temp1+fs+sourcefile;
+				urlList = (outputdir.getAbsolutePath()+fs+sourcefile).replace("\\","/");
 				out.write(urlList.trim()+"\n");
 				counter++;
 			}
