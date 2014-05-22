@@ -165,7 +165,7 @@ public class SimpleCrawlHFS {
 						UrlStatus.UNFETCHED, 0,0.0);
 				writer.add(datum.getTuple());
 			}
-			LOGGER.info("Starting from "+ seedUrls.size()+ "URLs");
+			LOGGER.info("Starting from "+ seedUrls.size()+ " URLs");
 			rdr.close();
 			writer.close();
 		} catch (IOException e) {
@@ -255,7 +255,6 @@ public class SimpleCrawlHFS {
 				LOGGER.error(e.getMessage());
 			}
 		} else {
-
 			LOGGER.error("Invalid operation.");
 			System.exit(-1);
 		}
@@ -407,6 +406,10 @@ public class SimpleCrawlHFS {
 				fs.mkdirs(outputPath);
 
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, 0);
+				Path pdf_dir =new Path(outputPath.toString()+fs1+"pdf"); 
+				if (!fs.exists(pdf_dir)){
+					fs.mkdirs(pdf_dir);
+				}
 
 				//fs.deleteOnExit(curLoopDir);
 
