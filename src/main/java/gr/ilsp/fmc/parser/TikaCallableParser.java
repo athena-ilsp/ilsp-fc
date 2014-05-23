@@ -65,7 +65,8 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
         this(parser, contentExtractor, input, metadata, true, false);
     }
     
-    public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata, boolean extractLanguage, boolean keepBoiler) {
+    public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, 
+    		InputStream input, Metadata metadata, boolean extractLanguage, boolean keepBoiler) {
         _parser = parser;
         _contentExtractor = contentExtractor;
         _input = input;
@@ -115,10 +116,8 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             }
             reader.close();
             
-            //Remove all consecutive occasions of whitespace characters 
             content = ContentNormalizer.normalizeText(content);
-            //System.out.println(content);
-            
+                        
             ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
             
             // Check each link for creative commons licenses
