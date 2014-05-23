@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.pdfbox.pdfparser.PDFParser;
+//import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -43,7 +44,8 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
     private FetchedDatum _datum;
 
 	private boolean _keepBoiler = false;
-    
+	private String _storedir_path;
+	
     public SimpleNoLinksParser(FetchedDatum datum) {
     	this();
     	_datum = datum;    	
@@ -51,9 +53,10 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
     public SimpleNoLinksParser() {
         this(new ParserPolicy());
     }
-    public SimpleNoLinksParser(boolean keepBoiler) {    	
+    public SimpleNoLinksParser(boolean keepBoiler, String storedir_path) {    	
         this(new ParserPolicy());
         _keepBoiler  = keepBoiler;
+        _storedir_path = storedir_path;
     }
     public SimpleNoLinksParser(ParserPolicy parserPolicy) {
         this(new SimpleContentExtractor(),  parserPolicy);
@@ -71,7 +74,6 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
      */
     public SimpleNoLinksParser(BaseContentExtractor contentExtractor, ParserPolicy parserPolicy) {
         _policy = parserPolicy;
-        
         _contentExtractor = contentExtractor;        
     }
     
@@ -127,7 +129,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
         		 PDFParser _parser = null;
         		//Callable<ExtendedParsedDatum>
         		 LOGGER.info("pdf reached");
-        		c = new PdfboxCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler);
+        		c = new PdfboxCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler, _storedir_path);
         	}else{
         		//Callable<ExtendedParsedDatum>
         		c = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler);
@@ -139,6 +141,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
             
             ExtendedParsedDatum result;
             try {
+            	//System.out.println(getParserPolicy().getMaxParseDuration());
                 result = task.get(getParserPolicy().getMaxParseDuration(), TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
                 task.cancel(true);
