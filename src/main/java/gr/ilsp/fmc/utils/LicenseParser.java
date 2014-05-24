@@ -307,7 +307,7 @@ public class LicenseParser {
 			Document doc = dp.getDocument();
 	
 			LicenseParser lp = new LicenseParser();
-			System.out.println(lp.getLicense(doc, metadata));
+			//System.out.println(lp.getLicense(doc, metadata));
 		}
 	
 	}
