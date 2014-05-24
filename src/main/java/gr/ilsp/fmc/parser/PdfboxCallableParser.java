@@ -5,10 +5,15 @@ package gr.ilsp.fmc.parser;
 
 
 import gr.ilsp.fmc.datums.ExtendedParsedDatum;
+import gr.ilsp.fmc.extractos.Pdf2text;
 import gr.ilsp.fmc.utils.ContentNormalizer;
 
 //import java.io.BufferedReader;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 //import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -16,124 +21,123 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.pdfbox.cos.COSDocument;
+//import org.apache.hadoop.fs.Path;
+import org.apache.log4j.Logger;
+//import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
-import org.apache.pdfbox.util.PDFTextStripper;
+//import org.apache.pdfbox.util.PDFTextStripper;
 
-import org.apache.tika.language.ProfilingHandler;
+//import org.apache.tika.language.ProfilingHandler;
 import org.apache.tika.metadata.Metadata;
-import org.apache.tika.sax.TeeContentHandler;
+//import org.apache.tika.sax.TeeContentHandler;
+
+//import com.google.common.io.Files;
 //import org.apache.tika.detect.DefaultDetector;
 //import org.apache.tika.detect.Detector;
 //import org.apache.tika.mime.MimeTypes;
 
 //import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
 //import de.l3s.boilerpipe.extractors.ArticleExtractor;
-
-
-
-
 import bixo.parser.BaseContentExtractor;
+
 
 public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
     //private static final Logger LOGGER = Logger.getLogger(PdfboxCallableParser.class);
     
-    private PDFParser _parser;
-    private BaseContentExtractor _contentExtractor;
+//    private PDFParser _parser;
+    //private BaseContentExtractor _contentExtractor;
     private InputStream _input;
     private Metadata _metadata;
-    private boolean _extractLanguage;
+    //private boolean _extractLanguage;
+    private String _storedir_path;
 	//private boolean _keepBoiler = false;
-
+    private static String fs1 = System.getProperty("file.separator");
 	
+        private static final Logger LOGGER = Logger.getLogger(PdfboxCallableParser.class);
 	//private static final Detector DETECTOR = new DefaultDetector(
 	//        MimeTypes.getDefaultMimeTypes());
 	
-    public PdfboxCallableParser(PDFParser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata) {
-        this(parser, contentExtractor, input, metadata, true, false);
+    public PdfboxCallableParser(PDFParser parser, BaseContentExtractor contentExtractor, InputStream input, 
+    		Metadata metadata, String storedir_path) {
+        this(parser, contentExtractor, input, metadata, true, false, storedir_path);
     }
     
-    public PdfboxCallableParser(PDFParser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata, boolean extractLanguage, boolean keepBoiler) {
-        _parser = parser;
-        _contentExtractor = contentExtractor;
+    public PdfboxCallableParser(PDFParser parser, BaseContentExtractor contentExtractor, InputStream input,
+    		Metadata metadata, boolean extractLanguage, boolean keepBoiler, String storedir_path) {
+        //_parser = parser;
+        //_contentExtractor = contentExtractor;
         _input = input;
         _metadata = metadata;
-        _extractLanguage = extractLanguage;
+       // _extractLanguage = extractLanguage;
+        _storedir_path = storedir_path;
         //_keepBoiler = keepBoiler;     
     }
     
     @Override
-    public ExtendedParsedDatum call() throws Exception {
-        try {        	 	        	
-            TeeContentHandler teeContentHandler;
-            ProfilingHandler profilingHandler = null;
-            
-            if (_extractLanguage) {
-                profilingHandler = new ProfilingHandler();
-                teeContentHandler = new TeeContentHandler(_contentExtractor,  profilingHandler);
-            } else {
-                teeContentHandler = new TeeContentHandler(_contentExtractor);
-            }
-            
-            //String respoCharset = _metadata.get(Metadata.CONTENT_ENCODING);
-            //_parser.parse(_input, teeContentHandler, _metadata, makeParseContext());
-            //if (respoCharset!=null && respoCharset!=_metadata.get(Metadata.CONTENT_ENCODING))
-            //	_metadata.set(Metadata.CONTENT_ENCODING, respoCharset);
-            
-            _metadata.set(Metadata.CONTENT_ENCODING, "UTF-8");
-            ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
-            //String lang = _extractLanguage ? detectLanguage(_metadata, profilingHandler) : "";
-            String lang = "";
-            _input.reset();
-            String content = "";
+    public ExtendedParsedDatum call() throws Exception {	
+        try {        
+        	        	
+            if (_storedir_path.startsWith("file:/"))
+            	_storedir_path = _storedir_path.substring(5); 
+        	File temp_dir = new File(_storedir_path+fs1+"pdf");
+            File[] stored_files = temp_dir.listFiles();
+            String filename = temp_dir.getAbsolutePath()+fs1+stored_files.length+".pdf";
+            OutputStream out = new BufferedOutputStream(new FileOutputStream(filename));
             
             URL baseUrl = new URL(_metadata.get(Metadata.CONTENT_LOCATION));
-            URLConnection urlc; 
-			InputStream inputstream;
-			//try {
-			urlc = baseUrl.openConnection();
-			//urlc.setConnectTimeout(5000);
-			//urlc.setReadTimeout(100000);
-			inputstream = urlc.getInputStream();
-    		
-    		_parser = new PDFParser(inputstream);
-    		COSDocument cosDoc=null;
+            URLConnection urlc=baseUrl.openConnection(); 
+    		InputStream inputstream=urlc.getInputStream();
+    		byte[] buffer = new byte[1024];
+            int numRead;
+            long numWritten = 0;
+            while ((numRead = inputstream.read(buffer)) != -1) {
+                out.write(buffer, 0, numRead);
+                numWritten += numRead;
+            }
+            inputstream.close();
+            out.close();
+            LOGGER.info(filename + " saved.");
+        	
+            String content = Pdf2text.run1(new File(filename));
+            //System.out.println(content);
+			if (content==null){
+				LOGGER.info("PDF to Text Conversion failed.");
+			}else{
+				content = ContentNormalizer.normalizeText(content);
+			}
+			
+            String lang = "";
+            
+            _metadata.set(Metadata.CONTENT_ENCODING, "UTF-8");
+            _metadata.set(Metadata.COMMENT,filename);
+            ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
+            
+           
+            _input.reset();
+    		//_parser = new PDFParser(inputstream);
+    		//COSDocument cosDoc=null;
     		PDDocument pdDoc=null;
-    		//_parser = new PDFParser(_input);
     		try {
-    			_parser.parse();
-    			//COSDocument
-    			cosDoc = _parser.getDocument();
-    			PDFTextStripper pdfStripper = new PDFTextStripper();
-    			//PDDocument 
-    			pdDoc = new PDDocument(cosDoc);
+    			pdDoc = PDDocument.load(filename);
     			PDDocumentInformation pdDocInfo=new PDDocumentInformation();
     			pdDocInfo=pdDoc.getDocumentInformation();
-    			//System.out.println("author:"+pdDocInfo.getAuthor());
-    			//System.out.println("title:"+pdDocInfo.getTitle());
-    			//int page_nums=pdDoc.getNumberOfPages();
-    			
+	
     			_metadata.set(Metadata.AUTHOR, pdDocInfo.getAuthor());
     			_metadata.set(Metadata.TITLE, pdDocInfo.getTitle());
     			_metadata.set(Metadata.KEYWORDS,pdDocInfo.getKeywords());
     			_metadata.set(Metadata.PUBLISHER,pdDocInfo.getProducer());
-    			_metadata.set(Metadata.DATE,pdDocInfo.getModificationDate().toString());
     			
-    			content = pdfStripper.getText(pdDoc);
-    			//System.out.println(content);
-    			content = ContentNormalizer.normalizePdfText(content);
-    			//System.out.println(content);
-    			if (content==null)
-    				System.out.println("PDF to Text Conversion failed.");
-    			 if (cosDoc != null) cosDoc.close();
+    			//_metadata.set(Metadata.DATE,pdDocInfo.getModificationDate().toString());
+    			//content = pdfStripper.getText(pdDoc);
+    			//content = ContentNormalizer.normalizePdfText(content);
+    			 //if (cosDoc != null) cosDoc.close();
     			 if (pdDoc != null) pdDoc.close();
-    			 //inputstream.close();
     		} catch (Exception e){
     			System.out.println("An exception occured in parsing the PDF Document.");
     			e.printStackTrace();
-    			 if (cosDoc != null) cosDoc.close();
+    			 //if (cosDoc != null) cosDoc.close();
     			 if (pdDoc != null) pdDoc.close();
     		}
     		  		
@@ -145,7 +149,7 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
         } catch (NoSuchMethodError e) {
             throw new RuntimeException("Attempting to use excluded parser");
         } catch (Throwable t) {
-            throw new RuntimeException("Serious shut-down error thrown from Tika", t);
+            throw new RuntimeException("Serious shut-down error thrown from PDFBOX", t);
         }
     }
     
