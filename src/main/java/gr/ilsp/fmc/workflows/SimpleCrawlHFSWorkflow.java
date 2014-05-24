@@ -352,7 +352,9 @@ public class SimpleCrawlHFSWorkflow {
 
 		//contentPipe is parsed. Metadata, content and links are extracted. Content is
 		//cleaned using Boilerpipe.
-		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler));
+		//ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler));
+		
+		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler,curWorkingDirPath.getParent().toString()));
 		//The results from the parser are forwarded to the classifier. The classifier
 		//will score the content of each fetched page. It will also score all links
 		//based on the score of the page they came from, the anchor text and the surrounding
@@ -501,7 +503,7 @@ public class SimpleCrawlHFSWorkflow {
 
 		//contentPipe is parsed. Metadata, content and links are extracted. Content is
 		//cleaned using Boilerpipe.
-		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler));
+		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler, curWorkingDirPath.getParent().toString()));
 		//The results from the parser are forwarded to the classifier. The classifier
 		//will score the content of each fetched page. It will also score all links
 		//based on the score of the page they came from, the anchor text and the surrounding
