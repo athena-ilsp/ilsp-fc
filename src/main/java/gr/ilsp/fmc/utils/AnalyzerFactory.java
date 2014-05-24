@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.de.GermanAnalyzer;
@@ -16,12 +16,12 @@ import org.apache.lucene.analysis.hu.HungarianAnalyzer;
 import org.apache.lucene.analysis.it.ItalianAnalyzer;
 import org.apache.lucene.analysis.lv.LatvianAnalyzer;
 import org.apache.lucene.analysis.pt.PortugueseAnalyzer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+//import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+//import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.util.Version;
 
 public class AnalyzerFactory {
-	private static final Logger LOGGER = Logger.getLogger(AnalyzerFactory.class);
+	//private static final Logger LOGGER = Logger.getLogger(AnalyzerFactory.class);
 
 	String[] langs = {"de", "el", "en", "es", "fr", "it", "pt", "lv", "hr", "hu"};
 	List<String> langsList = Arrays.asList(langs);
@@ -60,14 +60,14 @@ public class AnalyzerFactory {
 		Analyzer analyzer = analyzerFactory.getAnalyzer("hr");
 		TokenStream tokenStream = analyzer.tokenStream("contents", new InputStreamReader(AnalyzerFactory.class.getClass().getResourceAsStream("/hr_stemmer_test_small.txt")));
 
-		OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
-		CharTermAttribute charTermAttribute = (CharTermAttribute) tokenStream.addAttribute(CharTermAttribute.class);
+		//OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
+		//CharTermAttribute charTermAttribute = (CharTermAttribute) tokenStream.addAttribute(CharTermAttribute.class);
 
 		try {
 			tokenStream.reset(); // Resets this stream to the beginning. (Required)
 			while (tokenStream.incrementToken()) {
 				// Right way to get tokens
-				String stemmedToken = charTermAttribute.toString();
+				//String stemmedToken = charTermAttribute.toString();
 
 				//System.out.println("In: " + tokenStream.reflectAsString(true));
 				//System.out.println("Out: " + stemmedToken);
