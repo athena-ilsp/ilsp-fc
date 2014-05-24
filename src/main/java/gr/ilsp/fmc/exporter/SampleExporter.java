@@ -25,6 +25,7 @@ package gr.ilsp.fmc.exporter;
 import gr.ilsp.fmc.datums.ClassifierDatum;
 import gr.ilsp.fmc.datums.CrawlDbDatum;
 import gr.ilsp.fmc.datums.ExtendedParsedDatum;
+import gr.ilsp.fmc.main.ReadResources;
 import gr.ilsp.fmc.main.SimpleCrawlHFS;
 import gr.ilsp.fmc.utils.AnalyzerFactory;
 import gr.ilsp.fmc.utils.ContentNormalizer;
@@ -401,6 +402,7 @@ public class SampleExporter {
 		String contentEncoding = "";
 		String author ="";
 		String licenseURL="";
+		String pdfname="";
 		double relscore;
 		//String pubdate="";
 		String publisher="";
@@ -446,6 +448,7 @@ public class SampleExporter {
 			author=meta.get("Author");
 			publisher=meta.get("Publisher");
 			String termsArray = meta.get("keywords");
+			pdfname = meta.get("comment");
 			terms = new ArrayList<String>();
 			if (termsArray!=null){
 				//termsArray = termsArray.replace(",","");
@@ -455,7 +458,11 @@ public class SampleExporter {
 			contentEncoding = meta.get("Content-Encoding");
 			format = meta.get("Content-Type");	
 			format = validFormat(format);
-			htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
+			if (format.contains("pdf")){
+				htmlText ="";
+			}else{
+				htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
+			}
 			subdomains = getSubdomains(url, curDirPath,classIter);
 			//classIter = classifierDbTap.openForRead(conf);
 			relscore = getRelscore(url, curDirPath,classIter1);
@@ -471,7 +478,7 @@ public class SampleExporter {
 			//	LOGGER.info("PDF should be created"); //FIXME (examine if we get the content required to create the pdf file
 			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			//}
-			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", author, publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore ))
+			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", author, publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, pdfname ))
 				id++;
 			if (textExport) TextExporter(xmlPath,cleanText,id-1);
 		}
@@ -612,7 +619,7 @@ public class SampleExporter {
 			String lang, String html_text, String cleaned_text, int id, String pubDate, String author,String publisher,  
 			String domain, String subdomain, ArrayList<String> terms, ArrayList<String[]> topic,
 			String[] neg_words, String licenseURL, String genre,
-			double domain_confidence) { //throws Exception {
+			double domain_confidence, String pdfname) { //throws Exception {
 
 		String maincontent=""; 
 		//FIXME The handling of different mime types should change.
@@ -627,9 +634,11 @@ public class SampleExporter {
 		if (!validformat)
 			return false;
 			
-		if (format.contains("application/pdf"))
-			maincontent=cleaned_text;
-		else{ // (format.contains("text/html")) 
+		if (format.contains("application/pdf")){
+			maincontent = cleaned_text;
+			maincontent = maincontent.replaceAll("<text>", "");
+			maincontent = maincontent.replaceAll("</text>", "");
+		}else{ // (format.contains("text/html")) 
 
 			String[] temp = cleaned_text.split("\n");
 			for (int jj=0;jj<temp.length;jj++){
@@ -671,31 +680,41 @@ public class SampleExporter {
 		//	html_filename = temp_id+".html";
 
 		if (format.contains("application/pdf")){
-			html_filename = temp_id+".pdf";
-			html_text=cleaned_text;
+			html_filename = temp_id + ".pdf";
+			html_text = cleaned_text;
 		}else{
-			html_filename = temp_id+".html";
+			html_filename = temp_id + ".html";
 		}
 		//Path xml_file1 = new Path(outputdir,temp_id+".xml");
 		Path xml_file = new Path("file", "",
 				(FilenameUtils.concat(outputdir.toUri().getPath(),  temp_id + ".xml" )));
 
 		Path annotation = new Path(outputdir,html_filename);
-		OutputStreamWriter tmpwrt;
-		try {
-			tmpwrt = new OutputStreamWriter(new FileOutputStream(annotation.toUri().getPath()),"UTF-8");
-			tmpwrt.write(html_text);
-			tmpwrt.close();
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-			//throw new Exception("Problem in encoding during writing HTML");
-		} catch (IOException e) {
-			e.printStackTrace();
-			//throw new Exception("Problem in encoding during writing HTML");
+		if (format.contains("application/pdf")){
+			try {
+				ReadResources.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  temp_id + ".pdf"));
+				File storedpdf = new File(pdfname); 
+				storedpdf.delete();
+			} catch (IOException e) {
+				LOGGER.info("source PDF file is not stored.");
+				e.printStackTrace();
+			}
+		}else{
+			OutputStreamWriter tmpwrt;
+			try {
+				tmpwrt = new OutputStreamWriter(new FileOutputStream(annotation.toUri().getPath()),"UTF-8");
+				tmpwrt.write(html_text);
+				tmpwrt.close();
+			} catch (UnsupportedEncodingException e1) {
+				e1.printStackTrace();
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+				//throw new Exception("Problem in encoding during writing HTML");
+			} catch (IOException e) {
+				e.printStackTrace();
+				//throw new Exception("Problem in encoding during writing HTML");
+			}
 		}
-
 		//Write the XML file
 		int parId = 1;
 
