@@ -58,6 +58,28 @@ public class ContentNormalizer {
 			put("\\u2008"," "); // PUNCTUATION SPACE
 			put("\\u2009"," "); // THIN SPACE
 			put("\\u200A"," "); // HAIR SPACE
+			put("\\uF0B7","•"); // INVALID UNICODE CHARACTER->BULLET
+			put("\\u2043","•"); // HYPHEN BULLET
+			put("\\uC2B3","•");
+			put("\\u225C","Δ");
+			put("\\u2206","Δ");
+			put("\\u002D","-");
+			put("\\u2012","-");
+			put("\\u2013","-");
+			put("\\u2014","-");
+			put("\\u2015","-");
+			put("\\u2E17","-");
+			put("\\u2E3A","-");
+			put("\\u2E3B","-");
+			put("\\u301C","-");
+			put("\\u3030","-");
+			put("\\u30A0","-");
+			put("\\uFE31","-");
+			put("\\uFE32","-");
+			put("\\uFE58","-");
+			put("\\uFE63","-");
+			put("\\uFF0D","-");
+			
 		}
 	};
 
@@ -66,15 +88,15 @@ public class ContentNormalizer {
 		for (String s:invalidChars.keySet()){
 			text = text.replaceAll(s, invalidChars.get(s));
 		}
+		text = text.replaceAll("\t", " ");
 		text = text.replaceAll("(\\s){2,}", " ");
-
 		text = text.replaceAll("<text> ", "<text>");
 		text = text.replaceAll("<boiler> ", "<boiler>");
 		text = text.replaceAll(" </text>", "</text>");
 		text = text.replaceAll(" </boiler> ", "</boiler>");
 		text = text.replaceAll("<text></text>", "");
 		text = text.replaceAll("<boiler></boiler>", "");
-
+		text = text.replaceAll("( \n)", "\n");
 		text = text.replaceAll("(\n){2,}","\n");
 		return text;
 	}
