@@ -69,8 +69,8 @@ public class AnalyzerFactory {
 				// Right way to get tokens
 				String stemmedToken = charTermAttribute.toString();
 
-				System.out.println("In: " + tokenStream.reflectAsString(true));
-				System.out.println("Out: " + stemmedToken);
+				//System.out.println("In: " + tokenStream.reflectAsString(true));
+				//System.out.println("Out: " + stemmedToken);
 				
 //				System.out.println("token start offset: " + offsetAttribute.startOffset());
 //				System.out.println("token end offset: " + offsetAttribute.endOffset());
