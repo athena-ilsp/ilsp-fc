@@ -22,7 +22,7 @@ import org.apache.pdfbox.pdmodel.common.PDStream;
 
 public class Pdf2text {
 	private static final Logger LOGGER = Logger.getLogger(Pdf2text.class);
-	private static String fs = System.getProperty("file.separator");
+	//private static String fs = System.getProperty("file.separator");
 	private static ArrayList<PrintTextLocations.CharAttr> chardata=new ArrayList<PrintTextLocations.CharAttr>();
 
 	private static ArrayList<LineAttr> linedata = new ArrayList<LineAttr>();
@@ -45,7 +45,7 @@ public class Pdf2text {
 
 	public static void main( String[] args ) throws IOException	{
 		String path=args[0];
-		String outputtype=args[1];
+		//String outputtype=args[1];
 		String files;
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles(); 
@@ -55,11 +55,11 @@ public class Pdf2text {
 				if (files.endsWith(".pdf") || files.endsWith(".PDF")){
 					File input = new File(files);
 					String filename=input.getName();
-					String filepath=input.getParent()+fs;
-					File outputfile=new File(filepath+filename+"."+outputtype);
+					//String filepath=input.getParent()+fs;
+					//File outputfile=new File(filepath+filename+"."+outputtype);
 					LOGGER.info("---------------------------------------FILE:"+ filename);
 					docprops.clear();
-					String content=run1(input);	
+					//String content=run1(input);	
 					//if (outputtype.equals("txt"))
 					//	Utils.writeTXT(outputfile,docprops);
 					//else
@@ -94,7 +94,7 @@ public class Pdf2text {
 				if (page.getMediaBox()!=null){
 					pageheight = page.getMediaBox().getHeight();
 					pagewidth = page.getMediaBox().getWidth();
-					LOGGER.info("Processing page: " + i+" with height " +pageheight 
+					LOGGER.debug("Processing page: " + i+" with height " +pageheight 
 							+ " and width "+ pagewidth);
 				}
 				else {/*FIXME since pageheight is unknown, it cannot be used for footer/header detection*/
@@ -322,9 +322,9 @@ public class Pdf2text {
 				chardata.get(ii).fs=Math.round(chardata.get(ii).h);
 				chardata.get(ii).h=Math.round(chardata.get(ii).h);
 			}
-			LOGGER.info("Analysis will be based on estimated font sizes (i.e. categorization based on text-line heights)");
+			LOGGER.debug("Analysis will be based on estimated font sizes (i.e. categorization based on text-line heights)");
 		}else
-			LOGGER.info("Analysis will be based on provided font sizes");
+			LOGGER.debug("Analysis will be based on provided font sizes");
 
 		estimate_space_thr_per_line(linecounter,usefonts);
 
@@ -461,14 +461,12 @@ public class Pdf2text {
 		}
 		//check_page_template();
 		for (int ii=0;ii<sectiondata.size();ii++){
-			LOGGER.info("TYPE:\t"+sectiondata.get(ii).t);
-			LOGGER.info(sectiondata.get(ii).chars+"\n--------");
+			LOGGER.debug("TYPE:\t"+sectiondata.get(ii).t);
+			LOGGER.debug(sectiondata.get(ii).chars+"\n--------");
 		}
 		//put_sections_in_order(pageheight);
 		//detect_header_footer(pageheight);
 		linedata_temp = linedata;
-		//for (int vv=0;vv<linedata_temp.size();vv++)
-		//	System.out.println(linedata_temp.get(vv).chars+ "\t"+ linedata_temp.get(vv).p+ "\t"+linedata_temp.get(vv).t);
 		return 1;
 	}
 
@@ -506,7 +504,7 @@ public class Pdf2text {
 		selected.clear();
 		for (int ii=1;ii<31;ii++){
 			if (sectiondata_temp.size()<1){
-				LOGGER.info("No text extracted from this page");
+				LOGGER.debug("No text extracted from this page");
 				break;
 			}
 			if (sectiondata_res.size()>0){
