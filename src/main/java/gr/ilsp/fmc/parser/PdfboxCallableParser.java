@@ -54,8 +54,10 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
     private String _storedir_path;
 	//private boolean _keepBoiler = false;
     private static String fs1 = System.getProperty("file.separator");
-	
-        private static final Logger LOGGER = Logger.getLogger(PdfboxCallableParser.class);
+    private static final String EUROPE_ORG_STR = "europa.eu";
+    private static final String default_Europecomment_in_url = "©European Union, 1995-2014. Reuse is authorised, provided the source is acknowledged.";
+    
+    private static final Logger LOGGER = Logger.getLogger(PdfboxCallableParser.class);
 	//private static final Detector DETECTOR = new DefaultDetector(
 	//        MimeTypes.getDefaultMimeTypes());
 	
@@ -114,7 +116,14 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
             _metadata.set(Metadata.COMMENT,filename);
             ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
             
-           
+            // Check if the  sourcelink is from europa.eu
+            String sourceUrl = _metadata.get(Metadata.CONTENT_LOCATION);
+            if (sourceUrl.contains(EUROPE_ORG_STR)){
+            	_metadata.set(Metadata.LICENSE_URL, default_Europecomment_in_url);
+            }
+            LOGGER.debug(sourceUrl + _metadata.get(Metadata.LICENSE_URL));    
+            
+       
             _input.reset();
     		//_parser = new PDFParser(inputstream);
     		//COSDocument cosDoc=null;
