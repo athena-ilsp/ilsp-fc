@@ -41,10 +41,12 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	private static final String HTTP_PROTOCOL = "http";
 	private static final String HTTPS_PROTOCOL = "https";
 	private static final String CREATIVECOMMONS_ORG_STR = "creativecommons.org";
+	private static final String EUROPE_ORG_STR = "europa.eu";
 	//private Matcher CCMatcher = Pattern.compile(".*Creative Commons.*", Pattern.CASE_INSENSITIVE).matcher("");
 	private static final String CC_pattern= "Creative Commons";
 	private static final String default_CCurl_in_text= "http://creativecommons.org/licenses/by/3.0/";
 	private static final String default_CCcomment_in_url = "Distributed under a Creative Commons license";
+	private static final String default_Europecomment_in_url = "©European Union, 1995-2014. Reuse is authorised, provided the source is acknowledged.";
 	/*private static final String default_CCcomment_in_text = "Distributed under a Creative Commons license (auto detected in document)";*/
 	private static final String default_CCcomment_in_text = "Distributed under a Creative Commons license";
 	private static final String text_cc_separ = ";";
@@ -106,6 +108,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				System.out.println(sCurrentLine);
 			}
             */
+           
             String content = "";
             if (_keepBoiler) {            	
             	content = gr.ilsp.boilerpipe.extractors.NumWordsRulesExtractor.INSTANCE.getText(reader,true);
@@ -117,36 +120,46 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
             reader.close();
             
             content = ContentNormalizer.normalizeText(content);
-                        
+           
             ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
             
-            // Check each link for creative commons licenses
-            boolean found_CClink=false;
-            for (ExtendedOutlink extendedOutlink : outlinks) {
-            	try {
-					URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
-					// check that it's a CC license URL
-					if ((HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol())
-							| HTTPS_PROTOCOL.equalsIgnoreCase(url.getProtocol())) &&
-							CREATIVECOMMONS_ORG_STR.equalsIgnoreCase(url.getHost()) &&
-							url.getPath() != null &&
-							url.getPath().startsWith(LICENSES_STR) &&
-							url.getPath().length() > LICENSES_STR.length()) {
-						_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_url+text_cc_separ+url.toString());
-						found_CClink=true;
-						break;
-					}
-				} catch (Exception e) {
-					LOGGER.debug("reached");
-				}
+         // Check if the  sourcelink is from europa.eu
+            String sourceUrl = _metadata.get(Metadata.CONTENT_LOCATION);
+            boolean found_license=false;
+            if (sourceUrl.contains(EUROPE_ORG_STR)){
+            	_metadata.set(Metadata.LICENSE_URL, default_Europecomment_in_url);
+            	found_license=true;
             }
-            // if a creative commons license is mentioned in the content 
-            if (!found_CClink){
-           		//if (CCMatcher.reset(content).matches())
-            	if (content.contains(CC_pattern)){
-           			_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_text+text_cc_separ+default_CCurl_in_text);	
-           		}
+            if (!found_license){
+            	// Check each link for creative commons licenses
+            	for (ExtendedOutlink extendedOutlink : outlinks) {
+            		try {
+            			URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
+            			// check that it's a CC license URL
+            			if ((HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol())
+            					| HTTPS_PROTOCOL.equalsIgnoreCase(url.getProtocol())) &&
+            					CREATIVECOMMONS_ORG_STR.equalsIgnoreCase(url.getHost()) &&
+            					url.getPath() != null &&
+            					url.getPath().startsWith(LICENSES_STR) &&
+            					url.getPath().length() > LICENSES_STR.length()) {
+            				_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_url+text_cc_separ+url.toString());
+            				found_license=true;
+            				break;
+            			}
+            		} catch (Exception e) {
+            			LOGGER.debug("reached");
+            		}
+            	}
+            	// if a creative commons license is mentioned in the content 
+            	if (!found_license){
+            		//if (CCMatcher.reset(content).matches())
+            		if (content.contains(CC_pattern)){
+            			_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_text+text_cc_separ+default_CCurl_in_text);	
+            		}
+            	}
             }
+            LOGGER.debug(sourceUrl + _metadata.get(Metadata.LICENSE_URL));
+            
             return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, /*_contentExtractor.getContent()*/content, lang,
                             _metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
         } catch (Exception e) {
