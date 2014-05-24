@@ -1248,7 +1248,8 @@ public class SampleExporter {
 		if (!StringUtils.isEmpty(licenseURL)){
 			xtw.writeStartElement("license");
 			String[] t1 =  licenseURL.split(text_cc_separ);
-			xtw.writeAttribute("target", t1[1]);
+			if (t1.length>1)
+				xtw.writeAttribute("target", t1[1]);
 			xtw.writeCharacters(t1[0]);
 			xtw.writeEndElement();
 		} 
