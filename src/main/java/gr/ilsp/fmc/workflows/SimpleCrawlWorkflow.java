@@ -296,7 +296,9 @@ public class SimpleCrawlWorkflow {
         Pipe contentPipe = new Pipe("content pipe", fetchPipe.getContentTailPipe());
         //StatusOutputPipe statusOutputPipe = new StatusOutputPipe(fetchPipe.getStatusTailPipe(),new StatusFilter());              
         //contentPipe is parsed
+        //ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser());
         ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser());
+        
         //The results from the parser are forwared to the classifier
         //ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(language,classes, topic, thres, false,min_uniq_terms,max_depth));
         //vpapa
