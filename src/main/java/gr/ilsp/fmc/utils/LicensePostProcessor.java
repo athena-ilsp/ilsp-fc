@@ -1,5 +1,7 @@
 package gr.ilsp.fmc.utils;
 
+import gr.ilsp.fmc.main.ReadResources;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -9,6 +11,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.jdom.Attribute;
 import org.jdom.CDATA;
@@ -39,6 +42,7 @@ public class LicensePostProcessor {
 	private static final String LICENSE = "license";
 	private static final String AVAILABILITY = "availability";
 	private static final String GENERIC_CC_TEXT = "Distributed under a Creative Commons license (auto detected in document)";
+	private static final String GENERIC_Europe_TEXT = "©European Union, 1995-2014. Reuse is authorised, provided the source is acknowledged.";
 	private Namespace ns = Namespace.getNamespace("", "http://www.xces.org/schema/2003");
 
 	private SuffixFileFilter sff = new SuffixFileFilter("xml");
@@ -46,7 +50,7 @@ public class LicensePostProcessor {
 	private File directory;
 	private boolean moveLicenseInfo = true;
 	private Matcher CCMatcher = Pattern.compile(".*Creative Commons.*", Pattern.CASE_INSENSITIVE).matcher("");
-
+	//private String genre="Reference";
 //	private Matcher BY = Pattern.compile(".*/by/.*").matcher("");
 //	private Matcher BYND = Pattern.compile(".*/by-nd/.*").matcher("");
 //	private Matcher BYSA = Pattern.compile(".*/by-sa/.*").matcher("");
@@ -61,63 +65,157 @@ public class LicensePostProcessor {
 	
 	public static void main(String... args) throws Exception {
 		//File directory = new File(args[0]);
-		File directory = new File("C:\\QTLaunchPad\\AUTOMOTIVE\\EN\\qtlp_20131227_132408\\e401c679-d4d1-4099-8711-a3b97d634614\\xml");
+		File directory = new File("C:\\QTLaunchPad\\MEDICAL\\PT-EL\\delivered\\qtlp_20131016_155447\\000d8449-ad3f-4633-8333-d35128a6cabd\\ttt");
 		logger.info("Input Directory: " + directory.toString());
 		LicensePostProcessor lpp = new LicensePostProcessor();
 		lpp.setDirectory(directory);
 		lpp.run();
 	}
-
 	public void run() throws FileNotFoundException,  IOException, JDOMException {
-		
-		Vector<File> fileList = FileUtils.listFiles(this.getDirectory(), this.getSff(), false);
+		Vector<File> fileList = FcFileUtils.listFiles(this.getDirectory(), this.getSff(), false);
 		for (File xmlFile: fileList) {
 			logger.info("Parsing " + xmlFile.getAbsolutePath());
-					
+			//if (xmlFile.getName().contains("_"))
+			//	continue;
 			SAXBuilder builder = new SAXBuilder();	
 			Document doc = (Document) builder.build(xmlFile);
-
 			Element header = doc.getRootElement().getChild("cesHeader", ns);	
-
+			//boolean found1=false;			boolean found2=false;
 			if (!hasLicenseInfoInPublicationStmt(header)) {	
 				Element body = doc.getRootElement().getChild("text", ns).getChild("body", ns);	
 				Element licenseFromText = getCCLicenseInfoFromText(body);
 				if (licenseFromText!=null) {
 					Element availability = header.getChild("fileDesc", ns).getChild("publicationStmt", ns).getChild(AVAILABILITY, ns);
-					availability.setText("");
-					availability.addContent(licenseFromText);
+					availability.setText("");					availability.addContent(licenseFromText);
 					logger.info("LINECENSE in TEXT: "+ xmlFile.getName());
+					//found1=true;
 				}
-			}else{
+			}else
 				logger.info(xmlFile.getName());
-			}
-			
 			if (moveLicenseInfo && hasLicenseInfoInPublicationStmt(header)) {
 				moveLicenseInfo(header);
+				//found2=true;
 			}
-			
-			File outFile = new File(xmlFile.getAbsoluteFile() + ".out");
-			XMLOutputter xmlOutputer = new XMLOutputter();
-			xmlOutputer.setFormat(Format.getPrettyFormat());
-			xmlOutputer.output(doc, new FileWriter(outFile));
-			
-			//File xmlFile1=new File(xmlFile.getAbsolutePath());
-			//outFile.renameTo(xmlFile);
-			//xmlFile.delete();
-			//outFile.renameTo(xmlFile1);
+			//if (found1 | found2){
+				File outFile = new File(xmlFile.getAbsoluteFile() + ".out");
+				XMLOutputter xmlOutputer = new XMLOutputter();
+				xmlOutputer.setFormat(Format.getPrettyFormat());
+				xmlOutputer.output(doc, new FileWriter(outFile));
+			//}
 		}
+		//movefiles(this.getDirectory());
+		copyfiles(this.getDirectory());
+		//copyFile( srcFile, destFile );
+		replaceinXMLfiles(this.getDirectory());
+		
 	}
 	
+	private void copyfiles(File directory1) {
+		File newDir = new File(directory1.getParent()+"\\xml_out");
+		newDir.mkdir();
+		
+//		String p = directory1.getAbsolutePath();
+	
+		File[] dirfiles = directory1.listFiles();
+		for (File curFile: dirfiles) {
+			logger.info(curFile.getAbsolutePath());
+			//if (curFile.getName().endsWith("xml") & !curFile.getName().contains("_"))
+			if (curFile.getName().endsWith("xml"))
+				continue;
+			File dest; 
+			if (curFile.getName().endsWith("out"))
+				dest = new File(newDir.getAbsolutePath()+"\\"+curFile.getName().replace("xml.out", "xml"));	
+			else
+				dest = new File(newDir.getAbsolutePath()+"\\"+curFile.getName());
+			
+			logger.info(dest.getAbsolutePath());
+			//curFile.renameTo(dest);
+			try {
+				FileUtils.copyFile(curFile, dest);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}	
+		
+	}
+	private void replaceinXMLfiles(File directory1) {
+		File newDir = new File(directory1.getParent()+"\\xml_out");
+		File[] dirfiles = newDir.listFiles();
+		for (File curFile: dirfiles) {
+			//if (curFile.getName().endsWith("xml") & !curFile.getName().contains("_")){
+			if (curFile.getName().endsWith("xml") )	{
+				try {
+					String text = ReadResources.readFileAsString(curFile.getAbsolutePath());
+					text = text.replace("<distributor>ILSP project</distributor>",
+							"<distributor>QTLP</distributor>");
+					text = text.replace("<distributor>QTLP/ILSP</distributor>",
+							"<distributor>QTLP</distributor>");
+					
+					text=text.replace(">project_website</eAddress>",
+							">http://www.qt21.eu/launchpad/</eAddress>");
+					text=text.replace("<domain></domain>",
+							"<domain confidence=\"1.0\">MEDICAL</domain>");
+					text=text.replace("<domain />",
+							"<domain confidence=\"1.0\">MEDICAL</domain>");
+					text=text.replace("<genre></genre>",
+							"<genre>"+"Reference"+"</genre>");
+					text=text.replace("<genre />",
+							"<genre>"+"Reference"+"</genre>");
+					if (text.contains("              <license target=")){ 
+						text=text.replace("        <availability>Under review</availability>\r\n", "");
+					}
+					ReadResources.writetextfile(curFile.getAbsolutePath(),text);
+				//	text.replace("<availability>Under review</availability>",);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	/*private void movefiles(File directory1) {
+		
+		File newDir = new File(directory1.getParent()+"\\xml_out");
+		newDir.mkdir();
+		
+//		String p = directory1.getAbsolutePath();
+	
+		File[] dirfiles = directory1.listFiles();
+		for (File curFile: dirfiles) {
+			logger.info(curFile.getAbsolutePath());
+			//if (curFile.getName().endsWith("xml") & !curFile.getName().contains("_"))
+			if (curFile.getName().endsWith("xml"))
+				continue;
+			File dest; 
+			if (curFile.getName().endsWith("out"))
+				dest = new File(newDir.getAbsolutePath()+"\\"+curFile.getName().replace("xml.out", "xml"));	
+			else
+				dest = new File(newDir.getAbsolutePath()+"\\"+curFile.getName());
+			
+			logger.info(dest.getAbsolutePath());
+			//curFile.renameTo(dest);
+			try {
+				FileUtils.moveFile(curFile, dest);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}	
+	}
+*/
 	private Element getCCLicenseInfoFromText(Element body) {
 		@SuppressWarnings("unchecked")
 		List<Element> paragraphs = body.getChildren("p", ns);
 		for (Element paragraph:paragraphs) {
 			String text = paragraph.getTextNormalize();
-			if (CCMatcher.reset(text).matches()) {
+			//if (CCMatcher.reset(text).matches()) {
+			if (true) {	
 				logger.info("CC FOUND " +text);
 				Element license = new Element("license", ns);
 				license.setText(GENERIC_CC_TEXT);
-				license.setAttribute("target", "http://creativecommons.org/licenses/by/3.0/");
+				//license.setAttribute("target", "http://creativecommons.org/licenses/by/3.0/");
+				license.setAttribute("target", "http://ec.europa.eu/geninfo/legal_notices_en.htm#copyright");
 				return license;
 			}
 		}
