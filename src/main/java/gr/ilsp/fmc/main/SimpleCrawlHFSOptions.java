@@ -41,6 +41,7 @@ public class SimpleCrawlHFSOptions {
 	private  String _descr=null;
 	private  String _filter=null;
 	private String[][] _urls_repls=null;
+	private String _paths_repl=null;
 	private  boolean _debug = false;
 	private  String _loggingAppender = null;
 	private  String _type="m";
@@ -56,18 +57,22 @@ public class SimpleCrawlHFSOptions {
 	private String _language;
 	private String[] _langKeys;
 	private String _urls;
+	private String default_genrefile="genres_keys.txt";
 	//changed to true 
 	private boolean _keepBoiler = true;
 	private boolean _keepimagefp=false;
+	private boolean _align=false;
 	private boolean _cesAlign = false;
 	private boolean _force = false;
 	private boolean offlineXSLT = false;
 	private String _config;
+	private String _genre;
 	private int _length = 10;
 	private static final Logger LOGGER = Logger.getLogger(SimpleCrawlHFSOptions.class);
 	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
 	private String ws_dir;
 	private static String fs = System.getProperty("file.separator");
+	private static String param_separ = ";";
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 
 	public SimpleCrawlHFSOptions() {
@@ -142,6 +147,10 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "XML file with configuration for the crawler." )
 				.hasArg()
 				.create("cfg") );
+		options.addOption( OptionBuilder.withLongOpt( "genre" )
+				.withDescription( "text file with genre types and keywords for each type." )
+				.hasArg()
+				.create("gnr") );
 		options.addOption( OptionBuilder.withLongOpt( "keepboiler" )
 				.withDescription( "Annotate boilerplate content in parsed text" )				
 				.create("k") );
@@ -193,6 +202,15 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "Put the strings to be replaced, separated by ';'.")
 				.hasArg()
 				.create("u_r") );
+		options.addOption( OptionBuilder.withLongOpt( "paths_replacements" )
+				.withDescription( "Put the strings to be replaced, separated by ';'." +
+						" This might be useful for crawling via the web service")
+				.hasArg()
+				.create("p_r") );
+		options.addOption( OptionBuilder.withLongOpt( "align sentences" )
+				.withDescription( "Extract sentences from the aligned " +
+						"document pairs and alignes the extracted sentences" )				
+				.create("align") );
 		return options;
 	}
 
@@ -304,7 +322,7 @@ public class SimpleCrawlHFSOptions {
 
 			if(line.hasOption( "lang")) {
 				_language = line.getOptionValue("lang");
-				String[] langs=_language.split(";");
+				String[] langs=_language.split(param_separ);
 				if (langs.length>2){
 					LOGGER.error("The targeted languages are more than 2.");
 					help();
@@ -320,7 +338,7 @@ public class SimpleCrawlHFSOptions {
 			}else{
 				//vpapa for bilingual web service
 				if(line.hasOption("l1") & line.hasOption("l2")) {
-					_language = line.getOptionValue("l1")+";"+line.getOptionValue("l2");
+					_language = line.getOptionValue("l1")+param_separ+line.getOptionValue("l2");
 					_langKeys = findKeys4lang(_language);
 				}else{
 					LOGGER.error("Only 1 language has been defined.");
@@ -329,9 +347,23 @@ public class SimpleCrawlHFSOptions {
 
 			if(line.hasOption( "cfg")) {
 				_config = line.getOptionValue("cfg");
-			}		
+			}	
+			if(line.hasOption( "gnr")) {
+				_genre = line.getOptionValue("gnr");
+			}else{
+				URL default_genreFile = SimpleCrawlHFS.class.getClassLoader().getResource(default_genrefile);
+				if (default_genreFile.toExternalForm().startsWith("file:/")){
+					_genre = default_genreFile.toExternalForm().substring(6);
+				}
+			}
+			if(line.hasOption( "p_r")) {
+				_paths_repl= line.getOptionValue("p_r").trim();
+			}
 			if(line.hasOption( "k")) {
 				_keepBoiler  = true;
+			}
+			if(line.hasOption( "align")) {
+				_align  = true;
 			}
 			if(line.hasOption( "ifp")) {
 				_keepimagefp  = true;
@@ -358,7 +390,7 @@ public class SimpleCrawlHFSOptions {
 
 			if(line.hasOption( "type")) {
 				_type = line.getOptionValue("type");
-				if ((_type.equals("p") | _type.equals("q"))& !_language.contains(";")){
+				if ((_type.equals("p") | _type.equals("q"))& !_language.contains(param_separ)){
 					LOGGER.error("You crawl for parallel or comparable but only 1 language has been defined.");
 					//printUsageAndExit(parser);
 					help();
@@ -367,10 +399,10 @@ public class SimpleCrawlHFSOptions {
 					String temp= line.getOptionValue("u_r");
 					//if (!temp.isEmpty() & temp!=null){
 					if (temp!=null){
-						String[] aa=temp.split("@");
+						String[] aa=temp.split(param_separ);
 						String[][] urls_repls =new String[aa.length][2];  
 						for (int ii=0;ii<aa.length;ii++){
-							String[] bb = aa[0].split(";");
+							String[] bb = aa[0].split(param_separ);
 							if (bb.length<=1){
 								LOGGER.error("the argument for URL replacements is not correct." +
 										" Use ; for every pair of replacements." +
@@ -476,7 +508,7 @@ public class SimpleCrawlHFSOptions {
 					}
 				}
 			}else{
-				if (_language.contains(";")){
+				if (_language.contains(param_separ)){
 					LOGGER.error("You crawl for 2 languages but the type of outcome (parallel or comparable) has not been defined.");
 					//printUsageAndExit(parser);
 					help();
@@ -488,7 +520,7 @@ public class SimpleCrawlHFSOptions {
 
 			if(line.hasOption( "d")) {
 				if (_type.equals("m")){
-					if (_language.contains(";")){
+					if (_language.contains(param_separ)){
 						LOGGER.error("Choose only one target language for monolingual crawl.");
 						//printUsageAndExit(parser);
 						help();
@@ -552,7 +584,7 @@ public class SimpleCrawlHFSOptions {
 	
 	private String[] findKeys4lang(String language) {
 		ArrayList<String> langKeys=new ArrayList<String>();
-		String[] langs = _language.split(";");
+		String[] langs = _language.split(param_separ);
 		//File langfilepath=new File("conf/langKeys.txt");
 		//URL svURL = ReadResources.class.getClassLoader().getResource("langKeys.txt");
 		//BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
@@ -651,13 +683,18 @@ public class SimpleCrawlHFSOptions {
 	public boolean keepBoiler() {
 		return _keepBoiler;
 	}
+	public boolean toAlign() {
+		return _align;
+	}
 	public boolean Force() {
 		return _force;
 	}
 	public String getConfig(){
 		return _config;
 	}
-
+	public String getGenre(){
+		return _genre;
+	}
 	public int getlength() {
 		return _length;
 	}
@@ -677,6 +714,9 @@ public class SimpleCrawlHFSOptions {
 	}
 	public String[][] getUrlReplaces() {
 		return _urls_repls;
+	}
+	public String getPathReplace() {
+		return _paths_repl;
 	}
 	public boolean getAlign() {
 		return _cesAlign;
