@@ -296,7 +296,6 @@ public class LicenseParser {
 			hcon.setRequestProperty("Keep-Alive","300");
 			//
 			
-			
 			InputStream instr = hcon.getInputStream();
 			HTMLConfiguration config = new HTMLConfiguration();
 			XMLDocumentFilter[] filters = { new Purifier() }; // This is important, otherwise you cannot domify below.
@@ -309,11 +308,5 @@ public class LicenseParser {
 			LicenseParser lp = new LicenseParser();
 			//System.out.println(lp.getLicense(doc, metadata));
 		}
-	
 	}
-
-
-
-	
-
 }
