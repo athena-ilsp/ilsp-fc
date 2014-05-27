@@ -35,6 +35,7 @@ import gr.ilsp.fmc.utils.JarUtils;
 import gr.ilsp.fmc.utils.LithuanianAnalyzer;
 import gr.ilsp.fmc.utils.PrettyPrintHandler;
 import gr.ilsp.fmc.utils.TopicTools;
+import gr.ilsp.fmc.genreclassifier.GenreClassifier;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -56,6 +57,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -123,10 +125,12 @@ public class SampleExporter {
 	private static boolean html = false;
 	private static String[] mimetypes;
 	private static String targeteddomain;
+	private static String genres;
 	private static SampleExporterOptions options = null;
 	static Analyzer analyzer = null;
 	static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
 	private static ArrayList<String> topicTermsAll = null;
+	private static HashMap<String, String> genres_keys = null;
 	private static ArrayList<File> xmlFiles = new ArrayList<File>();
 	private static String outputFile = null;
 	private static String outputFileHTML = null;
@@ -273,6 +277,10 @@ public class SampleExporter {
 					topic=TopicTools.analyzeTopic(topicFile,language, conf);
 					topicTermsAll = TopicTools.analyzeTopicALL(topic);
 				}
+				String genreFile = getGenres();
+				
+				genres_keys = GenreClassifier.Genres_keywords(genreFile);	
+								
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
 					id = exportToXml(conf,curDirPath,language, id,topic,targeteddomain);
 					int curLoop = CrawlDirUtils.extractLoopNumber(curDirPath);
@@ -445,8 +453,8 @@ public class SampleExporter {
 			cleanText = datum.getParsedText();
 			cleanText = ContentNormalizer.normalizeText(cleanText);
 			meta = datum.getParsedMeta();
-			author=meta.get("Author");
-			publisher=meta.get("Publisher");
+			author = meta.get("Author");
+			publisher = meta.get("Publisher");
 			String termsArray = meta.get("keywords");
 			pdfname = meta.get("comment");
 			terms = new ArrayList<String>();
@@ -467,7 +475,7 @@ public class SampleExporter {
 			//classIter = classifierDbTap.openForRead(conf);
 			relscore = getRelscore(url, curDirPath,classIter1);
 			licenseURL = meta.get(Metadata.LICENSE_URL);
-
+			genre = GenreClassifier.GenreClassifier_keywords(genres_keys, url, title);
 			//if (format.contains("text/html"))
 			//	cleanText = ContentNormalizer.normalizeText(cleanText);
 			//if (format.contains("application/pdf"))
@@ -475,7 +483,7 @@ public class SampleExporter {
 			//if (format.contains("text/html"))
 			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			//if (format.contains("application/pdf")){
-			//	LOGGER.info("PDF should be created"); //FIXME (examine if we get the content required to create the pdf file
+			//	LOGGER.info("PDF should be created"); 
 			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
 			//}
 			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", author, publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, pdfname ))
@@ -1394,6 +1402,12 @@ public class SampleExporter {
 	}
 	public void setTargetedDomain(String targeteddomain){
 		SampleExporter.targeteddomain = targeteddomain;
+	}
+	public void setGenres(String genres){
+		SampleExporter.genres = genres;
+	}
+	public static String getGenres() {
+		return genres;
 	}
 	/**
 	 * @return the researchProject
