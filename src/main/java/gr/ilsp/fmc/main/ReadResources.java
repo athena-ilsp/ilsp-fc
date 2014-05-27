@@ -27,14 +27,18 @@ import org.xml.sax.SAXException;
 
 public class ReadResources {
 	
-    public static ArrayList<Double> readFile(String filename) throws IOException {
-    	ArrayList<Double> param=new ArrayList<Double>();
-        URL svURL = ReadResources.class.getClassLoader().getResource(filename);
-        BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
-        //String inputLine;
-        //while ((inputLine = in.readLine()) != null) {
-        //     System.out.println(inputLine);
-        //}
+    public static ArrayList<String> readFileLineByLine(String filename) throws IOException {
+    	ArrayList<String> param=new ArrayList<String>();
+        //URL svURL = ReadResources.class.getClassLoader().getResource(filename);
+        //BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
+        //BufferedReader in = new BufferedReader(new InputStreamReader(filename));
+        String inputLine;
+        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
+        
+        while ((inputLine = in.readLine()) != null) {
+             System.out.println(inputLine);
+             param.add(inputLine);
+        }
         in.close();
         return param;
     }
