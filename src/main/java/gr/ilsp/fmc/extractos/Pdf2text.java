@@ -45,7 +45,6 @@ public class Pdf2text {
 
 	public static void main( String[] args ) throws IOException	{
 		String path=args[0];
-		//String outputtype=args[1];
 		String files;
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles(); 
@@ -55,15 +54,8 @@ public class Pdf2text {
 				if (files.endsWith(".pdf") || files.endsWith(".PDF")){
 					File input = new File(files);
 					String filename=input.getName();
-					//String filepath=input.getParent()+fs;
-					//File outputfile=new File(filepath+filename+"."+outputtype);
 					LOGGER.info("---------------------------------------FILE:"+ filename);
 					docprops.clear();
-					//String content=run1(input);	
-					//if (outputtype.equals("txt"))
-					//	Utils.writeTXT(outputfile,docprops);
-					//else
-					//	Utils.writeXML(outputfile,docprops);
 				}
 			}
 		}		
@@ -80,10 +72,8 @@ public class Pdf2text {
 					document.decrypt("");
 				} catch (InvalidPasswordException e) {
 					System.err.println("Error: Document is encrypted with a password.");
-					//System.exit(1);
 				} catch (CryptographyException e) {
 					System.err.println("Error: CryptographyException.");
-					//e.printStackTrace();
 				}
 			}
 			PrintTextLocations printer = new PrintTextLocations();
@@ -142,17 +132,11 @@ public class Pdf2text {
 
 
 	public static String getText(HashMap<String, ArrayList<LineAttr>> docprops2) {
-
-		//int paragraph_id=0;
-		String temp_int;
-		String temp;
-		String content="";
+		String temp_int, temp, content="";
 		boolean found, found1;
 
 		for (int ii=0;ii<docprops.size();ii++){	
-
 			temp_int="page"+ii;
-			//paragraph_id++;
 			if  (!docprops.containsKey(temp_int))
 				continue;
 			if (docprops.get(temp_int).size()==1){
@@ -193,7 +177,6 @@ public class Pdf2text {
 							found1 = false;
 					}else
 						continue;
-
 				}
 				else{
 					temp=docprops.get(temp_int).get(jj-1).chars.trim();
@@ -210,8 +193,6 @@ public class Pdf2text {
 							found1=true;
 						else
 							found1=false;
-
-						//paragraph_id++;
 					}else
 						continue;
 				}
@@ -307,6 +288,7 @@ public class Pdf2text {
 
 	private static int layout_analysis(float pageheight) {
 		LOGGER.debug("PUT CHARACTERS INTO TEXT-LINES. Just checks the y-coordinates of successive characters.");
+		boolean sort_sections=false;
 		int linecounter =put_chars_in_textlines(pageheight);
 		if (linecounter==0)
 			return 0;	
@@ -464,7 +446,9 @@ public class Pdf2text {
 			LOGGER.debug("TYPE:\t"+sectiondata.get(ii).t);
 			LOGGER.debug(sectiondata.get(ii).chars+"\n--------");
 		}
-		//put_sections_in_order(pageheight);
+		if (sort_sections)
+			put_sections_in_order(pageheight);
+		
 		//detect_header_footer(pageheight);
 		linedata_temp = linedata;
 		return 1;
@@ -924,14 +908,8 @@ public class Pdf2text {
 				}
 			}
 		}
-		if (distances.size()==1){
-			//System.out.println( linedata.get(sectionAttr.el).chars+ "\t"+linedata.get(sectionAttr.el).h+ "\t"+linedata.get(sectionAttr.el).fs);
-			//System.out.println( linedata.get(sectionAttr.sl).chars+ "\t"+linedata.get(sectionAttr.sl).h+ "\t"+linedata.get(sectionAttr.sl).fs);
-			//if (distances.get(0)>1.8* linedata.get(sectionAttr.el).fs) {
-			//	count++;
-			//	indeces[0]=1;
-			//}
-		}
+		//if (distances.size()==1){
+		//}
 
 		int pars=0;
 		if (count!=0 ){//& count!=sectionAttr.el-sectionAttr.sl){
@@ -972,7 +950,6 @@ public class Pdf2text {
 				temp_font=fontsizes[ii];
 			}
 		}
-
 		return uniquefontheights;
 	}
 
@@ -1061,7 +1038,6 @@ public class Pdf2text {
 				if (xst<0){
 					xst=chardata.get(ii-1).x;
 				}
-				//hst=hst+chardata.get(ii-1).h;
 			}
 		}
 	}
