@@ -83,6 +83,7 @@ public class SimpleCrawlHFS {
 	private static String fs1 = System.getProperty("file.separator");
 	private static final String resultDir = "xml";
 	private static final String tempFileExt=".xml.txt";
+	private static String lang_separator=";";
 	public static JobConf conf = null;
 
 	private static String operation = "crawlandexport";
@@ -273,6 +274,7 @@ public class SimpleCrawlHFS {
 	private static void crawl(String[] args) throws IOException {
 		SimpleCrawlHFSOptions options = new SimpleCrawlHFSOptions();
 		options.parseOptions(args);		
+			
 		//Loading the default configuration file and checking if user supplied a custom one.
 		URL default_config = SimpleCrawlHFS.class.getClassLoader().getResource("crawler_config.xml");			
 		config = new CompositeConfiguration();			
@@ -551,6 +553,7 @@ public class SimpleCrawlHFS {
 				//inputPath = curLoopDir;
 			}
 			// Finished crawling. Now export if needed.
+
 			if (operation.equals("crawlandexport")) {
 				SampleExporter se = new SampleExporter();
 				se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
@@ -565,6 +568,7 @@ public class SimpleCrawlHFS {
 				se.setApplyOfflineXSLT(options.isOfflineXSLT());
 				se.setAcceptedMimeTypes(mimes);
 				se.setTargetedDomain(options.getTargetedDomain());
+				se.setGenres(options.getGenre());
 				se.export(false);
 			}
 
@@ -577,7 +581,7 @@ public class SimpleCrawlHFS {
 					options.isOfflineXSLT());
 
 			//Detect candidate parallel documents if crawled for parallel.
-			File parentDir =new File(outputDirName+fs1+resultDir); 
+			File parentDir =new File(outputDirName + fs1 + resultDir); 
 			if (options.getType().equals("p")){	
 				try {				
 					File xmldir = new File(options.getOutputDir()+fs1+resultDir);
@@ -593,7 +597,7 @@ public class SimpleCrawlHFS {
 						System.exit(0);
 					}
 					int l1=0, l2=0;
-					String[] lang=options.getLanguage().split(";");
+					String[] lang=options.getLanguage().split(lang_separator);
 
 					Set<String> files_keys=props.keySet();
 					Iterator<String> files_it = files_keys.iterator();
@@ -628,7 +632,7 @@ public class SimpleCrawlHFS {
 					//Find pairs based on URLs
 					ArrayList<String[]> bitextsURLs=new ArrayList<String[]>();
 					HashMap<String, String> filesURLS = Bitexts.findURLs(xmldir);
-					
+
 					//String[][] _url_replaces = Bitexts.checkUrls(options.getUrlReplaces());
 					bitextsURLs=Bitexts.findpairsURLs(filesURLS,props,options.getUrlReplaces());
 					//bitextsURLs=Bitexts.findpairsURLs_dist(filesURLS,props);
@@ -722,6 +726,9 @@ public class SimpleCrawlHFS {
 						LOGGER.info("Tokens in "+stats[0] +" : "+ stats[1]);
 						LOGGER.info("Tokens in "+stats[2] +" : "+ stats[3]);
 					}
+					if (options.toAlign()){
+						//FIXME aligner to be added.
+					}
 					BitextUtils.removeTempFiles(parentDir,tempFileExt);
 					BitextUtils.removeRedundantFiles(parentDir, bitextsALL);
 
@@ -784,12 +791,22 @@ public class SimpleCrawlHFS {
 			//Delete every dir created for each run
 			List<String> notToBeDeleted= new ArrayList<String>();
 			notToBeDeleted.add(resultDir);
-
 			DirUtils.deleteLoopDirs(fs, outputPath, notToBeDeleted);
 			fs.close();
-			//DirUtils.removeSubDirs(parentDir.getParentFile(), notToBeDeleted);
-			System.exit(0);
 
+			if (options.getPathReplace()!=null){
+				String tobematched = fs1+options.getAgentName()+"_";
+				int temp_index= outputDirName.indexOf(tobematched);
+				String tobereplaced= outputDirName.substring(0, temp_index);
+				tobereplaced=tobereplaced.replace("\\", "/");
+				String temp = ReadResources.readFileAsString(options.getOutputFile());
+				temp = temp.replace(tobereplaced, options.getPathReplace().trim());
+				ReadResources.writetextfile(options.getOutputFile(),temp);
+				temp = ReadResources.readFileAsString(options.getOutputFileHTML());
+				temp = temp.replace(tobereplaced, options.getPathReplace().trim());
+				ReadResources.writetextfile(options.getOutputFileHTML(),temp);
+			}
+			System.exit(0);
 		} catch (PlannerException e) {
 			LOGGER.debug(conf.get("hadoop.tmp.dir"));			
 			e.writeDOT("failed-flow.dot");
