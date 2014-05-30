@@ -35,7 +35,7 @@ public class ReadResources {
         BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
         
         while ((inputLine = in.readLine()) != null) {
-             System.out.println(inputLine);
+             //System.out.println(inputLine);
              param.add(inputLine);
         }
         in.close();
