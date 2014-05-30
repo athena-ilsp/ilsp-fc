@@ -1541,12 +1541,19 @@ public class Bitexts {
 	
 
 	private static void several_specific_helpful_tasks() {
-		correct_select_count_tmx("C:\\QTLaunchPad\\AUTOMOTIVE\\EN-DE\\delivered", "alignOutput2014-05-27_043317.txt", 0.4);
+		
+		sample_selection("C:\\QTLaunchPad\\AUTOMOTIVE\\EN-EL\\delivered\\alignOutput2014-05-26_024952.log");
+		
+		count_tmx_scores("C:\\QTLaunchPad\\MEDICAL\\EN-PT\\delivered_uih", "alignOutput2014-05-23_105241.txt", "scores.txt");
+		
+		correct_select_count_tmx("C:\\QTLaunchPad\\MEDICAL\\EN-PT\\delivered_uih", "alignOutput2014-05-23_105241.txt", 0.4);
+		
 		select_copy_docpairs("C:\\QTLaunchPad\\MEDICAL\\EN-PT", "C:\\QTLaunchPad\\MEDICAL\\EN-PT\\delivered_uih",
 				"C:\\QTLaunchPad\\MEDICAL\\EN-PT\\outputs\\output.txt" ,"u i h");
-		check_bilingual_collection("C:\\QTLaunchPad\\AUTOMOTIVE\\EN-PT\\", "en;pt","output_pdfs.txt" );
-		merge_outlist_files("C:\\QTLaunchPad\\MEDICAL\\EN-PT\\delivered_uih\\outputs","output.txt");
 		
+		check_bilingual_collection("C:\\QTLaunchPad\\AUTOMOTIVE\\EN-PT\\", "en;pt","output_pdfs.txt" );
+		
+		merge_outlist_files("C:\\QTLaunchPad\\MEDICAL\\EN-PT\\delivered_uih\\outputs","output.txt");
 		
 		//task1//
 		String parent_dir  ="C:\\QTLaunchPad\\AUTOMOTIVE\\EN-EL\\"; 
@@ -1620,6 +1627,93 @@ public class Bitexts {
 				e1.printStackTrace();
 			}
 		}
+	}
+
+	private static void sample_selection(String tmx_listfile) {
+		String[] types =new String[ ] {"u","i","h", "l", "m", "pdf"};
+		int[] tmxfile_counts = new int[types.length], selected_tmxfile_counts = new int[types.length];
+		int[] tmx_counts = new int[types.length], selected_tmx_counts = new int[types.length];
+		boolean found=false;
+		int total_tmx=0, totaltmxfile=0; 
+		double sample_factor = 0.05, sample_factor1 = 0.05; 
+		try {
+			ArrayList<String> tmx_files=ReadResources.readFileLineByLine(tmx_listfile);
+			for (int ii=0;ii<tmx_files.size();ii++){
+				if (!tmx_files.get(ii).startsWith("align"))
+					continue;
+				
+				String[] temp = tmx_files.get(ii).split(" ");
+				found = false;
+				for (int jj=0;jj<types.length;jj++){
+					if (temp[0].endsWith(types[jj]+".tmx")){
+						found=true;
+						tmx_counts[jj]=tmx_counts[jj]+Integer.parseInt(temp[2]);
+						tmxfile_counts[jj]=tmxfile_counts[jj]+1;
+						break;
+					}
+				}
+				if (!found){
+					System.out.println("EP. Somethng goes wrong, since the type is not recognised.");
+					System.exit(0);
+				}
+			}
+			for (int jj=0;jj<tmx_counts.length;jj++){
+				total_tmx = total_tmx + tmx_counts[jj];
+				totaltmxfile = totaltmxfile + tmxfile_counts[jj];
+			}
+			System.out.println("total tmxfiles: "+ totaltmxfile);
+			System.out.println("total tmx sentence pairs: "+ total_tmx);
+						
+			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+	        System.out.print("Enter sample size of files (Integer):");
+	        int sample_files=0;
+	        try{
+	        	sample_files = Integer.parseInt(br.readLine());
+	        }catch(NumberFormatException nfe){
+	            System.err.println("Invalid Format!");
+	        }
+	        System.out.print("Enter sample size of sentence pairs (Integer):");
+	        int sample_sentencepairs=0;
+	        try{
+	            sample_sentencepairs = Integer.parseInt(br.readLine());
+	        }catch(NumberFormatException nfe){
+	            System.err.println("Invalid Format!");
+	        }
+			System.out.println("files to be selected: " + sample_files);
+			System.out.println("files to be selected: " + sample_sentencepairs);
+			sample_factor = (double) sample_files / (double) totaltmxfile;
+			sample_factor1 = (double) sample_sentencepairs / (double) total_tmx;
+			for (int jj=0;jj<tmx_counts.length;jj++){
+				selected_tmxfile_counts[jj] = (int) Math.round(sample_factor*tmxfile_counts[jj]);
+				selected_tmx_counts[jj] = (int) Math.round(sample_factor1*tmx_counts[jj]);
+			}
+//			System.out.println("aaa");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	private static void count_tmx_scores(String location, String tmx_list_file, String score_text) {
+		String score="";
+		try {
+			String tmx_list = ReadResources.readFileAsString(location+fs+tmx_list_file);
+			String[] pairlist = tmx_list.split("\r\n");
+			
+			for (int ii=0;ii<pairlist.length;ii++){
+				LOGGER.debug("ID:\t"+ii);
+				LOGGER.debug(location+fs+pairlist[ii]);
+				score = score+ 
+						ReadResources.extractAttrfromXML(location+fs+pairlist[ii],"tu", "score", true);
+				if (score.isEmpty())
+					continue;
+				
+			}
+		} catch (IOException e3) {
+			e3.printStackTrace();
+		}
+		ReadResources.writetextfile(location+fs+score_text, score);
 	}
 
 	private static void merge_outlist_files(String sourcedir, String newfile) {
