@@ -14,6 +14,12 @@
 			<value>4</value>
 			<description>Minimum unique terms that must exist in clean content</description>
 		</min_unique_content_terms>
+		<relative_relevance_threshold>
+			<value>0.2</value>
+			<description>The absolute relevance score is divided by the length
+			(in terms of tokens) of the clean content of a document and the
+			calculated relative relevance score is compared with this value</description>
+		</relative_relevance_threshold>
 		<max_depth>
 			<value>4</value>
 			<description>Maximum depth to crawl before abandoning a specific path. Depth
