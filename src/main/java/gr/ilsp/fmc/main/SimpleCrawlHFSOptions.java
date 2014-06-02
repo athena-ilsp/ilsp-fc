@@ -66,7 +66,7 @@ public class SimpleCrawlHFSOptions {
 	private boolean _force = false;
 	private boolean offlineXSLT = false;
 	private String _config;
-	private String _genre;
+	private URL _genre;
 	private int _length = 10;
 	private static final Logger LOGGER = Logger.getLogger(SimpleCrawlHFSOptions.class);
 	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
@@ -349,13 +349,19 @@ public class SimpleCrawlHFSOptions {
 				_config = line.getOptionValue("cfg");
 			}	
 			if(line.hasOption( "gnr")) {
-				_genre = line.getOptionValue("gnr");
+				try {
+					_genre = new URL(line.getOptionValue("gnr"));
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}else{
-				String default_genreFile = SimpleCrawlHFS.class.getClassLoader().getResource(default_genrefile).toString();
-				if (default_genreFile.startsWith("file:/")){
-					_genre = default_genreFile.substring(6);
-				}else
-					_genre = default_genreFile;
+				_genre =SimpleCrawl.class.getClassLoader().getResource(default_genrefile);
+				//String default_genreFile = SimpleCrawlHFS.class.getClassLoader().getResource(default_genrefile).toString();
+				//if (default_genreFile.startsWith("file:/")){
+				//	_genre = default_genreFile.substring(6);
+				//}else
+				//	_genre = default_genreFile;
 				LOGGER.info("Genre types and keywrods are included in file: " + _genre);
 			}
 			if(line.hasOption( "p_r")) {
@@ -694,7 +700,7 @@ public class SimpleCrawlHFSOptions {
 	public String getConfig(){
 		return _config;
 	}
-	public String getGenre(){
+	public URL getGenre(){
 		return _genre;
 	}
 	public int getlength() {
