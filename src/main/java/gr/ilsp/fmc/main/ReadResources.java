@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -213,6 +214,23 @@ public class ReadResources {
 						+ "destination directory is unwriteable: " + parent);
 		}
 		FileUtils.copyFile(fromFile,toFile);
+	}
+
+	public static ArrayList<String> readFileLineByLine(URL genreFile) {
+	   	ArrayList<String> param=new ArrayList<String>();
+        String inputLine;
+        BufferedReader in;
+		try {
+			in = new BufferedReader(new InputStreamReader(genreFile.openStream()));
+			  while ((inputLine = in.readLine()) != null) {
+		             param.add(inputLine);
+		        }
+		        in.close();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+        return param;
 	}
     
 }
