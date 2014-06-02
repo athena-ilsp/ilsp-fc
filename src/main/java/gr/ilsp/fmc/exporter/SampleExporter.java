@@ -125,7 +125,7 @@ public class SampleExporter {
 	private static boolean html = false;
 	private static String[] mimetypes;
 	private static String targeteddomain;
-	private static String genres;
+	private static URL genres;
 	private static SampleExporterOptions options = null;
 	static Analyzer analyzer = null;
 	static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
@@ -277,7 +277,7 @@ public class SampleExporter {
 					topic=TopicTools.analyzeTopic(topicFile,language, conf);
 					topicTermsAll = TopicTools.analyzeTopicALL(topic);
 				}
-				String genreFile = getGenres();
+				URL genreFile = getGenres();
 				
 				genres_keys = GenreClassifier.Genres_keywords(genreFile);	
 								
@@ -1403,10 +1403,10 @@ public class SampleExporter {
 	public void setTargetedDomain(String targeteddomain){
 		SampleExporter.targeteddomain = targeteddomain;
 	}
-	public void setGenres(String genres){
-		SampleExporter.genres = genres;
+	public void setGenres(URL url){
+		SampleExporter.genres = url;
 	}
-	public static String getGenres() {
+	public static URL getGenres() {
 		return genres;
 	}
 	/**
