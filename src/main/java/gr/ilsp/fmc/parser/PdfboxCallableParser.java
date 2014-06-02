@@ -24,13 +24,14 @@ import java.util.concurrent.Callable;
 //import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 //import org.apache.pdfbox.cos.COSDocument;
-import org.apache.pdfbox.pdfparser.PDFParser;
+//import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 //import org.apache.pdfbox.util.PDFTextStripper;
 
 //import org.apache.tika.language.ProfilingHandler;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.Parser;
 //import org.apache.tika.sax.TeeContentHandler;
 
 //import com.google.common.io.Files;
@@ -46,8 +47,8 @@ import bixo.parser.BaseContentExtractor;
 public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
     //private static final Logger LOGGER = Logger.getLogger(PdfboxCallableParser.class);
     
-//    private PDFParser _parser;
-    //private BaseContentExtractor _contentExtractor;
+    //private Parser _parser;
+   // private BaseContentExtractor _contentExtractor;
     private InputStream _input;
     private Metadata _metadata;
     //private boolean _extractLanguage;
@@ -61,12 +62,12 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
 	//private static final Detector DETECTOR = new DefaultDetector(
 	//        MimeTypes.getDefaultMimeTypes());
 	
-    public PdfboxCallableParser(PDFParser parser, BaseContentExtractor contentExtractor, InputStream input, 
+    public PdfboxCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, 
     		Metadata metadata, String storedir_path) {
         this(parser, contentExtractor, input, metadata, true, false, storedir_path);
     }
     
-    public PdfboxCallableParser(PDFParser parser, BaseContentExtractor contentExtractor, InputStream input,
+    public PdfboxCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input,
     		Metadata metadata, boolean extractLanguage, boolean keepBoiler, String storedir_path) {
         //_parser = parser;
         //_contentExtractor = contentExtractor;
@@ -80,7 +81,7 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
     @Override
     public ExtendedParsedDatum call() throws Exception {	
         try {        
-        	        	
+        	String content="";
             if (_storedir_path.startsWith("file:/"))
             	_storedir_path = _storedir_path.substring(5); 
         	File temp_dir = new File(_storedir_path+fs1+"pdf");
@@ -101,8 +102,8 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
             inputstream.close();
             out.close();
             LOGGER.info(filename + " saved.");
-        	
-            String content = Pdf2text.run1(new File(filename));
+            //System.out.println(filename);
+            content = Pdf2text.run1(new File(filename));
             //System.out.println(content);
 			if (content==null){
 				LOGGER.info("PDF to Text Conversion failed.");
@@ -124,7 +125,7 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
             LOGGER.debug(sourceUrl + _metadata.get(Metadata.LICENSE_URL));    
             
        
-            _input.reset();
+            //_input.reset();
     		//_parser = new PDFParser(inputstream);
     		//COSDocument cosDoc=null;
     		PDDocument pdDoc=null;
@@ -149,8 +150,12 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
     			 //if (cosDoc != null) cosDoc.close();
     			 if (pdDoc != null) pdDoc.close();
     		}
-    		  		
-            return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, /*_contentExtractor.getContent()*/content, lang,
+    		//LOGGER.info(filename);
+    		//LOGGER.info(content);
+    		//LOGGER.debug("--------");
+    		//LOGGER.debug("--------");
+            return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, 
+            		/*_contentExtractor.getContent()*/content, lang,
                     _metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
         } catch (Exception e) {
             // Generic exception that's OK to re-throw
