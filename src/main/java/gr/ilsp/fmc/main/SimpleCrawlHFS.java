@@ -793,11 +793,10 @@ public class SimpleCrawlHFS {
 			notToBeDeleted.add(resultDir);
 			DirUtils.deleteLoopDirs(fs, outputPath, notToBeDeleted);
 			fs.close();
-
-			if (options.getPathReplace()!=null){
-				renamePaths(options.getAgentName(), outputDirName,
-						options.getOutputFile(), options.getOutputFileHTML(), options.getPathReplace());
-			}
+			
+			renamePaths(options.getAgentName(), outputDirName,	options.getOutputFile(),
+					options.getOutputFileHTML(), options.getPathReplace());
+			
 			System.exit(0);
 		} catch (PlannerException e) {
 			LOGGER.debug(conf.get("hadoop.tmp.dir"));			
@@ -813,24 +812,28 @@ public class SimpleCrawlHFS {
 		}
 	} 
 
-	private static void renamePaths(String agentName,
-			String outputDirName, String outputFile, String outputHtmlFile, String repl_paths) {
-
-		String tobematched = fs1+agentName+"_";
-		int temp_index= outputDirName.indexOf(tobematched);
-		if (temp_index>=0){
-			String tobereplaced= outputDirName.substring(0, temp_index);
-			tobereplaced=tobereplaced.replace("\\", "/");
-			String temp;
+	private static void renamePaths(String agentName, String outputDirName, String outputFile,
+			String outputHtmlFile, String repl_paths) {
+		File tempfile = new File(outputFile);
+		String tobematched = tempfile.getParent().replace("\\","/");
+		String temp;
+		if (outputDirName.replace("\\","/").contains(tobematched)){
 			try {
 				temp = ReadResources.readFileAsString(outputFile);
-				temp = temp.replace(tobereplaced, repl_paths.trim());
+				if (repl_paths!=null){
+					temp = temp.replace(tobematched, repl_paths.trim());
+				}else{
+					temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
+				}
 				ReadResources.writetextfile(outputFile,temp);
 				temp = ReadResources.readFileAsString(outputHtmlFile);
-				temp = temp.replace(tobereplaced, repl_paths.trim());
+				if (repl_paths!=null){
+					temp = temp.replace(tobematched, repl_paths.trim());
+				}else{
+					temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
+				}
 				ReadResources.writetextfile(outputHtmlFile,temp);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
