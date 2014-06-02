@@ -795,16 +795,8 @@ public class SimpleCrawlHFS {
 			fs.close();
 
 			if (options.getPathReplace()!=null){
-				String tobematched = fs1+options.getAgentName()+"_";
-				int temp_index= outputDirName.indexOf(tobematched);
-				String tobereplaced= outputDirName.substring(0, temp_index);
-				tobereplaced=tobereplaced.replace("\\", "/");
-				String temp = ReadResources.readFileAsString(options.getOutputFile());
-				temp = temp.replace(tobereplaced, options.getPathReplace().trim());
-				ReadResources.writetextfile(options.getOutputFile(),temp);
-				temp = ReadResources.readFileAsString(options.getOutputFileHTML());
-				temp = temp.replace(tobereplaced, options.getPathReplace().trim());
-				ReadResources.writetextfile(options.getOutputFileHTML(),temp);
+				renamePaths(options.getAgentName(), outputDirName,
+						options.getOutputFile(), options.getOutputFileHTML(), options.getPathReplace());
 			}
 			System.exit(0);
 		} catch (PlannerException e) {
@@ -820,6 +812,29 @@ public class SimpleCrawlHFS {
 			System.exit(-1);
 		}
 	} 
+
+	private static void renamePaths(String agentName,
+			String outputDirName, String outputFile, String outputHtmlFile, String repl_paths) {
+
+		String tobematched = fs1+agentName+"_";
+		int temp_index= outputDirName.indexOf(tobematched);
+		if (temp_index>=0){
+			String tobereplaced= outputDirName.substring(0, temp_index);
+			tobereplaced=tobereplaced.replace("\\", "/");
+			String temp;
+			try {
+				temp = ReadResources.readFileAsString(outputFile);
+				temp = temp.replace(tobereplaced, repl_paths.trim());
+				ReadResources.writetextfile(outputFile,temp);
+				temp = ReadResources.readFileAsString(outputHtmlFile);
+				temp = temp.replace(tobereplaced, repl_paths.trim());
+				ReadResources.writetextfile(outputHtmlFile,temp);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * @param stor_vis Array of stored and visited pages per run
