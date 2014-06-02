@@ -830,14 +830,14 @@ public class SimpleCrawlHFS {
 				}else{
 					temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
 				}
-				ReadResources.writetextfile(outputFile,temp);
+				ReadResources.writetextfile(outputFile,temp.replace("\\", "/"));
 				temp = ReadResources.readFileAsString(outputHtmlFile);
 				if (repl_paths!=null){
 					temp = temp.replace(tobematched, repl_paths.trim());
 				}else{
 					temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
 				}
-				ReadResources.writetextfile(outputHtmlFile,temp);
+				ReadResources.writetextfile(outputHtmlFile,temp.replace("\\","/"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
