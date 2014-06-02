@@ -1279,13 +1279,16 @@ public class Bitexts {
 				if (paired.contains(key1)) continue;
 				if (props.get(key1)==null) continue;
 				String lang2=props.get(key1)[1];
+				
 				if (!lang1.equals(lang2)){
 					file_url1=filesURLS.get(key1);
 					match_found=false;
-					for (int ii=0;ii<urls_repls.length;ii++){
-						if (file_url.replace(urls_repls[ii][0],urls_repls[ii][1]).equals(file_url1)){
-							match_found=true;
-							break;
+					if (urls_repls!=null){
+						for (int ii=0;ii<urls_repls.length;ii++){
+							if (file_url.replace(urls_repls[ii][0],urls_repls[ii][1]).equals(file_url1)){
+								match_found=true;
+								break;
+							}
 						}
 					}
 					if (match_found | file_url.replace("_"+lang1, "_"+lang2).equals(file_url1)
