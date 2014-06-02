@@ -276,7 +276,12 @@ public class SimpleCrawlHFS {
 		options.parseOptions(args);		
 			
 		//Loading the default configuration file and checking if user supplied a custom one.
-		URL default_config = SimpleCrawlHFS.class.getClassLoader().getResource("crawler_config.xml");			
+		URL default_config;
+		if (options.getType().equals("p"))
+			default_config = SimpleCrawlHFS.class.getClassLoader().getResource("FBC_config.xml");			
+		else
+			default_config = SimpleCrawlHFS.class.getClassLoader().getResource("FMC_config.xml");
+		
 		config = new CompositeConfiguration();			
 		if (options.getConfig()!=null){
 			String custom_config = options.getConfig();
