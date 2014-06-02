@@ -12,7 +12,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.pdfbox.pdfparser.PDFParser;
+//import org.apache.pdfbox.pdfparser.PDFParser;
 //import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 import org.apache.tika.metadata.Metadata;
@@ -40,6 +40,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
     private boolean _extractLanguage = true;
     protected BaseContentExtractor _contentExtractor;
     private transient Parser _parser;
+    //private transient Parser _parser1;
     private ParserPolicy _policy;
     private FetchedDatum _datum;
 
@@ -81,7 +82,9 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
         if (_parser == null) {
             _parser = getTikaParser();
         }
-        
+       // if (_parser1 == null) {
+       //     _parser1 = getPDFParser();
+       // }
         _contentExtractor.reset();        
     }
 
@@ -90,6 +93,11 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
         return new AutoDetectParser();
     }
 
+   // public Parser getPDFParser() {
+   //     //return new PDFParser();
+   // 	return _parser1;
+   // }
+    
     public void setExtractLanguage(boolean extractLanguage) {
         _extractLanguage = extractLanguage;
     }
@@ -126,7 +134,8 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
         	Callable<ExtendedParsedDatum> c;
         	if (metadata.get("Content-Type").equals("application/pdf")){
         		_parser=null; 
-        		 PDFParser _parser = null;
+        		 //PDFParser
+        		 //_parser1 = null;
         		//Callable<ExtendedParsedDatum>
         		 LOGGER.info("pdf reached");
         		c = new PdfboxCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler, _storedir_path);
