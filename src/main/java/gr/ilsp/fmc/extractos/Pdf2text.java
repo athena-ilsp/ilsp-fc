@@ -65,6 +65,7 @@ public class Pdf2text {
 	public static String run1(File input) { //throws IOException {
 		String content="";
 		PDDocument document = null;
+		docprops.clear();
 		try {
 			document = PDDocument.load(input);
 			if (document.isEncrypted()) {
