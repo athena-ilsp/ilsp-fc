@@ -311,16 +311,16 @@ public class SampleExporter {
 						xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
 						String ttt;
 						for (File xmlFile: xmlFiles) {
-							URL fileURL = xmlFile.toURI().toURL();
-							//xmlFile1=xmlFile+".html";
+							File htmlxmlfile = new File(xmlFile.getAbsolutePath()+".html");
+							//URL fileURL = xmlFile.toURI().toURL();
+							String fileURL = htmlxmlfile.getAbsolutePath().replace("\\","/");
 							if (applyOfflineXSLT)
-								ttt= "<a href=\""+fileURL+".html\">\n"+xmlFile.getAbsolutePath()+".html</a>";
-								//ttt= "<a href=\""+fileURL+".html\">\n"+fileURL+".html</a>";
+								//ttt= "<a href=\""+fileURL+".html\">\n"+xmlFile.getAbsolutePath()+".html</a>";
+								ttt= "<a href=\""+fileURL+"\">\n"+fileURL+"</a>";
 							else
-								ttt= "<a href=\""+fileURL+"\">\n"+xmlFile.getAbsolutePath()+"</a>";
+								ttt= "<a href=\""+xmlFile.getAbsolutePath()+"\">\n"+xmlFile.getAbsolutePath()+"</a>";
 								//ttt= "<a href=\""+fileURL+"\">\n"+fileURL+"</a>";
 							
-							//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
 							xmlFileListWrt1.write("<br />"+ttt.replace("\\","/")+"\n");
 						}
 
