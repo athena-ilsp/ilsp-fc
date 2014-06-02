@@ -1,6 +1,7 @@
 package gr.ilsp.fmc.genreclassifier;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -102,32 +103,27 @@ public class GenreClassifier {
 	}
 
 
-
-	public static HashMap<String, String> Genres_keywords(String genreFile) {
+	public static HashMap<String, String> Genres_keywords(URL genreFile) {
 		HashMap<String, String> genres_keys = new HashMap<String, String>();
-		try {
-			logger.info("Reading genre file: " + genreFile);
-			ArrayList<String> tmp1 = ReadResources.readFileLineByLine(genreFile);
-			for (int ii=0;ii<tmp1.size();ii++){
-				String[] tmp2 = tmp1.get(ii).split(genre_separator);
-				//String[] tmp3 = tmp2[1].split(separator);
-				//ArrayList<String> tmp4 = new ArrayList<String>();
-				//for (int jj=0;jj<tmp3.length;jj++){
-				//	tmp4.add(tmp3[jj].toLowerCase());
-				//}
-				if (tmp2.length==2){
-					genres_keys.put(tmp2[0], tmp2[1].toLowerCase());
-					logger.info("genre type: "+ tmp2[0]);
-				}
-				else{
-					if (tmp2.length>2){
-						logger.info("Genre file should be checked. A textline includes more than 1 tabs.");
-					}
+
+		logger.info("Reading genre file: " + genreFile);
+		ArrayList<String> tmp1 = ReadResources.readFileLineByLine(genreFile);
+		for (int ii=0;ii<tmp1.size();ii++){
+			String[] tmp2 = tmp1.get(ii).split(genre_separator);
+			//String[] tmp3 = tmp2[1].split(separator);
+			//ArrayList<String> tmp4 = new ArrayList<String>();
+			//for (int jj=0;jj<tmp3.length;jj++){
+			//	tmp4.add(tmp3[jj].toLowerCase());
+			//}
+			if (tmp2.length==2){
+				genres_keys.put(tmp2[0], tmp2[1].toLowerCase());
+				logger.info("genre type: "+ tmp2[0]);
+			}
+			else{
+				if (tmp2.length>2){
+					logger.info("Genre file should be checked. A textline includes more than 1 tabs.");
 				}
 			}
-		} catch (IOException e) {
-			logger.error("File with genre types and genre keywords cannot be read.");
-			e.printStackTrace();
 		}
 		return genres_keys;
 	}
