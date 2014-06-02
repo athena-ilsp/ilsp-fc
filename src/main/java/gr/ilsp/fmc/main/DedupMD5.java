@@ -16,7 +16,7 @@ import java.io.Writer;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 //import java.io.Writer;
-import java.net.URL;
+//import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -348,14 +348,17 @@ public class DedupMD5 {
 			for (int ii=0; ii<urls.length;ii++) {
 				String ttt;// = urls[ii];//.toString();
 				File xmlFile=new File(urls[ii]);
+				String fileURL = new File(xmlFile.getAbsolutePath()+".html")
+					.getAbsolutePath().replace("\\", "/");
 				//String ttt=qq.toURI().toString();
-				URL fileURL = xmlFile.toURI().toURL();
+				//URL fileURL = xmlFile.toURI().toURL();
 				if (applyOfflineXSLT2)
-					ttt= "<a href=\""+fileURL+".html\">\n"+xmlFile.getAbsolutePath()+".html</a>";
-					//ttt = "<a href=\""+fileURL+".html\">\n"+fileURL+".html</a>";
+					//ttt= "<a href=\""+fileURL+".html\">\n"+xmlFile.getAbsolutePath()+".html</a>";
+					ttt= "<a href=\""+fileURL+"\">\n"+fileURL+"</a>";
 				else
-					ttt= "<a href=\""+fileURL+"\">\n"+xmlFile.getAbsolutePath()+"</a>";
-					//ttt = "<a href=\""+fileURL+"\">\n"+fileURL+"</a>";
+					//ttt= "<a href=\""+fileURL+"\">\n"+xmlFile.getAbsolutePath()+"</a>";
+					ttt= "<a href=\""+xmlFile.getAbsolutePath().replace("\\", "/")+"\">\n"+
+					xmlFile.getAbsolutePath().replace("\\", "/")+"</a>";
 
 				//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
 				xmlFileListWrt1.write("<br />"+ttt.replace("\\","/")+"\n");
