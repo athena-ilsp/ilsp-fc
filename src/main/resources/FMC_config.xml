@@ -6,9 +6,11 @@
 	</agent>
 	<classifier>
 		<min_content_terms>
-			<value>5</value>
+			<value>4</value>
 			<description>Minimum number of terms that must exist in clean
-				content of each web page in order to be stored.</description>
+				content of each web page in order to be stored.This number
+				is multiplied with the median value of the terms'weights and
+				the result is the threshold for the absolute relevance score.</description>
 		</min_content_terms>
 		<min_unique_content_terms>
 			<value>4</value>
@@ -50,7 +52,9 @@
 		<valid_mime_types>
 			<mime_type value="text/html" />
 			<mime_type value="text/plain" />
-			<!-- <mime_type value="application/xhtml+xml" />  -->
+			<mime_type value="application/xhtml+xml" />
+			<mime_type value="application/pdf" />
+			<mime_type value="application/x-pdf" />
 			<description>Accepted mime types</description>
 		</valid_mime_types>
 		<crawl_delay>
