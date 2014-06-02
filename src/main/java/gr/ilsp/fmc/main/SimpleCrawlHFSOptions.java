@@ -351,10 +351,12 @@ public class SimpleCrawlHFSOptions {
 			if(line.hasOption( "gnr")) {
 				_genre = line.getOptionValue("gnr");
 			}else{
-				URL default_genreFile = SimpleCrawlHFS.class.getClassLoader().getResource(default_genrefile);
-				if (default_genreFile.toExternalForm().startsWith("file:/")){
-					_genre = default_genreFile.toExternalForm().substring(6);
-				}
+				String default_genreFile = SimpleCrawlHFS.class.getClassLoader().getResource(default_genrefile).toString();
+				if (default_genreFile.startsWith("file:/")){
+					_genre = default_genreFile.substring(6);
+				}else
+					_genre = default_genreFile;
+				LOGGER.info("Genre types and keywrods are included in file: " + _genre);
 			}
 			if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
