@@ -73,6 +73,7 @@ public class SimpleCrawlHFSOptions {
 	private String ws_dir;
 	private static String fs = System.getProperty("file.separator");
 	private static String param_separ = ";";
+	private static String param_separ1 = "|";
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 
 	public SimpleCrawlHFSOptions() {
@@ -407,7 +408,7 @@ public class SimpleCrawlHFSOptions {
 					String temp= line.getOptionValue("u_r");
 					//if (!temp.isEmpty() & temp!=null){
 					if (temp!=null){
-						String[] aa=temp.split(param_separ);
+						String[] aa=temp.split(param_separ1);
 						String[][] urls_repls =new String[aa.length][2];  
 						for (int ii=0;ii<aa.length;ii++){
 							String[] bb = aa[0].split(param_separ);
