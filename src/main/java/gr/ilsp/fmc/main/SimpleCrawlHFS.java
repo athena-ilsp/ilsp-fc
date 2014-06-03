@@ -831,7 +831,7 @@ public class SimpleCrawlHFS {
 						repl_paths=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
 						tobematched = agentName+"_";
 					}else{
-						repl_paths=(fs1+agentName+"_").replace("\\","/");
+						repl_paths=(agentName+"_").replace("\\","/");
 						tobematched = agentName+"_";
 					}
 				}
@@ -843,9 +843,14 @@ public class SimpleCrawlHFS {
 				ReadResources.writetextfile(outputFile,temp.replace("\\", "/"));
 				//html output list 
 				temp = ReadResources.readFileAsString(outputHtmlFile);
-				if (temp.startsWith(agentName+"_") & repl_paths!=null){
-					repl_paths=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
-					tobematched = agentName+"_";
+				if (temp.startsWith(agentName+"_")) {
+					if (repl_paths!=null){
+						repl_paths=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
+						tobematched = agentName+"_";
+					}else{
+						repl_paths=(agentName+"_").replace("\\","/");
+						tobematched = agentName+"_";
+					}
 				}
 				if (repl_paths!=null){
 					temp = temp.replace(tobematched, repl_paths.trim());
