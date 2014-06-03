@@ -38,6 +38,7 @@ public class Pdf2text {
 	//private static double align_thr=0.3;
 	private static double align_thr_fully = 0.6;
 	private static double caps_thr = 0.75;
+	//private static boolean sort_sections=false;
 	//private static int window=15;
 	//private static double w1=2* (double) window;
 	//private static double w2= (double) window / 2;
@@ -62,7 +63,7 @@ public class Pdf2text {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static String run1(File input) { //throws IOException {
+	public static String run1(File input, boolean sort_sections) { //throws IOException {
 		String content="";
 		PDDocument document = null;
 		docprops.clear();
@@ -103,7 +104,7 @@ public class Pdf2text {
 						docprops.put("page"+i, current_linedata);
 						continue;
 					}
-					layout_analysis(pageheight);
+					layout_analysis(pageheight, sort_sections);
 				}
 				for (int jj=0;jj<linedata.size();jj++){
 					current_linedata.add(linedata.get(jj));
@@ -287,9 +288,9 @@ public class Pdf2text {
 
 
 
-	private static int layout_analysis(float pageheight) {
+	private static int layout_analysis(float pageheight, boolean sort_sections) {
 		LOGGER.debug("PUT CHARACTERS INTO TEXT-LINES. Just checks the y-coordinates of successive characters.");
-		boolean sort_sections=false;
+		//boolean sort_sections=false;
 		int linecounter =put_chars_in_textlines(pageheight);
 		if (linecounter==0)
 			return 0;	
