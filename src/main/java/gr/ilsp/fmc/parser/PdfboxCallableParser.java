@@ -53,6 +53,7 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
     private Metadata _metadata;
     //private boolean _extractLanguage;
     private String _storedir_path;
+    private boolean _sort_type = false;
 	//private boolean _keepBoiler = false;
     private static String fs1 = System.getProperty("file.separator");
     private static final String EUROPE_ORG_STR = "europa.eu";
@@ -103,7 +104,7 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
             out.close();
             LOGGER.info(filename + " saved.");
             //System.out.println(filename);
-            content = Pdf2text.run1(new File(filename));
+            content = Pdf2text.run1(new File(filename), _sort_type);
             //System.out.println(content);
 			if (content==null){
 				LOGGER.info("PDF to Text Conversion failed.");
