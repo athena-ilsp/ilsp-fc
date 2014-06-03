@@ -799,7 +799,8 @@ public class SimpleCrawlHFS {
 			DirUtils.deleteLoopDirs(fs, outputPath, notToBeDeleted);
 			fs.close();
 			
-			renamePaths(options.getAgentName(), outputDirName,	options.getOutputFile(),
+			if (options.getPathReplace()!=null)
+				renamePaths(options.getAgentName(), outputDirName,	options.getOutputFile(),
 					options.getOutputFileHTML(), options.getPathReplace());
 			
 			System.exit(0);
@@ -826,7 +827,7 @@ public class SimpleCrawlHFS {
 			try {
 				temp = ReadResources.readFileAsString(outputFile);
 				if (temp.startsWith(agentName+"_")){
-					repl_paths=(repl_paths.trim()+"\\"+agentName+"_").replace("\\","/");
+					repl_paths=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
 					tobematched = agentName+"_";
 				}
 				if (repl_paths!=null){
