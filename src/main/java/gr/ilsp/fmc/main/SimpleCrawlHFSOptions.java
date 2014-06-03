@@ -73,7 +73,7 @@ public class SimpleCrawlHFSOptions {
 	private String ws_dir;
 	private static String fs = System.getProperty("file.separator");
 	private static String param_separ = ";";
-	private static String param_separ1 = "|";
+	private static String param_separ1 = ";;";
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 
 	public SimpleCrawlHFSOptions() {
@@ -414,7 +414,7 @@ public class SimpleCrawlHFSOptions {
 							String[] bb = aa[0].split(param_separ);
 							if (bb.length<=1){
 								LOGGER.error("the argument for URL replacements is not correct." +
-										" Use ; for every pair of replacements." +
+										" Use ;; to seperate pairs and ; to separate the parts of each pair." +
 										"Check that none of the parts is empty.");
 								help();
 							}else{
