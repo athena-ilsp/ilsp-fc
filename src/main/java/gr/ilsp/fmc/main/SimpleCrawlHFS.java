@@ -799,8 +799,7 @@ public class SimpleCrawlHFS {
 			DirUtils.deleteLoopDirs(fs, outputPath, notToBeDeleted);
 			fs.close();
 			
-			if (options.getPathReplace()!=null)
-				renamePaths(options.getAgentName(), outputDirName,	options.getOutputFile(),
+			renamePaths(options.getAgentName(), outputDirName,	options.getOutputFile(),
 					options.getOutputFileHTML(), options.getPathReplace());
 			
 			System.exit(0);
@@ -825,10 +824,16 @@ public class SimpleCrawlHFS {
 		String temp;
 		if (outputDirName.replace("\\","/").contains(tobematched)){
 			try {
+				//txt output list
 				temp = ReadResources.readFileAsString(outputFile);
-				if (temp.startsWith(agentName+"_")){
-					repl_paths=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
-					tobematched = agentName+"_";
+				if (temp.startsWith(agentName+"_")) {
+					if (repl_paths!=null){
+						repl_paths=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
+						tobematched = agentName+"_";
+					}else{
+						repl_paths=(fs1+agentName+"_").replace("\\","/");
+						tobematched = agentName+"_";
+					}
 				}
 				if (repl_paths!=null){
 					temp = temp.replace(tobematched, repl_paths.trim());
@@ -836,7 +841,12 @@ public class SimpleCrawlHFS {
 					temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
 				}
 				ReadResources.writetextfile(outputFile,temp.replace("\\", "/"));
+				//html output list 
 				temp = ReadResources.readFileAsString(outputHtmlFile);
+				if (temp.startsWith(agentName+"_") & repl_paths!=null){
+					repl_paths=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
+					tobematched = agentName+"_";
+				}
 				if (repl_paths!=null){
 					temp = temp.replace(tobematched, repl_paths.trim());
 				}else{
