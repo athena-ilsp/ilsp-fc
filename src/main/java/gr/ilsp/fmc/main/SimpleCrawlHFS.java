@@ -826,7 +826,7 @@ public class SimpleCrawlHFS {
 			try {
 				temp = ReadResources.readFileAsString(outputFile);
 				if (temp.startsWith(agentName+"_")){
-					repl_paths=repl_paths.trim()+"/"+agentName+"_";
+					repl_paths=(repl_paths.trim()+"\\"+agentName+"_").replace("\\","/");
 					tobematched = agentName+"_";
 				}
 				if (repl_paths!=null){
