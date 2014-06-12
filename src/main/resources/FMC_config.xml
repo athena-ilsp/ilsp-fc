@@ -53,8 +53,8 @@
 			<mime_type value="text/html" />
 			<mime_type value="text/plain" />
 			<mime_type value="application/xhtml+xml" />
-			<mime_type value="application/pdf" />
-			<mime_type value="application/x-pdf" />
+			<!--<mime_type value="application/pdf" />
+			<mime_type value="application/x-pdf" /> -->
 			<description>Accepted mime types</description>
 		</valid_mime_types>
 		<crawl_delay>
