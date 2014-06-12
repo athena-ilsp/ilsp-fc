@@ -57,8 +57,7 @@ public class SimpleCrawlHFSOptions {
 	private String _language;
 	private String[] _langKeys;
 	private String _urls;
-	private String default_genrefile="genres_keys.txt";
-	//changed to true 
+	//private String default_genrefile="genres_keys.txt";
 	private boolean _keepBoiler = true;
 	private boolean _keepimagefp=false;
 	private boolean _align=false;
@@ -148,10 +147,10 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "XML file with configuration for the crawler." )
 				.hasArg()
 				.create("cfg") );
-		options.addOption( OptionBuilder.withLongOpt( "genre" )
-				.withDescription( "text file with genre types and keywords for each type." )
-				.hasArg()
-				.create("gnr") );
+		//options.addOption( OptionBuilder.withLongOpt( "genre" )
+		//		.withDescription( "text file with genre types and keywords for each type." )
+		//		.hasArg()
+		//		.create("gnr") );
 		options.addOption( OptionBuilder.withLongOpt( "keepboiler" )
 				.withDescription( "Annotate boilerplate content in parsed text" )				
 				.create("k") );
@@ -349,7 +348,7 @@ public class SimpleCrawlHFSOptions {
 			if(line.hasOption( "cfg")) {
 				_config = line.getOptionValue("cfg");
 			}	
-			if(line.hasOption( "gnr")) {
+			/*if(line.hasOption( "gnr")) {
 				try {
 					_genre = new URL(line.getOptionValue("gnr"));
 				} catch (MalformedURLException e) {
@@ -358,13 +357,8 @@ public class SimpleCrawlHFSOptions {
 				}
 			}else{
 				_genre =SimpleCrawl.class.getClassLoader().getResource(default_genrefile);
-				//String default_genreFile = SimpleCrawlHFS.class.getClassLoader().getResource(default_genrefile).toString();
-				//if (default_genreFile.startsWith("file:/")){
-				//	_genre = default_genreFile.substring(6);
-				//}else
-				//	_genre = default_genreFile;
 				LOGGER.info("Genre types and keywrods are included in file: " + _genre);
-			}
+			}*/
 			if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
 			}
