@@ -267,19 +267,15 @@ public class SampleExporter {
 				int prevLoop = -1;
 				Path curDirPath = null;
 				int id = 1;
-				//Path xmlPath = new Path(crawlDirPath,CrawlConfig.XML_SUBDIR_NAME);						
-				//if (fs.exists(xmlPath))
-				//	fs.delete(xmlPath);
-				//fs.mkdirs(xmlPath);
 				String topicFile = getTopic();
 				ArrayList<String[]> topic = null;
 				if (topicFile!=null) {
 					topic=TopicTools.analyzeTopic(topicFile,language, conf);
 					topicTermsAll = TopicTools.analyzeTopicALL(topic);
 				}
-				URL genreFile = getGenres();
+				//URL genreFile = getGenres();
 				
-				genres_keys = GenreClassifier.Genres_keywords(genreFile);	
+				//genres_keys = GenreClassifier.Genres_keywords(genreFile);	
 								
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
 					id = exportToXml(conf,curDirPath,language, id,topic,targeteddomain);
@@ -459,7 +455,6 @@ public class SampleExporter {
 			pdfname = meta.get("comment");
 			terms = new ArrayList<String>();
 			if (termsArray!=null){
-				//termsArray = termsArray.replace(",","");
 				for (String s: termsArray.split(",|;|:"))
 					terms.add(s.trim());
 			}
@@ -475,17 +470,7 @@ public class SampleExporter {
 			//classIter = classifierDbTap.openForRead(conf);
 			relscore = getRelscore(url, curDirPath,classIter1);
 			licenseURL = meta.get(Metadata.LICENSE_URL);
-			genre = GenreClassifier.GenreClassifier_keywords(genres_keys, url, title);
-			//if (format.contains("text/html"))
-			//	cleanText = ContentNormalizer.normalizeText(cleanText);
-			//if (format.contains("application/pdf"))
-			//	cleanText = ContentNormalizer.normalizePdfText(cleanText);
-			//if (format.contains("text/html"))
-			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
-			//if (format.contains("application/pdf")){
-			//	LOGGER.info("PDF should be created"); 
-			//	htmlText = getHtml(url,curDirPath,contentIter, contentEncoding);
-			//}
+			//genre = GenreClassifier.GenreClassifier_keywords(genres_keys, url, title);
 			if (XMLExporter(xmlPath,format, title, url, language, htmlText, cleanText,id, "", author, publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, pdfname ))
 				id++;
 			if (textExport) TextExporter(xmlPath,cleanText,id-1);
