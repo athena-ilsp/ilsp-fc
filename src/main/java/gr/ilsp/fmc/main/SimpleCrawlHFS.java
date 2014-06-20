@@ -835,6 +835,9 @@ public class SimpleCrawlHFS {
 						tobematched = agentName+"_";
 					}
 				}
+				if (tobematched.startsWith("file:"))
+					tobematched=tobematched.substring(5);
+				
 				if (repl_paths!=null){
 					temp = temp.replace(tobematched, repl_paths.trim());
 				}else{
