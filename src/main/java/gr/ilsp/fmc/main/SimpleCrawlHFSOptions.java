@@ -227,12 +227,11 @@ public class SimpleCrawlHFSOptions {
 				_agentName = line.getOptionValue("a");
 			}			
 			else help();
-
+			
+			String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 			if (line.hasOption( "dest")) {
-				ws_dir = line.getOptionValue("dest")+fs;
+				ws_dir = line.getOptionValue("dest")+fs+_agentName+"_"+timeStamp+fs;
 			}else{
-				String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-				//System.out.println(timeStamp );
 				ws_dir=_agentName+"_"+timeStamp+fs;
 			}
 			//vpapa changed the use of the option -d
