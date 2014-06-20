@@ -800,7 +800,7 @@ public class SimpleCrawlHFS {
 			fs.close();
 			
 			renamePaths(options.getAgentName(), outputDirName,	options.getOutputFile(),
-					options.getOutputFileHTML(), options.getPathReplace());
+					options.getOutputFileHTML(), options.getPathReplace() /*, options.getDest()*/);
 			
 			System.exit(0);
 		} catch (PlannerException e) {
@@ -818,7 +818,7 @@ public class SimpleCrawlHFS {
 	} 
 
 	private static void renamePaths(String agentName, String outputDirName, String outputFile,
-			String outputHtmlFile, String repl_paths) {
+			String outputHtmlFile, String repl_paths/*, String dest*/) {
 		File tempfile = new File(outputFile);
 		String tobematched = tempfile.getParent().replace("\\","/");
 		String temp;
