@@ -262,7 +262,6 @@ public class SimpleCrawlHFS {
 	}
 
 	private static boolean helpAsked(String[] args) {
-
 		for (int ii=0; ii<args.length;ii++){
 			if (args[ii].equals("-h") | args[ii].equals("-help") | args[ii].equals("--help") | args[ii].equals("--h")){
 				return true;
@@ -338,7 +337,7 @@ public class SimpleCrawlHFS {
 			urls = options.getUrls();
 		if (options.getDomain()!=null) 
 			urls = options.getUrls();
-		//String[][] tttt =options.getUrlReplaces();
+		
 		URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
 		LOGGER.debug(urldir );
 		if (urldir.getProtocol()=="jar"){
@@ -417,9 +416,7 @@ public class SimpleCrawlHFS {
 				if (!fs.exists(pdf_dir)){
 					fs.mkdirs(pdf_dir);
 				}
-
 				//fs.deleteOnExit(curLoopDir);
-
 				String curLoopDirName = curLoopDir.toUri().toString();
 				if (curLoopDirName.startsWith("file:/"))
 					curLoopDirName = curLoopDirName.substring(5); 
@@ -818,9 +815,21 @@ public class SimpleCrawlHFS {
 	} 
 
 	private static void renamePaths(String agentName, String outputDirName, String outputFile,
-			String outputHtmlFile, String repl_paths/*, String dest*/) {
-		File tempfile = new File(outputFile);
-		String tobematched = tempfile.getParent().replace("\\","/");
+			String outputHtmlFile, String repl_paths /*, String dest*/) {
+		
+		//LOGGER.info("agentName "+agentName);
+		//LOGGER.info("outputDirName "+outputDirName);
+		//LOGGER.info("outputFile "+outputFile);
+		//LOGGER.info("outputHtmlFile "+outputHtmlFile);
+		//LOGGER.info("repl_paths "+repl_paths);
+		//LOGGER.info("dest "+dest);
+		
+		File tempfile = new File(outputDirName);
+		//String tobematched = tempfile.getParent().replace("\\","/");
+		String tobematched = (new File (tempfile.getParent())).getParent().replace("\\","/")+fs1;
+		
+		//LOGGER.info("tobematched "+tobematched);
+		
 		String temp;
 		if (outputDirName.replace("\\","/").contains(tobematched)){
 			try {
@@ -835,14 +844,12 @@ public class SimpleCrawlHFS {
 						tobematched = agentName+"_";
 					}
 				}
-				if (tobematched.startsWith("file:"))
-					tobematched=tobematched.substring(5);
-				
-				if (repl_paths!=null){
+								
+				if (repl_paths!=null)
 					temp = temp.replace(tobematched, repl_paths.trim());
-				}else{
+				else
 					temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
-				}
+				temp=temp.replace("file:","");
 				ReadResources.writetextfile(outputFile,temp.replace("\\", "/"));
 				//html output list 
 				temp = ReadResources.readFileAsString(outputHtmlFile);
@@ -855,11 +862,12 @@ public class SimpleCrawlHFS {
 						tobematched = agentName+"_";
 					}
 				}
-				if (repl_paths!=null){
+								
+				if (repl_paths!=null)
 					temp = temp.replace(tobematched, repl_paths.trim());
-				}else{
+				else
 					temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
-				}
+				temp=temp.replace("file:","");
 				ReadResources.writetextfile(outputHtmlFile,temp.replace("\\","/"));
 			} catch (IOException e) {
 				e.printStackTrace();
