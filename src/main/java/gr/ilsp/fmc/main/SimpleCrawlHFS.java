@@ -1,5 +1,6 @@
 package gr.ilsp.fmc.main;
 
+import gr.ilsp.fmc.aligner.Aligner;
 import gr.ilsp.fmc.datums.CrawlDbDatum;
 import gr.ilsp.fmc.exporter.SampleExporter;
 import gr.ilsp.fmc.parser.DomainUrlFilter;
@@ -728,8 +729,10 @@ public class SimpleCrawlHFS {
 						LOGGER.info("Tokens in "+stats[0] +" : "+ stats[1]);
 						LOGGER.info("Tokens in "+stats[2] +" : "+ stats[3]);
 					}
-					if (options.toAlign()){
-						//FIXME aligner to be added.
+					if (options.toAlign()!=null){
+						String usedict=options.useDict();
+						Aligner.aling(options.toAlign(), lang[0], lang[1], usedict, options.getOutputFile());
+						
 					}
 					BitextUtils.removeTempFiles(parentDir,tempFileExt);
 					BitextUtils.removeRedundantFiles(parentDir, bitextsALL);
