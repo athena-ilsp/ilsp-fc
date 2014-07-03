@@ -5,7 +5,7 @@ package gr.ilsp.fmc.parser;
 
 
 import gr.ilsp.fmc.datums.ExtendedParsedDatum;
-import gr.ilsp.fmc.extractos.Pdf2text;
+import gr.ilsp.fmc.extractors.Pdf2text;
 import gr.ilsp.fmc.utils.ContentNormalizer;
 
 //import java.io.BufferedReader;
