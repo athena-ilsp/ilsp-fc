@@ -60,7 +60,8 @@ public class SimpleCrawlHFSOptions {
 	//private String default_genrefile="genres_keys.txt";
 	private boolean _keepBoiler = true;
 	private boolean _keepimagefp=false;
-	private boolean _align=false;
+	private String _aligner=null;
+	private String _dict=null;
 	private boolean _cesAlign = false;
 	private boolean _force = false;
 	private boolean offlineXSLT = false;
@@ -74,7 +75,7 @@ public class SimpleCrawlHFSOptions {
 	private static String param_separ = ";";
 	private static String param_separ1 = ";;";
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
-
+	private String default_aligner="hunalign";
 	public SimpleCrawlHFSOptions() {
 		createOptions();
 	}
@@ -208,9 +209,17 @@ public class SimpleCrawlHFSOptions {
 				.hasArg()
 				.create("p_r") );
 		options.addOption( OptionBuilder.withLongOpt( "align sentences" )
-				.withDescription( "Extract sentences from the aligned " +
-						"document pairs and alignes the extracted sentences" )				
+				.withDescription( "Extract sentences from the detected document pairs and " +
+						"alignes the extracted sentences by using an alinger (default is hunaling" )
+				//.hasArg()
+				.hasOptionalArg()
 				.create("align") );
+		options.addOption( OptionBuilder.withLongOpt( "dictionary for aligning sentences" )
+				.withDescription( "This discitonary will be used for the sentence alingment" +
+						"If has no argument the default dictionary of the alinger will be used if exist" )
+				//.hasArg()
+				.hasOptionalArg()
+				.create("dict") );
 		return options;
 	}
 
@@ -364,9 +373,6 @@ public class SimpleCrawlHFSOptions {
 			if(line.hasOption( "k")) {
 				_keepBoiler  = true;
 			}
-			if(line.hasOption( "align")) {
-				_align  = true;
-			}
 			if(line.hasOption( "ifp")) {
 				_keepimagefp  = true;
 			}
@@ -506,7 +512,20 @@ public class SimpleCrawlHFSOptions {
 					} catch (IOException e) {
 						LOGGER.error("The seed URL file does not exist.");
 						help();
-						//e.printStackTrace();
+					}
+					if(line.hasOption( "align")) {
+						_aligner = line.getOptionValue("align");
+						if (_aligner==null){
+							_aligner = default_aligner;
+						}
+						if (line.hasOption( "dict")){
+							_dict = line.getOptionValue("dict");
+							if (_dict==null){
+								_dict = "default";
+							}
+						}else{
+							_dict=null;
+						}
 					}
 				}
 			}else{
@@ -685,8 +704,11 @@ public class SimpleCrawlHFSOptions {
 	public boolean keepBoiler() {
 		return _keepBoiler;
 	}
-	public boolean toAlign() {
-		return _align;
+	public String toAlign() {
+		return _aligner;
+	}
+	public String useDict() {
+		return _dict;
 	}
 	public boolean Force() {
 		return _force;
