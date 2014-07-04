@@ -234,7 +234,9 @@ public class IOtools{
 			doc=db.parse(new InputSource(new StringReader(content)));
 		}catch(ParserConfigurationException e){
 			e.printStackTrace();
-		}catch (SAXException|IOException e){
+		}catch (SAXException e){
+			e.printStackTrace();
+		}catch (IOException e){
 			e.printStackTrace();
 		}
 		NodeList translationNodes = doc.getDocumentElement().getElementsByTagName("translation");
@@ -334,7 +336,9 @@ public class IOtools{
 			doc=db.parse(new InputSource(new StringReader(content)));
 		}catch(ParserConfigurationException e){
 			e.printStackTrace();
-		}catch (SAXException|IOException e){
+		}catch (SAXException e){
+			e.printStackTrace();
+		}catch (IOException e){
 			e.printStackTrace();
 		}
 		NodeList translationNodes = doc.getDocumentElement().getElementsByTagName("link");
@@ -388,7 +392,9 @@ public class IOtools{
 			doc=db.parse(new InputSource(new StringReader(IOtools.readURLToString(sUrl))));
 		}catch(ParserConfigurationException e){
 			e.printStackTrace();
-		}catch (SAXException|IOException e){
+		}catch (SAXException e){
+			e.printStackTrace();
+		}catch (IOException e){
 			e.printStackTrace();
 		}
 		NodeList translationNodes = doc.getDocumentElement().getElementsByTagName("p");
@@ -422,7 +428,9 @@ public class IOtools{
 			doc=db.parse(file);
 		}catch(ParserConfigurationException e){
 			e.printStackTrace();
-		}catch (SAXException|IOException e){
+		}catch (SAXException e){
+			e.printStackTrace();
+		}catch (IOException e){
 			e.printStackTrace();
 		}
 		NodeList translationNodes = doc.getDocumentElement().getElementsByTagName("p");
@@ -457,7 +465,9 @@ public class IOtools{
 			doc=db.parse(fTMX);
 		}catch(ParserConfigurationException e){
 			e.printStackTrace();
-		}catch (SAXException|IOException e){
+		}catch (SAXException e){
+			e.printStackTrace();
+		}catch (IOException e){
 			e.printStackTrace();
 		}
 		NodeList translationNodes = doc.getDocumentElement().getElementsByTagName("p");
@@ -495,7 +505,9 @@ public class IOtools{
 			doc=db.parse(new File(input));
 		}catch(ParserConfigurationException e){
 			e.printStackTrace();
-		}catch (SAXException|IOException e){
+		}catch (SAXException e){
+			e.printStackTrace();
+		}catch (IOException e){
 			e.printStackTrace();
 		}
     	//Get all tuv's from the tmx file

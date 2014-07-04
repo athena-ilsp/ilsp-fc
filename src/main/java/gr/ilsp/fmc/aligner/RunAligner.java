@@ -17,6 +17,11 @@ public class RunAligner {
 		LOGGER.info("Languages: " + l1 + " "+ l2);
 		LOGGER.info("Dictionary: " + dict);
 		LOGGER.info("cesAlignList: " + cesAlignList);
+
+    	ScriptAligner ra=new ScriptAligner(l1, l2, null);
+    	StringBuffer log=ra.processFiles(cesAlignList, dict);
+    	System.out.println(log);
+
 		
 	}
 }

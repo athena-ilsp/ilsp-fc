@@ -28,7 +28,7 @@ public abstract class Aligner{
 	protected HashMap<String, Integer> slSentsPerType;
 	protected HashMap<String, Integer> tlSentsPerType;
 	protected String dictionary=null;
-
+	protected static String fs1 = System.getProperty("file.separator");
 	/**
 	 * RunAligner Constructor
 	 * @param sLang The source Language
@@ -65,16 +65,16 @@ public abstract class Aligner{
 	 * Method to process all files containing document pairs
 	 * @param filepath String with the path to the file containing the file list
 	 */
-	protected StringBuffer processFiles(String filePath){
+	protected StringBuffer processFiles(String filePath, String dictPath){
 		int pairNumber=0;
 		int skippedNumber=0;
 		StringBuffer log=new StringBuffer();
 		StringBuffer log2=new StringBuffer();
 		ArrayList<String> fileList=getFileList(filePath);
-		this.outputName="/alignOutput"+getDateTime();
+		this.outputName=fs1+"alignOutput"+getDateTime();
 
 		for(String file:fileList){
-			String filePair=file.substring(file.lastIndexOf("/")+1, file.lastIndexOf(".xml"));
+			String filePair=file.substring(file.lastIndexOf(fs1)+1, file.lastIndexOf(".xml"));
 			String type=filePair.substring(filePair.length() - 1);
 			if(file.startsWith("pdfs"))
 				type="pdf";
@@ -83,22 +83,22 @@ public abstract class Aligner{
 				int alignments=0;
 				//Parse the filename to get the document pair
 				if(file.startsWith("../")){
-					String newFilePath=filePath.substring(0, filePath.lastIndexOf("/"));
-					newFilePath=newFilePath.substring(0, newFilePath.lastIndexOf("/"))+file.replace("..", "").replace(filePair+".xml", "");
+					String newFilePath=filePath.substring(0, filePath.lastIndexOf(fs1));
+					newFilePath=newFilePath.substring(0, newFilePath.lastIndexOf(fs1))+file.replace("..", "").replace(filePair+".xml", "");
 					String files[]=IOtools.parseXmlFile(newFilePath, sLang, tLang);
 					//String sFile=filePair.substring(0, filePair.indexOf("_"));
 					//String tFile=filePair.substring(filePair.indexOf("_")+1, filePair.lastIndexOf("_"));
 					String sFile=files[0];
 					String tFile=files[1];
 					//String prefix=file.replace("../", "");
-					//String outputPath=filePath.substring(0, filePath.lastIndexOf("/")+1)+prefix.substring(0, prefix.indexOf("/"))+this.outputName;
-					String outputPath=filePath.substring(0, filePath.lastIndexOf("/"))+this.outputName+"/"+file.substring(0, file.lastIndexOf("/"));
+					//String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1)+1)+prefix.substring(0, prefix.indexOf(fs1))+this.outputName;
+					String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+fs1+file.substring(0, file.lastIndexOf(fs1));
 					if(outputPath.endsWith("/xml"))
 						outputPath=outputPath.replace("/xml", "");
 					IOtools.createDir(outputPath);
 
 					try{
-						alignments=processDocPair(newFilePath, sFile, tFile, outputPath, type);
+						alignments=processDocPair(newFilePath, sFile, tFile, outputPath, type, dictPath);
 						String tmxFile=outputPath+"/algn_"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
 						log.append(tmxFile+" :: "+alignments+System.getProperty("line.separator"));
 						log2.append(tmxFile+System.getProperty("line.separator"));
@@ -107,18 +107,18 @@ public abstract class Aligner{
 					}
 				}
 				else{
-					String newFilePath=filePath.substring(0, filePath.lastIndexOf("/")+1)+file;
+					String newFilePath=filePath.substring(0, filePath.lastIndexOf(fs1)+1)+file;
 					String files[]=IOtools.parseXmlFile(newFilePath, sLang, tLang);
 					String sFile=files[0];
 					String tFile=files[1];
-					//String outputPath=filePath.substring(0, filePath.lastIndexOf("/")+1)+file.substring(0, file.indexOf("/"))+this.outputName;
-					String outputPath=filePath.substring(0, filePath.lastIndexOf("/"))+this.outputName+"/"+file.substring(0, file.lastIndexOf("/"));
+					//String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1)+1)+file.substring(0, file.indexOf(fs1))+this.outputName;
+					String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+fs1+file.substring(0, file.lastIndexOf(fs1));
 					if(outputPath.endsWith("/xml"))
 						outputPath=outputPath.replace("/xml", "");
 					IOtools.createDir(outputPath);
 
 					try{
-						alignments=processDocPair(newFilePath, sFile, tFile, outputPath, type);
+						alignments=processDocPair(newFilePath, sFile, tFile, outputPath, type, dictPath);
 						String tmxFile=outputPath+"/algn_"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
 						log.append(tmxFile+" :: "+alignments+" alignments"+System.getProperty("line.separator"));
 						log2.append(tmxFile+System.getProperty("line.separator"));
@@ -159,10 +159,10 @@ public abstract class Aligner{
 		}
 
 		//Store the log
-		IOtools.writeToFile(filePath.substring(0, filePath.lastIndexOf("/"))+this.outputName+".log", log);
-		IOtools.writeToFile(filePath.substring(0, filePath.lastIndexOf("/"))+this.outputName+".filelist", log2);
+		IOtools.writeToFile(filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+".log", log);
+		IOtools.writeToFile(filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+".filelist", log2);
 		return log;
 	}
 
-	protected abstract int processDocPair(String mainPath, String sFile, String tFile, String outputPath, String type);
+	protected abstract int processDocPair(String mainPath, String sFile, String tFile, String outputPath, String type, String dict);
 }

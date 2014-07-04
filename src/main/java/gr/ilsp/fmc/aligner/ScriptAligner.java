@@ -133,13 +133,13 @@ public class ScriptAligner extends Aligner{
 	 * @param type The type of the crawled document
 	 * @return String with an output message regarding the alignment process
 	 */
-	protected int processDocPair(String mainPath, String sFile, String tFile, String outputPath, String type){
+	protected int processDocPair(String mainPath, String sFile, String tFile, String outputPath, String type, String dict){
 		sFile=sFile.replace(".xml", "");
 		tFile=tFile.replace(".xml", "");
 		File slF=null;
 		File tlF=null;
-		String slFile=mainPath.substring(0, mainPath.lastIndexOf("/")+1)+sFile+".xml";
-		String tlFile=mainPath.substring(0, mainPath.lastIndexOf("/")+1)+tFile+".xml";
+		String slFile=mainPath.substring(0, mainPath.lastIndexOf(fs1)+1)+sFile+".xml";
+		String tlFile=mainPath.substring(0, mainPath.lastIndexOf(fs1)+1)+tFile+".xml";
 		String slText=IOtools.stripXcesDocument(new File(slFile));
 		String tlText=IOtools.stripXcesDocument(new File(tlFile));
 		ArrayList<String> slSents = new ArrayList<String>(Arrays.asList(slText.split(System.getProperty("line.separator"))));
@@ -174,7 +174,15 @@ public class ScriptAligner extends Aligner{
 			tlSentsPerType.put(type, tlSents.size());
 		}
 
-		String dictF=getHunalignDict(this.sLang, this.tLang);
+		String dictF="";
+		if(dict==null)
+			dictF=getHunalignDict(this.sLang, this.sLang);
+		else{
+			if(dict.compareTo("default")==0)
+				dictF=getHunalignDict(this.sLang, this.tLang);
+			else
+				dictF=dict;
+		}
 		String outFilePrfx=outputPath+"/algn_"+sFile+"_"+tFile+"_"+type;
 		String outFile=outFilePrfx+".out";
 		String tmxFile=outFilePrfx+".tmx";
@@ -205,7 +213,7 @@ public class ScriptAligner extends Aligner{
     	String regexp=arg[2];
     	String str=arg[3];
     	ScriptAligner ra=new ScriptAligner(slang, tlang, regexp);
-    	StringBuffer log=ra.processFiles(str);
+    	StringBuffer log=ra.processFiles(str, "");
     	System.out.println(log);
     }
 }
