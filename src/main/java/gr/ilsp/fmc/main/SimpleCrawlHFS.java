@@ -1,6 +1,6 @@
 package gr.ilsp.fmc.main;
 
-import gr.ilsp.fmc.aligner.Aligner;
+import gr.ilsp.fmc.aligner.RunAligner;
 import gr.ilsp.fmc.datums.CrawlDbDatum;
 import gr.ilsp.fmc.exporter.SampleExporter;
 import gr.ilsp.fmc.parser.DomainUrlFilter;
@@ -731,7 +731,7 @@ public class SimpleCrawlHFS {
 					}
 					if (options.toAlign()!=null){
 						String usedict=options.useDict();
-						Aligner.aling(options.toAlign(), lang[0], lang[1], usedict, options.getOutputFile());
+						RunAligner.aling(options.toAlign(), lang[0], lang[1], usedict, options.getOutputFile());
 						
 					}
 					BitextUtils.removeTempFiles(parentDir,tempFileExt);
