@@ -139,17 +139,19 @@ public class ScriptAligner extends Aligner{
 		File slF=null;
 		File tlF=null;
 		
-		String outFilePrfx=mainPath.substring(0, mainPath.lastIndexOf("/xml"));
-		String outFileSfx=mainPath.substring(mainPath.lastIndexOf("/"), mainPath.length()).replace(".xml", "");
-		outFilePrfx=outFilePrfx+"/tmx";
+		String outFilePrfx=mainPath.substring(0, mainPath.lastIndexOf(fs1+"xml"));
+		String outFileSfx=mainPath.substring(mainPath.lastIndexOf(fs1), mainPath.length()).replace(".xml", "");
+		outFilePrfx=outFilePrfx+fs1+"tmx";
 		
-		String slFile=mainPath.substring(0, mainPath.lastIndexOf("/")+1)+sFile+".xml";
-		String tlFile=mainPath.substring(0, mainPath.lastIndexOf("/")+1)+tFile+".xml";
+		String slFile=mainPath.substring(0, mainPath.lastIndexOf(fs1)+1)+sFile+".xml";
+		String tlFile=mainPath.substring(0, mainPath.lastIndexOf(fs1)+1)+tFile+".xml";
 		String slText=IOtools.stripXcesDocument(new File(slFile));
 		String tlText=IOtools.stripXcesDocument(new File(tlFile));
-		ArrayList<String> slSents = new ArrayList<String>(Arrays.asList(slText.split(System.lineSeparator())));
-		ArrayList<String> tlSents = new ArrayList<String>(Arrays.asList(tlText.split(System.lineSeparator())));
-
+		ArrayList<String> slSents = new ArrayList<String>(Arrays.asList(slText.split(System.getProperty("line.separator"))));
+		ArrayList<String> tlSents = new ArrayList<String>(Arrays.asList(tlText.split(System.getProperty("line.separator"))));
+		//ArrayList<String> slSents = new ArrayList<String>(Arrays.asList(slText.split(fs1)));
+		//ArrayList<String> tlSents = new ArrayList<String>(Arrays.asList(tlText.split(fs1)));
+		
 		try{
 			slF=IOtools.createRandomTmpFile();
 			BufferedWriter slW=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(slF),Charset.forName("UTF8")));
