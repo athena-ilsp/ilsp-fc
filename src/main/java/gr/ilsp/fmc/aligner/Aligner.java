@@ -1,9 +1,6 @@
 package gr.ilsp.fmc.aligner;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -52,15 +49,6 @@ public abstract class Aligner{
 			return IOtools.readURLToArray(filepath);
 		return IOtools.readFileToArrayForDcuService(filepath);
 	}
-
-	/**
-	 * Returns the current time and date in a specified format
-	 * @return Formatted string with the current time and date 
-	 */
-	private final static String getDateTime(){  
-	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd_hhmmss");  
-	    return df.format(new Date());  
-	}
 	/**
 	 * Method to process all files containing document pairs
 	 * @param filepath String with the path to the file containing the file list
@@ -71,7 +59,7 @@ public abstract class Aligner{
 		StringBuffer log=new StringBuffer();
 		StringBuffer log2=new StringBuffer();
 		ArrayList<String> fileList=getFileList(filePath);
-		this.outputName=fs1+"alignOutput"+getDateTime();
+		//this.outputName=fs1+"alignOutput"+getDateTime();
 
 		for(String file:fileList){
 			String filePair=file.substring(file.lastIndexOf(fs1)+1, file.lastIndexOf(".xml"));
@@ -94,7 +82,9 @@ public abstract class Aligner{
 					//String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1)+1)+prefix.substring(0, prefix.indexOf(fs1))+this.outputName;
 					String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+fs1+file.substring(0, file.lastIndexOf(fs1));
 					if(outputPath.endsWith("/xml"))
-						outputPath=outputPath.replace("/xml", "");
+						outputPath=outputPath.replace("/xml", "/tmx");
+					else
+						outputPath+="/tmx";
 					IOtools.createDir(outputPath);
 
 					try{
@@ -111,15 +101,18 @@ public abstract class Aligner{
 					String files[]=IOtools.parseXmlFile(newFilePath, sLang, tLang);
 					String sFile=files[0];
 					String tFile=files[1];
-					//String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1)+1)+file.substring(0, file.indexOf(fs1))+this.outputName;
-					String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+fs1+file.substring(0, file.lastIndexOf(fs1));
+					String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+fs1+file.substring(0, file.lastIndexOf("/"));
+
 					if(outputPath.endsWith("/xml"))
-						outputPath=outputPath.replace("/xml", "");
+						outputPath=outputPath.replace("/xml", "/tmx");
+					else
+						outputPath+="/tmx";
 					IOtools.createDir(outputPath);
 
 					try{
 						alignments=processDocPair(newFilePath, sFile, tFile, outputPath, type, dictPath);
-						String tmxFile=outputPath+"/algn_"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
+						//String tmxFile=outputPath+"/"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
+						String tmxFile=filePair.replace("/xml", "/tmx")+".tmx";
 						log.append(tmxFile+" :: "+alignments+" alignments"+System.getProperty("line.separator"));
 						log2.append(tmxFile+System.getProperty("line.separator"));
 					}catch(java.lang.NullPointerException e){
@@ -159,8 +152,11 @@ public abstract class Aligner{
 		}
 
 		//Store the log
-		IOtools.writeToFile(filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+".log", log);
-		IOtools.writeToFile(filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+".filelist", log2);
+		String logName=filePath+this.outputName.replace(".txt", ".alignLog.txt");
+		String listName=logName.replace(".txt", ".alignFileList.txt");
+		logName=logName.replace(".txt", ".alignLog.txt");
+		IOtools.writeToFile(logName, log);
+		IOtools.writeToFile(listName, log2);
 		return log;
 	}
 

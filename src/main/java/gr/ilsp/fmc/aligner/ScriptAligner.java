@@ -138,12 +138,17 @@ public class ScriptAligner extends Aligner{
 		tFile=tFile.replace(".xml", "");
 		File slF=null;
 		File tlF=null;
-		String slFile=mainPath.substring(0, mainPath.lastIndexOf(fs1)+1)+sFile+".xml";
-		String tlFile=mainPath.substring(0, mainPath.lastIndexOf(fs1)+1)+tFile+".xml";
+		
+		String outFilePrfx=mainPath.substring(0, mainPath.lastIndexOf("/xml"));
+		String outFileSfx=mainPath.substring(mainPath.lastIndexOf("/"), mainPath.length()).replace(".xml", "");
+		outFilePrfx=outFilePrfx+"/tmx";
+		
+		String slFile=mainPath.substring(0, mainPath.lastIndexOf("/")+1)+sFile+".xml";
+		String tlFile=mainPath.substring(0, mainPath.lastIndexOf("/")+1)+tFile+".xml";
 		String slText=IOtools.stripXcesDocument(new File(slFile));
 		String tlText=IOtools.stripXcesDocument(new File(tlFile));
-		ArrayList<String> slSents = new ArrayList<String>(Arrays.asList(slText.split(System.getProperty("line.separator"))));
-		ArrayList<String> tlSents = new ArrayList<String>(Arrays.asList(tlText.split(System.getProperty("line.separator"))));
+		ArrayList<String> slSents = new ArrayList<String>(Arrays.asList(slText.split(System.lineSeparator())));
+		ArrayList<String> tlSents = new ArrayList<String>(Arrays.asList(tlText.split(System.lineSeparator())));
 
 		try{
 			slF=IOtools.createRandomTmpFile();
@@ -183,9 +188,9 @@ public class ScriptAligner extends Aligner{
 			else
 				dictF=dict;
 		}
-		String outFilePrfx=outputPath+"/algn_"+sFile+"_"+tFile+"_"+type;
-		String outFile=outFilePrfx+".out";
-		String tmxFile=outFilePrfx+".tmx";
+		//outFilePrfx=outputPath+"/"+sFile+"_"+tFile+"_"+type;
+		String outFile=outFilePrfx+outFileSfx+".out";
+		String tmxFile=outFilePrfx+outFileSfx+".tmx";
 		
 		//Run the hunalign sentence split program using a system call
 		String[] cmd={getHunalignExec(),
@@ -197,7 +202,6 @@ public class ScriptAligner extends Aligner{
 				//outFile};
 
 		this.runCommand(cmd, outFile);
-
     	int alignments=IOtools.createTMXfileFromHunalign(outFile, this.sLang, this.tLang, slSents, tlSents, tmxFile);
     	//Delete the hunalign output file
     	new File(outFile).delete();
