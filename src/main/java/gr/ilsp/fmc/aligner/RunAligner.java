@@ -18,10 +18,11 @@ public class RunAligner {
 		LOGGER.info("Dictionary: " + dict);
 		LOGGER.info("cesAlignList: " + cesAlignList);
 
-    	ScriptAligner ra=new ScriptAligner(l1, l2, null);
-    	StringBuffer log=ra.processFiles(cesAlignList, dict);
-    	System.out.println(log);
-
-		
+		if (alingerName.equals("hunalign")){
+			ScriptAligner ra=new ScriptAligner(l1, l2, null);
+			ra.processFiles(cesAlignList, dict);
+		}else{
+			LOGGER.info("only hunalign is supported in the current version");
+		}
 	}
 }
