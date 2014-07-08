@@ -82,7 +82,8 @@ public class SimpleCrawlHFS {
 	private static int TOKENS_STORED = 0;
 	private static int TOKENS_TARGET = 100000000;
 	private static String fs1 = System.getProperty("file.separator");
-	private static final String resultDir = "xml";
+	private static final String resultXMLDir = "xml";
+	private static final String resultTMXDir = "tmx";
 	private static final String tempFileExt=".xml.txt";
 	private static String lang_separator=";";
 	public static JobConf conf = null;
@@ -584,10 +585,10 @@ public class SimpleCrawlHFS {
 					options.isOfflineXSLT());
 
 			//Detect candidate parallel documents if crawled for parallel.
-			File parentDir =new File(outputDirName + fs1 + resultDir); 
+			File parentDir =new File(outputDirName + fs1 + resultXMLDir); 
 			if (options.getType().equals("p")){	
 				try {				
-					File xmldir = new File(options.getOutputDir()+fs1+resultDir);
+					File xmldir = new File(options.getOutputDir()+fs1+resultXMLDir);
 
 					HashMap<String,String[]> props=Bitexts.representXML_NEW(xmldir);
 					HashMap<String,String[]> props_short = new HashMap<String,String[]>();
@@ -765,7 +766,7 @@ public class SimpleCrawlHFS {
 			//crawled for monolingual
 			if (options.getType().equals("m")){
 				File input1=null;
-				String temp = outputDirName+fs1+resultDir;
+				String temp = outputDirName+fs1+resultXMLDir;
 				int tempid=temp.indexOf(":");
 				if (tempid<0 || tempid<2)
 					input1= new File(temp);
@@ -795,7 +796,8 @@ public class SimpleCrawlHFS {
 
 			//Delete every dir created for each run
 			List<String> notToBeDeleted= new ArrayList<String>();
-			notToBeDeleted.add(resultDir);
+			notToBeDeleted.add(resultXMLDir);
+			notToBeDeleted.add(resultTMXDir);
 			DirUtils.deleteLoopDirs(fs, outputPath, notToBeDeleted);
 			fs.close();
 			
