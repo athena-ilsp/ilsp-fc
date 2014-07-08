@@ -103,9 +103,9 @@ public class ScriptAligner extends Aligner{
 	protected void runCommand(String[] cmd, String outFile){
         try{  
 			FileOutputStream fos = new FileOutputStream(outFile);
-	        Runtime rt = Runtime.getRuntime();
+        	Runtime rt = Runtime.getRuntime();
 	        Process proc = rt.exec(cmd);
-	
+
 		    StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");            
 	        // any output?
 	        StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT", fos);
@@ -202,8 +202,10 @@ public class ScriptAligner extends Aligner{
 				//"-text"};
 				//" > ",
 				//outFile};
+		System.out.println("Running command "+cmd[0]+" "+cmd[1]+" "+cmd[2]+" "+cmd[3]);
 
 		this.runCommand(cmd, outFile);
+		System.out.println("Creating TMX file: "+tmxFile);
     	int alignments=IOtools.createTMXfileFromHunalign(outFile, this.sLang, this.tLang, slSents, tlSents, tmxFile);
     	//Delete the hunalign output file
     	new File(outFile).delete();
@@ -219,7 +221,6 @@ public class ScriptAligner extends Aligner{
     	String regexp=arg[2];
     	String str=arg[3];
     	ScriptAligner ra=new ScriptAligner(slang, tlang, regexp);
-    	StringBuffer log=ra.processFiles(str, "");
-    	System.out.println(log);
+    	ra.processFiles(str, arg[4]);
     }
 }

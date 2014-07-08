@@ -53,7 +53,7 @@ public abstract class Aligner{
 	 * Method to process all files containing document pairs
 	 * @param filepath String with the path to the file containing the file list
 	 */
-	protected StringBuffer processFiles(String filePath, String dictPath){
+	protected void processFiles(String filePath, String dictPath){
 		int pairNumber=0;
 		int skippedNumber=0;
 		StringBuffer log=new StringBuffer();
@@ -81,15 +81,15 @@ public abstract class Aligner{
 					//String prefix=file.replace("../", "");
 					//String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1)+1)+prefix.substring(0, prefix.indexOf(fs1))+this.outputName;
 					String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+fs1+file.substring(0, file.lastIndexOf(fs1));
-					if(outputPath.endsWith("/xml"))
-						outputPath=outputPath.replace("/xml", "/tmx");
+					if(outputPath.endsWith(fs1+"xml"))
+						outputPath=outputPath.replace(fs1+"xml", fs1+"tmx");
 					else
-						outputPath+="/tmx";
+						outputPath+=fs1+"tmx";
 					IOtools.createDir(outputPath);
 
 					try{
 						alignments=processDocPair(newFilePath, sFile, tFile, outputPath, type, dictPath);
-						String tmxFile=outputPath+"/algn_"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
+						String tmxFile=outputPath+fs1+"algn_"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
 						log.append(tmxFile+" :: "+alignments+System.getProperty("line.separator"));
 						log2.append(tmxFile+System.getProperty("line.separator"));
 					}catch(java.lang.NullPointerException e){
@@ -101,18 +101,18 @@ public abstract class Aligner{
 					String files[]=IOtools.parseXmlFile(newFilePath, sLang, tLang);
 					String sFile=files[0];
 					String tFile=files[1];
-					String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+fs1+file.substring(0, file.lastIndexOf("/"));
+					String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+fs1+file.substring(0, file.lastIndexOf(fs1));
 
-					if(outputPath.endsWith("/xml"))
-						outputPath=outputPath.replace("/xml", "/tmx");
+					if(outputPath.endsWith(fs1+"xml"))
+						outputPath=outputPath.replace(fs1+"xml", fs1+"tmx");
 					else
-						outputPath+="/tmx";
+						outputPath+=fs1+"tmx";
 					IOtools.createDir(outputPath);
 
 					try{
 						alignments=processDocPair(newFilePath, sFile, tFile, outputPath, type, dictPath);
 						//String tmxFile=outputPath+"/"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
-						String tmxFile=filePair.replace("/xml", "/tmx")+".tmx";
+						String tmxFile=filePair.replace(fs1+"xml", fs1+"tmx")+".tmx";
 						log.append(tmxFile+" :: "+alignments+" alignments"+System.getProperty("line.separator"));
 						log2.append(tmxFile+System.getProperty("line.separator"));
 					}catch(java.lang.NullPointerException e){
@@ -157,7 +157,6 @@ public abstract class Aligner{
 		logName=logName.replace(".txt", ".alignLog.txt");
 		IOtools.writeToFile(logName, log);
 		IOtools.writeToFile(listName, log2);
-		return log;
 	}
 
 	protected abstract int processDocPair(String mainPath, String sFile, String tFile, String outputPath, String type, String dict);
