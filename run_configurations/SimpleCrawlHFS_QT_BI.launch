@@ -9,7 +9,7 @@
 <stringAttribute key="org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE" value="C:\\QTLaunchPad\\test\\log_test.txt"/>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gr.ilsp.fmc.main.SimpleCrawlHFS"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -a qtlp -n 1 -f -k -l1 en -l2 fr -t 50 -of &quot;C:\\QTLaunchPad\\test\\output_test_en-fr.txt&quot; -ofh  &quot;C:\\QTLaunchPad\\test\\output_test_en-fr.txt.html&quot; -u  &quot;C:\\QTLaunchPad\\test\\en-fr_eu_seeds.txt&quot; -type p -xslt  -oxslt -len 2 -mtlen 80 -u_r &quot; ; &quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -a test -n 1 -f -k -l1 en -l2 es -t 50 -of output_test_en-es.txt -ofh  output_test_en-es.txt.html -u  &quot;C:\\QTLaunchPad\\test\\en-fr_eu_seeds.txt&quot; -type p -xslt  -oxslt -len 0 -mtlen 10 -filter &quot;.*uefa\.com.*&quot; -dest &quot;C:\Users\vpapa\workspace\ilsp-fc&quot; -p_r &quot;http://vpapa.ilsp.gr//test//&quot; -align hunalign -dict"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ilsp-fc"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 </launchConfiguration>
