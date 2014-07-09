@@ -38,7 +38,6 @@ public class StreamGobbler extends Thread{
             while ( (line = br.readLine()) != null){
                 if (pw != null)
                     pw.println(line);
-                System.out.println(type + ">" + line);    
             }
             if (pw != null)
                 pw.flush();
