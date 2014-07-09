@@ -1,8 +1,12 @@
 package gr.ilsp.fmc.aligner;
 
+import gr.ilsp.fmc.main.SimpleCrawlHFS;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+
+import org.apache.log4j.Logger;
 
 public abstract class Aligner{
 	//String with the source language
@@ -26,6 +30,8 @@ public abstract class Aligner{
 	protected HashMap<String, Integer> tlSentsPerType;
 	protected String dictionary=null;
 	protected static String fs1 = System.getProperty("file.separator");
+	private static final Logger LOGGER = Logger.getLogger(SimpleCrawlHFS.class);
+
 	/**
 	 * RunAligner Constructor
 	 * @param sLang The source Language
@@ -112,7 +118,8 @@ public abstract class Aligner{
 					try{
 						alignments=processDocPair(newFilePath, sFile, tFile, outputPath, type, dictPath);
 						//String tmxFile=outputPath+"/"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
-						String tmxFile=filePair.replace(fs1+"xml", fs1+"tmx")+".tmx";
+						//String tmxFile=filePair.replace(fs1+"xml", fs1+"tmx")+".tmx";
+						String tmxFile=file.replace("xml", "tmx");
 						log.append(tmxFile+" :: "+alignments+" alignments"+System.getProperty("line.separator"));
 						log2.append(tmxFile+System.getProperty("line.separator"));
 					}catch(java.lang.NullPointerException e){
@@ -130,8 +137,9 @@ public abstract class Aligner{
 			else
 				skippedNumber++;
 		}
-		log.append(System.getProperty("line.separator")+"Documents processed: "+pairNumber+" out of "+fileList.size()+System.getProperty("line.separator"));
-		log.append(System.getProperty("line.separator")+"Documents of unwanted type skipped:"+skippedNumber+System.getProperty("line.separator"));
+		log.append(System.getProperty("line.separator")+"Document pairs processed by aligner: "+pairNumber+" out of "+fileList.size()+System.getProperty("line.separator"));
+		LOGGER.info("Document pairs processed by the aligner: "+pairNumber+" out of "+fileList.size()+System.getProperty("line.separator"));
+		//log.append(System.getProperty("line.separator")+"Document pairs of unwanted type skipped:"+skippedNumber+System.getProperty("line.separator"));
 		log.append(System.getProperty("line.separator")+"Alignments per type:"+System.getProperty("line.separator"));
 		Set<String> keys = alignsPerType.keySet();
 		for(String key : keys){
@@ -154,6 +162,8 @@ public abstract class Aligner{
 		//Store the log
 		String logName=filePath+this.outputName.replace(".txt", ".alignLog.txt");
 		String listName=logName.replace(".txt", ".alignFileList.txt");
+		LOGGER.info("Aligner log file stored at "+logName);
+		LOGGER.info("Aligner file list file stored at "+listName);
 		logName=logName.replace(".txt", ".alignLog.txt");
 		IOtools.writeToFile(logName, log);
 		IOtools.writeToFile(listName, log2);

@@ -1,5 +1,7 @@
 package gr.ilsp.fmc.aligner;
 
+import gr.ilsp.fmc.main.SimpleCrawlHFS;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,6 +11,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+
+import org.apache.log4j.Logger;
 
 public class ScriptAligner extends Aligner{
 
@@ -27,6 +31,7 @@ public class ScriptAligner extends Aligner{
 			this.command = cmd;
 		}
 	}
+	private static final Logger LOGGER = Logger.getLogger(SimpleCrawlHFS.class);
 	/**
 	 * @return The platform, null if not recognized
 	 */
@@ -115,8 +120,10 @@ public class ScriptAligner extends Aligner{
 
             // any error???
             int exitVal = proc.waitFor();
-            if(exitVal==0)
-            	System.out.println("Completed file: " + outFile.replace(".out", ""));
+            if(exitVal!=0)
+            	LOGGER.info("ERROR while running the aligner script!");
+            //if(exitVal==0)
+            	//System.out.println("Completed file: " + outFile.replace(".out", ""));
             fos.flush();
             fos.close();  
         }catch (Throwable t){
@@ -202,10 +209,7 @@ public class ScriptAligner extends Aligner{
 				//"-text"};
 				//" > ",
 				//outFile};
-		System.out.println("Running command "+cmd[0]+" "+cmd[1]+" "+cmd[2]+" "+cmd[3]);
-
 		this.runCommand(cmd, outFile);
-		System.out.println("Creating TMX file: "+tmxFile);
     	int alignments=IOtools.createTMXfileFromHunalign(outFile, this.sLang, this.tLang, slSents, tlSents, tmxFile);
     	//Delete the hunalign output file
     	new File(outFile).delete();
