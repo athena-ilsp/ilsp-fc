@@ -135,8 +135,12 @@ public class SimpleCrawlHFSWorkflow {
 					if (_inithost!=null && _mainhost!=null){
 						String temp1 = url.getAuthority()+url.getFile();
 						temp1 = temp1.substring(0,temp1.indexOf("/"));
-						if (temp1.substring(0, 3).equals("www")){
-							temp1=temp1.substring(4);
+						if (temp1.substring(0, 4).equals("www2") | temp1.substring(0, 4).equals("www5")){
+							temp1=temp1.substring(5);
+						}else{
+							if (temp1.substring(0, 3).equals("www")){
+								temp1=temp1.substring(4);
+							}
 						}
 						int ind2=temp1.toString().indexOf(_inithost);
 						int ind3=temp1.toString().indexOf(_mainhost);
