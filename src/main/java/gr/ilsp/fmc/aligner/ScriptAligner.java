@@ -1,12 +1,12 @@
 package gr.ilsp.fmc.aligner;
 
-import gr.ilsp.fmc.main.SimpleCrawlHFS;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 public class ScriptAligner extends Aligner{
-
+	private static String fs = System.getProperty("file.separator");
 	/*
 	 * Enum of available platforms for hunalign
 	 */
@@ -31,7 +31,7 @@ public class ScriptAligner extends Aligner{
 			this.command = cmd;
 		}
 	}
-	private static final Logger LOGGER = Logger.getLogger(SimpleCrawlHFS.class);
+	private static final Logger LOGGER = Logger.getLogger(ScriptAligner.class);
 	/**
 	 * @return The platform, null if not recognized
 	 */
@@ -56,15 +56,28 @@ public class ScriptAligner extends Aligner{
 	 * @return String with the absolute path to the hunalign dir
 	 */
 	public static String getHunalignPlatformPath(){
-	    File file = new File("hunalign-1.1"+getPlatform().hunPath);
-		return file.getAbsolutePath();
+		String hunpath="";
+		String path = ScriptAligner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		
+		try {
+			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
+			File file = new File(decodedPath.getParent()+fs+"hunalign-1.1");
+			hunpath= file.getAbsolutePath()+getPlatform().hunPath;
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//System.out.println("1");
+	    //File file = new File("hunalign-1.1"+getPlatform().hunPath);
+	    //return file.getAbsolutePath();
+		return hunpath;
 	}
 	/**
 	 * Get the path to the hunalign executable script
 	 * @return String with the absolute path to the hunalign executable
 	 */
 	public static String getHunalignExec(){
-	    File file = new File(getHunalignPlatformPath()+"/"+getPlatform().command);
+	    File file = new File(getHunalignPlatformPath()+fs+getPlatform().command);
 		return file.getAbsolutePath();
 	}
 	/**
@@ -74,7 +87,11 @@ public class ScriptAligner extends Aligner{
 	 * @return String to the absolute path of the language pair dictionary
 	 */
 	public static String getHunalignDict(String sl, String tl){
-		String pathPfx=getHunalignPath()+"/dict/";
+		//String pathPfx=getHunalignPath()+"/dict/";
+		
+		File file =new File(new File(getHunalignPlatformPath()).getParent()+fs+"dict");
+		String pathPfx=file.getAbsolutePath()+fs;
+		
 		String pathSfx=sl.toLowerCase()+"-"+tl.toLowerCase()+".dic";
 		File dictFile = new File(pathPfx+pathSfx);
 		if(dictFile.exists())
