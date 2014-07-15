@@ -275,8 +275,8 @@ public class SimpleCrawlHFS {
 	private static void crawl(String[] args) throws IOException {
 		SimpleCrawlHFSOptions options = new SimpleCrawlHFSOptions();
 		options.parseOptions(args);		
-			
-		//Loading the default configuration file and checking if user supplied a custom one.
+		 		 
+		 //Loading the default configuration file and checking if user supplied a custom one.
 		URL default_config;
 		if (options.getType().equals("p"))
 			default_config = SimpleCrawlHFS.class.getClassLoader().getResource("FBC_config.xml");			
