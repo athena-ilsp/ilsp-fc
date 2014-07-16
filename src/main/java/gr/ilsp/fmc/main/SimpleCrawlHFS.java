@@ -739,7 +739,7 @@ public class SimpleCrawlHFS {
 						if (alignername.equals("default")){
 							String prop=System.getProperty("os.name").toLowerCase();
 							if(prop.equals("linux"))
-								align_path = hunpath+fs1+SimpleCrawlHFS.config.getString("aligner.linux_align_path.value");
+								align_path = hunpath+fs1+SimpleCrawlHFS.config.getString("aligner.lin_align_path.value");
 							else if(prop.startsWith("windows"))
 								align_path = hunpath+fs1+SimpleCrawlHFS.config.getString("aligner.win_align_path.value");
 						}else{
@@ -755,7 +755,9 @@ public class SimpleCrawlHFS {
 						}else
 							dictalign_path = options.pathDict();
 						
-						RunAligner.aling(alignername, lang[0], lang[1], align_path, dictalign_path, usedict, options.getOutputFile());
+						RunAligner.aling(alignername, lang[0], lang[1],
+								align_path.replace("/", fs1), dictalign_path.replace("/", fs1),
+								usedict, options.getOutputFile());
 					}
 					BitextUtils.removeTempFiles(parentDir,tempFileExt);
 					BitextUtils.removeRedundantFiles(parentDir, bitextsALL);
