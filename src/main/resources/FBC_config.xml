@@ -30,17 +30,17 @@
 	</classifier>
 	<aligner>
 		<win_align_path>
-			<value>hunalign-1.1\\win\\hunalign.exe</value>
+			<value>hunalign-1.1/win/hunalign.exe</value>
 			<description>reletive path to executable of hunaling for windows.
 			It is supposed that the main directory of hunalign is next to the jar</description>
 		</win_align_path>
 		<lin_align_path>
-			<value>hunalign-1.1\\linux\\src\\hunalign\\hunalign</value>
+			<value>hunalign-1.1/linux/src/hunalign/hunalign</value>
 			<description>reletive path to executable of hunaling for linux.
 			It is supposed that the main directory of hunalign is next to the jar</description>
 		</lin_align_path>
 		<align_dict>
-			<value>hunalign-1.1\\dict</value>
+			<value>hunalign-1.1/dict</value>
 			<description>reletive path to the dictionaries of hunaling.
 			It is supposed that the main directory of hunalign is next to the jar</description>
 		</align_dict>
