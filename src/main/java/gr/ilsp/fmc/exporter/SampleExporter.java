@@ -35,7 +35,7 @@ import gr.ilsp.fmc.utils.JarUtils;
 import gr.ilsp.fmc.utils.LithuanianAnalyzer;
 import gr.ilsp.fmc.utils.PrettyPrintHandler;
 import gr.ilsp.fmc.utils.TopicTools;
-import gr.ilsp.fmc.genreclassifier.GenreClassifier;
+//import gr.ilsp.fmc.genreclassifier.GenreClassifier;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
