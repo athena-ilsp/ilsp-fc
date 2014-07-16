@@ -18,8 +18,10 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -275,14 +277,14 @@ public class SimpleCrawlHFS {
 	private static void crawl(String[] args) throws IOException {
 		SimpleCrawlHFSOptions options = new SimpleCrawlHFSOptions();
 		options.parseOptions(args);		
-		 		 
-		 //Loading the default configuration file and checking if user supplied a custom one.
+
+		//Loading the default configuration file and checking if user supplied a custom one.
 		URL default_config;
 		if (options.getType().equals("p"))
 			default_config = SimpleCrawlHFS.class.getClassLoader().getResource("FBC_config.xml");			
 		else
 			default_config = SimpleCrawlHFS.class.getClassLoader().getResource("FMC_config.xml");
-		
+
 		config = new CompositeConfiguration();			
 		if (options.getConfig()!=null){
 			String custom_config = options.getConfig();
@@ -339,7 +341,7 @@ public class SimpleCrawlHFS {
 			urls = options.getUrls();
 		if (options.getDomain()!=null) 
 			urls = options.getUrls();
-		
+
 		URL urldir = SimpleCrawlHFS.class.getResource("/profiles");
 		LOGGER.debug(urldir );
 		if (urldir.getProtocol()=="jar"){
@@ -730,14 +732,33 @@ public class SimpleCrawlHFS {
 						LOGGER.info("Tokens in "+stats[0] +" : "+ stats[1]);
 						LOGGER.info("Tokens in "+stats[2] +" : "+ stats[3]);
 					}
-					if (options.toAlign()!=null){
-						String usedict=options.useDict();
-						RunAligner.aling(options.toAlign(), lang[0], lang[1], usedict, options.getOutputFile());
+					String alignername = options.toAlign();
+					if (alignername!=null){
+						String align_path="";
+						String hunpath=getRunningJarPath();
+						if (alignername.equals("default")){
+							String prop=System.getProperty("os.name").toLowerCase();
+							if(prop.equals("linux"))
+								align_path = hunpath+fs1+SimpleCrawlHFS.config.getString("aligner.linux_align_path.value");
+							else if(prop.startsWith("windows"))
+								align_path = hunpath+fs1+SimpleCrawlHFS.config.getString("aligner.win_align_path.value");
+						}else{
+							align_path=alignername;
+						}
+						String usedict = options.useDict();
+						String dictalign_path="";
+						if (alignername.equals("default")){
+							if (usedict!=null && !usedict.equals("default"))
+								dictalign_path=options.pathDict();
+							else
+								dictalign_path = hunpath+fs1+SimpleCrawlHFS.config.getString("aligner.align_dict.value");
+						}else
+							dictalign_path = options.pathDict();
 						
+						RunAligner.aling(alignername, lang[0], lang[1], align_path, dictalign_path, usedict, options.getOutputFile());
 					}
 					BitextUtils.removeTempFiles(parentDir,tempFileExt);
 					BitextUtils.removeRedundantFiles(parentDir, bitextsALL);
-
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				} catch (XMLStreamException e1) {
@@ -800,10 +821,10 @@ public class SimpleCrawlHFS {
 			notToBeDeleted.add(resultTMXDir);
 			DirUtils.deleteLoopDirs(fs, outputPath, notToBeDeleted);
 			fs.close();
-			
+
 			renamePaths(options.getAgentName(), outputDirName,	options.getOutputFile(),
 					options.getOutputFileHTML(), options.getPathReplace() /*, options.getDest()*/);
-			
+
 			System.exit(0);
 		} catch (PlannerException e) {
 			LOGGER.debug(conf.get("hadoop.tmp.dir"));			
@@ -819,22 +840,35 @@ public class SimpleCrawlHFS {
 		}
 	} 
 
+	private static String getRunningJarPath() {
+		String hunpath="";
+		String path = SimpleCrawlHFS.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		try {
+			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
+			hunpath= decodedPath.getParent();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return hunpath;
+	}
+
 	private static void renamePaths(String agentName, String outputDirName, String outputFile,
 			String outputHtmlFile, String repl_paths /*, String dest*/) {
-		
+
 		//LOGGER.info("agentName "+agentName);
 		//LOGGER.info("outputDirName "+outputDirName);
 		//LOGGER.info("outputFile "+outputFile);
 		//LOGGER.info("outputHtmlFile "+outputHtmlFile);
 		//LOGGER.info("repl_paths "+repl_paths);
 		//LOGGER.info("dest "+dest);
-		
+
 		File tempfile = new File(outputDirName);
 		//String tobematched = tempfile.getParent().replace("\\","/");
 		String tobematched = (new File (tempfile.getParent())).getParent().replace("\\","/")+fs1;
-		
+
 		//LOGGER.info("tobematched "+tobematched);
-		
+
 		String temp;
 		if (outputDirName.replace("\\","/").contains(tobematched)){
 			try {
@@ -849,7 +883,7 @@ public class SimpleCrawlHFS {
 						tobematched = agentName+"_";
 					}
 				}
-								
+
 				if (repl_paths!=null)
 					temp = temp.replace(tobematched, repl_paths.trim());
 				else
@@ -867,7 +901,7 @@ public class SimpleCrawlHFS {
 						tobematched = agentName+"_";
 					}
 				}
-								
+
 				if (repl_paths!=null)
 					temp = temp.replace(tobematched, repl_paths.trim());
 				else
