@@ -59,7 +59,7 @@ public abstract class Aligner{
 	 * Method to process all files containing document pairs
 	 * @param filepath String with the path to the file containing the file list
 	 */
-	protected void processFiles(String filePath, String dictPath){
+	protected void processFiles(String runaligner_path, String dictalign_path, String filePath, String dictPath){
 		int pairNumber=0;
 		int skippedNumber=0;
 		StringBuffer log=new StringBuffer();
@@ -94,7 +94,7 @@ public abstract class Aligner{
 					IOtools.createDir(outputPath);
 
 					try{
-						alignments=processDocPair(newFilePath, sFile, tFile, outputPath, type, dictPath);
+						alignments=processDocPair(runaligner_path, dictalign_path, newFilePath, sFile, tFile, outputPath, type, dictPath);
 						String tmxFile=outputPath+fs1+"algn_"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
 						log.append(tmxFile+" :: "+alignments+System.getProperty("line.separator"));
 						log2.append(tmxFile+System.getProperty("line.separator"));
@@ -116,7 +116,7 @@ public abstract class Aligner{
 					IOtools.createDir(outputPath);
 
 					try{
-						alignments=processDocPair(newFilePath, sFile, tFile, outputPath, type, dictPath);
+						alignments=processDocPair(runaligner_path, dictalign_path, newFilePath, sFile, tFile, outputPath, type, dictPath);
 						//String tmxFile=outputPath+"/"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
 						//String tmxFile=filePair.replace(fs1+"xml", fs1+"tmx")+".tmx";
 						String tmxFile=file.replace("xml", "tmx");
@@ -169,5 +169,5 @@ public abstract class Aligner{
 		IOtools.writeToFile(listName, log2);
 	}
 
-	protected abstract int processDocPair(String mainPath, String sFile, String tFile, String outputPath, String type, String dict);
+	protected abstract int processDocPair(String runaligner_path, String dictalign_path,String mainPath, String sFile, String tFile, String outputPath, String type, String dict);
 }
