@@ -14,11 +14,11 @@ public class RunAligner {
 	public static void aling(String alingerName, String l1, String l2, String runaling_path, String dictalign_path, String dict, String cesAlignList){
 		
 		LOGGER.info("Alinger: "+ alingerName);
-		//LOGGER.info("Run_aligner: "+ runaling_path);
+		LOGGER.info("Run_aligner: "+ runaling_path);
 		//LOGGER.info("Use_dict: "+ dictalign_path);
 		LOGGER.info("Languages: " + l1 + " "+ l2);
 		LOGGER.info("Dictionary: " + dict);
-		//LOGGER.info("Dictionary_path: " + dictalign_path);
+		LOGGER.info("Dictionary_path: " + dictalign_path);
 		//LOGGER.info("cesAlignList: " + cesAlignList);
 
 		if (alingerName.equals("default")){
