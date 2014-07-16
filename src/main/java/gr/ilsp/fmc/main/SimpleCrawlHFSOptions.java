@@ -62,6 +62,7 @@ public class SimpleCrawlHFSOptions {
 	private boolean _keepimagefp=false;
 	private String _aligner=null;
 	private String _dict=null;
+	private String _dictpath=null;
 	private boolean _cesAlign = false;
 	private boolean _force = false;
 	private boolean offlineXSLT = false;
@@ -75,7 +76,7 @@ public class SimpleCrawlHFSOptions {
 	private static String param_separ = ";";
 	private static String param_separ1 = ";;";
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
-	private String default_aligner="hunalign";
+	private String default_aligner="default"; //hunaling v1.1
 	public SimpleCrawlHFSOptions() {
 		createOptions();
 	}
@@ -215,7 +216,7 @@ public class SimpleCrawlHFSOptions {
 				.hasOptionalArg()
 				.create("align") );
 		options.addOption( OptionBuilder.withLongOpt( "dictionary for aligning sentences" )
-				.withDescription( "This discitonary will be used for the sentence alingment" +
+				.withDescription( "This dictionary will be used for the sentence alingment" +
 						"If has no argument the default dictionary of the alinger will be used if exist" )
 				//.hasArg()
 				.hasOptionalArg()
@@ -523,9 +524,9 @@ public class SimpleCrawlHFSOptions {
 							if (_dict==null){
 								_dict = "default";
 							}
-						}else{
-							_dict=null;
-						}
+						}//else{
+						//	_dict=null;
+						//}
 					}
 				}
 			}else{
@@ -709,6 +710,9 @@ public class SimpleCrawlHFSOptions {
 	}
 	public String useDict() {
 		return _dict;
+	}
+	public String pathDict() {
+		return _dictpath;
 	}
 	public boolean Force() {
 		return _force;
