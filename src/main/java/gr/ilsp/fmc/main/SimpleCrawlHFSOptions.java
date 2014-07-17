@@ -48,6 +48,7 @@ public class SimpleCrawlHFSOptions {
 	private  String _outputDir;
 	private  String _outputFile;
 	private  String _outputFileHTML;
+	private  String _outputFileTMX;
 	private  String _agentName;
 	private  int _threads = 10;
 	private  int _numLoops = 1;
@@ -120,6 +121,10 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "output HTML list file" )
 				.hasArg()
 				.create("ofh") );
+		options.addOption( OptionBuilder.withLongOpt( "outputtmx" )
+				.withDescription( "output TMX list file" )
+				//.hasArg()  
+				.create("oft") );
 		options.addOption( OptionBuilder.withLongOpt( "agentname" )
 				.withDescription( "user agent name" )
 				.hasArg()
@@ -294,6 +299,10 @@ public class SimpleCrawlHFSOptions {
 				}
 				else
 					_outputFileHTML=null;
+				if (line.hasOption( "oft") & line.hasOption( "align")){
+					_outputFileTMX = of.getAbsolutePath().replace(".txt", ".alignLog.txt");
+				}else
+					_outputFileTMX=null;
 			}
 			else help();
 
@@ -527,6 +536,8 @@ public class SimpleCrawlHFSOptions {
 						}//else{
 						//	_dict=null;
 						//}
+					}else{
+						_outputFileTMX=null;
 					}
 				}
 			}else{
@@ -655,14 +666,12 @@ public class SimpleCrawlHFSOptions {
 	public String getLanguage() { 
 		return _language;
 	}
-
 	public String[] getLangKeys() {
 		return _langKeys;
 	}
 	public String getDest() {
 		return ws_dir;
 	}
-
 	public String getTopic() {
 		return _topic;
 	}
@@ -686,6 +695,9 @@ public class SimpleCrawlHFSOptions {
 	}
 	public  String getOutputFileHTML() {
 		return _outputFileHTML;
+	}
+	public  String getOutputFileTMX() {
+		return _outputFileTMX;
 	}
 	public  String getAgentName() {
 		return _agentName;
@@ -726,11 +738,9 @@ public class SimpleCrawlHFSOptions {
 	public int getlength() {
 		return _length;
 	}
-
 	public int getTokensNumber() {
 		return _minTokensNumber;
 	}
-
 	public String getType() {
 		return _type;
 	}
