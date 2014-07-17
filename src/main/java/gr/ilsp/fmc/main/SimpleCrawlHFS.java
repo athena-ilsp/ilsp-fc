@@ -759,8 +759,6 @@ public class SimpleCrawlHFS {
 						RunAligner.aling(alignername, lang[0], lang[1],
 								align_path.replace("/", fs1), dictalign_path.replace("/", fs1),
 								usedict, options.getOutputFile());
-						
-						
 					}
 					BitextUtils.removeTempFiles(parentDir,tempFileExt);
 					BitextUtils.removeRedundantFiles(parentDir, bitextsALL);
@@ -769,12 +767,10 @@ public class SimpleCrawlHFS {
 				} catch (XMLStreamException e1) {
 					e1.printStackTrace();
 				}
-
 				//System.out.println("Mirroring site ...");
 				//File newdir=Bitexts.mirrorsite(options.getOutputDir()+"/xml");
 				//File outFile = new File(options.getOutputFile());
 				//File tempdir = new File(options.getOutputDir()+"/xml/downloadedsite");
-
 				//System.out.println(tempdir.getAbsolutePath());
 				//if (newdir!=null){
 				//	System.out.println("Finding bitexts ...");
@@ -828,7 +824,7 @@ public class SimpleCrawlHFS {
 			fs.close();
 
 			renamePaths(options.getAgentName(), outputDirName,	options.getOutputFile(),
-					options.getOutputFileHTML(), options.getPathReplace() /*, options.getDest()*/);
+					options.getOutputFileHTML(), options.getOutputFileTMX(), options.getPathReplace() /*, options.getDest()*/);
 
 			System.exit(0);
 		} catch (PlannerException e) {
@@ -859,7 +855,7 @@ public class SimpleCrawlHFS {
 	}
 
 	private static void renamePaths(String agentName, String outputDirName, String outputFile,
-			String outputHtmlFile, String repl_paths /*, String dest*/) {
+			String outputHtmlFile, String outputTmxFile, String repl_paths /*, String dest*/) {
 
 		//LOGGER.info("agentName "+agentName);
 		//LOGGER.info("outputDirName "+outputDirName);
@@ -915,7 +911,7 @@ public class SimpleCrawlHFS {
 				ReadResources.writetextfile(outputHtmlFile,temp.replace("\\","/"));
 				//tmx outputlist
 				repl_paths_temp="";
-				String outputTmxFile = outputFile.replace(".txt", ".alignFileList.txt");
+				//String outputTmxFile = outputFile.replace(".txt", ".alignFileList.txt");
 				temp = ReadResources.readFileAsString(outputTmxFile);
 				if (temp.startsWith(agentName+"_")) {
 					if (repl_paths!=null){
