@@ -756,7 +756,7 @@ public class SimpleCrawlHFS {
 						}else
 							dictalign_path = options.pathDict();
 						
-						RunAligner.aling(alignername, lang[0], lang[1],
+						RunAligner.align(alignername, lang[0], lang[1],
 								align_path.replace("/", fs1), dictalign_path.replace("/", fs1),
 								usedict, options.getOutputFile());
 					}
@@ -866,69 +866,73 @@ public class SimpleCrawlHFS {
 
 		File tempfile = new File(outputDirName);
 		//String tobematched = tempfile.getParent().replace("\\","/");
-		String tobematched = (new File (tempfile.getParent())).getParent().replace("\\","/")+fs1;
+		String tobematched = (new File (tempfile.getParent())).getParent().replace("\\","/")/*+fs1*/;
 
 		//LOGGER.info("tobematched "+tobematched);
-		String repl_paths_temp="";
+		//String repl_paths_temp="";
 		String temp;
-		if (outputDirName.replace("\\","/").contains(tobematched.replace("\\", "/"))){
+		//if (outputDirName.replace("\\","/").contains(tobematched.replace("\\", "/"))){
+		if (outputDirName.replace("\\","/").contains(tobematched)){	
 			try {
 				//txt output list
 				temp = ReadResources.readFileAsString(outputFile);
 				temp=temp.replace("\\", "/");
-				if (temp.startsWith(agentName+"_")) {
-					if (repl_paths!=null){
-						repl_paths_temp=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
-						tobematched = agentName+"_";
-					}else{
-						repl_paths_temp=(agentName+"_").replace("\\","/");
-						tobematched = agentName+"_";
-					}
-				}
+				//if (temp.startsWith(agentName+"_")) {
+				//	if (repl_paths!=null){
+				//		repl_paths_temp=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
+				//		tobematched = agentName+"_";
+				//	}else{
+				//		repl_paths_temp=(agentName+"_").replace("\\","/");
+				//		tobematched = agentName+"_";
+				//	}
+				//}
 				if (repl_paths!=null)
-					temp = temp.replace(tobematched, repl_paths_temp.trim());
-				else
-					temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
+					temp = temp.replace(tobematched, repl_paths.trim());
+				//else
+				//	temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
 				temp=temp.replace("file:","");
 				ReadResources.writetextfile(outputFile,temp.replace("\\", "/"));
 				//html output list 
 				//repl_paths_temp="";
 				temp = ReadResources.readFileAsString(outputHtmlFile);
-				if (temp.startsWith(agentName+"_")) {
-					if (repl_paths!=null){
-						repl_paths_temp=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
-						tobematched = agentName+"_";
-					}else{
-						repl_paths_temp=(agentName+"_").replace("\\","/");
-						tobematched = agentName+"_";
-					}
-				}
+				temp=temp.replace("\\", "/");
+				//if (temp.startsWith(agentName+"_")) {
+				//	if (repl_paths!=null){
+				//		repl_paths_temp=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
+				//		tobematched = agentName+"_";
+				//	}else{
+				//		repl_paths_temp=(agentName+"_").replace("\\","/");
+				//		tobematched = agentName+"_";
+				//	}
+				//}
 				if (repl_paths!=null)
-					temp = temp.replace(tobematched, repl_paths_temp.trim());
-				else
-					temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
+					temp = temp.replace(tobematched, repl_paths.trim());
+				//else
+				//	temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
 				temp=temp.replace("file:","");
 				ReadResources.writetextfile(outputHtmlFile,temp.replace("\\","/"));
-				//tmx outputlist
-				repl_paths_temp="";
-				//String outputTmxFile = outputFile.replace(".txt", ".alignFileList.txt");
-				temp = ReadResources.readFileAsString(outputTmxFile);
-				if (temp.startsWith(agentName+"_")) {
-					if (repl_paths!=null){
-						repl_paths_temp=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
-						tobematched = agentName+"_";
-					}else{
-						repl_paths_temp=(agentName+"_").replace("\\","/");
-						tobematched = agentName+"_";
-					}
+				if (outputTmxFile!=null){
+					//tmx outputlist
+					//repl_paths_temp="";
+					//String outputTmxFile = outputFile.replace(".txt", ".alignFileList.txt");
+					temp = ReadResources.readFileAsString(outputTmxFile);
+					temp=temp.replace("\\", "/");
+					//if (temp.startsWith(agentName+"_")) {
+					//	if (repl_paths!=null){
+					//		repl_paths_temp=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
+					//		tobematched = agentName+"_";
+					//	}else{
+					//		repl_paths_temp=(agentName+"_").replace("\\","/");
+					//		tobematched = agentName+"_";
+					//	}
+					//}
+					if (repl_paths!=null)
+						temp = temp.replace(tobematched, repl_paths.trim());
+					//else
+					//	temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
+					temp=temp.replace("file:","");
+					ReadResources.writetextfile(outputTmxFile,temp.replace("\\","/"));
 				}
-				if (repl_paths!=null)
-					temp = temp.replace(tobematched, repl_paths_temp.trim());
-				else
-					temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
-				temp=temp.replace("file:","");
-				ReadResources.writetextfile(outputTmxFile,temp.replace("\\","/"));
-				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
