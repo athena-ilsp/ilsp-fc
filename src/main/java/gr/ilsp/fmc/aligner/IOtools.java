@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,6 +21,13 @@ import java.util.Vector;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -305,8 +313,40 @@ public class IOtools{
         }
         sout+=TMXEND;
         IOtools.writeToFile(outFile, new StringBuffer(sout));
+        
+        //Create html file from the tmx
+        String htmlFile=outFile.replace(".tmx", ".html");
+        IOtools.tmxTOhtml(outFile, htmlFile);
         return alignmentCount; 
     }
+    
+    
+    public static void tmxTOhtml(String inFile, String outFile){
+		Source xmlSource = new StreamSource(new File(inFile));
+		try {
+			//InputStream is = new FileInputStream("C:\\Users\\Sokratis\\workspace\\ilsp-fc\\target\\hunalign-1.1\\tmx2html.xsl");
+			Source xsltSource = new StreamSource(new URL("http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl").openStream());
+			TransformerFactory transFact = TransformerFactory.newInstance();
+			Transformer transformer = transFact.newTransformer(xsltSource);
+			transformer.transform(xmlSource, new StreamResult(new File(outFile)));
+		} catch (FileNotFoundException e) {
+			System.err.println("xsl file for converting tmx to html not found!");
+			e.printStackTrace();
+		} catch (TransformerConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    
     /**
      * Creates a TMX file using the DCU aligner travelling object output
      * @param urlORfile The url or the local location of the alignment output
