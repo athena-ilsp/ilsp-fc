@@ -1082,22 +1082,23 @@ public class Bitexts {
 	public static void writeOutList(String outputDirName, String outputFile, 
 			String outputFileHTML, ArrayList<String[]> bitexts, String definedDest) {
 		String filename;
-		String ttt; //File ttt;
-		String outputDirName1= new File(outputDirName).toURI().toString(); //Path outputDirName1=new Path(outputDirName);
-		String tobeReplaced="", outputDirName2="";
+		//String ttt; //File ttt;
+		//String outputDirName1= new File(outputDirName).toURI().toString(); //Path outputDirName1=new Path(outputDirName);
+		//String tobeReplaced="", outputDirName2="";
 
-		tobeReplaced= new File(new File(outputFile).getParent()).toURI().toString();
+		//tobeReplaced= new File(new File(outputFile).getParent()).toURI().toString();
 
-		outputDirName2 = new Path(outputDirName1.replace(tobeReplaced, "")).toUri().toString();
-		if (outputDirName2.equals(outputDirName1))
-			ttt = outputDirName;
-		else
-			ttt = outputDirName2;
+		//outputDirName2 = new Path(outputDirName1.replace(tobeReplaced, "")).toUri().toString();
+		//if (outputDirName2.equals(outputDirName1))
+		//	ttt = outputDirName;
+		//else
+		//	ttt = outputDirName2;
 		try {
 			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
 			for (int ii=bitexts.size()-1;ii>-1;ii--){
 				filename=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml";
-				out.write(ttt+fs+resultDir+fs+filename+"\n");
+				//out.write(ttt+fs+resultDir+fs+filename+"\n");
+				out.write(outputDirName+fs+resultDir+fs+filename+"\n");
 			}
 			out.close();
 		} catch (IOException e){
@@ -1111,7 +1112,8 @@ public class Bitexts {
 					out1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 					for (int ii=bitexts.size()-1;ii>-1;ii--){
 						filename=bitexts.get(ii)[0]+"_"+bitexts.get(ii)[1]+"_"+bitexts.get(ii)[4].substring(0, 1)+".xml.html";
-						out1.write("<br />"+"<a href=\""+ttt+fs+resultDir+fs+filename+"\">\n"+ttt+fs+resultDir+fs+filename+"</a>"+"\n");
+						//out1.write("<br />"+"<a href=\""+ttt+fs+resultDir+fs+filename+"\">\n"+ttt+fs+resultDir+fs+filename+"</a>"+"\n");
+						out1.write("<br />"+"<a href=\""+outputDirName+fs+resultDir+fs+filename+"\">\n"+outputDirName+fs+resultDir+fs+filename+"</a>"+"\n");
 					}
 					out1.write("</html>");
 				}
