@@ -103,12 +103,13 @@ public abstract class Aligner{
 					}
 				}
 				else{
-					String newFilePath=filePath.substring(0, filePath.lastIndexOf(fs1)+1)+file;
-					String files[]=IOtools.parseXmlFile(newFilePath, sLang, tLang);
+					//String newFilePath=filePath.substring(0, filePath.lastIndexOf(fs1)+1)+file;
+					//String files[]=IOtools.parseXmlFile(newFilePath, sLang, tLang);
+					String files[]=IOtools.parseXmlFile(file, sLang, tLang);
 					String sFile=files[0];
 					String tFile=files[1];
-					String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+fs1+file.substring(0, file.lastIndexOf(fs1));
-
+					//String outputPath=filePath.substring(0, filePath.lastIndexOf(fs1))+this.outputName+fs1+file.substring(0, file.lastIndexOf(fs1));
+					String outputPath=file.substring(0, file.lastIndexOf(fs1));
 					if(outputPath.endsWith(fs1+"xml"))
 						outputPath=outputPath.replace(fs1+"xml", fs1+"tmx");
 					else
@@ -116,7 +117,8 @@ public abstract class Aligner{
 					IOtools.createDir(outputPath);
 
 					try{
-						alignments=processDocPair(runaligner_path, dictalign_path, newFilePath, sFile, tFile, outputPath, type, dictPath);
+						//alignments=processDocPair(runaligner_path, dictalign_path, newFilePath, sFile, tFile, outputPath, type, dictPath);
+						alignments=processDocPair(runaligner_path, dictalign_path, file, sFile, tFile, outputPath, type, dictPath);
 						//String tmxFile=outputPath+"/"+sFile.replace(".xml", "")+"_"+tFile.replace(".xml", "")+"_"+type+".tmx";
 						//String tmxFile=filePair.replace(fs1+"xml", fs1+"tmx")+".tmx";
 						String tmxFile=file.replace("xml", "tmx");
