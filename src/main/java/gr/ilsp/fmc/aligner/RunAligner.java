@@ -11,7 +11,7 @@ public class RunAligner {
 	//private String _cesAlignList;
 	
 	
-	public static void aling(String alingerName, String l1, String l2, String runaling_path, String dictalign_path, String dict, String cesAlignList){
+	public static void align(String alingerName, String l1, String l2, String runaling_path, String dictalign_path, String dict, String cesAlignList){
 		
 		LOGGER.info("Alinger: "+ alingerName);
 		LOGGER.info("Run_aligner: "+ runaling_path);
