@@ -59,7 +59,8 @@ public abstract class Aligner{
 	 * Method to process all files containing document pairs
 	 * @param filepath String with the path to the file containing the file list
 	 */
-	protected void processFiles(String runaligner_path, String dictalign_path, String filePath, String dictPath){
+	protected void processFiles(String runaligner_path, String dictalign_path, 
+			String filePath, String dictPath, String tmxlist, String htmltmxlist){
 		int pairNumber=0;
 		int skippedNumber=0;
 		StringBuffer log=new StringBuffer();
@@ -162,14 +163,18 @@ public abstract class Aligner{
 		}
 
 		//Store the log
-		String logName=filePath+this.outputName.replace(".txt", ".alignLog.txt");
-		String listName=logName.replace(".txt", ".alignFileList.txt");
+		//String logName=filePath+this.outputName.replace(".txt", ".alignLog.txt");
+		//String listName=logName.replace(".txt", ".alignFileList.txt");
+		String logName = tmxlist;
+		String listName = htmltmxlist; 
 		LOGGER.info("Aligner log file stored at "+logName);
 		LOGGER.info("Aligner file list file stored at "+listName);
-		logName=logName.replace(".txt", ".alignLog.txt");
+		//logName=logName.replace(".txt", ".alignLog.txt");
 		IOtools.writeToFile(logName, log);
+		log2=IOtools.convertlistTMX_HTML(log2);
 		IOtools.writeToFile(listName, log2);
 	}
 
+	
 	protected abstract int processDocPair(String runaligner_path, String dictalign_path,String mainPath, String sFile, String tFile, String outputPath, String type, String dict);
 }
