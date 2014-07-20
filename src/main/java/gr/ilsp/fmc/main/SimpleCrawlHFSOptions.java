@@ -49,6 +49,7 @@ public class SimpleCrawlHFSOptions {
 	private  String _outputFile;
 	private  String _outputFileHTML;
 	private  String _outputFileTMX;
+	private  String _outputFileHTMLTMX;
 	private  String _agentName;
 	private  int _threads = 10;
 	private  int _numLoops = 1;
@@ -113,18 +114,22 @@ public class SimpleCrawlHFSOptions {
 				.withDescription( "output directory" )
 				.hasArg()
 				.create("o") );
-		options.addOption( OptionBuilder.withLongOpt( "outputfile" )
-				.withDescription( "output list file" )
+		options.addOption( OptionBuilder.withLongOpt( "outputXML" )
+				.withDescription( "output list to XML files" )
 				.hasArg()
 				.create("of") );
-		options.addOption( OptionBuilder.withLongOpt( "outputhtml" )
-				.withDescription( "output HTML list file" )
+		options.addOption( OptionBuilder.withLongOpt( "outputHTML_XML" )
+				.withDescription( "output list to HTML (rendered XML) files" )
 				.hasArg()
 				.create("ofh") );
-		options.addOption( OptionBuilder.withLongOpt( "outputtmx" )
-				.withDescription( "output TMX list file" )
-				//.hasArg()  
+		options.addOption( OptionBuilder.withLongOpt( "outputTMX" )
+				.withDescription( "output list to TMX files" )
+				.hasArg()  
 				.create("oft") );
+		options.addOption( OptionBuilder.withLongOpt( "outputHTML_TMX" )
+				.withDescription( "output list to HTML (rendered TMX) files" )
+				.hasArg()  
+				.create("ofth") );
 		options.addOption( OptionBuilder.withLongOpt( "agentname" )
 				.withDescription( "user agent name" )
 				.hasArg()
@@ -299,10 +304,6 @@ public class SimpleCrawlHFSOptions {
 				}
 				else
 					_outputFileHTML=null;
-				if (line.hasOption( "oft") & line.hasOption( "align")){
-					_outputFileTMX = of.getAbsolutePath().replace(".txt", ".alignLog.txt");
-				}else
-					_outputFileTMX=null;
 			}
 			else help();
 
@@ -533,11 +534,26 @@ public class SimpleCrawlHFSOptions {
 							if (_dict==null){
 								_dict = "default";
 							}
-						}//else{
-						//	_dict=null;
-						//}
+						}
+						if (line.hasOption( "oft")) {
+							File oft = new File(line.getOptionValue("oft"));
+							_outputFileTMX = oft.getAbsolutePath();
+						}else{
+							LOGGER.error("You asked for sentence alignment but" +
+									" no file for list to TMX files is provided.");
+							help();
+						}
+						if (line.hasOption( "ofth")) {
+							File ofth = new File(line.getOptionValue("ofth"));
+							_outputFileHTMLTMX = ofth.getAbsolutePath();
+						}else{
+							LOGGER.error("You asked for sentence alignment but" +
+									" no file for list to rendered TMX files is provided.");
+							help();
+						}
 					}else{
 						_outputFileTMX=null;
+						_outputFileHTMLTMX=null;
 					}
 				}
 			}else{
@@ -698,6 +714,9 @@ public class SimpleCrawlHFSOptions {
 	}
 	public  String getOutputFileTMX() {
 		return _outputFileTMX;
+	}
+	public  String getOutputFileHTMLTMX() {
+		return _outputFileHTMLTMX;
 	}
 	public  String getAgentName() {
 		return _agentName;
