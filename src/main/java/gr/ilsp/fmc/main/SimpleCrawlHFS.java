@@ -758,7 +758,8 @@ public class SimpleCrawlHFS {
 						
 						RunAligner.align(alignername, lang[0], lang[1],
 								align_path.replace("/", fs1), dictalign_path.replace("/", fs1),
-								usedict, options.getOutputFile());
+								usedict, options.getOutputFile(),
+								options.getOutputFileTMX(), options.getOutputFileHTMLTMX());
 					}
 					BitextUtils.removeTempFiles(parentDir,tempFileExt);
 					BitextUtils.removeRedundantFiles(parentDir, bitextsALL);
@@ -824,7 +825,8 @@ public class SimpleCrawlHFS {
 			fs.close();
 
 			renamePaths(options.getAgentName(), outputDirName,	options.getOutputFile(),
-					options.getOutputFileHTML(), options.getOutputFileTMX(), options.getPathReplace() /*, options.getDest()*/);
+					options.getOutputFileHTML(), options.getOutputFileTMX(),
+					options.getOutputFileHTMLTMX(),options.getPathReplace() /*, options.getDest()*/);
 
 			System.exit(0);
 		} catch (PlannerException e) {
@@ -855,83 +857,41 @@ public class SimpleCrawlHFS {
 	}
 
 	private static void renamePaths(String agentName, String outputDirName, String outputFile,
-			String outputHtmlFile, String outputTmxFile, String repl_paths /*, String dest*/) {
-
-		//LOGGER.info("agentName "+agentName);
-		//LOGGER.info("outputDirName "+outputDirName);
-		//LOGGER.info("outputFile "+outputFile);
-		//LOGGER.info("outputHtmlFile "+outputHtmlFile);
-		//LOGGER.info("repl_paths "+repl_paths);
-		//LOGGER.info("dest "+dest);
+			String outputHtmlFile, String outputTmxFile, String outputTmxHtmlFile, String repl_paths /*, String dest*/) {
 
 		File tempfile = new File(outputDirName);
-		//String tobematched = tempfile.getParent().replace("\\","/");
 		String tobematched = (new File (tempfile.getParent())).getParent().replace("\\","/")/*+fs1*/;
-
-		//LOGGER.info("tobematched "+tobematched);
-		//String repl_paths_temp="";
 		String temp;
-		//if (outputDirName.replace("\\","/").contains(tobematched.replace("\\", "/"))){
 		if (outputDirName.replace("\\","/").contains(tobematched)){	
 			try {
 				//txt output list
 				temp = ReadResources.readFileAsString(outputFile);
 				temp=temp.replace("\\", "/");
-				//if (temp.startsWith(agentName+"_")) {
-				//	if (repl_paths!=null){
-				//		repl_paths_temp=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
-				//		tobematched = agentName+"_";
-				//	}else{
-				//		repl_paths_temp=(agentName+"_").replace("\\","/");
-				//		tobematched = agentName+"_";
-				//	}
-				//}
 				if (repl_paths!=null)
 					temp = temp.replace(tobematched, repl_paths.trim());
-				//else
-				//	temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
 				temp=temp.replace("file:","");
 				ReadResources.writetextfile(outputFile,temp.replace("\\", "/"));
-				//html output list 
-				//repl_paths_temp="";
 				temp = ReadResources.readFileAsString(outputHtmlFile);
 				temp=temp.replace("\\", "/");
-				//if (temp.startsWith(agentName+"_")) {
-				//	if (repl_paths!=null){
-				//		repl_paths_temp=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
-				//		tobematched = agentName+"_";
-				//	}else{
-				//		repl_paths_temp=(agentName+"_").replace("\\","/");
-				//		tobematched = agentName+"_";
-				//	}
-				//}
 				if (repl_paths!=null)
 					temp = temp.replace(tobematched, repl_paths.trim());
-				//else
-				//	temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
 				temp=temp.replace("file:","");
 				ReadResources.writetextfile(outputHtmlFile,temp.replace("\\","/"));
 				if (outputTmxFile!=null){
-					//tmx outputlist
-					//repl_paths_temp="";
-					//String outputTmxFile = outputFile.replace(".txt", ".alignFileList.txt");
 					temp = ReadResources.readFileAsString(outputTmxFile);
 					temp=temp.replace("\\", "/");
-					//if (temp.startsWith(agentName+"_")) {
-					//	if (repl_paths!=null){
-					//		repl_paths_temp=(repl_paths.trim()+fs1+agentName+"_").replace("\\","/");
-					//		tobematched = agentName+"_";
-					//	}else{
-					//		repl_paths_temp=(agentName+"_").replace("\\","/");
-					//		tobematched = agentName+"_";
-					//	}
-					//}
 					if (repl_paths!=null)
 						temp = temp.replace(tobematched, repl_paths.trim());
-					//else
-					//	temp = temp.replace((tobematched+fs1).replace("\\","/"), "");
 					temp=temp.replace("file:","");
 					ReadResources.writetextfile(outputTmxFile,temp.replace("\\","/"));
+				}
+				if (outputTmxHtmlFile!=null){
+					temp = ReadResources.readFileAsString(outputTmxHtmlFile);
+					temp=temp.replace("\\", "/");
+					if (repl_paths!=null)
+						temp = temp.replace(tobematched, repl_paths.trim());
+					temp=temp.replace("file:","");
+					ReadResources.writetextfile(outputTmxHtmlFile,temp.replace("\\","/"));
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
