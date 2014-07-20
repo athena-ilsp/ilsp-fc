@@ -346,6 +346,18 @@ public class IOtools{
 		}
     }
     
+    public static StringBuffer convertlistTMX_HTML(StringBuffer log2) {
+		String[] temp = log2.toString().split("\r\n");
+    	StringBuffer log = new StringBuffer();
+    	
+    	log.append("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+		for (int ii=0;ii<temp.length;ii++){
+			temp[ii]=temp[ii].replace(".tmx",".html");
+			log.append("<br />"+"<a href=\""+temp[ii]+"\">\n"+temp[ii]+"</a>"+"\n");
+		}
+		log.append("</html>");
+		return log;
+	}
     
     /**
      * Creates a TMX file using the DCU aligner travelling object output
