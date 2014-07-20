@@ -264,7 +264,9 @@ public class ScriptAligner extends Aligner{
 			String str=arg[3];
 			String runaligner_path=arg[6];  //FIXME
 			String dictalign_path = arg[5]; //FIXME
+			String tmxlist = arg[7];
+			String htmltmxlist = arg[8];
 			ScriptAligner ra=new ScriptAligner(slang, tlang, regexp);
-			ra.processFiles(runaligner_path, dictalign_path, str, arg[4]);
+			ra.processFiles(runaligner_path, dictalign_path, str, arg[4], tmxlist, htmltmxlist );
 		}
 	}
