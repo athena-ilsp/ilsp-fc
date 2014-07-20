@@ -47,7 +47,7 @@ import javax.xml.transform.TransformerException;
 //import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.fs.Path;
+//import org.apache.hadoop.fs.Path;
 //import org.apache.hadoop.mapred.JobConf;
 
 import org.codehaus.stax2.XMLInputFactory2;
