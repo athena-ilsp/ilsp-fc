@@ -11,7 +11,9 @@ public class RunAligner {
 	//private String _cesAlignList;
 	
 	
-	public static void align(String alingerName, String l1, String l2, String runaling_path, String dictalign_path, String dict, String cesAlignList){
+	public static void align(String alingerName, String l1, String l2, String runaling_path,
+			String dictalign_path, String dict,
+			String cesAlignList, String tmxlist, String htmltmxlist){
 		
 		LOGGER.info("Alinger: "+ alingerName);
 		LOGGER.info("Run_aligner: "+ runaling_path);
@@ -23,7 +25,7 @@ public class RunAligner {
 
 		if (alingerName.equals("default")){
 			ScriptAligner ra=new ScriptAligner( l1, l2, null);
-			ra.processFiles( runaling_path, dictalign_path, cesAlignList, dict );
+			ra.processFiles( runaling_path, dictalign_path, cesAlignList, dict, tmxlist,htmltmxlist  );
 		}else{
 			LOGGER.info("only default hunalign is supported in the current version");
 		}
