@@ -297,9 +297,9 @@ public class IOtools{
             	alignmentCount++;
             	tmxEntry+="<tu tuid=\""+alignmentCount+"\" datatype=\"Text\" score=\""+score+"\">\n";
             	tmxEntry+="\t<tuv xml:lang=\""+sLang+"\">\n";
-            	tmxEntry+="\t\t<seg>"+slSents.get(slIndex)+"</seg>\n\t</tuv>\n";
+            	tmxEntry+="\t\t<seg>"+StringEscapeUtils.escapeXml(slSents.get(slIndex))+"</seg>\n\t</tuv>\n";
             	tmxEntry+="\t<tuv xml:lang=\""+tLang+"\">\n";
-            	tmxEntry+="\t\t<seg>"+tlSents.get(tlIndex)+"</seg>\n\t</tuv>\n";
+            	tmxEntry+="\t\t<seg>"+StringEscapeUtils.escapeXml(tlSents.get(tlIndex))+"</seg>\n\t</tuv>\n";
             	tmxEntry+="</tu>\n";
 
             	if(slSents.get(slIndex).compareTo("")==0||tlSents.get(tlIndex).compareTo("")==0){
@@ -313,7 +313,6 @@ public class IOtools{
             sout+=tmxEntry;
         }
         sout+=TMXEND;
-        sout=StringEscapeUtils.escapeXml(sout);
         IOtools.writeToFile(outFile, new StringBuffer(sout));
         
         //Create html file from the tmx
@@ -322,7 +321,7 @@ public class IOtools{
         return alignmentCount; 
     }
     
-    
+
     public static void tmxTOhtml(String inFile, String outFile){
 		Source xmlSource = new StreamSource(new File(inFile));
 		try {
@@ -410,9 +409,9 @@ public class IOtools{
             	alignmentCount++;
             	tmxEntry+="<tu tuid=\""+alignmentCount+"\" datatype=\"Text\" score=\""+alignScore.getTextContent()+"\">\n";
             	tmxEntry+="\t<tuv xml:lang=\""+sLang+"\">\n";
-            	tmxEntry+="\t\t<seg>"+slSents.get(slSentID-1)+"</seg>\n\t</tuv>\n";
+            	tmxEntry+="\t\t<seg>"+StringEscapeUtils.escapeXml(slSents.get(slSentID-1))+"</seg>\n\t</tuv>\n";
             	tmxEntry+="\t<tuv xml:lang=\""+tLang+"\">\n";
-            	tmxEntry+="\t\t<seg>"+tlSents.get(tlSentID-1)+"</seg>\n\t</tuv>\n";
+            	tmxEntry+="\t\t<seg>"+StringEscapeUtils.escapeXml(tlSents.get(tlSentID-1))+"</seg>\n\t</tuv>\n";
             	tmxEntry+="</tu>\n";
 
             	if(slSents.get(slSentID-1).compareTo("")==0||tlSents.get(tlSentID-1).compareTo("")==0){
@@ -426,7 +425,6 @@ public class IOtools{
             sout+=tmxEntry;
         }
         sout+=TMXEND;
-        sout=StringEscapeUtils.escapeXml(sout);
         IOtools.writeToFile(outFile, new StringBuffer(sout));
         
         return alignmentCount; 
