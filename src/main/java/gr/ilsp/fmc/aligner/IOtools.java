@@ -348,7 +348,7 @@ public class IOtools{
     }
     
     public static StringBuffer convertlistTMX_HTML(StringBuffer log2) {
-		String[] temp = log2.toString().split("\r\n");
+		String[] temp = log2.toString().split(System.getProperty("line.separator"));
     	StringBuffer log = new StringBuffer();
     	
     	log.append("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
