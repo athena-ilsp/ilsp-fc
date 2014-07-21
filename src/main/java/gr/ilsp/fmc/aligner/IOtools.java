@@ -313,6 +313,7 @@ public class IOtools{
             sout+=tmxEntry;
         }
         sout+=TMXEND;
+        sout=StringEscapeUtils.escapeXml(sout);
         IOtools.writeToFile(outFile, new StringBuffer(sout));
         
         //Create html file from the tmx
