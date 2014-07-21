@@ -29,6 +29,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -424,6 +425,7 @@ public class IOtools{
             sout+=tmxEntry;
         }
         sout+=TMXEND;
+        sout=StringEscapeUtils.escapeXml(sout);
         IOtools.writeToFile(outFile, new StringBuffer(sout));
         
         return alignmentCount; 
@@ -567,10 +569,9 @@ public class IOtools{
 		String prevSent="";
         for(int i=0; i<tuvNodes.getLength(); i++){
             Node segment=tuvNodes.item(i);
-        	String sText = segment.getTextContent().trim();
-        	sText=sText.replace(" & ", " &amp; ");
-        	sText=sText.replace(" < ", " &lt; ");
-        	sText=sText.replace(" > ", " &gt; ");
+        	String sText = StringEscapeUtils.escapeXml(segment.getTextContent().trim());
+        	/*String sText = segment.getTextContent().trim();
+        	sText=IOtools.escapeXML(sText);*/
         	//Run the sentence splitter on the paragraph
         	if(i % 2 == 0)
         		prevSent=sText;
@@ -587,6 +588,14 @@ public class IOtools{
         System.out.println("Writing file "+"c:/nlpos"+inputF);
         
     	IOtools.writeToFile("c:/nlpos/"+inputF+".appr", output);
+    }
+    public String escapeXML(String sText){
+    	sText=sText.replace(" & ", " &amp; ");
+    	sText=sText.replace(" < ", " &lt; ");
+    	sText=sText.replace(" > ", " &gt; ");
+    	sText=sText.replace(" \" ", " &quot; ");
+    	sText=sText.replace(" ' ", " &apos; ");
+    	return sText;
     }
 	/**
 	 * Creates a temp file
