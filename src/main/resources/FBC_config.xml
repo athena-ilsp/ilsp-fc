@@ -31,18 +31,18 @@
 	<aligner>
 		<win_align_path>
 			<value>hunalign-1.1/win/hunalign.exe</value>
-			<description>reletive path to executable of hunaling for windows.
-			It is supposed that the main directory of hunalign is next to the jar</description>
+			<description>relative path to executable of hunalign for windows.
+			The main hugnalign directory is supposed to be next to the crawler's jar</description>
 		</win_align_path>
 		<lin_align_path>
 			<value>hunalign-1.1/linux/src/hunalign/hunalign</value>
-			<description>reletive path to executable of hunaling for linux.
-			It is supposed that the main directory of hunalign is next to the jar</description>
+			<description>relative path to executable of hunalign for linux.
+			The main hugnalign directory is supposed to be next to the crawler's jar</description>
 		</lin_align_path>
 		<align_dict>
 			<value>hunalign-1.1/dict</value>
-			<description>reletive path to the dictionaries of hunaling.
-			It is supposed that the main directory of hunalign is next to the jar</description>
+			<description>relative path to the dictionaries of hunalign.
+			The main hugnalign directory is supposed to be next to the crawler's jar</description>
 		</align_dict>
 	</aligner>
 	<fetcher>
