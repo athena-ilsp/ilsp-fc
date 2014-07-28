@@ -65,14 +65,24 @@
 			<name>Cascading repository</name>
 			<url>http://conjars.org/repo</url>
 		</repository>
+		<repository>
+			<id>ILSP NLP Third Party</id>
+			<name>ILSP NLP repository third party</name>
+			<url>http://nlp.ilsp.gr/nexus/content/repositories/thirdparty/</url>
+		</repository>
 	</repositories>
-	<dependencies>
+	<dependencies>		
+		<dependency>
+			<artifactId>net.sourceforge.align</artifactId>
+			<groupId>net.sourceforge.align</groupId>
+			<version>2.7.1</version>
+		</dependency>	
+
 		<dependency>
 			<groupId>net.sf.jtidy</groupId>
 			<artifactId>jtidy</artifactId>
 			<version>r938</version>
 		</dependency>
-
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
@@ -192,8 +202,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.5.1</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
