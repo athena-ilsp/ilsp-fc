@@ -861,6 +861,9 @@ public class Bitexts {
 	private static void writeCesAling(String curXMLName, String f1, String f2,
 			String l1, String l2, String confid, boolean cesAlign) {
 
+		//File temp = new File(curXMLName);
+		//f1=temp.getParent()+fs+f1;
+		//f2=temp.getParent()+fs+f2;
 		XMLOutputFactory2 xof = (XMLOutputFactory2) XMLOutputFactory2.newInstance();
 		OutputStreamWriter wrt;
 		try {
@@ -2010,6 +2013,7 @@ public class Bitexts {
 				}
 				counter++;
 			}
+			in.close();
 		} catch (IOException e) {
 		}
 	}
