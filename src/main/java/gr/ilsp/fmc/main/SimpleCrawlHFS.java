@@ -893,6 +893,21 @@ public class SimpleCrawlHFS {
 					temp=temp.replace("file:","");
 					ReadResources.writetextfile(outputTmxHtmlFile,temp.replace("\\","/"));
 				}
+				File tempdir = new File(outputDirName+fs1+resultXMLDir);
+				File[] allfiles= tempdir.listFiles();
+				for (int ii=0;ii<allfiles.length;ii++){
+					String curfilename=allfiles[ii].getName();
+					if (curfilename.endsWith(resultXMLDir) && curfilename.contains("_")){
+						temp = ReadResources.readFileAsString(allfiles[ii].getAbsolutePath());
+						temp=temp.replace("trans.loc=\"","trans.loc=\""+tempdir.getAbsolutePath()+fs1);
+						temp=temp.replace("\\", "/");
+						if (repl_paths!=null)
+							temp = temp.replace(tobematched, repl_paths.trim());
+				
+						temp=temp.replace("file:","");
+						ReadResources.writetextfile(allfiles[ii].getAbsolutePath(),temp.replace("\\","/"));
+					}
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
