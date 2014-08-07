@@ -547,9 +547,10 @@ public class SimpleCrawlHFSOptions {
 							File ofth = new File(line.getOptionValue("ofth"));
 							_outputFileHTMLTMX = ofth.getAbsolutePath();
 						}else{
-							LOGGER.error("You asked for sentence alignment but" +
-									" no file for list to rendered TMX files is provided.");
-							help();
+							//LOGGER.error("You asked for sentence alignment but" +
+							//		" no file for list to rendered TMX files is provided.");
+							//help();
+							_outputFileHTMLTMX =null;
 						}
 					}else{
 						_outputFileTMX=null;
