@@ -871,12 +871,14 @@ public class SimpleCrawlHFS {
 					temp = temp.replace(tobematched, repl_paths.trim());
 				temp=temp.replace("file:","");
 				ReadResources.writetextfile(outputFile,temp.replace("\\", "/"));
-				temp = ReadResources.readFileAsString(outputHtmlFile);
-				temp=temp.replace("\\", "/");
-				if (repl_paths!=null)
-					temp = temp.replace(tobematched, repl_paths.trim());
-				temp=temp.replace("file:","");
-				ReadResources.writetextfile(outputHtmlFile,temp.replace("\\","/"));
+				if (outputHtmlFile!=null){
+					temp = ReadResources.readFileAsString(outputHtmlFile);
+					temp=temp.replace("\\", "/");
+					if (repl_paths!=null)
+						temp = temp.replace(tobematched, repl_paths.trim());
+					temp=temp.replace("file:","");
+					ReadResources.writetextfile(outputHtmlFile,temp.replace("\\","/"));
+				}
 				if (outputTmxFile!=null){
 					temp = ReadResources.readFileAsString(outputTmxFile);
 					temp=temp.replace("\\", "/");
