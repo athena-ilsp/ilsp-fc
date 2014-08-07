@@ -444,6 +444,7 @@ public class SimpleCrawlHFSOptions {
 								continue;
 							seed_list.add(cur_line);
 						}
+						rdr.close();
 						if (!seed_list.isEmpty()){
 							String[] seeds=new String[seed_list.size()];
 							for (int ii=0;ii<seeds.length;ii++)
