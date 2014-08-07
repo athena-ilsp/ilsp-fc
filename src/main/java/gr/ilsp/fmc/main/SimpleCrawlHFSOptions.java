@@ -659,6 +659,10 @@ public class SimpleCrawlHFSOptions {
 					break;
 			}
 			in.close();
+			if (langKeys.size()!=langs.length){
+				LOGGER.error("The targetted language(s) is (are) not supported. Check the file for langKeys.");
+				System.exit(0);
+			}
 		} catch (IOException e) {
 			LOGGER.error("Problem in reading the file for langKeys.");
 		}
