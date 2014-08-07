@@ -168,11 +168,12 @@ public abstract class Aligner{
 		String logName = tmxlist;
 		String listName = htmltmxlist; 
 		LOGGER.info("Aligner log file stored at "+logName);
-		LOGGER.info("Aligner file list file stored at "+listName);
-		//logName=logName.replace(".txt", ".alignLog.txt");
 		IOtools.writeToFile(logName, log);
-		log2=IOtools.convertlistTMX_HTML(log2);
-		IOtools.writeToFile(listName, log2);
+		if (listName!=null){
+			LOGGER.info("Aligner file list file stored at "+listName);
+			log2=IOtools.convertlistTMX_HTML(log2);
+			IOtools.writeToFile(listName, log2);
+		}
 	}
 
 	
