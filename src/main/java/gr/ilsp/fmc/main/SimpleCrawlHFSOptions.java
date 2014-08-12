@@ -357,6 +357,10 @@ public class SimpleCrawlHFSOptions {
 			}else{
 				//vpapa for bilingual web service
 				if(line.hasOption("l1") & line.hasOption("l2")) {
+					if (line.getOptionValue("l1")==line.getOptionValue("l2")){
+						LOGGER.error("L1 and L2 are the same.");
+						System.exit(0);
+					}
 					_language = line.getOptionValue("l1")+param_separ+line.getOptionValue("l2");
 					_langKeys = findKeys4lang(_language);
 				}else{
