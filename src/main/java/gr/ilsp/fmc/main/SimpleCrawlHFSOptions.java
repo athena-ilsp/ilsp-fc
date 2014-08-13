@@ -70,7 +70,7 @@ public class SimpleCrawlHFSOptions {
 	private boolean offlineXSLT = false;
 	private String _config;
 	private URL _genre;
-	private int _length = 10;
+	private int _length = 3;
 	private static final Logger LOGGER = Logger.getLogger(SimpleCrawlHFSOptions.class);
 	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
 	private String ws_dir;
@@ -221,13 +221,13 @@ public class SimpleCrawlHFSOptions {
 				.create("p_r") );
 		options.addOption( OptionBuilder.withLongOpt( "align sentences" )
 				.withDescription( "Extract sentences from the detected document pairs and " +
-						"alignes the extracted sentences by using an alinger (default is hunaling" )
+						"alignes the extracted sentences by using an alinger (default is hunaling)" )
 				//.hasArg()
 				.hasOptionalArg()
 				.create("align") );
 		options.addOption( OptionBuilder.withLongOpt( "dictionary for aligning sentences" )
 				.withDescription( "This dictionary will be used for the sentence alingment" +
-						"If has no argument the default dictionary of the alinger will be used if exist" )
+						"If has no argument the default dictionary of the alinger will be used if exists" )
 				//.hasArg()
 				.hasOptionalArg()
 				.create("dict") );
