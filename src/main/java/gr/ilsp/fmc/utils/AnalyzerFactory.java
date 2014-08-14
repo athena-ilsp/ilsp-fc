@@ -51,13 +51,11 @@ public class AnalyzerFactory {
 		} else	if (lang.equals("hu") ) {
 			return new HungarianAnalyzer(Version.LUCENE_40);
 		} else	if (lang.equals("ja") ) {
-			return new CJKAnalyzer(Version.LUCENE_40);
-				
-		} else {
+			return new CJKAnalyzer(Version.LUCENE_40);		
+		}else {
 			throw new Exception("No analyzer available for language " + lang + ".\n"
 					+ "Available languages are " + langsList.toString() + ".\n");
 		}
-		
 	}
 	
 	public static void main(String[] args) throws Exception {
