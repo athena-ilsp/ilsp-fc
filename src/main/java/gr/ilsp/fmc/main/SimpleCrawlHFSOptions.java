@@ -1,6 +1,8 @@
 package gr.ilsp.fmc.main;
 
 
+import gr.ilsp.fmc.utils.AnalyzerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +29,7 @@ import org.apache.commons.cli.ParseException;
 //import org.apache.hadoop.conf.Configuration;
 //import org.apache.hadoop.fs.FileSystem;
 import org.apache.log4j.Logger;
+import org.apache.lucene.analysis.Analyzer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.InternetDomainName;
@@ -338,7 +341,7 @@ public class SimpleCrawlHFSOptions {
 					help();
 				}
 			}
-
+			Analyzer analyzer =null;
 			if(line.hasOption( "lang")) {
 				_language = line.getOptionValue("lang");
 				String[] langs=_language.split(param_separ);
@@ -354,6 +357,14 @@ public class SimpleCrawlHFSOptions {
 				}
 				//vpapa
 				_langKeys = findKeys4lang(_language);
+				
+				try {
+					AnalyzerFactory analyzerFactory = new AnalyzerFactory();
+					analyzer = analyzerFactory.getAnalyzer(_language);
+				} catch (Exception e) {
+					LOGGER.error("No analyser available for "+ _language);
+					System.exit(0);
+				}
 			}else{
 				//vpapa for bilingual web service
 				if(line.hasOption("l1") & line.hasOption("l2")) {
@@ -365,6 +376,20 @@ public class SimpleCrawlHFSOptions {
 					_langKeys = findKeys4lang(_language);
 				}else{
 					LOGGER.error("Only 1 language has been defined.");
+				}
+				try {
+					AnalyzerFactory analyzerFactory = new AnalyzerFactory();
+					analyzer = analyzerFactory.getAnalyzer(line.getOptionValue("l2"));
+				} catch (Exception e) {
+					LOGGER.error("No analyser available for "+ line.getOptionValue("l2"));
+					System.exit(0);
+				}
+				try {
+					AnalyzerFactory analyzerFactory = new AnalyzerFactory();
+					analyzer = analyzerFactory.getAnalyzer(line.getOptionValue("l1"));
+				} catch (Exception e) {
+					LOGGER.error("No analyser available for "+ line.getOptionValue("l1"));
+					System.exit(0);
 				}
 			}
 
