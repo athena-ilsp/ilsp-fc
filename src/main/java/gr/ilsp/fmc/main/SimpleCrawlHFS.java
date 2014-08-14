@@ -337,6 +337,27 @@ public class SimpleCrawlHFS {
 			}
 		}		
 
+		
+		String alignername = options.toAlign();
+		String align_path="", hunpath="";
+		if (alignername!=null){
+			hunpath=getRunningJarPath();
+			if (alignername.equals("default")){
+				String prop=System.getProperty("os.name").toLowerCase();
+				if(prop.equals("linux"))
+					align_path = hunpath+fs1+SimpleCrawlHFS.config.getString("aligner.lin_align_path.value");
+				else if(prop.startsWith("windows"))
+					align_path = hunpath+fs1+SimpleCrawlHFS.config.getString("aligner.win_align_path.value");
+			}else{
+				align_path=alignername;
+			}
+			File aligner_runnable = new File(align_path);
+			if (!aligner_runnable.exists()){
+				LOGGER.info("Sentence alignments are asked as output but the aligner's runnable does not exist.");
+				System.exit(0);
+			}
+		}
+
 		if (options.getType().equals("p")) 
 			urls = options.getUrls();
 		if (options.getDomain()!=null) 
@@ -733,10 +754,10 @@ public class SimpleCrawlHFS {
 						LOGGER.info("Tokens in "+stats[2] +" : "+ stats[3]);
 					}
 					
-					String alignername = options.toAlign();
+					alignername = options.toAlign();
 					if (alignername!=null){
-						String align_path="";
-						String hunpath=getRunningJarPath();
+						align_path="";
+						hunpath=getRunningJarPath();
 						if (alignername.equals("default")){
 							String prop=System.getProperty("os.name").toLowerCase();
 							if(prop.equals("linux"))
@@ -843,7 +864,7 @@ public class SimpleCrawlHFS {
 		}
 	} 
 
-	private static String getRunningJarPath() {
+	public static String getRunningJarPath() {
 		String hunpath="";
 		String path = SimpleCrawlHFS.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		try {
