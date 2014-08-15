@@ -1919,7 +1919,7 @@ public class Bitexts {
 		}
 	}
 
-	private static void correct_select_count_tmx(String location, String tmx_list_file,	double aling_thr) {
+	private static void correct_select_count_tmx(String location, String tmx_list_file,	double align_thr) {
 
 		int counter_tmx=0;
 		try {
@@ -1941,7 +1941,7 @@ public class Bitexts {
 				String scores[] =score.split("\n");
 				LOGGER.info(scores.length);
 				for (int jj=0; jj<scores.length;jj++){
-					if (Double.parseDouble(scores[jj])>=aling_thr){
+					if (Double.parseDouble(scores[jj])>=align_thr){
 						counter_tmx++;
 					}
 				}
