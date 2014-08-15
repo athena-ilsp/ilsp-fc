@@ -5,27 +5,23 @@ import org.apache.log4j.Logger;
 
 public class RunAligner {
 	private static final Logger LOGGER = Logger.getLogger(RunAligner.class);
-	//private String _alingerName;
-	//private String _lang1;
-	//private String _lang2;
-	//private String _cesAlignList;
 	
 	
-	public static void align(String alingerName, String l1, String l2, String runaling_path,
+	public static void align(String alignerName, String l1, String l2, String runalign_path,
 			String dictalign_path, String dict,
 			String cesAlignList, String tmxlist, String htmltmxlist){
 		
-		LOGGER.info("Alinger: "+ alingerName);
-		LOGGER.info("Run_aligner: "+ runaling_path);
+		LOGGER.info("Alinger: "+ alignerName);
+		LOGGER.info("Run_aligner: "+ runalign_path);
 		//LOGGER.info("Use_dict: "+ dictalign_path);
 		LOGGER.info("Languages: " + l1 + " "+ l2);
 		LOGGER.info("Dictionary: " + dict);
 		LOGGER.info("Dictionary_path: " + dictalign_path);
 		//LOGGER.info("cesAlignList: " + cesAlignList);
 
-		if (alingerName.equals("default")){
+		if (alignerName.equals("default")){
 			ScriptAligner ra=new ScriptAligner( l1, l2, null);
-			ra.processFiles( runaling_path, dictalign_path, cesAlignList, dict, tmxlist,htmltmxlist  );
+			ra.processFiles( runalign_path, dictalign_path, cesAlignList, dict, tmxlist,htmltmxlist  );
 		}else{
 			LOGGER.info("only default hunalign is supported in the current version");
 		}
