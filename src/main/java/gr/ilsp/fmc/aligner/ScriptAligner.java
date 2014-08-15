@@ -176,7 +176,7 @@ public class ScriptAligner extends Aligner{
 		 * @param type The type of the crawled document
 		 * @return String with an output message regarding the alignment process
 		 */
-		protected int processDocPair(String runalign_path, String dictaling_path, String mainPath, String sFile, String tFile, String outputPath, String type, String dict){
+		protected int processDocPair(String runalign_path, String dictalign_path, String mainPath, String sFile, String tFile, String outputPath, String type, String dict){
 			sFile=sFile.replace(".xml", "");
 			tFile=tFile.replace(".xml", "");
 			File slF=null;
@@ -227,10 +227,10 @@ public class ScriptAligner extends Aligner{
 			String dictF="";
 			if(dict==null)
 				//dictF=getHunalignDict(this.sLang, this.sLang);
-				dictF=getHunalignDict(dictaling_path, this.sLang, this.sLang);
+				dictF=getHunalignDict(dictalign_path, this.sLang, this.sLang);
 			else{
 				if(dict.compareTo("default")==0)
-					dictF=getHunalignDict(dictaling_path,this.sLang, this.tLang);
+					dictF=getHunalignDict(dictalign_path,this.sLang, this.tLang);
 				else
 					dictF=dict;
 			}
