@@ -81,7 +81,7 @@ public class SimpleCrawlHFSOptions {
 	private static String param_separ = ";";
 	private static String param_separ1 = ";;";
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
-	private String default_aligner="default"; //hunaling v1.1
+	private String default_aligner="default"; //hunalign v1.1
 	public SimpleCrawlHFSOptions() {
 		createOptions();
 	}
@@ -224,13 +224,13 @@ public class SimpleCrawlHFSOptions {
 				.create("p_r") );
 		options.addOption( OptionBuilder.withLongOpt( "align sentences" )
 				.withDescription( "Extract sentences from the detected document pairs and " +
-						"alignes the extracted sentences by using an alinger (default is hunaling)" )
+						"alignes the extracted sentences by using an aligner (default is hunalign)" )
 				//.hasArg()
 				.hasOptionalArg()
 				.create("align") );
 		options.addOption( OptionBuilder.withLongOpt( "dictionary for aligning sentences" )
-				.withDescription( "This dictionary will be used for the sentence alingment" +
-						"If has no argument the default dictionary of the alinger will be used if exists" )
+				.withDescription( "This dictionary will be used for the sentence alignment" +
+						"If has no argument the default dictionary of the aligner will be used if exists" )
 				//.hasArg()
 				.hasOptionalArg()
 				.create("dict") );
