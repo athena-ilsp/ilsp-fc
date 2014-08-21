@@ -36,7 +36,7 @@ public class AlignerFactoryExample {
 		Aligner aligner = alignerFactory.getAligner("maligna");
 		
         // Create example
-        URL cesAlignListURL = new URL("http://nlp.ilsp.gr/soaplab2-results/IELST_ilsp.ilsp_fbc_IELEN__375401cc.147669957fe._7fdf_output");
+        URL cesAlignListURL = new URL("http://nlp.ilsp.gr/xslt/ilsp-fc/output_MEDNET_EN-EL.txt");
         String basename = FilenameUtils.getBaseName(cesAlignListURL.toString());
         
         File tempDir = new File(FilenameUtils.concat(System.getProperty( "user.home" ),"public_html/aligner")); 
@@ -61,6 +61,7 @@ public class AlignerFactoryExample {
         String replacement = "http://10.1.1.38/~" + System.getProperty( "user.name" );
         
         for (String line : lines) {
+        	logger.info(line);
             URL cesAlignURL = new URL(line);
             String cesAlignBasename = FilenameUtils.getBaseName(cesAlignURL.toString());
             File cesAlignFile = new File(FilenameUtils.concat(tempDir.toString(), cesAlignBasename+".xml"));

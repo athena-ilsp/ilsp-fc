@@ -26,8 +26,8 @@ import java.util.HashMap;
 
 import org.apache.tika.metadata.CreativeCommons;
 import org.apache.tika.metadata.Metadata;
-import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.xni.parser.XMLDocumentFilter;
+//import org.apache.xerces.parsers.DOMParser;
+//import org.apache.xerces.xni.parser.XMLDocumentFilter;
 import org.cyberneko.html.HTMLConfiguration;
 import org.cyberneko.html.filters.Purifier;
 import org.slf4j.Logger;
@@ -298,14 +298,14 @@ public class LicenseParser {
 			
 			InputStream instr = hcon.getInputStream();
 			HTMLConfiguration config = new HTMLConfiguration();
-			XMLDocumentFilter[] filters = { new Purifier() }; // This is important, otherwise you cannot domify below.
-			config.setProperty("http://cyberneko.org/html/properties/filters",filters);
-			DOMParser dp = new DOMParser(config);
-			dp.setFeature("http://apache.org/xml/features/dom/include-ignorable-whitespace",false);
-			dp.parse(new org.xml.sax.InputSource(instr));
-			Document doc = dp.getDocument();
-	
-			LicenseParser lp = new LicenseParser();
+//			XMLDocumentFilter[] filters = { new Purifier() }; // This is important, otherwise you cannot domify below.
+//			config.setProperty("http://cyberneko.org/html/properties/filters",filters);
+//			DOMParser dp = new DOMParser(config);
+//			dp.setFeature("http://apache.org/xml/features/dom/include-ignorable-whitespace",false);
+//			dp.parse(new org.xml.sax.InputSource(instr));
+//			Document doc = dp.getDocument();
+//	
+//			LicenseParser lp = new LicenseParser();
 			//System.out.println(lp.getLicense(doc, metadata));
 		}
 	}
