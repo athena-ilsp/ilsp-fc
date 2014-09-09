@@ -17,6 +17,7 @@ import org.apache.lucene.analysis.it.ItalianAnalyzer;
 import org.apache.lucene.analysis.lv.LatvianAnalyzer;
 import org.apache.lucene.analysis.pt.PortugueseAnalyzer;
 import org.apache.lucene.analysis.cjk.CJKAnalyzer;
+import org.apache.lucene.analysis.ga.IrishAnalyzer;
 
 //import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 //import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -25,7 +26,7 @@ import org.apache.lucene.util.Version;
 public class AnalyzerFactory {
 	//private static final Logger LOGGER = Logger.getLogger(AnalyzerFactory.class);
 
-	String[] langs = {"de", "el", "en", "es", "fr", "it", "pt", "lv", "hr", "hu", "ja"};
+	String[] langs = {"de", "el", "en", "es", "fr", "it", "pt", "lv", "hr", "hu", "ja","ga"};
 	List<String> langsList = Arrays.asList(langs);
 
 	public Analyzer getAnalyzer (String lang) throws Exception {
@@ -52,7 +53,10 @@ public class AnalyzerFactory {
 			return new HungarianAnalyzer(Version.LUCENE_40);
 		} else	if (lang.equals("ja") ) {
 			return new CJKAnalyzer(Version.LUCENE_40);		
-		}else {
+		}else	if (lang.equals("ga") ) {
+			return new IrishAnalyzer(Version.LUCENE_40);
+		}
+		else {
 			throw new Exception("No analyzer available for language " + lang + ".\n"
 					+ "Available languages are " + langsList.toString() + ".\n");
 		}
