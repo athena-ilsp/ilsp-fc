@@ -7,3 +7,4 @@ es>ES,es,Spanish,español,(es),Español [es],[es],Español,Spain,España (ES)
 pt>PT,pt,Portuguese,Português,português,português [pt],português (pt)
 hr>HR,hrv,hrvatski,Cro
 ja>JA,ja,JP,jp,Japanese
+ga>GA,ga,Irish,Gaelic,Gaeilge 
