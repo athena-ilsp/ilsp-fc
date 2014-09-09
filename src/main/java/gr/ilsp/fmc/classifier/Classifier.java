@@ -124,8 +124,6 @@ public class Classifier implements Serializable{
 				//LOGGER.error(e.getMessage());
 			}
 
-
-			//System.out.println(langIdentified);
 			String[] langs = _targetLanguage.split(";");
 			boolean match = false;
 			//vpapa
