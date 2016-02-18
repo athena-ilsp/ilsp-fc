@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/gr.ilsp.ilsp-fc-2.2.2/src/main/java/gr/ilsp/fc/main/SimpleCrawlHFS.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gr.ilsp.fc.main.SimpleCrawlHFS"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -f -a abumatran -type p -l1 en -l2 fr -u ${project_loc}/src/main/resources/seed_examples.txt -dest &quot;c://tmp/crawl_results/&quot; -k -n 2 -xslt -oxslt -of output_demo_EN-FR.txt -ofh output_demo_EN-FR.txt.html -oft output_demo_EN-FR_tmx.txt -ofth output_demo_EN-FR_tmx.html -align maligna -filter &quot;.*(nrcan|rncan).*&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="gr.ilsp.ilsp-fc-2.2.2"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+</launchConfiguration>

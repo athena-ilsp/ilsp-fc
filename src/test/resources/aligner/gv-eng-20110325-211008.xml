@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<cesDoc version="0.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.xces.org/schema/2003" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<cesHeader version="0.4">
+		<fileDesc>
+			<titleStmt>
+				<title>El Salvador: Citizen Reactions to Obama's Visit</title>
+				<respStmt>
+					<resp>
+						<type>Crawling and normalization</type>
+						<name>ILSP</name>
+					</resp>
+				</respStmt>
+			</titleStmt>
+			<publicationStmt>
+				<distributor>ILSP</distributor>
+				<eAddress type="web">http://nlp.ilsp.gr/gv/</eAddress>
+				<pubDate>2015-10-01</pubDate>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<monogr>
+						<title>El Salvador: Citizen Reactions to Obama's Visit</title>
+						<author>Omar Nieto</author>
+						<translator>Marco Veliz</translator>
+						<imprint>
+							<format>text/html</format>
+							<publisher>Global Voices</publisher>
+							<pubDate>2011-03-25</pubDate>
+							<eAddress>http://globalvoicesonline.org/2011/03/25/el-salvador-citizen-reactions-to-obamas-visit/</eAddress>
+							<license>http://creativecommons.org/licenses/by/3.0/</license>
+						</imprint>
+					</monogr>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<profileDesc>
+			<langUsage>
+				<language iso639="eng"/>
+			</langUsage>
+			<textClass>
+				<keywords>
+					<keyTerm>Citizen Media</keyTerm>
+					<keyTerm>International Relations</keyTerm>
+					<keyTerm>Politics</keyTerm>
+					<keyTerm>Protest</keyTerm>
+					<keyTerm type="region">Latin America</keyTerm>
+					<keyTerm type="region">El Salvador</keyTerm>
+				</keywords>
+			</textClass>
+			<annotations>
+				<annotation>gv-eng-20110325-211008.html</annotation>
+			</annotations>
+		</profileDesc>
+	</cesHeader>
+	<text>
+		<body>
+			<p id="p1" type="title">El Salvador: Citizen Reactions to Obama's Visit</p>
+			<p id="p2">The visit of the President of the United States, Barack Obama, has sparked comments in favor and against his trip among Salvadoreans.</p>
+			<p id="p3">Some see it as something positive and applaud it, while others see it as a form of “imperialist intervention” on the fate of Central American nations.</p>
+			<p id="p4">The visit has also stirred up a heated debate on the Salvadoran blogosphere.</p>
+			<p id="p5" type="caption">President Barack Obama during a press conference President Mauricio Funes of El Salvador. Rene Figueroa. Copyright Demotix.</p>
+			<p id="p6">Carlos Molina from the news website Contrapunto [es], in his post “El Salvador: Obama, Lord of Global War, visits” [es], says the visit is due to the need for military agreements in the region, disguised under the mantle of the war against drug trafficking. He also criticizes the military intervention in Libya.</p>
+			<p id="p7" crawlinfo="ooi-lang">¿Por qué no podemos decir una palabra digna al genocida en potencia que viene a nuestra casa? Tenemos miedo, está clarísimo. Nuestro miedo es el mismo de aquel a quien le han secuestrado un familiar, el del chantaje que puebla nuestras pesadillas: “Tú me dejas poner unas bases y yo no expulso a tu padre, a tu hermana, a tu primo…”</p>
+			<p id="p8" type="quote-translation">Why can't we say anything to the genocidal power that comes to our house? We are afraid, it's clear. Our fear is the same as that of someone who's had a family member kidnapped, the [fear] of blackmail that inhabits our nightmares: “You let me put a few [military] bases and I do not deport your father, your sister, your cousin …”</p>
+			<p id="p9">In the blog Salvadoreans in the world [es], Edgardo Quintanilla published similar ideas in a post titled “Country invaded, on Obama's visit to El Salvador,” [es] where he also criticizes the allowances given to the left-wing party Farabundo Martí National Liberation Front (FMLN).</p>
+			<p id="p10" crawlinfo="ooi-lang">Lo que viene para el gobierno de Funes a cambio son mayores prestaciones monetarias de los EEUU que producirán altos dividendos administrativos pero en realidad pocas obras concretas que beneficien a la población salvadoreña. Funes y el FMLN quedan ahora en paz, con el visto bueno que significa la visita de Obama.</p>
+			<p id="p11" type="quote-translation">Funes' government will receive mayor monetary loans from the U.S. which will produce high returns but in reality few specific, concrete acts that will benefit the Salvadoran population. Funes and the FMLN are now at peace, with the approval that Obama's visit means.</p>
+			<p id="p12">In the op-ed site Mediolleno [es], Santiago Imberton says in his post “Libya, Japan and Obama's visit to El Salvador” [es] that Obama's visit is a sign of support for the administration of President Mauricio Funes for departing from the policies of Venezuelan President Hugo Chavez, despite being a left-leaning government.</p>
+			<p id="p13" crawlinfo="ooi-lang">Se puede esperar también algún beneficio importante para nuestros compatriotas que residen en aquel país. Sobretodo, manda un mensaje tranquilizador para todos aquellos que soñamos con tener un gobierno apegado a la democracia, independientemente del partido político que esté en gobierno. La receta esta dada: Estados Unidos ve con ojos buenos a un gobierno regido bajo estándares democráticos, apertura económica y proyección social. El Presidente Funes ha sabido manejar al país de esta forma y está siendo reconocido, ojalá podamos mantener este status en los años venideros.</p>
+			<p id="p14" type="quote-translation">You can also expect significant benefit for our compatriots living in that country. Above all, this sends a reassuring message for those who dream of having a government that adheres to democracy, regardless of which political party is in power. The recipe is: the United States sees with good eyes a government ruled by democratic standards, economic openness and social outreach. President Funes has handled the country in this way and is being recognized, hopefully we can maintain this status in the coming years.</p>
+			<p id="p15">The digital newspaper WebGuerrillero [es] reflects on the enthusiasm that Obama's visit produces in the governmental, business and media sectors compared to the indifference from popular sectors, joining the chorus of criticism of U.S. policy in Libya and Cuba.</p>
+			<p id="p16" type="caption">Protest during Obama's visit. Rene Figueroa. Demotix Copyright.</p>
+			<p id="p17">Victor, from the blog Alta Hora de la noche [es], in his post “Visiting Monsignor Romero's grave” [es], reflects on the false symbolism that this act represents from a president of a country that directly or indirectly was involved in the priest's murder.</p>
+			<p id="p18" crawlinfo="ooi-lang">No se honra a Monseñor Romero porque lo visite el supuesto hombre “más poderoso del mundo”. Se honra cuando en una misa conmemorativa, una pareja de ancianos de un cantón pobrísimo de Morazán me contestan sonrientes que valió la pena el dolor de canillas por la caminata y el largo viaje desde su casa. Al fin pudieron venir a la tumba de Monseñor, su Monseñor.</p>
+			<p id="p19" type="quote-translation">Monsignor Romero is not honored with the visit of the man alleged to be “the world's most powerful man”. He is honored by a memorial mass, or when an elderly couple from the very poor county of Morazán tell me with a smile that despite their physical aches due to the long journey, it was worth it. At last they have come to the Bishop's grave, their Bishop.</p>
+			<p id="p20">Juan Jose Martel (Jjmar) of Hunnapuh Comentarios [es] analyzes the possible reasons why El Salvador was chosen [es] among the other Central American countries as the regional headquarters for the Obama's tour. Juan Jose says it is an opportunity not to be missed.</p>
+			<p id="p21" crawlinfo="ooi-lang">Hay sectores que todavía no salen de su asombro. No conciben que un Presidente de EUA visite el país en el momento en que hay un gobierno de izquierda moderada que se define de unidad nacional. Otros ven la visita como la llegada de Santa Claus y especulan sobre lo que traerá y lo que hay que pedirle. Algunos ultra derechistas trasnochados dijeron que Obama venía a regañar a Funes por el fracaso en su política de seguridad y otros ultra izquierdistas interpretan la visita de Obama como la entrega de Funes al imperialismo yanqui.</p>
+			<p id="p22" type="quote-translation">There are groups still in disbelief and amazement. They cannot conceive that a U.S. president visits the country at the moment when there is a moderate leftist government which defines itself through national unity. Others see the visit as the arrival of Santa Claus and speculate about what he will bring and what they should ask for. Some hung-over ultra right-leaning conservatives say Obama came to scold Funes for failing in security policy and other ultra-leftists interpret Obama's visit as Funes' surrender to Yankee imperialism.</p>
+			<p id="p23">Dagoberto Gutierrez from the newly founded left-wing Participatory Democracy Movement [es], posts a letter to President Obama [es] in which he says that the cause of socio-economic problems that El Salvador suffers are due to the policies his country implemented by means of the previous governments managed by the Nationalist Republican Alliance (ARENA) party.</p>
+			<p id="p24" crawlinfo="ooi-lang">El Salvador, Señor Presidente, necesita y busca relaciones amistosas y de mutua conveniencia con su gobierno, esperando que las y los salvadoreños emigrantes reciban un trato justo y legal de parte de su gobierno, correspondiente al aporte hecho a la economía y a la riqueza de los Estados Unidos.</p>
+			<p id="p25" type="quote-translation">El Salvador, Mr. President, needs and seeks friendly relations of mutually convenience, hoping that the Salvadoran migrants receive fair legal treatment from your government for their corresponding contribution to the economy and the wealth of United States.</p>
+			<p id="p26">Herman Di from Love &amp; Politics [es], Tim from Tim's El Salvador Blog, Rachel from Ocurrente Irreverente [es] and Katia V from ¡Qué Cosas No! [es] also blogged about Obama's visit.</p>
+			<p id="p27">On Twitter, the visit was kept under constant review and it unleashed a barrage of comments, some humorous and others serious, under the hashtags #Obamasv, #visitaObama and #Obama. Claudia Granados (@clales) shared a cartoon and Adri Escobar (@adriescobar1) re-tweeted images from @elsalvadorcom.</p>
+			<p id="p28">Mario Miguel Melendez (@SugaBearMelendz), meanwhile, writes:</p>
+			<p id="p29" crawlinfo="ooi-lang">#Obamasv no es presidente de mi país y ya mandó a recarpetear calles,recuperó el centro histórico y subió la seguridad. #Obamaparapresidente</p>
+			<p id="p30" type="quote-translation">#Obamasv is not my country's president yet he had the streets resurfaced, recovered the historical center and increased security in the city. #Obamaparapresidente (Obamaforpresident)</p>
+			<p id="p31">While Carlos Alberto (@zafado72), with a similar tone, declares:</p>
+			<p id="p32" crawlinfo="ooi-lang">Este tio #ObamaSV deberia de venir todos los domingos a misa pa q San Salvador sea una ciudad segura todas las semanas http://myloc.me/iKLXk</p>
+			<p id="p33" type="quote-translation">This guy #ObamaSV should come to mass every Sunday so that San Salvador becomes a safe city every week http://myloc.me/iKLXk</p>
+		</body>
+	</text>
+</cesDoc>

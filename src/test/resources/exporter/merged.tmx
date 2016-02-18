@@ -1,0 +1,2354 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tmx version="1.4b">
+    <header adminlang="en" creationdate="2016-02-09T12:46:00+02:00" creationtool="mALIGNa" creationtoolversion="2" datatype="plaintext" o-tmf="al" segtype="block" srclang="eng">
+        <prop type="l1">eng</prop>
+        <prop type="l2">fra</prop>
+        <prop type="lengthInTUs">180</prop>
+        <prop type="# of words in l1">4221</prop>
+        <prop type="# of words in l2">5226</prop>
+        <prop type="# of unique words in l1">935</prop>
+        <prop type="# of unique words in l2">1050</prop>
+    </header>
+    <body>
+        <tu tuid="1">
+            <prop type="score">6.6163015</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0320513</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The 2010 pension reform Act raises the legal minimum retirement age for persons born after 1st July 1951, which rises to 62 years for people born in 1955 onward.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La loi sur la réforme des retraites de 2010 prévoit un recul de l'âge légal de départ à la retraite pour les générations nées à compter du 1er juillet 1951.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="2">
+            <prop type="score">6.677905</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.90361446</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Under the 2012 Social Security Financing Act, this rise is brought forward.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Ce recul a été accéléré par la loi de financement de la sécurité sociale pour 2012.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="3">
+            <prop type="score">8.539924</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.8</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>At the same time, the age of automatic entitlement to a full pension (legal minimum retirement age + 5 years) rises to 67 for persons born after 1st January 1955.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>L'âge de départ à la retraite est porté à 62 ans pour les personnes nées à partir de 1955.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="4">
+            <prop type="score">7.0996385</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7654321</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Workers may however claim their pension later if they so wish.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>L'intéressé n'est pas tenu de formuler sa demande dès qu'il atteint l'âge légal..</seg>
+            </tuv>
+        </tu>
+        <tu tuid="5">
+            <prop type="score">7.8809295</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9917355</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Individuals who continue to work after the legal minimum retirement age and who have paid contributions for longer than the qualifying period for a full pension (this depending on the year of birth), can obtain an increase of their pension.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>L'assuré qui continue à travailler après l'âge légal et audelà de la durée d'assurance prévue pour obtenir la liquidation de sa pension au taux plein, compte tenu de son année de naissance, peut obtenir une majoration de sa pension (surcote).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="6">
+            <prop type="score">5.7254925</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.2608696</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>a) Calculation of the pension</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>a) Calcul de la pension</seg>
+            </tuv>
+        </tu>
+        <tu tuid="7">
+            <prop type="score">5.1716027</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The amount of the pension depends on three factors:</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le montant de la pension dépend de trois éléments :</seg>
+            </tuv>
+        </tu>
+        <tu tuid="8">
+            <prop type="score">6.665511</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8544304</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Basic salary or Average Annual Earnings (SAM): average annual earnings are the adjusted earnings on which contributions have been paid.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>le salaire de base ou salaire annuel moyen (SAM) : le salaire annuel moyen représente les salaires (revalorisés) sur lesquels les cotisations ont été versées.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="9">
+            <prop type="score">6.3017325</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.82165605</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Since 1st January 2008, the SAM has been calculated on the basis of the 25 bestearning years for all individuals born after 2007.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Depuis le 1er janvier 2008 et pour tous les assurés nés après 1947, le salaire annuel moyen est calculé sur la base des 25 meilleures années de la carrière ;</seg>
+            </tuv>
+        </tu>
+        <tu tuid="10">
+            <prop type="score">7.3375015</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0068493</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The total period of insurance, including periods credited as periods of insurance, is used to determine the payment rate of pensions paid between the legal minimum retirement age and the age of automatic entitlement to a full pension (between 62 and 67 for persons born after 1st January 1956).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>la durée de périodes d'assurance et de périodes reconnues équivalentes permet de déterminer le taux de liquidation de la pension entre l'âge légal de départ à la retraite et l'âge d'attribution automatique du taux plein (entre 62 ans et 67 ans pour les assurés nés après le 1er janvier 1955).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="11">
+            <prop type="score">7.5569153</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.85294116</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For women, a maximum of 8 additional quarters of entitlement is awarded for each child (4 for maternity or adoption and 4 for raising the child).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La femme assurée bénéficie de la majoration de durée d'assurance jusqu'à 8 trimestres par enfant (4 au titre de la maternité ou de l'adoption, 4 au titre de l'éducation).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="12">
+            <prop type="score">8.16604</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9714286</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For children born after January 1st, 2012, these additional quarters for childrearing can be awarded to either parent (at their discretion) in recognition of the impact on their careers of the first four years following birth or adoption.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Pour les enfants nés après le 1er janvier 2010, cette majoration pour éducation est laissée au libre choix du couple en raison de l'incidence sur la carrière de l'éducation de l'enfant pendant les 4 années qui suivent sa naissance ou l'adoption.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="13">
+            <prop type="score">5.9267893</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7410714</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>If necessary, the period of parental childcare leave may be credited to the father.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>De plus, la durée effective du congé parental d'éducation est validée gratuitement pour le père, le cas échéant.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="14">
+            <prop type="score">6.9363856</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.78333336</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Periods of work abroad in a state with which France has a social security agreement may in certain conditions be taken into account for the purpose of determining the pension payment rate.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les périodes d'activité accomplies à l'étranger dans un État lié à la France par un accord de sécurité sociale peuvent, sous certaines conditions, être prises en compte pour la détermination du taux de liquidation de la pension de retraite.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="15">
+            <prop type="score">8.444239</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9755435</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Under French legislation, the periods of work abroad completed prior to 1st April 1983 for which buyback contributions can or could have been made, are counted as credited periods of insurance when determining the pension payment rate once the person concerned has reached the legal minimum retirement age (Article R. 3514 of the French Social Security Code).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Dans le cadre de la seule législation française, les périodes d'activité à l'étranger accomplies avant le 1er avril 1983, qui peuvent ou qui auraient pu faire l'objet d'un rachat, sont prises en compte en tant que périodes équivalentes pour la détermination du taux de liquidation de la pension à partir de l'âge légal (article R. 3514 du code de la sécurité sociale).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="16">
+            <prop type="score">6.623122</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.136</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The total insurance period is the effective period of insurance (contribution periods and periods treated as such) under the insurance scheme.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La durée d'assurance représente la durée réelle d'assurance (périodes de cotisation et périodes assimilées) auprès du régime.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="17">
+            <prop type="score">6.5413733</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9347826</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>With the different reforms, the period of insurance used to calculate the amount of the pension has increased progressively from:</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Au fil des réformes, la durée d'assurance exigée pour obtenir le taux plein de la pension a augmenté progressivement pour correspondre à :</seg>
+            </tuv>
+        </tu>
+        <tu tuid="18">
+            <prop type="score">5.218784</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9056604</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>150 quarters for persons born in or before 1943,</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>150 trimestres pour les assurés nés en 1943 et avant,</seg>
+            </tuv>
+        </tu>
+        <tu tuid="19">
+            <prop type="score">8.290924</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7696629</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For the cohorts born in 1949, 1952 and 19551957, the reference insurance periods will increase to 161, 164 and 166 quarters respectively.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Pour les générations suivantes, la durée d'assurance augmente d'un trimestre par génération jusqu'à 165 pour les assurés nés en 1953 et 1954, et 166 pour ceux nés de 1955 à 1957.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="20">
+            <prop type="score">6.1281104</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.79746836</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The total qualifying period for a full pension is published by decree in the year of the 56th birthday of the cohort concerned</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La durée d'assurance exigée augmente encore d'un trimestre par tranche de 3 générations afin d'atteindre 172 trimestres pour les assurés nés en 1973 et après.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="21">
+            <prop type="score">6.0666223</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0229886</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Thus, for an individual born in 1952, the pension calculation formula will be as follows:</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Ainsi, pour un assuré né en 1952, la formule de calcul de la pension sera la suivante :</seg>
+            </tuv>
+        </tu>
+        <tu tuid="22">
+            <prop type="score">5.26431</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.1012658</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>basic salary X rate X total insurance period under the general scheme / 164 (quarters).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Salaire de base X taux X durée d'assurance au régime général / 164 (trimestres)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="23">
+            <prop type="score">6.368975</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8347826</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Under certain circumstances, it is possible to retire early without a reduction in pension rate:</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Il existe des possibilités de départ à la retraite avant l'âge légal sans application de coefficient de minoration.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="24">
+            <prop type="score">6.8257055</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.82722515</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Indeed, 8 quarters of insurance can be credited to an insured who has acquired points for exposure to one or more industrial risk factors over a given period.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>En effet, 8 trimestres d'assurance peuvent être crédités à l'assuré qui cumule des points au titre de l'exposition à un ou plusieurs facteurs de risques professionnels sur une période donnée.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="25">
+            <prop type="score">6.9363856</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8064516</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>People with many years of service may retire at age 60 or before if they can demonstrate a minimum length of insurance and contributions and began working at a very young age.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Retraite au titre de longue carrière, qui offre la possibilité de partir à la retraite à 60 ans ou avant à condition de justifier d'une durée minimale d'assurance et de cotisations et d'un début d'activité très jeune.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="26">
+            <prop type="score">6.6317434</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0875</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The required minimum length of insurance varies depending on birth year, age at retirement, age at which the retiree began working, and length of insurance and contributions.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les conditions de durée d'assurance varient en fonction de l'année de naissance, de l'âge de départ en retraite et de l'âge de début d'activité professionnelle.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="27">
+            <prop type="score">8.189279</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.4107143</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>People with a disability may retire between ages 55 and 59 provided that they have a permanent disability of at least 50%, a certain length of insurance (including a minimum duration of employmentrelated contributions) during the period in which they were disabled, and that they have official disabledworker status.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Retraite au titre du handicap, qui permet à l'assuré de partir entre 55 et 59 ans, à condition de justifier d'un taux d'incapacité permanente d'au moins 50 % ou d'être reconnu travailleur handicapé avant le 31 décembre 2015.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="28">
+            <prop type="score">11.198404</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.61676645</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The required minimum length of insurance varies depending on birth year and expected age at retirement.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Il faut également justifier d'une certaine durée d'assurance (dont une part minimale a donné lieu à cotisations au titre d'une activité) durant la période de handicap.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="29">
+            <prop type="score">7.5934596</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.616</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Persons with many years of service, who have a disability or who have worked in an unhealthy or physically stressful environment can claim their pension before reaching the legal minimum retirement age.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les conditions de durée d'assurance varient en fonction de l'année de naissance et de l'âge envisagé de départ à la retraite.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="30">
+            <prop type="score">7.3197775</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7083333</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>People who wish to draw their pension but do not have the qualifying period of insurance for a full pension will receive their pension at a reduced rate.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les personnes qui demandent la liquidation de leur pension de vieillesse et qui ne totalisent pas la durée d'assurance nécessaire pour obtenir une pension au taux plein se voient appliquer une décote, ou taux minoré.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="31">
+            <prop type="score">6.985564</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8932384</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The percentage reduction is determined by the number of missing quarters and the generation to which the insured belongs: 1.625% for persons born in 1950, 1.5% for persons born in 1951, 1.375% for those born in 1952 and 1.25% for those born from 1953.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le coefficient de minoration est déterminé en fonction du nombre de trimestres manquants et de la génération à laquelle appartient l'assuré : 1,625 % pour les assurés nés en 1950, 1,5 % pour ceux nés en 1951, 1,375 %, pour ceux nés en 1952 et 1,25 % pour ceux nés à partir de 1953.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="32">
+            <prop type="score">5.4547777</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9459459</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The pension will continue to be paid at the reduced rate from then on.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La liquidation de la pension avec application de la décote est définitive.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="33">
+            <prop type="score">13.357996</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.6449704</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Individuals with the requisite period of insurance for a full pension, and who continue working after the legal minimum retirement age (between 60 and 62 depending on the year of birth), qualify for a pension increase.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les personnes qui, compte tenu de leur année de naissance, ont accompli la durée d'assurance prévue pour obtenir la liquidation de leur pension au taux plein et qui continuent à travailler après l'âge légal de liquidation de la pension (entre 60 et 62 ans en fonction de l'année de naissance), bénéficient d'une majoration de la retraite.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="34">
+            <prop type="score">5.958221</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.99285716</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>This provision is applicable as of 1st January 2004, with different rates depending on the period during which the contributions were paid.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Ces dispositions s'appliquent depuis le 1er janvier 2004, avec des taux différents en fonction du moment où ces périodes ont été accomplies.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="35">
+            <prop type="score">5.4386187</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.92105263</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For quarters completed after 1st January 2009, the rate of increase is 1.25% for each additional quarter.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Pour les périodes après le 1er janvier 2009, le taux de majoration est fixé à 1,25 % par trimestre supplémentaire.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="36">
+            <prop type="score">8.49888</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9099099</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Individuals who have reached the age of automatic entitlement to a full pension regardless of the period of insurance (between 65 and 67), have not completed the total insurance period required for their cohort under all basic schemes included and continue to work will be awarded a 2.5% increase of the total period for each additional quarter worked over the age required to qualify for a full pension.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>L'assuré qui, au moment où les droits à pension au taux plein sont ouverts quelle que soit la durée d'assurance (entre 65 et 67 ans), n'a pas accompli tous régimes de base confondus la durée d'assurance requise en fonction de son année de naissance, et qui continue à exercer une activité professionnelle, bénéficie d'une majoration de cette durée de 2,5 % par trimestre supplémentaire cotisé après l'âge auquel il peut prétendre au taux plein.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="37">
+            <prop type="score">5.3612742</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8088235</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The pension may be increased for the following reasons:</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La pension est susceptible de faire l'objet de diverses majorations.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="38">
+            <prop type="score">6.7132487</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.84713376</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Individuals who have raised three children for at least nine years before their 16th birthday are entitled to a 10% pension increase.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>L'assuré qui a élevé 3 enfants pendant au moins 9 ans avant leur 16e anniversaire, bénéficie d'une majoration de 10 % du montant de sa pension de vieillesse.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="39">
+            <prop type="score">6.7224984</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The increase is awarded to each parent receiving a retirement pension.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Cette majoration pour enfant est accordée à chacun des parents titulaires d'une pension de retraite.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="40">
+            <prop type="score">6.55519</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.4</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Increase awarded in respect of a dependent spouse</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Majoration pour conjoint à charge :</seg>
+            </tuv>
+        </tu>
+        <tu tuid="41">
+            <prop type="score">5.7450304</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.1529412</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The increase awarded in respect of a dependent spouse is no longer payable as of 1st January 2011.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La majoration pour conjoint à charge n'est plus attribuée depuis le 1er janvier 2011.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="42">
+            <prop type="score">5.8640184</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.6148649</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It will continue to be paid to persons who were entitled to it prior to 31st December 2010.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Son paiement est poursuivi pour les personnes qui en bénéficiaient avant le 31 décembre 2010 et qui remplissent encore les conditions d'attribution.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="43">
+            <prop type="score">6.477846</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8703704</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The amount of the increase is €609.80 per year.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le montant annuel de cette majoration est de 609,80 €.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="44">
+            <prop type="score">8.700845</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8333333</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>This increase is awarded to pensioners whose retirement pension replaces a disability pension and to pensioners whose pension is paid or revised for inability to work and who meet the requirements for the increase before reaching the age where they are entitled to a full pension irrespective of the length of insurance (between 65 and 67).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La majoration pour l'aide d'une tierce personne est accordée aux titulaires de pension de retraite substituée à une pension d'invalidité et aux titulaires de pension de retraite pour inaptitude au travail ou révisée pour inaptitude au travail et qui remplissent les conditions de droit à la majoration avant d'atteindre l'âge de la retraite au taux plein (soit entre 65 et 67 ans selon l'année de naissance).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="45">
+            <prop type="score">6.6095953</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0909091</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>To be entitled to such an increase, the pensioner must be in need of the constant attendance allowance for help with activities of daily living.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Pour prétendre à cette majoration, il faut avoir besoin de l'aide d'une tierce personne pour accomplir les actes de la vie courante.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="46">
+            <prop type="score">5.993283</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.98550725</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>This increase is set at €13,236.98 per year as from April 1st, 2014.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Son montant est fixé, depuis le 1er avril 2014, à 13 236,98 € par an.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="47">
+            <prop type="score">6.539751</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.90909094</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Minimum and maximum pension entitlements</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>c) Montants minimum et maximum de la pension</seg>
+            </tuv>
+        </tu>
+        <tu tuid="48">
+            <prop type="score">6.509252</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8974359</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The Minimum pension (minimum contributif) is granted to those who are entitled to a fullrate pension but paid contributions on a low income.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Son montant est fixé à 7 555,54 € par an, soit 629,63 € par mois, auxquels peuvent s'ajouter des compléments liés à la durée d'assurance ou autres facteurs.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="49">
+            <prop type="score">6.6902456</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8902439</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It comes to 7,546.96 € per year, or 629.00 € per month, and can be paid along with supplements earned due to length of insurance or other factors.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Dans tous les cas, le minimum ne peut pas porter le montant total des retraites personnelles (de base et complémentaire) audessus d'un certain montant (1 135,73 €).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="50">
+            <prop type="score">6.5324507</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.2366412</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Whatever the circumstances, the minimum pension cannot bring the total amount of personal pensions (basic and supplementary) above a certain set amount (1,129.40)</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le montant de la pension de retraite de base ne peut pas excéder 50 % du plafond de la sécurité sociale (1 609 € par mois en 2016).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="51">
+            <prop type="score">9.222553</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.47435898</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>2 Entitlement of the surviving spouse</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>les caisses (régionales) d'assurance retraite et de santé au travail (CARSAT),</seg>
+            </tuv>
+        </tu>
+        <tu tuid="52">
+            <prop type="score">8.290924</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.6968085</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Reversion pensions are paid to surviving spouses or surviving former spouses aged at least 55, whose income is below a given level.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Peut ouvrir droit à pension de réversion, le conjoint survivant ou l'exconjoint divorcé, qui a atteint l'âge de 55 ans et qui ne dispose pas de ressources supérieures à un certain plafond.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="53">
+            <prop type="score">7.3038936</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.2142857</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The income to be taken into consideration is the survivor's personal income or that of the new household in the case of remarriage, civil union (PACS) or commonlaw union.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les ressources prises en compte sont les ressources personnelles et celles du nouveau ménage en cas de remariage, de PACS ou de concubinage.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="54">
+            <prop type="score">6.571288</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0896552</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Persons whose spouse died prior to 1st January 2009 and who fulfilled the qualifying conditions at that date, are entitled to a reversion pension from age 51.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Au titre des droits acquis lorsque le décès est survenu avant le 1er janvier 2009, le droit à pension de réversion est ouvert à partir de 51 ans.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="55">
+            <prop type="score">6.6006155</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.98125</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The amount of the reversion pension may not exceed 54% of the deceased spouse's pension or the pension to which the deceased spouse would have been entitled.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le montant de la pension de réversion ne peut pas excéder 54 % du montant de la pension dont bénéficiait l'assuré ou de celle à laquelle il aurait pu prétendre.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="56">
+            <prop type="score">7.03627</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0592105</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>If the deceased spouse was married several times, the reversion pension is shared among the surviving spouses, prorated based on the number of years of marriage.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Si le conjoint décédé a été marié plusieurs fois, la retraite de réversion est partagée entre les conjoints survivants au prorata des années de mariage.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="57">
+            <prop type="score">7.6351385</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7836257</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The amount of the pension increases by €96.21 per month for surviving spouses with at least one dependent child under 16 years of age.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Une majoration pour enfant à charge d'un montant de 96,30 € par mois peut être attribuée lorsque le conjoint survivant a à sa charge au moins un enfant de moins de 16 ans.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="58">
+            <prop type="score">7.4046297</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.672</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>A 10% increase applies for surviving spouses who have raised three or more children.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le montant de la pension fait également l'objet d'une majoration de 10 % lorsque le titulaire a élevé au moins trois enfants.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="59">
+            <prop type="score">7.83889</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8614865</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Persons having reached the qualifying age for a full pension, having claimed the pensions to which they are entitled and whose total pension income does not exceed €852.40 per month are entitled to an 11.1% increase in the amount of the reversion pension.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le bénéficiaire ayant atteint l'âge d'obtention d'une retraite au taux plein, qui a fait valoir ses droits à une pension de retraite, peut bénéficier d'une majoration de 11,1 % du montant de sa pension de réversion, si le total des retraites ne dépasse pas un certain plafond (853,25 € par mois).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="60">
+            <prop type="score">7.6571555</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.61214954</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Under certain conditions, the widowhood allowance is paid to support the surviving spouse until they find a job or go back to work.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>L'allocation veuvage garantit, sous certaines conditions, au conjoint survivant de l'assuré décédé, le bénéfice d'une allocation destinée à lui permettre de s'insérer ou de se réinsérer dans la vie professionnelle.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="61">
+            <prop type="score">6.823432</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7704918</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It is a temporary benefit payable to any person under 55 years of age whose personal income is below a certain level (€2,257.95 per quarter).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Elle est versée à titre temporaire, à toute personne âgée de moins de 55 ans qui ne dispose pas de ressources personnelles supérieures à un certain montant (2 260,27 € par trimestre).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="62">
+            <prop type="score">6.536027</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.175</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The amount of the benefit is €602.12 per month.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Son montant s'élève à 602,73 € par mois.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="63">
+            <prop type="score">7.1828995</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0727273</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For the surviving spouse to be entitled to a widowhood allowance, the deceased spouse must have paid oldage insurance contributions during at least three months (consecutive or otherwise) of the twelvemonth period preceding their death.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Pour que le conjoint survivant ouvre droit à l'allocation veuvage, il faut que l'assuré décédé ait cotisé à l'assurance vieillesse pendant au moins trois mois, consécutifs ou non, au cours de l'année précédant son décès.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="64">
+            <prop type="score">6.2978964</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.2105263</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For more information, visit the CNAV website .</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Plus d'informations, site de la CNAV .</seg>
+            </tuv>
+        </tu>
+        <tu tuid="65">
+            <prop type="score">8.009432</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.4196428</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For privatesector employees, supplementary pensions are administered by ARRCO (Association for Employees' Supplementary Schemes), covering all categories of employees (managerial and nonmanagerial), and AGIRC (General Association of Retirement Institutions for Executives) covering only managerial and executive staff.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La retraite complémentaire est obligatoire pour tous les salariés, assujettis à titre obligatoire, à l'assurance vieillesse du régime général de la sécurité sociale ou de la mutualité sociale agricole ou du régime des mines.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="66">
+            <prop type="score">6.019041</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0149254</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The calculation of supplementary retirement pensions is pointsbased.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les retraites des régimes complémentaires sont calculées en points.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="67">
+            <prop type="score">7.111412</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.92957747</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Each year, the amount of contributions paid on the basis of a reference salary or income is converted into points, taking into account the unit purchase value of the point for the relevant tax year.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Chaque année, le montant des cotisations versées en fonction d'un salaire ou revenu de référence est traduit en points, compte tenu de la valeur d'achat unitaire de ce dernier, applicable pour l'exercice concerné.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="68">
+            <prop type="score">8.201265</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.1315789</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The pension paid to the employee will be contingent upon the number of points accrued during the total period of insurance of the employee and the age at which they retire.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La retraite perçue par le salarié sera fonction du nombre de points acquis durant toute la carrière professionnelle et de l'âge de départ à la retraite.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="69">
+            <prop type="score">6.4172435</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.1564626</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>To calculate the pension, the number of points accrued during the total period of insurance is multiplied by the value of the point at the time the pension is calculated.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Pour calculer le montant de la pension, il suffit de multiplier le nombre de points acquis par sa valeur au moment de la liquidation de la pension.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="70">
+            <prop type="score">6.9789424</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7808219</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>In these schemes the amount of the pension is proportional to earnings over the total period of insurance, rather than the 25 best years as applicable in the basic scheme.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Dans ces régimes par points, le montant de la pension est proportionnel aux revenus professionnels de l'ensemble de la carrière et non pas seulement des 25 meilleures années comme cela est le cas dans le régime de base.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="71">
+            <prop type="score">7.0191565</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.89115644</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Contributions to the ARRCO scheme by nonexecutives are based on their total earnings up to three times the social security ceiling.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les noncadres cotisent sur la totalité de leur rémunération dans la limite de 3 fois le plafond de la sécurité sociale auprès du régime de l'ARRCO.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="72">
+            <prop type="score">7.4226303</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.1629956</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Managerial and executive employees pay contributions to both the ARRCO and AGIRC schemes: up to one time the social security ceiling to ARRCO and beyond one time this ceiling to AGIRC based on their whole earnings and up to eight times the social security ceiling.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les cadres quant à eux cotisent jusqu'à un plafond de la sécurité sociale auprès du régime ARRCO et audelà d'une fois le plafond, sur la totalité de leur rémunération dans la limite de 8 fois le plafond, auprès du régime AGIRC.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="73">
+            <prop type="score">6.1540112</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7790698</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The contribution rate is the point accrual rate multiplied by 125%.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le taux de cotisation correspond au taux d'acquisition des points multiplié par 125 %.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="74">
+            <prop type="score">6.0666223</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9238095</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The difference between the accrual rate and the contribution rate helps to finance these schemes.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La différence entre le taux d'acquisition et le taux de cotisations contribue au financement des régimes.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="75">
+            <prop type="score">8.484874</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7480315</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Under both schemes, the normal retirement age is between 65 and 67, depending on date of birth.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Dans les deux régimes, l'âge normal de la retraite est fixé entre 65 et 67 ans en fonction de l'année de naissance de l'assuré.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="76">
+            <prop type="score">6.7495704</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.62702703</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>However, a wage earner may claim an early retirement pension as of the age of 55 or 57 (depending on date of birth).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Toutefois, il est possible de demander la liquidation anticipée de ses droits (entre 55 et 57 ans), en fonction de l'année de naissance avec application d'un coefficient d'anticipation.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="77">
+            <prop type="score">8.40709</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.5058824</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The calculation of pension points takes account of both paid points and credit points.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Pour la détermination des points, il est tenu compte des points attribués après versement de cotisation, mais également des points attribués sans versement de cotisation.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="78">
+            <prop type="score">10.274668</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.3639456</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>"Credit points" are credited for employment periods prior to the implementation of the scheme and for periods of illness when the individual was working and subject to the scheme of at least three consecutive months (scheme for managerial and executive staff) or 60 consecutive days (scheme for nonexecutive staff) and during which the customer received cash benefits for illness or industrial injury.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Il s'agit des périodes d'emploi antérieures à l'application du régime, des périodes d'incapacité de travail d'une durée supérieure à 60 jours consécutifs et pour lesquelles l'intéressé a bénéficié d'indemnités journalières de l'assurance maladie/maternité ou de l'assurance accident du travail.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="79">
+            <prop type="score">7.406282</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9736842</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The same applies if the individual was in receipt of a disability pension.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Il en est de même si l'intéressé était titulaire d'une pension d'invalidité.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="80">
+            <prop type="score">6.968032</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7614679</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Retirement points are also awarded for periods of receipt of unemployment benefits.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les périodes de perception d'indemnités de l'assurance chômage donnent également droit à des points retraite.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="81">
+            <prop type="score">5.4386187</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9464286</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>If the recipient has raised, or is still raising children, the pension amount may be increased as follows:</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Lorsque le titulaire a ou a eu des enfants, le montant de la pension peut être majoré sous certaines conditions.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="82">
+            <prop type="score">7.530014</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.2789116</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>in the ARRCO and AGIRC schemes, an increase of 5% per dependent child under 18 years of age, or 21 if the child is in higher education, undertaking an apprenticeship or seeking employment,</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Majoration de 5 % par enfant à charge âgé de moins de 18 ans ou 25 ans si étudiant, apprenti ou demandeur d'emploi dans les régimes ARRCO et AGIRC.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="83">
+            <prop type="score">11.300101</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.5663717</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>increase for persons having raised 3 or more children: a 10% increase with respect to periods of insurance completed after 2011.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Majoration pour avoir élevé trois enfants ou plus : 10 % de la pension sur la partie de carrière accomplie après 2011 ; pour la partie de carrière antérieure à 2011, le montant de la majoration dépend du régime d'appartenance.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="84">
+            <prop type="score">5.3224916</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.2758621</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>There is no ceiling if the person concerned was born prior to August 1951.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Pas de plafond si l'intéressé est né avant le 2 août 1951.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="85">
+            <prop type="score">7.2538056</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7078652</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Both schemes provide pensions for widows, widowers and orphans.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Il existe dans les deux régimes des pensions pour les veufs, les veuves et les orphelins.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="86">
+            <prop type="score">6.3453245</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8833333</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>A surviving spouse or surviving former spouse (who has not remarried) may qualify for a reversion pension:</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le conjoint survivant ou l'exconjoint survivant, non remarié, est susceptible de bénéficier d'une pension de réversion :</seg>
+            </tuv>
+        </tu>
+        <tu tuid="87">
+            <prop type="score">6.581756</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9736842</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>under both schemes, without any age condition if, on the death of the insured spouse, they have two dependent children aged under 21 (AGIRC scheme) or 25 (ARRCO scheme) or are disabled,</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>dans les deux régimes, sans condition d'âge si au moment du décès de l'assuré il a deux enfants à charge âgés de moins de 21 ans (régime AGIRC) ou moins de 25 ans (régime ARRCO) ou invalide,</seg>
+            </tuv>
+        </tu>
+        <tu tuid="88">
+            <prop type="score">5.1716027</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>from the age of 55 in the ARRCO scheme,</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>à partir de 55 ans dans le régime ARRCO</seg>
+            </tuv>
+        </tu>
+        <tu tuid="89">
+            <prop type="score">5.26431</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9846154</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>from the age of 60 (or 55 with a reduction) in the AGIRC scheme.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>à partir de 60 ans ou 55 ans avec abattement dans le régime AGIRC</seg>
+            </tuv>
+        </tu>
+        <tu tuid="90">
+            <prop type="score">7.315318</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.73913044</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The pension amounts to 60% of the late spouse's accrued entitlement.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le montant de la pension est égal à 30 % des droits acquis auprès du régime par les parents.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="91">
+            <prop type="score">5.5345926</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8828829</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The orphan's pension amounts to 50% of the accrued entitlement of the late parent for each orphan.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le montant de la pension d'orphelin est égal à 50 % des droits acquis de l'ancien salarié pour chaque orphelin.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="92">
+            <prop type="score">6.5027113</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9108911</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The pension amounts to 30% of the number of points accrued by both parents under the scheme.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le montant de la pension est égal à 30 % du nombre de points acquis auprès du régime par les parents.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="93">
+            <prop type="score">6.103853</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9191489</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Benefits for accidents at work and occupational diseases are paid by the local Health Insurance Fund (in the case of Metropolitan France) or the General Social Security Fund (in the case of the Overseas Departments).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les prestations de l'assurance accidents du travail et maladies professionnelles sont servies par les caisses primaires d'assurance maladie en métropole et par les caisses générales de sécurité sociale dans les départements d'outremer.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="94">
+            <prop type="score">6.4427485</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.6756757</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Employees or categories treated as such are covered for occupational risks.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le bénéfice de la protection contre le risque professionnel est réservé aux travailleurs salariés ou assimilés.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="95">
+            <prop type="score">6.220054</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8010753</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Such coverage is also provided to certain categories of the population, including students of technical schools, apprentices and vocational trainees.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Cette protection est également étendue à diverses catégories particulières, comme les élèves des établissements techniques, les apprentis, les stagiaires de la formation professionnelle.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="96">
+            <prop type="score">5.795378</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Accident at work covers any accident "resulting from work or occurring during work".</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>L'accident du travail est celui qui survient par le fait ou à l'occasion du travail.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="97">
+            <prop type="score">6.667705</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.81642514</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>If it is moreover established that the occupational injury is caused primarily by the victim's work and results in the death or permanent disablement (to a degree of 66.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Maladies professionnelles : le législateur a assimilé aux accidents du travail, certaines maladies dites professionnelles faisant l'objet d'une liste (98 tableaux) parce qu'elles sont causées par le travail.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="98">
+            <prop type="score">6.4562335</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8744186</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>A temporary period of (total or partial) disablement starts immediately after the injury or diagnosis of the disease and ends with the worker's recovery or effective healing of the injury.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Immédiatement après l'accident (ou la constatation de la maladie), s'ouvre une période d'incapacité temporaire (totale ou partielle), laquelle est close par la guérison de la victime ou la consolidation des lésions.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="99">
+            <prop type="score">6.220054</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0625</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Payment of accidentatwork and occupationaldisease benefits is not contingent on registration with the social security system or periods of contributions.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les prestations de l'assurance accidents du travail sont servies à la victime sans condition d'immatriculation ou de durée d'activité préalable.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="100">
+            <prop type="score">6.1681314</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.76282054</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>In the case of a hospital stay, there is no daily fee to be paid, nor the €18 flatrate charge for extensive procedures.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>En cas d'hospitalisation, il n'y a pas de forfait journalier à payer et l'accidenté du travail est exonéré du paiement du forfait de 18 € pour actes lourds.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="101">
+            <prop type="score">8.311576</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.3974359</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The injured worker is entitled to their full wage for the day of the accident, which is paid by the employer.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le jour de l'accident, la victime a droit à son salaire, payé par l'employeur.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="102">
+            <prop type="score">5.8114567</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.90865386</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Thereafter, the worker is paid a daily allowance amounting to 60% of the daily wage taken as 1/30.42 of the wage for the calendar month preceding the leave (maximum daily payment: €190.35).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Dès le lendemain, elle a droit à une indemnité journalière égale à 60 % du salaire journalier calculé sur la base de 1/30,42e du salaire du mois civil précédant l'arrêt de travail (maximum par jour 193,23 €).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="103">
+            <prop type="score">6.6634707</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.99509805</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>From the 29th day of leave, payments are increased to 80% of the daily wage (maximum: €253.80) and there is no requirement for the employee to have a dependent child as in the case of sickness insurance.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>L'indemnité est portée à 80 % du même gain journalier à partir du 29e jour d'arrêt (maximum par jour 257,65 €), sans condition d'enfant à charge comme cela est le cas dans le cadre de l'assurance maladie.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="104">
+            <prop type="score">5.8801713</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.83006537</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The amount of the daily benefit may not exceed 79% of the daily gross reference wage (a flat 21% contribution rate is applied).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Dans tous les cas, l'indemnité ne peut pas excéder 79 % du salaire journalier brut de référence (un taux de cotisation forfaitaire de 21 % est appliqué).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="105">
+            <prop type="score">8.213391</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.1652542</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>If an accidentatwork victim is deemed by the workplace physician as incapable of performing the work for which they were employed, the employer has one month in which to propose an alternative position or, failing that, must dismiss the employee on the grounds of incapacity.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Lorsqu'un salarié, victime d'un accident du travail est reconnu inapte à son poste de travail par le médecin du travail, l'employeur doit, dans le délai d'un mois, lui proposer un reclassement, ou à défaut, le licencier pour inaptitude.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="106">
+            <prop type="score">7.0482097</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.070922</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>In the period during which the employee is drawing neither a salary nor daily sickness benefits, they may be entitled to temporary incapacity benefits.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Durant la période où l'intéressé ne perçoit ni salaire, ni indemnités journalières, il peut bénéficier d'indemnités temporaires d'inaptitude.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="107">
+            <prop type="score">7.2176332</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.035461</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>These are payable at the same rate as the sickness benefits paid while the employee was on sick leave prior to their incapacity being established.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le montant de l'indemnité est égal au montant de l'indemnité journalière versée pendant l'arrêt de travail ayant précédé l'avis d'inaptitude.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="108">
+            <prop type="score">6.984905</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.2258065</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>If the employee is drawing a disability pension due to the injury sustained at work, the temporary incapacity benefits are deducted from the average monthly amount of the disability pension.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Si l'intéressé perçoit une rente liée à l'accident du travail, le montant mensuel de la rente est réduit du montant de l'indemnité temporaire d'inaptitude.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="109">
+            <prop type="score">5.962709</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0857143</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Temporary incapacity benefits are payable for a maximum period of one month.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La durée de versement de cette prestation ne peut pas dépasser 1 mois.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="110">
+            <prop type="score">6.678642</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.66129035</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>B PERMANENT DISABILITY BENEFITS: PENSIONS</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>B Prestations dues en cas d'incapacité permanente : les rentes</seg>
+            </tuv>
+        </tu>
+        <tu tuid="111">
+            <prop type="score">5.621534</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.3333334</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>1 Pension for the injured person</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>1 Rente due à la victime</seg>
+            </tuv>
+        </tu>
+        <tu tuid="112">
+            <prop type="score">5.5023656</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.88709676</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The amount of the pension paid depends on two criteria:</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le montant de la rente est calculé à partir de deux éléments :</seg>
+            </tuv>
+        </tu>
+        <tu tuid="113">
+            <prop type="score">6.400302</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.1428572</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>the degree of disablement of the worker,</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>le taux d'incapacité de la victime,</seg>
+            </tuv>
+        </tu>
+        <tu tuid="114">
+            <prop type="score">5.1171536</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.03125</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>their salary before the accident.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>le montant du salaire antérieur.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="115">
+            <prop type="score">6.2892146</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.93846154</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The level obtained is then adjusted by dividing the portion below 50% by two and increasing the portion above 50% by half.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Ce taux fait l'objet d'une correction : il est réduit de moitié jusqu'à 50 % et augmenté de moitié pour la partie qui excède 50 %.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="116">
+            <prop type="score">6.0438867</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8947368</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The applicable rating is thus 55%.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le taux de la rente sera donc de 55 %.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="117">
+            <prop type="score">7.010616</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.125</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The minimum annual salary ('S') used to calculate the disability pension for a disability rating of 10% or above, has been set at €18,263.54 as of 1st april 2014.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le salaire annuel minimum (S) pris en considération pour le calcul d'une rente au taux d'incapacité au moins égal à 10 % est fixé à 18 263,54 €.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="118">
+            <prop type="score">8.036919</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.2454545</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For annual earnings up to twice the salary 'S' (18,263.54 x 2 = 36,527.08), the total salary of the injured worker is taken into account.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Jusqu'à deux S (18 263,54 € x 2 = 36 527,08 €) le salaire de la victime est entièrement pris en considération.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="119">
+            <prop type="score">8.502349</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.3065693</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For the portion of the worker's annual earnings higher than two times 'S' (€36,527.08) but lower than eight times 'S' (€146,108.32), one third of the salary is taken into account.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La fraction de salaire annuel de la victime qui excéderait deux S, sans dépasser huit S (146 108,32 €) est prise en compte pour un tiers.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="120">
+            <prop type="score">6.0243144</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.09375</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The calculation does not factor in any earnings above this last level.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Audessus de huit S, le salaire n'est plus pris en considération.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="121">
+            <prop type="score">6.619724</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9617021</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>When the injured person has a permanent partial disability rating of at least 80% and is unable to perform activities of daily living, they qualify for a supplementary benefit in addition to their permanent disability pension.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Lorsque la victime présente un taux d'incapacité permanente d'au moins 80 % et est incapable d'accomplir seule les actes ordinaires de la vie courante, elle peut obtenir une prestation complémentaire à sa rente d'incapacité permanente.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="122">
+            <prop type="score">6.5227237</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7237354</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Prior to March 1, 2013, this resulted in an increase in pension which could not be lower than the annual minimum reevaluated on April 1st of each year (€13,236.98 as of April 1st, 2014).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Depuis le 1er avril 2013, la majoration pour tierce personne en complément d'une rente accident du travail a été remplacée par la prestation complémentaire pour recours à tierce personne (PCRTP) dont le montant est modulé en fonction du besoin d'assistance.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="123">
+            <prop type="score">7.3284183</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8138298</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>As from April 1, 2013, the attendance increase that was added on to the accidentatwork pension has been replaced by the supplementary attendance benefit.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le besoin d'assistance est déterminé par le service médical de la caisse débitrice de la rente à partir d'une grille d'appréciation de dix actes que la victime ne peut pas accomplir seule.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="124">
+            <prop type="score">6.261479</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8867925</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>As of April 1, 2014 the three fixed rates are :</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les trois montants forfaitaires sont les suivants : :</seg>
+            </tuv>
+        </tu>
+        <tu tuid="125">
+            <prop type="score">5.7220235</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9382716</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>551.53 euros when the victim cannot complete 3 or 4 tasks on the chart alone</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>551,55 € lorsque la victime ne peut pas accomplir seule 3 ou 4 actes de la grille</seg>
+            </tuv>
+        </tu>
+        <tu tuid="126">
+            <prop type="score">8.736775</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0878378</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>When an accident at work or occupational disease results in the death of the employee, some of the employee's dependants may be entitled to a survivor's pension.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Lorsque l'accident ou la maladie professionnelle entraîne le décès de la victime, certains ayants droit peuvent prétendre à une rente de survivants.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="127">
+            <prop type="score">5.507143</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0804597</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>When the child is fully orphaned, the pension is equal to 30% of the deceased's annual salary.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Lorsque l'enfant est orphelin de père et de mère, le taux de la rente est égal à 30 % ;</seg>
+            </tuv>
+        </tu>
+        <tu tuid="128">
+            <prop type="score">5.4833584</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.975</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>If the deceased person has neither partner nor child, those ascendants who were eligible for a maintenance allowance.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>des ascendants qui se trouvaient en état d'obtenir une pension alimentaire si la victime n'avait ni conjoint, ni enfant.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="129">
+            <prop type="score">9.500693</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.5744681</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>If the deceased did have a spouse or children, the ascendants will have had to have been dependants of the deceased to receive a survivor's pension.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Si la victime avait conjoint ou enfant les ascendants devaient être à la charge de la victime.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="130">
+            <prop type="score">6.3199487</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0208334</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>In this case the pension is generally 10% of the deceased's annual salary and the combined total of pensions paid to ascendants may not exceed 30%.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La rente est en principe fixée à 10 % du salaire annuel de la victime, sans que les rentes pour l'ensemble des ascendants puissent excéder 30 %.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="131">
+            <prop type="score">6.982157</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.63414633</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The total amount of pensions paid to all survivors combined may not exceed 85% of the annual salary on which they were determined.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La somme des rentes dues aux survivants ne doit pas excéder 85 % du salaire annuel d'après lequel elles ont été établies (le cas échéant, le montant de chaque rente versée est diminué proportionnellement).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="132">
+            <prop type="score">8.306113</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.57222223</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>* As of July 1, 2015, family benefits for households or people with dependent children are meanstested.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>* Une modulation du montant des allocations familiales en fonction des ressources du ménage ou de la personne ayant la charge des enfants est entrée en vigueur le 1er juillet 2015.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="133">
+            <prop type="score">5.654806</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.85846156</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The listed amounts apply to families whose annual income for year N2 does not exceed 67,140 € (for a family with 2 children), 72,735 € (for a family with 3 children), 78,330 € (for a family with 4 children) + 5,595 € per additional child (for a family with more than 4 children).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les montants indiqués concernent les familles dont les ressources annuelles (année N2) sont inférieures ou égales à 67 408 € (pour une famille avec 2 enfants), 73 025 € (pour une famille avec 3 enfants), 78 642 € (pour une famille avec 4 enfants) + 5 617 € par enfant supplémentaire (pour une famille avec plus de 4 enfants).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="134">
+            <prop type="score">5.0148525</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8410596</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Family benefits for families whose annual income exceeds these amounts are divided by 2 or 4 depending on their income bracket.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Pour les familles dont les ressources annuelles excèdent ces montants, les prestations familiales sont divisées par 2 ou 4 selon la tranche de revenus.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="135">
+            <prop type="score">5.3381176</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.99425286</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>However, a supplement can be paid on a sliding scale if household income for calendar year N2 is slightly higher than the applicable income ceiling ( for more information ).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Toutefois, un complément dégressif peut être versé lorsque les ressources perçues au cours de l'année civile N2 dépassent de peu le plafond de ressources applicable au foyer.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="136">
+            <prop type="score">4.820236</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.68604654</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>** The monthly family benefit base (BMAF) is set by decree.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>** La base mensuelle de calcul des allocations familiales (BMAF) est fixée par décret.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="137">
+            <prop type="score">4.9303036</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8318584</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>As from the 2012 Social Security financing law, the BMAF is uprated on 1st of April each year.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Depuis la loi de financement de la sécurité sociale pour 2012, elle est revalorisée au 1er avril de chaque année.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="138">
+            <prop type="score">4.920828</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8586956</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The BMAF was set at 406.21 € on April 1, 2014 (no increase on April 1st, 2015).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Depuis le 1er avril 2014 elle est de 406,21 euros (pas de revalorisation au 1er avril 2015).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="139">
+            <prop type="score">4.6727676</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.875</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>*** Income limits effective as of January 1 2015.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>**** Plafonds applicables pour la rentrée scolaire 2015.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="140">
+            <prop type="score">6.21444</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.64634144</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>They are however liable for employee's health insurance contributions at a rate of 5.5% on total earnings.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Les personnes qui sont affiliées au régime français mais qui ne sont pas domiciliées fiscalement en France ne sont pas soumises au paiement de la CSG et de la CRDS.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="141">
+            <prop type="score">5.0543113</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.43939394</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The CSG and CRDS are also deducted at rates of 6.2% and 0.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Par contre, elles sont redevables d'une cotisation d'assurance maladie, part salariale, au taux de 5,5 % sur la totalité du salaire.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="142">
+            <prop type="score">4.9520135</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.86206895</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>5% respectively and a 1% contribution is payable on supplementary pensions.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le plafond appliqué correspond à 4 plafonds mensuels de la sécurité sociale (4 x 3218).</seg>
+            </tuv>
+        </tu>
+        <tu tuid="143">
+            <prop type="score">6.981896</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9166667</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The unemployment insurance contribution rate has changed as of July 1st, 2013: the employer's contribution due on certain fixedterm contracts has increased whereas a temporary exemption has been instituted for employers hiring employees under age 26 on an openended contract.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Modulation du taux de cotisation d'assurance chômage depuis le 1er juillet 2013 : majoration de la contribution patronale due au titre de certains contrats à durée déterminée ; exonération temporaire de la part patronale pour l'embauche de salariés de moins de 26 ans en contrat à durée indéterminée.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="144">
+            <prop type="score">7.65358</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.5121951</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>AGS : wage guarantee insurance association</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>AGS : association pour la gestion du régime de garantie des créances des salariés.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="145">
+            <prop type="score">5.9403386</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9621212</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>In addition to the supplementary pension contributions mentioned above, other contributions are paid without generating points.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Pour une cotisation patronale et salariale de 7,63% seuls 6,10% sont pris en compte pour calculer les points de retraite du salarié.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="146">
+            <prop type="score">6.2519727</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.82222223</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The exceptional and temporary contribution (CET): this is a solidarity contribution set up by the AGIRC scheme.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>A côté des cotisations de retraites complémentaires mentionnées cidessus d'autres cotisations sont versées qui ne génèrent aucun point.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="147">
+            <prop type="score">5.039313</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.49</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It is paid at a rate of 2% (1.20% employer and 0.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Elle est versée sur la totalité de la rémunération dans la limite de 8 plafonds de sécurité sociale.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="148">
+            <prop type="score">8.130174</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.88601035</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>80% employee) for bracket 1 and at a rate of 2.20% (1.30% for the employer and 0.90 for the employee) for bracket 2 for nonexecutive employees or bracket B for executives.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La cotisation AGFF (association pour la gestion du fonds de financement AGIRC et ARRCO) qui sert à financer les pensions des personnes parties à la retraite avant 65/67 ans, avec un taux plein.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="149">
+            <prop type="score">8.285993</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.1397059</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For bracket C, which ranges from 12,680 to 25,360 per month, the breakdown of contributions between the employer and the employee can be determined freely.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Sur la tranche C comprise entre 12.872 € et 25.744 € par mois, la répartition des cotisations entre l'employeur et le salarié est libre.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="150">
+            <prop type="score">6.2706895</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9036697</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The framework comprises European Regulations No 883/2004 and No 987/2009 , the former Regulations No 1408/71 and 574/72 and 37 bilateral agreements signed by France and most of its main nonEuropean partners in the Mediterranean Basin, Maghreb, Frenchspeaking Africa, America and the Far East, as well as 3 Coordination Decrees with New Caledonia , French Polynesia and SaintPierre et Miquelon .</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Celuici est constitué par les règlements européens 883/2004 et 987/2009 , les anciens règlements 1408/71 et 574/72 , les 37 accords bilatéraux conclus par la France avec la plupart de ses principaux partenaires extraeuropéens du bassin méditerranéen, du Maghreb, d'Afrique francophone, d'Amérique et d'ExtrêmeOrient, ainsi que par 3 décrets de coordination avec la NouvelleCalédonie , la Polynésie française et SaintPierre et Miquelon .</seg>
+            </tuv>
+        </tu>
+        <tu tuid="151">
+            <prop type="score">6.9443364</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9448819</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>For persons living or residing outside the country which habitually provides their social security cover, these legislative texts enable: the exemption from residence conditions and waiting period requirements for those entitled to benefits; the totalization of acquired rights taking into consideration all working periods performed in the States concerned when retirement or survivor's pension is to be paid; the exportation of pensions; and, as required and under certain conditions, the continuing applicability of the sending country's labor laws for workers posted to another contracting State.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Ces textes permettent en effet, pour les personnes qui séjournent ou résident hors du pays assurant normalement leur couverture sociale : la levée des clauses de résidence ou des conditions de stage pour l'accès aux prestations ; la totalisation des droits et donc notamment, la prise en compte de toutes les périodes d'activité accomplies dans tous les États concernés, lors de la liquidation des pensions de retraite ou de survivants ; l'exportation des pensions ; enfin, si nécessaire et dans certaines conditions, le maintien à la législation du pays d'envoi, de travailleurs détachés sur le territoire d'un autre État contractant.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="152">
+            <prop type="score">6.1116776</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.98789346</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>A wide range of persons from the European Economic Area, Switzerland and the French overseas territories benefit from these rights: students, working and nonworking persons and dependants, who reap the benefit of better protection than that which is generally provided for in bilateral agreements (which usually concern only citizens from the States concerned who are working or have worked in those States).</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le champ de leurs bénéficiaires est très large, s'agissant de l'espace européen, de la Suisse et des territoires d'outremer concernés : étudiants, actifs et inactifs et ayantsdroit, contrairement à ce qui est le cas le plus souvent pour les conventions bilatérales, généralement limitées aux ressortissants de l'un ou l'autre État qui exercent ou ont exercé une activité professionnelle dans l'un ou l'autre pays.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="153">
+            <prop type="score">6.726197</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8577406</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The Cleiss is the French hub organization involved in implementing these agreements on behalf of public authorities and social security organizations, with respect to all risks and social security schemes.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le Cleiss est en France l'institution pivot chargée de contribuer à la bonne application de ces instruments, pour le compte des pouvoirs publics et de l'ensemble des institutions de sécurité sociale, tous risques et tous régimes confondus.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="154">
+            <prop type="score">5.344305</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9554656</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It provides the French Government with its expertise for the negotiation and implementation of international agreements and European regulations on social security and helps make such legislation accessible to individuals and companies.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>il apporte son expertise au gouvernement français dans la négociation et l'application des accords internationaux et règlements européens de sécurité sociale et contribue à en faciliter l'accès par tous moyens aux particuliers et aux entreprises ;</seg>
+            </tuv>
+        </tu>
+        <tu tuid="155">
+            <prop type="score">6.1832547</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8104575</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It is the relevant body for the examination of all exemption agreements or exceptional agreements for workers posted abroad.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>il est l'interlocuteur compétent pour la gestion de toutes les autorisations dérogatoires ou exceptionnelles en matière de détachements de travailleurs ;</seg>
+            </tuv>
+        </tu>
+        <tu tuid="156">
+            <prop type="score">7.494248</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It acts as an intermediary between French and foreign social security institutions and between those institutions and individuals and companies, providing administrative assistance to resolve financial or legal problems.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>il sert d'intermédiaire entre les institutions françaises et étrangères de sécurité sociale et entre cellesci et les particuliers et les entreprises, pour faciliter dans le cadre de l'entr'aide administrative, le règlement de toute difficulté d'ordre juridique ou financier ;</seg>
+            </tuv>
+        </tu>
+        <tu tuid="157">
+            <prop type="score">6.7778325</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.93119264</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It meets the translation needs of French social security institutions; in this respect it is France's premier public translator, 50,000 pages a year being translated on average from 40 or more languages.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>il assure les besoins de traduction des institutions et administrations concernées et est sur ce plan, le premier traducteur public français : 50 000 pages traduites en moyenne par an, dans une quarantaine de langues ;</seg>
+            </tuv>
+        </tu>
+        <tu tuid="158">
+            <prop type="score">6.575066</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.7801047</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It issues an annual statistical report showing human and financial flows between States in the context of international social security coordination.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>il produit un rapport statistique annuel retraçant l'ensemble des flux financiers et humains entre les États concernés, dans le cadre de cette coordination internationale de sécurité sociale.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="159">
+            <prop type="score">5.901732</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8907285</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The Cleiss (Centre of European and International Liaisons for Social Security), a public French administrative institution, funded chiefly by the French social security schemes, has an original and unique position within social security owing to its international role.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le Centre des Liaisons Européennes et Internationales de Sécurité Sociale, établissement public national à caractère administratif, financé essentiellement par les régimes français de sécurité sociale, occupe une place originale et unique dans la sécurité sociale du fait de sa vocation internationale.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="160">
+            <prop type="score">6.196282</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.94814813</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The Cleiss assists French and foreign social security organizations, insured individuals and employers in examining submissions.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le Cleiss assiste les organismes de sécurité sociale, français ou étrangers, les assurés et employeurs dans l'instruction des dossiers.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="161">
+            <prop type="score">6.355698</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9554455</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It can supply information relating to the procedures provided under different international agreements and the interpretation of laws or other legal texts issued by its supervisory authorities.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Il peut être amené à renseigner sur les procédures prévues par les différents accords internationaux et à communiquer des interprétations de textes ou de circulaires émanant de ses autorités de tutelle.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="162">
+            <prop type="score">6.632399</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.298969</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>It processes requests for exemption from French coverage or, in exceptional cases, continued coverage under the French system.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Il traite des cas d'exemption ou de maintien exceptionnel au régime de sécurité sociale français.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="163">
+            <prop type="score">7.0832067</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.1039426</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Its role as a coordinator between the institutions and the ministry with responsibility for social security within which its main partner is the Division of European and International Affairs of the Social Security Directorate confers on the Cleiss a unique position within the French social security system.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le rôle de relais qu'il joue entre les organismes de base et le ministère par le biais de la division des affaires communautaires et internationales à la direction de la sécurité sociale confère au Cleiss une position originale dans la structure de la sécurité sociale française.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="164">
+            <prop type="score">6.061156</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8698413</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Through its website, the Cleiss provides French funds, employers and insured persons with thorough, uptodate information about the international aspects of Social Security, particularly with regards to the schemes of countries linked to France by social security agreements.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Par le biais de son site Internet, il renseigne caisses françaises, employeurs et assurés en diffusant une information complète et actualisée sur la dimension internationale de la sécurité sociale, notamment sur les législations sociales des Etats avec lesquels la France est liée par un accord de sécurité sociale.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="165">
+            <prop type="score">5.3872</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Conversely, it informs foreign institutions about French social security law and changes in French legislation.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Inversement, il informe les institutions étrangères du contenu de la législation française et de son évolution.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="166">
+            <prop type="score">7.4118657</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.66169155</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The Cleiss is also France's National Contact Point pursuant to EU directive 2011/24/EU on patients' rights in crossborder healthcare.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le Cleiss est également le point de contact français en application de la directive européenne 2011/24/UE relative à l'application des droits des patients en matière de soins de santé transfrontaliers.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="167">
+            <prop type="score">5.5012035</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9259259</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>As such, it provides information to both patients and health professionals on these rights, particularly with regard to coverage of health care provided in a State other than the State of affiliation.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>A ce titre, il a pour mission d'informer les patients comme les professionnels de santé sur ces droits, notamment en ce qui concerne la prise en charge des soins dispensés dans un Etat autre que l'Etat d'affiliation.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="168">
+            <prop type="score">6.546242</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.83557045</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The Cleiss produces an annual statistics report based on the statistical and financial data it collects from the French social security institutions relating to the transfer of benefits to and from France in accordance with international agreements.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Un rapport statistique est produit chaque année suite à la collecte auprès des organismes français de sécurité sociale, des données statistiques et financières relatives aux transferts de prestations vers ou en provenance de l'étranger, dans le cadre des accords internationaux de sécurité sociale.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="169">
+            <prop type="score">7.046883</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>This financial and statistical data is also used for the final settlement of accounts between the French and foreign social security schemes; these settlements are reached by joint bilateral committees, supervised by the competent authorities of the States involved.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Ces données sont notamment utilisées pour la préparation des apurements de comptes entre les régimes français et étrangers de sécurité sociale, lesquels ont lieu lors de commissions mixtes bilatérales présidées par les autorités compétentes des deux États concernés.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="170">
+            <prop type="score">5.755038</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0211641</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>In addition to the statistics report, the Financial and Statistical Studies department periodically publishes a research and analysis bulletin, " Décryptage ," which covers a variety of topics.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>En parallèle au rapport statistique, un bulletin d'études et analyses " Décryptage " est publié périodiquement par la Direction des Etudes Financières et Statistiques sur des thèmes divers.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="171">
+            <prop type="score">5.4679704</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8962264</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The publication " Regard sur " also offers an overview of selected data from the annual report.</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>La publication "Regard sur" offre également une vision synthétique de certaines données du rapport annuel.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="172">
+            <prop type="score">4.071226</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.57894737</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>The French Social Security System</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Le régime français de protection sociale (Régime général)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="173">
+            <prop type="score">4.1073446</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0714285</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>A Sickness, maternity and paternity insurance</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>A Assurance maladie maternité et paternité</seg>
+            </tuv>
+        </tu>
+        <tu tuid="174">
+            <prop type="score">5.2173324</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.0408163</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Rights of the insured, Rights of a surviving spouse</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>A Prestations dues en cas d'incapacité temporaire</seg>
+            </tuv>
+        </tu>
+        <tu tuid="175">
+            <prop type="score">5.0085487</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.67741936</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>B Compulsory supplementary pension schemes</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>B Prestations dues en cas d'incapacité permanente : les rentes</seg>
+            </tuv>
+        </tu>
+        <tu tuid="176">
+            <prop type="score">4.8687487</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">1.2765957</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Rights of the insured, Rights of a surviving spouse, Orphans</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Droit de l'assuré, Droits du conjoint survivant</seg>
+            </tuv>
+        </tu>
+        <tu tuid="177">
+            <prop type="score">4.1073446</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.78431374</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Method of calculation of family benefits</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>B Régime des retraites complémentaires obligatoires</seg>
+            </tuv>
+        </tu>
+        <tu tuid="178">
+            <prop type="score">3.597846</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.8611111</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>C Benefits for special purposes</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>C Prestations à affectation spéciale</seg>
+            </tuv>
+        </tu>
+        <tu tuid="179">
+            <prop type="score">5.5557904</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.82857144</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Education allowance for a disabled child, Backtoschool allowance, Daily parental attendance allowance, Family housing allowance, Moving allowance</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Allocation d'éducation de l'enfant handicapé Allocation de rentrée scolaire Allocation journalière de présence parentale Allocation de logement familiale Prime de déménagement</seg>
+            </tuv>
+        </tu>
+        <tu tuid="180">
+            <prop type="score">4.969465</prop>
+            <prop type="type">1:1</prop>
+            <prop type="lengthRatio">0.9207921</prop>
+            <prop type="site">www.cleiss.fr</prop>
+            <prop type="license">Under review</prop>
+            <tuv xml:lang="eng">
+                <seg>Organisational structure, Financing, Applicability, Benefits, Entitlement, Replacement income</seg>
+            </tuv>
+            <tuv xml:lang="fra">
+                <seg>Organisation Financement Assujettissement Prestations Conditions d'attribution Revenu de remplacement</seg>
+            </tuv>
+        </tu>
+    </body>
+</tmx>

@@ -1,0 +1,47 @@
+
+#This file contains examples of seed URLs that used for constructing bilingual collections from multilingual web sites.
+#In each example there are two or more URLs but the user could use one or some or all of them.
+#Text lines starting with # are considered comments. So, in a list of seed URLs, the active text lines (i.e. URLs) should not start with # 
+
+#Example 1. EN-HR 
+
+#http://www.kvarner.hr/turizam/otkrijte_kvarner/o_kvarneru
+#http://www.kvarner.hr/en/tourism/discover_kvarner/about_kvarner
+
+#Example 2. DE-IT
+
+#http://www.suva.ch/startseite-suva.htm
+#http://www.suva.ch/it/startseite-suva.htm
+
+#Example 3. EN-EL 
+
+#http://www.dunlop.eu/dunlop_euen/
+#http://www.dunlop.eu/dunlop_grel/
+
+#Example 4. EN-FR (The use of parameter filter with argument ".*agriculture.*" could be used to force crawler stay only in this part of the web site).
+
+#http://europa.eu/legislation_summaries/agriculture/environment/l28117_en.htm
+#http://europa.eu/legislation_summaries/agriculture/environment/l28117_fr.htm
+#http://europa.eu/legislation_summaries/agriculture/index_fr.htm
+#http://europa.eu/legislation_summaries/agriculture/general_framework/index_fr.htm
+
+#Example 5. EN-FR from 2 web sites (the use of parameter filter with argument ".*(nrcan|rncan).*"is required)
+
+#http://www.nrcan.gc.ca/home
+#http://www.rncan.gc.ca/accueil
+
+#Example 6. EN-ES from "uefa" web site (the use of parameter filter with argument ".*uefa.*" is required)
+#http://www.uefa.com/worldcup/news/newsid=2114740.html
+#http://es.uefa.com/worldcup/news/newsid=2116290.html
+
+#Example 7. EN-GA
+#http://www.citizensinformation.ie/en/languageindex/
+#http://www.citizensinformation.ie/ga/languageindex/
+http://www.citizensinformation.ie/en/employment/employment_rights_and_conditions/pay_and_employment/pay_inc_min_wage.html
+http://www.citizensinformation.ie/ga/employment/employment_rights_and_conditions/pay_and_employment/pay_inc_min_wage.html
+http://www.citizensinformation.ie/en/housing/
+http://www.citizensinformation.ie/ga/housing/
+
+#Example 8. EN-LV
+#http://www.fold.lv/2015/07/aleksandra-vasiljeva-vakarterpu-kolekcijas-izstade/
+#http://www.fold.lv/events/aleksandra-vasiljeva-vakarterpu-kolekcijas-izstade-dmdm/

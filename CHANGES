@@ -1,0 +1,27 @@
+# ILSP-FC 2.2.2 2016-02-17
+
+- Added classes for generation of ELRC-Metashare compatible metadata descriptors and for querying eurovoc-related domain concept-descriptor id pairs
+
+- Fixed bugs in, among other places, the XSLTransformer, the ContentNormalizer, the PDFExtractor and the LangDetector
+
+- Functionality allowing skipping 0:1 and 1:0 alignments in both parsing and writing tmx files. Generation of a merged TMX that includes all segment pairs that 1) are extracted from document pairs detected by specific methods and 2) document pairs for which the zeroTOonealigmnets are fewer than predefined thresholds (a threshold per type). Identical TUs, TUs with identical TUVs, and TUVs with no letters are filtered-out during the merging process.
+
+- Sub-processes (incl. crawl, export, deduplication, pair detection, sentence alignment, tmx merging) can now be called independently. See http://nlp.ilsp.gr/redmine/projects/ilsp-fc/ for more details
+
+- Metadata contain three-letter language codes. 2 <-> 3 language code methods exist in the utils package
+
+- The aligner can now skip paragraphs that have been detected as ooi-lang
+
+- Added new methods for pair detection promoting web page pairs with common digits and hreflang attributes in links connecting them. De-duplication cannot remove pages participating in pairs resulting from such "reliable" methods
+
+- Added language-dependent abbreviation lists that seem to to alleviate the problem with wrong sentence splits before alignment in the case of many languages
+
+- Analyzers for new languages and language detection profiles added. See http://nlp.ilsp.gr/redmine/projects/ilsp-fc/wiki/Languages-supported for more details.
+
+- Reorganized package structure in several places with gr.ilsp.fc as the top package
+
+- ILSP-FC requires Java >= 1.7
+
+- Dependencies for pdfbox , lucene and bixo upgraded
+
+- Combining ArticleExtractor and NumOfWords methods of integrated Boilerpipe for better boilerplate removal

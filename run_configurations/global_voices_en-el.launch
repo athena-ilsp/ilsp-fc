@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/gr.ilsp.ilsp-fc-2.2.1/src/main/java/gr/ilsp/fc/main/SimpleCrawlHFS.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gr.ilsp.fc.main.SimpleCrawlHFS"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -f -a gv -type p -l1 el -l2 en -u ${project_loc}/src/main/resources/gv_seed_examples.txt -dest &quot;c://tmp/crawl_results/&quot; -k -n 2 -xslt -oxslt -of gv_en-el.txt -ofh gv_en-el.txt.html -oft gv_en-el_tmx.txt -ofth gv_en-el_tmx.html -align maligna -filter &quot;.*globalvoicesonline.*&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="gr.ilsp.ilsp-fc-2.2.1"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+</launchConfiguration>

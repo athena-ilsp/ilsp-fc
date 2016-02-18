@@ -1,0 +1,121 @@
+package gr.ilsp.fc.bitext;
+
+import gr.ilsp.fc.utils.FcFileUtils;
+import gr.ilsp.fc.utils.ISOLangCodes;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+public class PairDetector {
+	private static final Logger LOGGER = Logger.getLogger(PairDetector.class);
+	private static PairDetectorOptions options = null;
+	private static String[] languages;
+	private static File indir;
+	private static File outdir;
+	private static File outTextList;
+	private static File outHTMLList;
+	private static File groundTruth;
+	private static String methods;
+	private static boolean useImagePath=false;
+	private static boolean offlineXSLT;
+	private static String[][] urlReplaces;
+	private static Map<String, String> excludeSetFiles =null;
+	private static String QUEST_SEPAR = ";";
+	private static final String UNDERSCORE_STR = "_";
+	private static final String tempFileExt = ".xml.txt";
+	private static final String transCesExt = ".xml.html";
+	private static final String pdfExt=".pdf";
+	private static final String htmlExt = ".html";
+	private static final String html = "html";
+	private static final String transCes = "xml.html";
+	private static boolean delFiles = false;	
+
+	public static void main(String[] args) {
+		PairDetector pd = new PairDetector();
+		options = new PairDetectorOptions();
+		options.parseOptions(args);
+		pd.setLanguage(options.getLanguage());
+		pd.setSourceDir(options.getInDir());
+		pd.setTargetDir(options.getOutputDir());
+		pd.setOutTextList(options.getOutputFile());
+		pd.setOutHTMLList(options.getOutputFileHTML());
+		pd.setExcludeSetFiles(null);
+		pd.setUseImagepath(options.getImpath());
+		pd.setApplyXSLT(options.isOfflineXSLT());
+		pd.setURL_REPL(options.getUrlReplaces());
+		pd.setMethods(options.getMethods());
+		pd.setDelFiles(options.getDelFiles());
+		pd.setGroundTruth(options.getGroundTruth());
+		pd.pairDetect();
+	}
+
+	public void pairDetect() {
+		for (int ii=0;ii<languages.length;ii++){
+			languages[ii] = ISOLangCodes.get3LetterCode(languages[ii]);
+		}
+		LOGGER.info("Detection of pairs of parallel documents.");
+		ArrayList<String[]> bitextsALL = Bitexts.findPairsUIDS(indir, methods, languages, excludeSetFiles 
+				, outdir.getAbsolutePath(), urlReplaces, offlineXSLT, useImagePath, groundTruth);
+
+		if (bitextsALL!=null){
+			LOGGER.info("Total pairs found: "+ bitextsALL.size());
+			WriteBitexts.writeOutList(outdir,outTextList,outHTMLList,bitextsALL);
+		}else{
+			LOGGER.info("No pairs found");
+		}
+		List<File> filelist = Arrays.asList(indir.listFiles());
+		//BitextUtils.removeCesDocRelatedFiles(filelist,tempFileExt);
+		FcFileUtils.removeFiles(filelist,tempFileExt);
+		filelist = Arrays.asList(indir.listFiles());
+		//BitextUtils.removeCesDocRelatedFiles(filelist,transCesExt);
+		FcFileUtils.removeFiles(filelist,transCesExt);
+		if (delFiles)
+			BitextUtils.removeRedundantFiles(indir,bitextsALL);
+				
+		FcFileUtils.moveZipDeleteFiles(indir,html, Arrays.asList(htmlExt, pdfExt), UNDERSCORE_STR, false);
+		FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
+		
+	}
+
+	public void setLanguage(String languages) {
+		PairDetector.languages = languages.split(QUEST_SEPAR);
+	}
+	public void setSourceDir(File inDir) {
+		PairDetector.indir = inDir;
+	}
+	public void setTargetDir(File outDir) {
+		PairDetector.outdir = outDir;
+	}
+	public void setOutTextList(File outTextList) {
+		PairDetector.outTextList = outTextList;
+	}
+	public void setOutHTMLList(File outHTMLList) {
+		PairDetector.outHTMLList = outHTMLList;
+	}
+	public void setGroundTruth(File gt) {
+		PairDetector.groundTruth = gt;
+	}
+	public void  setExcludeSetFiles(Map<String, String> excludeSetFiles){
+		PairDetector.excludeSetFiles = null;
+	}
+	public void  setUseImagepath(boolean useImagePath){
+		PairDetector.useImagePath = useImagePath;
+	}
+	public void  setApplyXSLT(boolean offlineXSLT){
+		PairDetector.offlineXSLT = offlineXSLT;
+	}
+	public void setURL_REPL(String[][] urlReplaces) {
+		PairDetector.urlReplaces = urlReplaces;
+	}
+	public void setMethods(String methods) {
+		PairDetector.methods = methods;
+	}
+	public void setDelFiles(boolean delFiles) {
+		PairDetector.delFiles = delFiles;
+	}
+}

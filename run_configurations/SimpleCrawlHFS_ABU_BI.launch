@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/gr.ilsp.ilsp-fc-2.2.1/src/main/java/gr/ilsp/fc/main/SimpleCrawlHFS.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE" value="C:\Users\vpapa\ABU\log_test.txt"/>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gr.ilsp.fc.main.SimpleCrawlHFS"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -a europa-legis -n 1 -f -k -l1 en -l2 fi -t 50 -of output_europa-legis_en-fi.txt -ofh  output_europa-legis_en-fi.txt.html -oft output_europa-legis_en-fi.tmx.txt -ofth output_europa-legis_en-fi.tmx.html -u  &quot;C:\\Users\\vpapa\\ABU\\en-fi_seed_examples.txt&quot; -type p -xslt  -oxslt -len 0 -mtlen 100 -dest &quot;C:\Users\vpapa\ABU\EN-FI&quot; -filter &quot;.*europa\.eu\/legislation_summaries\/.*&quot; p_r &quot;http://vpapa.ilsp.gr//test//&quot; align dict"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="gr.ilsp.ilsp-fc-2.2.1"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+</launchConfiguration>

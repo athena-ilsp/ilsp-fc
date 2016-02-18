@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<cesDoc version="0.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.xces.org/schema/2003" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<cesHeader version="0.4">
+		<fileDesc>
+			<titleStmt>
+				<title>Ελ Σαλβαδόρ: Οι αντιδράσεις των πολιτών στη επίσκεψη Obama</title>
+				<respStmt>
+					<resp>
+						<type>Crawling and normalization</type>
+						<name>ILSP</name>
+					</resp>
+				</respStmt>
+			</titleStmt>
+			<publicationStmt>
+				<distributor>ILSP</distributor>
+				<eAddress type="web">http://nlp.ilsp.gr/gv/</eAddress>
+				<pubDate>2015-10-01</pubDate>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<monogr>
+						<title>Ελ Σαλβαδόρ: Οι αντιδράσεις των πολιτών στη επίσκεψη Obama</title>
+						<author>Omar Nieto</author>
+						<translator>Poppy Maglara</translator>
+						<imprint>
+							<format>text/html</format>
+							<publisher>Global Voices</publisher>
+							<pubDate>2011-04-26</pubDate>
+							<eAddress>http://el.globalvoicesonline.org/2011/04/987</eAddress>
+							<license>http://creativecommons.org/licenses/by/3.0/</license>
+						</imprint>
+					</monogr>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<profileDesc>
+			<langUsage>
+				<language iso639="ell"/>
+			</langUsage>
+			<textClass>
+				<keywords>
+					<keyTerm>Διαδηλώσεις</keyTerm>
+					<keyTerm>Διεθνείς Σχέσεις</keyTerm>
+					<keyTerm>Μέσα των πολιτών</keyTerm>
+					<keyTerm>Πολιτική</keyTerm>
+					<keyTerm type="region">Λατινική Αμερική</keyTerm>
+					<keyTerm type="region">Ελ Σαλβαντόρ</keyTerm>
+				</keywords>
+			</textClass>
+			<annotations>
+				<annotation>gv-ell-20110426-987.html</annotation>
+			</annotations>
+		</profileDesc>
+	</cesHeader>
+	<text>
+		<body>
+			<p id="p1" type="title">Ελ Σαλβαδόρ: Οι αντιδράσεις των πολιτών στη επίσκεψη Obama</p>
+			<p id="p2">Η επίσκεψη του προέδρου των Ηνωμένων Πολιτειών, Barack Obama, [στμ: στις 22 Μαρτίου] έδωσε το έναυσμα για σχόλια υπέρ και κατά του ταξιδιού του ανάμεσα στους Σαλβαδοριανούς.</p>
+			<p id="p3">Κάποιοι το βλέπουν ως κάτι το θετικό και το επικροτούν, ενώ άλλοι το αντιμετωπίζουν ως μια μορφή “ιμπεριαλιστικής παρέμβασης” στην μοίρα των εθνών της Κεντρικής Αμερικής.</p>
+			<p id="p4">Η επίσκεψη προκάλεσε και μια έντονη συζήτηση στην Σαλβαδοριανή μπλογκόσφαιρα.</p>
+			<p id="p5" type="caption">Ο πρόεδρος των ΗΠΑ Barack Obama κατά της διάρκεια συνέντευξης τύπου με τον πρόεδρο Mauricio Funes του El Salvador. Φωτογραφία Rene Figueroa, Copyright Demotix</p>
+			<p id="p6">Ο Carlos Molina απο τον ειδησεογραφικό δικτυακό τόπο Contrapunto [es], στο άρθρο του “El Salvador: Επίσκεψη Obama, του Άρχοντα του Παγκόσμιου Πολέμου” [es], υποστηρίζει πως η επίσκεψη οφείλεται στην ανάγκη για στρατιωτικές συμφωνίες στην περιοχή, με πρόσχημα τον πόλεμο ενάντια στο εμπόριο ναρκωτικών. Επικρίνει και την στρατιωτική παρέμβαση στην Λιβύη.</p>
+			<p id="p7" crawlinfo="ooi-lang">¿Por qué no podemos decir una palabra digna al genocida en potencia que viene a nuestra casa? Tenemos miedo, está clarísimo. Nuestro miedo es el mismo de aquel a quien le han secuestrado un familiar, el del chantaje que puebla nuestras pesadillas: “Tú me dejas poner unas bases y yo no expulso a tu padre, a tu hermana, a tu primo…”</p>
+			<p id="p8" type="quote-translation">Γιατί δεν μπορούμε να πούμε τίποτα στην δύναμη που προκαλεί γενοκτονίες και έρχεται στο σπίτι μας; Φοβόμαστε, είναι ξεκάθαρο. Ο φόβος μας είναι ο ίδιος με αυτόν κάποιου του οποίου κάποιος συγγενής απήχθη, ο [φόβος] του εκβιασμού που κυριαρχεί στους εφιάλτες μας: ” Άφησέ με να στήσω μερικές [στρατιωτικές] βάσεις και δεν θα απελάσω τον πατέρα, την αδερφή, τον ξάδερφό σου…”</p>
+			<p id="p9">Στο blog Σαλβαδοριανοί στον κόσμο [es], ο Edgardo Quintanilla δημοσίευσε παρόμοιες ιδέες σε ένα άρθρο με τίτλο “Εισβολή στην χώρα, με την επίσκεψη Obama στο El Salvador,” [es] στο οποίο επικρίνει και τα επιδόματα που δόθηκαν στο αριστερό κόμμα Farabundo Martí National Liberation Front (FMLN) [στμ: αριστερός συνασπισμός πρώην αντάρτικων, κέρδισε τις εκλογές το 2009].</p>
+			<p id="p10" crawlinfo="ooi-lang">Lo que viene para el gobierno de Funes a cambio son mayores prestaciones monetarias de los EEUU que producirán altos dividendos administrativos pero en realidad pocas obras concretas que beneficien a la población salvadoreña. Funes y el FMLN quedan ahora en paz, con el visto bueno que significa la visita de Obama.</p>
+			<p id="p11" type="quote-translation">Η κυβέρνηση Funes θα λάβει τεράστια χρηματικά δάνεια απο τις Η.Π.Α. που θα παράγουν υψηλές αποδόσεις, αλλά στην πραγματικότητα πολύ λίγες απ' τις ωφέλειες για τον λαό του El Salvador. Ο Funes και το FMLN είναι τώρα ήσυχοι, με την επιβεβαίωση που τους δίνει η επίσκεψη Obama.</p>
+			<p id="p12">Απο την άλλη πλευρά στο site Mediolleno [es], ο Santiago Imberton υποστηρίζει στο post “Λιβύη, Ιαπωνία και η επίσκεψη Obama στο El Salvador” [es] οτι η επίσκεψη του Obama αποτελεί σημάδι στήριξης στην κυβέρνηση του προέδρου Mauricio Funes για την αποστασιοποίηση του από τις πολιτικές του προέδρου της Βενεζουέλας Hugo Chavez, παρ'ότι είναι μια αριστερίζουσα κυβέρνηση.</p>
+			<p id="p13" crawlinfo="ooi-lang">Se puede esperar también algún beneficio importante para nuestros compatriotas que residen en aquel país. Sobretodo, manda un mensaje tranquilizador para todos aquellos que soñamos con tener un gobierno apegado a la democracia, independientemente del partido político que esté en gobierno. La receta esta dada: Estados Unidos ve con ojos buenos a un gobierno regido bajo estándares democráticos, apertura económica y proyección social. El Presidente Funes ha sabido manejar al país de esta forma y está siendo reconocido, ojalá podamos mantener este status en los años venideros.</p>
+			<p id="p14" type="quote-translation">Μπορείτε επίσης να περιμένετε σημαντικά οφέλη για τους συμπατριώτες μας που ζούν σε εκείνη τη χώρα. Πάνω απο όλα, αυτό στέλνει ένα καθησυχαστικό μήνυμα σε όσους ονειρεύονται να έχουν μια κυβέρνηση που σέβεται την δημοκρατία, ασχέτως απο το ποιό πολιτικό κόμμα είναι στην εξουσία. Η συνταγή είναι: οι Ηνωμένες Πολιτείες βλέπουν με καλό μάτι μια κυβέρνηση με δημοκρατικά πρότυπα, οικονομική ελευθερία και κοινωνικό πρόσωπο. Ο Πρόεδρος Funes χειρίστηκε την χώρα με αυτό τον τρόπο και του αναγνωρίζεται, ελπίζω να διατηρήσουμε αυτή την θέση τα επόμενα χρόνια.</p>
+			<p id="p15">Η ψηφιακή εφημερίδα WebGuerrillero [es] αναφέρεται στον ενθουσιασμό που δημιουργεί η επίσκεψη Obama στους κυβερνητικούς, επιχειρηματικούς και δημοσιογραφικούς κύκλους σε σύγκριση με την αδιαφορία των πολιτών, συμμετέχοντας στην ομάδα επικριτών της πολιτικής των Η.Π.Α στην Λιβύη και την Κούβα.</p>
+			<p id="p16" type="caption">Διαμαρτυρία κατά την διάρκεια της επίσκεψης Obama. Φωτογραφία Rene Figueroa, copyright Demotix.</p>
+			<p id="p17">Ο Victor, από το blog Alta Hora de la noche [es], στο άρθρο του “Visiting Monsignor Romero's grave” [es], αναφέρεται στον λανθασμένο συμβολισμό που αντιπροσωπεύει αυτή η πράξη του προέδρου της χώρας που έμμεσα ή άμεσα εμπλέκονταν στον φόνο του ιερέα.</p>
+			<p id="p18" crawlinfo="ooi-lang">No se honra a Monseñor Romero porque lo visite el supuesto hombre “más poderoso del mundo”. Se honra cuando en una misa conmemorativa, una pareja de ancianos de un cantón pobrísimo de Morazán me contestan sonrientes que valió la pena el dolor de canillas por la caminata y el largo viaje desde su casa. Al fin pudieron venir a la tumba de Monseñor, su Monseñor.</p>
+			<p id="p19" type="quote-translation">Ο Monsignor Romero δεν τιμάται με την επίσκεψη του ανδρός που φέρεται ως “ο πιο ισχυρός άνδρας του κόσμου”. Τον τιμάει μια λειτουργία στην μνήμη του, ή όταν ένα ζευγάρι ηλικιωμένων απο την πολύ φτωχή επαρχία του Morazán μου λένε με χαμόγελο οτι παρά τους σωματικούς πόνους λόγω του μεγάλου ταξιδιού, άξιζε τον κόπο. Επιτέλους, επισκέφθηκαν τον τάφο του επισκόπου, του δικού τους επισκόπου.</p>
+			<p id="p20">Ο Juan Jose Martel (Jjmar) του Hunnapuh Comentarios [es] αναλύει τους πιθανούς λόγους που επιλέχθηκε το Ελ Σαλβαδόρ [es] ανάμεσα στις υπόλοιπες χώρες τις Κεντρικής Αμερικής ως το περιφερειακό ορμητήριο της περιοδείας του Obama. Ο Juan Jose υποστηρίζει πως είναι μια ευκαιρία που δεν πρέπει να χαθεί.</p>
+			<p id="p21" crawlinfo="ooi-lang">Hay sectores que todavía no salen de su asombro. No conciben que un Presidente de EUA visite el país en el momento en que hay un gobierno de izquierda moderada que se define de unidad nacional. Otros ven la visita como la llegada de Santa Claus y especulan sobre lo que traerá y lo que hay que pedirle. Algunos ultra derechistas trasnochados dijeron que Obama venía a regañar a Funes por el fracaso en su política de seguridad y otros ultra izquierdistas interpretan la visita de Obama como la entrega de Funes al imperialismo yanqui.</p>
+			<p id="p22" type="quote-translation">Υπάρχουν ομάδες που ακόμα δεν μπορούν να το πιστέψουν και είναι έκπληκτοι. Δεν μπορούν να συλλάβουν το οτι ένας πρόεδρος των Η.Π.Α. επισκέπτεται την χώρα την στιγμή που υπάρχει μια μετριοπαθής αριστερίζουσα κυβέρνηση που αυτοπροσδιορίζεται στην βάση της εθνικής ενότητας. Άλλοι αντιμετωπίζουν την επίσκεψη σαν την άφιξη του Άγιου Βασίλη, και κάνουν υποθέσεις για το τι θα φέρει και το τι θα έπρεπε να ζητήσουν. Κάποιοι εναπομείναντες ακρο-δεξιοί συντηρητικοί υποστηρίζουν πως ο Obama ήρθε για να επιπλήξει τον Funes για την αποτυχία του στην πολιτική ασφαλείας και άλλοι ακρό-αριστεροί ερμηνεύουν την επίσκεψη Obama ως την παράδοση του Funes στον ιμπεριαλισμό των Γιάνκηδων.</p>
+			<p id="p23">Ο Dagoberto Gutierrez απο το νεοϊδρυθέν αριστερό Συμμετοχικό Δημοκρατικό Κίνημα (MDP) [es], δημοσιεύει μια επιστολή προς τον Πρόεδρο Obama [es], στην οποία αναφέρει πως η αιτία των κοινωνικό-οικονομικών προβλημάτων που αντιμετωπίζει το Ελ Σαλβαδόρ είναι οι πολιτικές που η χώρα του επέβαλε μέσω των προηγούμενων κυβερνήσεων του κόμματος Εθνικιστικής Ρεπουμπλικανικής Συμμαχίας (ARENA) .</p>
+			<p id="p24" crawlinfo="ooi-lang">El Salvador, Señor Presidente, necesita y busca relaciones amistosas y de mutua conveniencia con su gobierno, esperando que las y los salvadoreños emigrantes reciban un trato justo y legal de parte de su gobierno, correspondiente al aporte hecho a la economía y a la riqueza de los Estados Unidos.</p>
+			<p id="p25" type="quote-translation">Το Ελ Σαλβαδόρ, κ. πρόεδρε, χρειάζεται και αποζητά φιλικές σχέσεις με αμοιβαία οφέλη, ελπίζοντας πως οι μετανάστες απο το Σαλβαδόρ θα τύχουν δίκαιης νομικής αντιμετώπισης απο την κυβέρνηση σας για την αντίστοιχη συμβολή τους στην οικονομία και τον πλούτο των Ηνωμένων Πολιτειών.</p>
+			<p id="p26">Ο Herman Di απο το Love &amp; Politics [es], ο Tim απο το Tim's El Salvador Blog, η Rachel απο το Ocurrente Irreverente [es] και η Katia V απο το ¡Qué Cosas No! [es] σχολίασαν επίσης την επίσκεψη Obama.</p>
+			<p id="p27">Στο Twitter, η επίσκεψη παρακολουθούνταν στενά και προκάλεσε μια πληθώρα σχολίων, κάποια αστεία και άλλα σοβαρά, υπό τα hashtags #Obamasv, #visitaObama και #Obama. Η Claudia Granados (@clales) μοιράστηκε ένα καρτούν και η Adri Escobar (@adriescobar1) αναδημοσίευσε εικόνες απο το @elsalvadorcom.</p>
+			<p id="p28">Εν τω μεταξύ, ο Mario Miguel Melendez (@SugaBearMelendz), γράφει:</p>
+			<p id="p29" crawlinfo="ooi-lang">#Obamasv no es presidente de mi país y ya mandó a recarpetear calles,recuperó el centro histórico y subió la seguridad. #Obamaparapresidente</p>
+			<p id="p30" type="quote-translation">#Obamasv δεν είναι ο πρόεδρος της χώρας μου αλλά κατάφερε να αναδειχτούν και πάλι οι δρόμοι, να επανακάμψει το ιστορικό κέντρο και να αυξηθεί η ασφάλεια στην πόλη. #Obamaparapresidente (Obamaforpresident)</p>
+			<p id="p31">Ενώ ο Carlos Alberto (@zafado72), σε παρόμοιο τόνο, δηλώνει:</p>
+			<p id="p32" crawlinfo="ooi-lang">Este tio #ObamaSV deberia de venir todos los domingos a misa pa q San Salvador sea una ciudad segura todas las semanas http://myloc.me/iKLXk</p>
+			<p id="p33" type="quote-translation">Αυτός ο τύπος #ObamaSV θα έπρεπε να έρχεται στην λειτουργία κάθε Κυριακή ώστε το San Salvador να γίνεται ασφαλής πόλη κάθε εβδομάδα http://myloc.me/iKLXk</p>
+		</body>
+	</text>
+</cesDoc>

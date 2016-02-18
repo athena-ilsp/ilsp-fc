@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tmx version="1.4b">
+    <header adminlang="en" creationdate="2015-11-26T17:07:17+02:00" creationtool="mALIGNa" creationtoolversion="2" datatype="plaintext" o-tmf="al" segtype="block" srclang="eng">
+        <prop type="sourceFile">eng-1.xml</prop>
+        <prop type="targetFile">ita-2.xml</prop>
+        <prop type="sourceFileHtml">eng-1.html</prop>
+        <prop type="targetFileHtml">ita-2.html</prop>
+        <prop type="sourceLang">eng</prop>
+        <prop type="targetLang">ita</prop>
+    </header>
+    <body>
+        <tu tuid="1">
+            <prop type="score">3.858231</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>Secretariat General</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Segreteria Generale</seg>
+            </tuv>
+        </tu>
+        <tu tuid="2">
+            <prop type="score">7.7406645</prop>
+            <prop type="segmentType">1:0</prop>
+            <tuv xml:lang="eng">
+                <seg>Email: sg.segreteria@esteri.it</seg>
+            </tuv>
+        </tu>
+        <tu tuid="3">
+            <prop type="score">3.3316145</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>As stated in art.</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Vice Segretario Generale</seg>
+            </tuv>
+        </tu>
+        <tu tuid="4">
+            <prop type="score">3.858231</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>6, par.</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Antonio Bernardini</seg>
+            </tuv>
+        </tu>
+        <tu tuid="5">
+            <prop type="score">11.237106</prop>
+            <prop type="segmentType">1:2</prop>
+            <tuv xml:lang="eng">
+                <seg>2, of legislative decree no. 300/1999, the Secretary General assists the Minister directly in drafting Ministry policies and programmes, oversees the Ministry to ensure the continuity of its functions, and coordinates the activities of its various offices.</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Nell'ambito delle funzioni previste dall'articolo 6, comma 2, del decreto legislativo 30 luglio 1999, n.  300, il Segretario generale coadiuva direttamente il Ministro ai fini dell'elaborazione degli indirizzi e dei programmi del Ministero; sovrintende all'azione dell'Amministrazione e ne assicura la continuità delle funzioni, coordinandone gli uffici e le attività.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="6">
+            <prop type="score">6.7298265</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>The Secretary General is assisted by a Deputy Secretary General.</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Il Segretario generale è assistito da un Vice segretario generale cui sono conferite le funzioni vicarie.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="7">
+            <prop type="score">8.810394</prop>
+            <prop type="segmentType">1:2</prop>
+            <tuv xml:lang="eng">
+                <seg>In the Minister for Foreign Affairs' absence the Secretary General chairs the Board of Directors, which assesses the Ministry's strategic policies and overall action.</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Il Segretario Generale, in assenza dell'On.  Ministro, presiede il Consiglio di Amministrazione, l'organismo che esprime valutazioni sugli indirizzi strategici e sull'azione complessiva del Ministero.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="8">
+            <prop type="score">5.5514607</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>In completing their assigned tasks the Secretary General and Deputy Secretary General avail themselves of:</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Nello svolgimento delle funzioni loro attribuite, il Segretario Generale ed il Vice Segretario Generale si avvalgono:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="9">
+            <prop type="score">4.2768383</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>The Coordination Unit</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>dell'Unità di Coordinamento</seg>
+            </tuv>
+        </tu>
+        <tu tuid="10">
+            <prop type="score">5.1747327</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>Head of the Unit: Antonio Alessandro</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Capo Unità di Coordinamento è Antonio Alessandro</seg>
+            </tuv>
+        </tu>
+        <tu tuid="11">
+            <prop type="score">3.2716346</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>Telephone: 06 3691 2050</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Telefono: 06 3691 2050</seg>
+            </tuv>
+        </tu>
+        <tu tuid="12">
+            <prop type="score">5.828055</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>As well as of the following Units:</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Nonché delle seguenti Unità:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="13">
+            <prop type="score">5.919165</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>The Unit for Analysis, Planning and Historic Diplomatic Documentation, which has the following tasks:</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Unità di analisi, programmazione e documentazione storico-diplomatica, che è incaricata:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="14">
+            <prop type="score">8.433811</prop>
+            <prop type="segmentType">1:0</prop>
+            <tuv xml:lang="eng">
+                <seg>to analyse, research and study strategic foreign policy themes for the purposes of the central headquarters and diplomatic-consular network, and to handle relations with corresponding policy planning units abroad (“Analysis and Planning” component);</seg>
+            </tuv>
+        </tu>
+        <tu tuid="15">
+            <prop type="score">12.109079</prop>
+            <prop type="segmentType">2:1</prop>
+            <tuv xml:lang="eng">
+                <seg>to catalogue and safeguard historic diplomatic documentation and related research, and to provide for the proper functioning of the library and publication of Italian Diplomatic Documents (“Historic Diplomatic Documentation component). Unit Head: Armando Barucco</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>di svolgere attività di analisi, ricerca e studio su temi e prospettive di politica estera di rilevanza strategica per il Paese, nell'interesse dell'Amministrazione centrale e della rete diplomatico-consolare, curando anche i rapporti con le corrispondenti strutture di policy planning estere (componente ‘Analisi e Programmazione');</seg>
+            </tuv>
+        </tu>
+        <tu tuid="16">
+            <prop type="score">12.427706</prop>
+            <prop type="segmentType">2:1</prop>
+            <tuv xml:lang="eng">
+                <seg>Email: uap@esteri.it The Crisis Unit, monitors international crises and hot spots with special regard for the interests and security of Italian nationals abroad in emergency situations, availing itself when necessary also of the collaboration of other State ministries;</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>di riordinare e custodire la documentazione storico diplomatica, curando le relative ricerche, e di provvedere al funzionamento della Biblioteca e alla pubblicazione dei Documenti Diplomatici Italiani (componente ‘Documentazione Storico Diplomatica').</seg>
+            </tuv>
+        </tu>
+        <tu tuid="17">
+            <prop type="score">10.570694</prop>
+            <prop type="segmentType">2:1</prop>
+            <tuv xml:lang="eng">
+                <seg>Telephone: 06 0636225 Email: unita.crisi@esteri.it</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Capo Unità è Armando Barucco</seg>
+            </tuv>
+        </tu>
+        <tu tuid="18">
+            <prop type="score">8.433811</prop>
+            <prop type="segmentType">1:0</prop>
+            <tuv xml:lang="eng">
+                <seg>The following offices work within the Secretariat General:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="19">
+            <prop type="score">8.433811</prop>
+            <prop type="segmentType">1:0</prop>
+            <tuv xml:lang="eng">
+                <seg>Central Security Office-Special Secretariat: manages the flow of classified and qualified documents; issues directives regarding document security; grants security authorisations;</seg>
+            </tuv>
+        </tu>
+        <tu tuid="20">
+            <prop type="score">3.2716346</prop>
+            <prop type="segmentType">1:1</prop>
+            <tuv xml:lang="eng">
+                <seg>Telephone: 06 3691 2050</seg>
+            </tuv>
+            <tuv xml:lang="ita">
+                <seg>Telefono: 06 3691 7129</seg>
+            </tuv>
+        </tu>
+    </body>
+</tmx>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/gr.ilsp.ilsp-fc-2.2.1/src/main/java/gr/ilsp/fc/main/SimpleCrawlHFS.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gr.ilsp.fc.main.SimpleCrawlHFS"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -a test1 -c 10 -f -k -l1 en -l2 fr -t 10 -of /tmp/output_TEST_list.txt -ofh  /tmp/output_TEST_list.txt.html -tc ${project_loc}/src/test/resources/bilingual_topics_seeds/ENV_EN_FR_topic.txt -u ${project_loc}/src/test/resources/bilingual_topics_seeds/ENV_EN_X_europa.txt -type p"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="gr.ilsp.ilsp-fc-2.2.1"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+</launchConfiguration>
