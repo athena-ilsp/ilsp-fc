@@ -2,13 +2,17 @@ package gr.ilsp.fc.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -76,13 +80,13 @@ public class ZipUtils {
     private void unzipEntry(ZipFile zipfile, ZipEntry entry, File outDir) throws IOException {
 
         if (entry.isDirectory()) {
-            createDir(new File(outDir, entry.getName()));
+            DirUtils.createDir(new File(outDir, entry.getName()));
             return;
         }
 
         File outputFile = new File(outDir, entry.getName());
         if (!outputFile.getParentFile().exists()){
-            createDir(outputFile.getParentFile());
+            DirUtils.createDir(outputFile.getParentFile());
         }
 
         logger.debug("Extracting: " + entry);
@@ -158,9 +162,11 @@ public class ZipUtils {
 		fis.close();
 	}
 
-    private void createDir(File dir) {
-        logger.debug("Creating dir "+dir.getName());
-        if(!dir.mkdirs()) throw new RuntimeException("Can not create dir "+dir);
-    }
+	public static List<String> getLines(File gzFile) throws FileNotFoundException, IOException {
+		GZIPInputStream gzip = new GZIPInputStream(new FileInputStream(gzFile));
+		return IOUtils.readLines(new BufferedReader(new InputStreamReader(gzip)));
+	}
+
+	
 	
 }

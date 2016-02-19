@@ -196,5 +196,23 @@ public class DirUtils {
 	    
 	    return result;
 	}
+
+	public static void createDir(File outDir) {
+		if (!outDir.exists()) {
+			LOGGER.debug("Creating directory: " + outDir);
+		    boolean result = false;
+		    try{
+		    	outDir.mkdir();
+		        result = true;
+		    } catch(SecurityException se){
+		    	LOGGER.warn("Cannot create dir: " + outDir);
+		    	throw se;
+		    }        
+		    if(result) {    
+		    	LOGGER.debug("Created " + outDir);  
+		    }
+		}
+
+	}
 	
 }
