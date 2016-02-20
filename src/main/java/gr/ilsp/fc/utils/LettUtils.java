@@ -2,12 +2,15 @@ package gr.ilsp.fc.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.util.Collection;
-import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -17,65 +20,74 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Utils class for reading wmt16 lett files
+ * (http://www.statmt.org/wmt16/bilingual-task.html)
+ * 
+ * @author prokopis
+ *
+ */
 public class LettUtils {
 
-	private static final String EXTENSION = ".html";
-	private static final String SEPARATOR_CHAR = "\t";
+	private static final String HYPHEN = "-";
+	private static final String UTF_8 = "UTF-8";
+	private static final String HTML_EXTENSION = ".html";
+	private static final String TAB_SEPARATOR = "\t";
 	private static final Logger logger = LoggerFactory.getLogger(LettUtils.class);
 
-	public static void main(String[] args) throws IOException {
-		///opt/wmt16-bda/lett.train /var/www/lett.train.html
-		File lettDir = new File(args[0]);
-		File lettDirHtml = new File(args[1]);
-		logger.info(lettDir.getAbsolutePath());
-		logger.info(lettDirHtml.getAbsolutePath());
-		DirUtils.createDir(lettDirHtml);
-		Collection<File> lettFiles = FileUtils.listFiles(lettDir, new WildcardFileFilter("*lett"), null);
-		for (File lettFile : lettFiles) {
-			// TBFI: Why does this crash the decoding process?
-			if (lettFile.getName().contains("cgfmanet")) {
-				continue;
-			}
-			createCorpusFromLettFile(lettFile, new File(FilenameUtils.concat(lettDirHtml.getAbsolutePath(), FilenameUtils.getBaseName(lettFile.getName()))));
+	/**
+	 * Reads an (optionally gzipped) wmt-16 lett file, base64-decodes the html
+	 * content in each line and writes this content in a file in corpusOutDir
+	 * 
+	 * @param lettFile
+	 * @param corpusOutDir
+	 * @param gzipped
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 */
+	public static void createCorpusFromLettFile(File lettFile, File corpusOutDir, boolean gzipped) throws FileNotFoundException, IOException {
+		DirUtils.createDir(corpusOutDir);
+		Charset cs = Charset.forName(UTF_8);
+		CharsetDecoder decoder = cs.newDecoder()
+				.onMalformedInput(CodingErrorAction.REPLACE)
+				.onUnmappableCharacter(CodingErrorAction.REPLACE);
+		BufferedReader br;
+		if (gzipped) {
+			br = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(lettFile)), decoder));
+		} else {
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(lettFile), decoder));
 		}
-// 		Memory issues even with -Xmx4g for gz files 
-//		Collection<File> gzLettFiles = FileUtils.listFiles(lettDir, new WildcardFileFilter("*gz"), null);
-//		for (File gzLettFile : gzLettFiles) {
-//			createCorpusFromGzLettFile(gzLettFile, new File(FilenameUtils.concat(lettDirHtml.getAbsolutePath(), FilenameUtils.getBaseName(gzLettFile.getName()))));
-//		}
-	}
-
-	public static void createCorpusFromLettFile(File lettFile, File corpusDir) throws IOException  {
-		logger.info("Reading " + lettFile);
-		logger.info("Creating " + corpusDir);
-		DirUtils.createDir(corpusDir);
-		try (BufferedReader br = Files.newBufferedReader(Paths.get(lettFile.getAbsolutePath()), StandardCharsets.UTF_8)) {
-			int id = 1;
-		    Base64 base64 = new Base64();
-		    for (String line = null; (line = br.readLine()) != null;) {
-				String[] fields =  StringUtils.split(line, SEPARATOR_CHAR);
-				File outFileHtml = new File(FilenameUtils.concat(corpusDir.getAbsolutePath(), fields[0] + "-" + id++ + EXTENSION));
-				String decoded = new String(base64.decode(fields[4].getBytes()));
-				logger.debug("Writing to " + outFileHtml);
-				FileUtils.write(outFileHtml, decoded);
-			}
-		}
-	}
-
-	public static void createCorpusFromGzLettFile(File gzLettFile, File corpusDir) throws IOException  {
-		logger.info("Gunzipping " + gzLettFile);
-		logger.info("Creating " + corpusDir);
-		DirUtils.createDir(corpusDir);
-		List<String> lines =  ZipUtils.getLines(gzLettFile);
 		int id = 1;
-	    Base64 base64 = new Base64();
-		for (String line: lines) {
-			String[] fields =  StringUtils.split(line, SEPARATOR_CHAR);
-			File outFileHtml = new File(FilenameUtils.concat(corpusDir.getAbsolutePath(), fields[0] + "-" + id++ + EXTENSION));
+		Base64 base64 = new Base64();
+		for (String line = null; (line = br.readLine()) != null;) {
+			String[] fields = StringUtils.split(line, TAB_SEPARATOR);
+			File outFileHtml = new File(FilenameUtils.concat(corpusOutDir.getAbsolutePath(), fields[0] + HYPHEN + id++ + HTML_EXTENSION));
 			String decoded = new String(base64.decode(fields[4].getBytes()));
-			logger.debug("Writing to " + outFileHtml);
 			FileUtils.write(outFileHtml, decoded);
 		}
+		br.close();
 	}
-	
+
+	public static void main(String[] args)  {
+		File lettDir = new File(args[0]);
+		File lettDirHtml = new File(args[1]);
+		logger.info("Creating corpus from lett files in "+ lettDir.getAbsolutePath());
+		logger.info("Using out dir " + lettDirHtml.getAbsolutePath());
+		DirUtils.createDir(lettDirHtml);
+		Collection<File> gzLettFiles = FileUtils.listFiles(lettDir, new WildcardFileFilter("*gz"), null);
+		for (File gzLettFile : gzLettFiles) {
+			File corpusOutDir = new File(FilenameUtils.concat(lettDirHtml.getAbsolutePath(),
+					FilenameUtils.getBaseName(gzLettFile.getName())));
+			logger.info("Reading " + gzLettFile);
+			logger.info("Exporting html files to " + corpusOutDir);
+			try {
+				createCorpusFromLettFile(gzLettFile, corpusOutDir, true);
+			} catch (IOException e) {
+				logger.error("Could not process file " + gzLettFile);
+				e.printStackTrace();
+			}
+		}
+		logger.info("Done.");
+	}
+
 }
