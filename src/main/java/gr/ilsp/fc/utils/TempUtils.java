@@ -29,9 +29,9 @@ public class TempUtils {
 	private static final String appHTMLext = ".html";
 	private static final String appXMLHTMLext = ".xml.html";
 	private static final String type_p ="p";
-	
+
 	public static void main(String[] args) {
-		
+
 		String filename="C:\\Users\\vpapa\\ABU\\spidextor_output.uniq.rand.filt.txt";
 		String inputLine;
 		BufferedReader in;
@@ -59,12 +59,12 @@ public class TempUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-System.exit(0);
-		
-		
-		
-		
-		
+		System.exit(0);
+
+
+
+
+
 		String test="Tekki";
 		for (int ii=0;ii<test.length();ii++){
 			int int_value = (int) test.charAt(ii);
@@ -266,7 +266,7 @@ System.exit(0);
 		int[] tokens = new int[2];
 		ArrayList<String> fff = new ArrayList<String>();
 		List<String> pairs =FileUtils.readLines(new File(FilenameUtils.concat(source_path,output_list_file)));
-		
+
 		for (int ii=0; ii<pairs.size();ii++){
 			pairs.set(ii, pairs.get(ii).replace("/", "\\"));
 			if (pairs.get(ii).startsWith("pdfs") )
@@ -293,10 +293,10 @@ System.exit(0);
 			//xml 1
 			if (file1.exists()){
 				//String langIdentified = ReadResources.extractLangfromXML(file1.getAbsolutePath(), "language", "iso639");
-				
+
 				String langIdentified = ReadResources.extractAttrfromXML(file1.getAbsolutePath(), "language", "iso639", true,false);
 				String text_temp = ReadResources.extractTextfromXML_clean(file1.getAbsolutePath(),type_p,"crawlinfo", false);
-					
+
 				if (langIdentified.equals(langs[0]))
 					tokens[0]=tokens[0]+ReadResources.countTokens(text_temp);
 				else
@@ -634,7 +634,7 @@ System.exit(0);
 				else
 					//ttt= "<a href=\""+fileURL+"\">\n"+xmlFile.getAbsolutePath()+"</a>";
 					ttt= "<a href=\""+xmlFile.getAbsolutePath().replace("\\", "/")+"\">\n"+
-					xmlFile.getAbsolutePath().replace("\\", "/")+"</a>";
+							xmlFile.getAbsolutePath().replace("\\", "/")+"</a>";
 
 				//<a href="https://issues.apache.org/jira/browse/NUTCH-721" target="_blank">NUTCH-721</a>
 				xmlFileListWrt1.write("<br />"+ttt.replace("\\","/")+"\n");
@@ -653,8 +653,8 @@ System.exit(0);
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	public static void counttokens(String target_dir, String exten, String exclude_str) throws IOException {
 		File xmldir = new File(target_dir);
 		String[] filesinXML= xmldir.list();
@@ -675,7 +675,33 @@ System.exit(0);
 			}
 		}
 	}
-	
-	
-	
+
+	/*public static String convertStreamToString(InputStream is)
+			throws IOException {
+
+		* To convert the InputStream to String we use the
+		* Reader.read(char[] buffer) method. We iterate until the
+		* Reader return -1 which means there's no more data to
+				* read. We use the StringWriter class to produce the string.
+
+				if (is != null) {
+					Writer writer = new StringWriter();
+
+					char[] buffer = new char[1024];
+					try {
+						Reader reader = new BufferedReader(
+								new InputStreamReader(is, "UTF-8"));
+						int n;
+						while ((n = reader.read(buffer)) != -1) {
+							writer.write(buffer, 0, n);
+						}
+					} finally {
+						is.close();
+					}
+					return writer.toString();
+				} else {       
+					return "";
+				}
+	}*/
+
 }

@@ -1,17 +1,15 @@
 package gr.ilsp.fc.utils;
 
 import gr.ilsp.fc.main.ReadResources;
-import gr.ilsp.fc.main.Crawl;
 import gr.ilsp.fc.main.WriteResources;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -20,15 +18,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
-@SuppressWarnings("deprecation")
 public class TopicTools {
 	private static final Logger LOGGER = Logger.getLogger(TopicTools.class);
 	private static Analyzer analyzer = null;
@@ -39,97 +33,7 @@ public class TopicTools {
 	private static final String UNDERSCORE_STR = "_";
 	private static final String QUESTION_SEP=";";
 	private static final String  COLON =" : ";
-	/**
-	 * Parses the topic definition file and  returns a list of terms with their properties i.e. weight, stemmed term, subclasses or class, language, original term  
-	 * @param topicFile
-	 * @param targetlanguages
-	 * @param conf
-	 * @return
-	 */
-	//FIXME store topic definition in an Object with terms and their properties 
-	public static ArrayList<String[]> analyzeTopic(File topicFile, String[] targetlanguages, JobConf conf) {		
-		//topicdef:filename of file with the topic definition
-		//returns an array of strings with three columns (the triplets)
-		ArrayList<String[]> topic = new ArrayList<String[]>();
-		Path p = new Path(topicFile.getAbsolutePath());
-		//JobConf conf = new JobConf();
-		conf.setJarByClass(Crawl.class);
-		//System.err.println(conf.get("hadoop.tmp.dir"));
-		//conf.set("hadoop.tmp.dir", "hadoop-temp");
-
-		try {
-			FileSystem fs = FileSystem.get(conf);
-			if (!fs.exists(p)) 
-				LOGGER.info("The file for topic definition does not exist.");
-			else {
-				BufferedReader in = new BufferedReader(new InputStreamReader(fs.open(p),"UTF-8"));
-				String str, a, b, c, d, b_or="";
-				while ((str = in.readLine()) != null) {
-					// Do not bother with commented out or empty lines
-					if (skipLineM.reset(str).matches()) 
-						continue;
-					a=str.subSequence(0, str.indexOf(":")).toString().trim();
-					b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().toLowerCase().trim();
-					b_or=b;
-
-					int ind=str.indexOf(">");
-					if (targetlanguages.length>1){
-						if (ind<0){
-							LOGGER.info("Even though the target languages are more than 1," +
-									" the language of term '"+str+"' is not defined. Modify the topic definition properly.");
-							System.exit(0);	
-						}
-						d=str.subSequence(ind+1, str.length()).toString().toLowerCase().trim();
-					}else{
-						d=targetlanguages[0].toString().trim();
-					}
-					boolean match = false;
-					for (String tlang:targetlanguages){
-						if (tlang.equals(d)) {
-							match = true;
-							break;
-						}
-					}
-					ArrayList<String> stems = new ArrayList<String>();
-					if (match);
-					stems = getStems(b, d); //FIXME Call Analyzer for each line!!
-					//FIXME when the following happens?
-					//if (d.isEmpty())
-					//	stems = analyze(b, lang);
-
-					b="";
-					//concatenate stems
-					for (String s:stems){ b=b.concat(" "+s);}
-					b = b.trim();
-					if (ind>=0)
-						c=str.subSequence(str.indexOf("=")+1, str.indexOf(">")).toString().trim();
-					else
-						c=str.subSequence(str.indexOf("=")+1, str.length()).toString().trim();
-					Boolean flag=true;
-					String[] tempstr = new String[1];
-					for (int jj=0;jj<topic.size();jj++){
-						tempstr=topic.get(jj);
-						if (tempstr[1].equals(b) & tempstr[3].equals(d)){
-							double a1=Math.round((Double.parseDouble(a)+Double.parseDouble(tempstr[0]))/2);
-							a=Integer.toString((int)a1);
-							b_or=tempstr[4].trim();
-							flag=false;
-							topic.remove(jj);
-							topic.add(new String[] {a,b,c,d,b_or});
-						}
-					}
-					if (flag){
-						topic.add(new String[] {a,b,c,d,b_or});
-						//LOGGER.info(b+"\t"+b_or);
-					}
-					//topic.add(new String[] {a,b,c,d});
-				}
-				in.close();
-
-			}
-		} catch (IOException e) {e.printStackTrace();}
-		return topic;
-	}
+	
 
 	/**
 	 * Returns the stems of the text (in language) based on a naive analyzer of this language
@@ -215,58 +119,31 @@ public class TopicTools {
 
 		Double[] temp=new Double[kk];
 		System.arraycopy(temp1.toArray(), 0, temp, 0, kk);
-		Arrays.sort(temp);
+		
+		result = MAX_CONTENT_TERMS * Statistics.getMedian(temp) ;
+		
+		/*Arrays.sort(temp);
 		if (temp.length % 2 == 1) {
 			result = temp[((temp.length+1)/2)-1];
 		}else{
 			result = (temp[((temp.length)/2)-1]+temp[(temp.length)/2])/2;
 		}
-		result=MAX_CONTENT_TERMS *result;
+		result=MAX_CONTENT_TERMS *result;*/
 		return result;
 	}
 
-	public static String convertStreamToString(InputStream is)
-			throws IOException {
-		/*
-		 * To convert the InputStream to String we use the
-		 * Reader.read(char[] buffer) method. We iterate until the
-		 * Reader return -1 which means there's no more data to
-		 * read. We use the StringWriter class to produce the string.
-		 */
-		if (is != null) {
-			Writer writer = new StringWriter();
-
-			char[] buffer = new char[1024];
-			try {
-				Reader reader = new BufferedReader(
-						new InputStreamReader(is, "UTF-8"));
-				int n;
-				while ((n = reader.read(buffer)) != -1) {
-					writer.write(buffer, 0, n);
-				}
-			} finally {
-				is.close();
-			}
-			return writer.toString();
-		} else {       
-			return "";
-		}
-	}
-
 	/**
-	 * checks if a word of words is included in the text  
+	 * checks if text contains a word of a word list  
 	 * @param text
-	 * @param thresh
+	 * @param neg_words
 	 * @return
 	 */
 	public static Boolean findWords(String text, List<String> neg_words){
 		if (neg_words==null) 
 			return false;
 		Boolean isIncluded=false;
-		int ind=0;
-		for (int ii=0;ii<neg_words.size();ii++){
-			ind = text.indexOf(neg_words.get(ii)); 
-			if (ind>0){
+		for (String word:neg_words){
+			if (text.contains(word)){
 				isIncluded=true;
 				break;
 			}
@@ -282,8 +159,7 @@ public class TopicTools {
 	 * @param topic_termsALL
 	 * @return
 	 */
-	public static String findTopicTerms(String text,
-			ArrayList<String[]> topic_terms, String lang){
+	public static String findTopicTerms(String text, ArrayList<String[]> topic_terms, String lang){
 		String found="";
 		if (topic_terms==null || lang.isEmpty())
 			return found;
@@ -320,7 +196,7 @@ public class TopicTools {
 		return found;
 	}
 
-	
+
 	/**
 	 * selects paragraphs (Ps) with attribute "topic" from the cesDoc files that are in the targetDir.
 	 * Stores in the corpusFile: the fileName and eAddress of each cesDoc, the detected terms and the content of the Ps with these terms
@@ -357,5 +233,180 @@ public class TopicTools {
 		WriteResources.writetextfile(corpusFile.getAbsolutePath(), corpus);
 	}
 
+
+	/**
+	 * Analyzes the topicFile and  returns a list of terms with their properties i.e. weight, stemmed term, subclasses or class, language, original term.
+	 * Term threshold is calculate based on the median weight of the terms and the minimum number
+	 * of terms each text must have as defined on the config file.
+	 * @param topicDef
+	 * @param langs
+	 */
+	public static ArrayList<String[]> analyzeTopic(File topicFile, String[] targetlanguages ) {		
+		ArrayList<String[]> topicterms = new ArrayList<String[]>();
+
+		if (!topicFile.exists())
+			return topicterms;
+
+		BufferedReader in;
+		try {
+			in = new BufferedReader(new InputStreamReader(new FileInputStream(topicFile.getAbsolutePath()), "UTF-8"));
+			String str, a, b, c, d, b_or="";
+			while ((str = in.readLine()) != null) {
+				// Do not bother with commented out or empty lines
+				if (skipLineM.reset(str).matches()) 
+					continue;
+				a=str.subSequence(0, str.indexOf(":")).toString().trim();
+				b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().toLowerCase().trim();
+				b_or=b;
+
+				int ind=str.indexOf(">");
+				if (targetlanguages.length>1){
+					if (ind<0){
+						LOGGER.info("Even though the target languages are more than 1," +
+								" the language of term '"+str+"' is not defined. Modify the topic definition properly.");
+						System.exit(0);	
+					}
+					d=str.subSequence(ind+1, str.length()).toString().toLowerCase().trim();
+				}else{
+					d=targetlanguages[0].toString().trim();
+				}
+				boolean match = false;
+				for (String tlang:targetlanguages){
+					if (tlang.equals(d)) {
+						match = true;
+						break;
+					}
+				}
+				ArrayList<String> stems = new ArrayList<String>();
+				if (match);
+				stems = getStems(b, d); //FIXME Call Analyzer for each line!!
+				b="";
+				//concatenate stems
+				for (String s:stems){ b=b.concat(" "+s);}
+				b = b.trim();
+				if (ind>=0)
+					c=str.subSequence(str.indexOf("=")+1, str.indexOf(">")).toString().trim();
+				else
+					c=str.subSequence(str.indexOf("=")+1, str.length()).toString().trim();
+				Boolean flag=true;
+				String[] tempstr = new String[1];
+				for (int jj=0;jj<topicterms.size();jj++){
+					tempstr=topicterms.get(jj);
+					if (tempstr[1].equals(b) & tempstr[3].equals(d)){
+						double a1=Math.round((Double.parseDouble(a)+Double.parseDouble(tempstr[0]))/2);
+						a=Integer.toString((int)a1);
+						b_or=tempstr[4].trim();
+						flag=false;
+						topicterms.remove(jj);
+						topicterms.add(new String[] {a,b,c,d,b_or});
+					}
+				}
+				if (flag)
+					topicterms.add(new String[] {a,b,c,d,b_or});
+			}
+			in.close();
+		} catch (UnsupportedEncodingException e) {
+			LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			LOGGER.warn("File "+ topicFile.getAbsolutePath()+ " does not exist.");
+			e.printStackTrace();
+		} catch (IOException e) {
+			LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
+			e.printStackTrace();
+		}
+		return topicterms;
+	}
 	
+	/*	*//**
+	 * Parses the topic definition file and  returns a list of terms with their properties i.e. weight, stemmed term, subclasses or class, language, original term  
+	 * @param topicFile
+	 * @param targetlanguages
+	 * @param conf
+	 * @return
+	 *//*
+	//FIXME store topic definition in an Object with terms and their properties 
+	public static ArrayList<String[]> analyzeTopic(File topicFile, String[] targetlanguages, JobConf conf) {		
+		//topicdef:filename of file with the topic definition
+		//returns an array of strings with three columns (the triplets)
+		ArrayList<String[]> topic = new ArrayList<String[]>();
+		Path p = new Path(topicFile.getAbsolutePath());
+		//JobConf conf = new JobConf();
+		conf.setJarByClass(Crawl.class);
+		//System.err.println(conf.get("hadoop.tmp.dir"));
+		//conf.set("hadoop.tmp.dir", "hadoop-temp");
+
+		try {
+			FileSystem fs = FileSystem.get(conf);
+			if (!fs.exists(p)) 
+				LOGGER.info("The file for topic definition does not exist.");
+			else {
+				BufferedReader in = new BufferedReader(new InputStreamReader(fs.open(p),"UTF-8"));
+				String str, a, b, c, d, b_or="";
+				while ((str = in.readLine()) != null) {
+					// Do not bother with commented out or empty lines
+					if (skipLineM.reset(str).matches()) 
+						continue;
+					a=str.subSequence(0, str.indexOf(":")).toString().trim();
+					b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().toLowerCase().trim();
+					b_or=b;
+
+					int ind=str.indexOf(">");
+					if (targetlanguages.length>1){
+						if (ind<0){
+							LOGGER.info("Even though the target languages are more than 1," +
+									" the language of term '"+str+"' is not defined. Modify the topic definition properly.");
+							System.exit(0);	
+						}
+						d=str.subSequence(ind+1, str.length()).toString().toLowerCase().trim();
+					}else{
+						d=targetlanguages[0].toString().trim();
+					}
+					boolean match = false;
+					for (String tlang:targetlanguages){
+						if (tlang.equals(d)) {
+							match = true;
+							break;
+						}
+					}
+					ArrayList<String> stems = new ArrayList<String>();
+					if (match);
+					stems = getStems(b, d); //FIXME Call Analyzer for each line!!
+					//FIXME when the following happens?
+					//if (d.isEmpty())
+					//	stems = analyze(b, lang);
+
+					b="";
+					//concatenate stems
+					for (String s:stems){ b=b.concat(" "+s);}
+					b = b.trim();
+					if (ind>=0)
+						c=str.subSequence(str.indexOf("=")+1, str.indexOf(">")).toString().trim();
+					else
+						c=str.subSequence(str.indexOf("=")+1, str.length()).toString().trim();
+					Boolean flag=true;
+					String[] tempstr = new String[1];
+					for (int jj=0;jj<topic.size();jj++){
+						tempstr=topic.get(jj);
+						if (tempstr[1].equals(b) & tempstr[3].equals(d)){
+							double a1=Math.round((Double.parseDouble(a)+Double.parseDouble(tempstr[0]))/2);
+							a=Integer.toString((int)a1);
+							b_or=tempstr[4].trim();
+							flag=false;
+							topic.remove(jj);
+							topic.add(new String[] {a,b,c,d,b_or});
+						}
+					}
+					if (flag){
+						topic.add(new String[] {a,b,c,d,b_or});
+						//LOGGER.info(b+"\t"+b_or);
+					}
+					//topic.add(new String[] {a,b,c,d});
+				}
+				in.close();
+
+			}
+		} catch (IOException e) {e.printStackTrace();}
+		return topic;
+	}*/
 }
