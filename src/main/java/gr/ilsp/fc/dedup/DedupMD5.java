@@ -17,7 +17,6 @@ public class DedupMD5 {
 	private static final Logger LOGGER = Logger.getLogger(DedupMD5.class);
 	private static File input;
 	private static File out_textfile;
-	private static boolean html=false;
 	private static final String appHTMLext = ".html";
 	private static final String appXMLHTMLext = ".xml.html";
 	private static final String UNDERSCORE_STR = "_";
@@ -44,10 +43,7 @@ public class DedupMD5 {
 			System.exit(64);
 		}
 		out_textfile =outputfilename;
-		if (!(outputHTMLfilename==null)){
-			html=true;
-		}
-
+		
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
 				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type) && !arg1.contains(UNDERSCORE_STR));
@@ -120,11 +116,9 @@ public class DedupMD5 {
 		for (File file:files){
 			remFiles.add(file); 
 		}
-		if (out_textfile.exists()){
-			WriteResources.WriteTextList(remFiles, out_textfile);
-			if (html){
-				WriteResources.WriteHTMLList(remFiles, outputHTMLfilename, applyOfflineXSLT);
-			}
+		WriteResources.WriteTextList(remFiles, out_textfile);
+		if (applyOfflineXSLT){
+				WriteResources.WriteHTMLList(remFiles, outputHTMLfilename);
 		}
 		long elapsedTime = System.currentTimeMillis()-start;
 		LOGGER.info("Deduplication completed in " + elapsedTime + " milliseconds. "+ remFiles.size() +  " files remained.");

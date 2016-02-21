@@ -10,31 +10,38 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+//import org.apache.hadoop.mapred.JobConf;
 import org.apache.log4j.Logger;
 
 
 public class ExporterOptions {
 	private static final Logger LOGGER = Logger.getLogger(ExporterOptions.class);
+	private static final String SEPARATOR = ";";
+	private static final String XMLlist = ".XMLlist.txt";
+	private static final String XMLHTMLlist = ".XMLlist.html";
+	
+	private String APPNAME = "Export";
 	private Options options;
+	
 	private File _inputdir;
-	private File _outputdir = null;
+	private File _outputdir;
 	private File _topic;
 	private File _negwords;
 	private File _outputFile;
 	private File _outputFileHTML;
 	
 	private String[] _targetlanguages;
+		
+	private int _length=3;
+	private int _minTokensNumber=100;
 	
-	private static final String SEPARATOR = ";";
-	private String APPNAME = "Crawl export";
-	private int _length;
-	private int _minTokensNumber;
 	private boolean _textexport=false;
-	private boolean _cesdoc=false;
-	private boolean _html=false;
-	private String _paths_repl=null;
+	private boolean _offline=false;
+	private boolean _applyOfflineXSLT=false;
 	
-	private String _targetDomain;
+	private String _paths_repl="";
+	private String _targetDomain="";
+	
 	private URL _genre;
 	private String _config;
 	
@@ -50,6 +57,9 @@ public class ExporterOptions {
 				.withDescription( "XML file with configuration for the crawler." )
 				.hasArg()
 				.create("cfg") );
+		options.addOption( OptionBuilder.withLongOpt( "offline" )
+				.withDescription( "cleaning and normalization will be applied, i.e. HTML will be processed, other info will be extracted from RUN dirs")
+				.create("off") );
 		options.addOption( OptionBuilder.withLongOpt( "inputdir" )
 				.withDescription( "Directory containing crawled data" )
 				.hasArg()
@@ -81,30 +91,24 @@ public class ExporterOptions {
 		options.addOption( OptionBuilder.withLongOpt( "negwords" )
 				.withDescription( "Path to file containing negative words")
 				.hasArg()
-				.create("n") );
+				.create("neg") );
 		options.addOption( OptionBuilder.withLongOpt( "outputdir" )
 				.withDescription( "output directory" )
 				.hasArg()
 				.create("o") );	
-		options.addOption( OptionBuilder.withLongOpt( "html_outlist" )
-				.withDescription( "outputlist in html format" )				
-				.create("ofh") );
 		options.addOption( OptionBuilder.withLongOpt( "text_outlist" )
 				.withDescription( "outputlist in text format" )				
 				.create("of") );
 		options.addOption( OptionBuilder.withLongOpt( "textexport" )
 				.withDescription( "Export raw txt files" )				
 				.create("te") );
-	/*	options.addOption( OptionBuilder.withLongOpt( "export" )
-				.withDescription( "export" )
-				.create("export") );*/
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
 				.hasArg()
 				.create("h") );
-		options.addOption( OptionBuilder.withLongOpt( "style" )
-				.withDescription( "add stylesheet" )				
-				.create("ces") );
+		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
+				.withDescription( "Apply an xsl transformation to generate list of links pointing to HTML (rendered XML) files.")
+				.create("oxslt") );
 
 		options.addOption( OptionBuilder.withLongOpt( "paths_replacements" )
 				.withDescription( "Put the strings to be replaced, separated by ';'." +
@@ -134,29 +138,27 @@ public class ExporterOptions {
 				_inputdir = new File(_inputdir.getAbsolutePath());
 			}
 			else help();
-
+			if(line.hasOption( "off")) {
+				_offline=true;
+			}
 			if(line.hasOption( "l")) {
 				_targetlanguages = line.getOptionValue("l").split(SEPARATOR);
 			}
 			if(line.hasOption( "t")) {
 				_topic = new File(line.getOptionValue("t"));
 				_topic = new File(_topic.getAbsolutePath());
+				//_topicterms = TopicTools.analyzeTopic(_topic, _targetlanguages);
 			}
 			if(line.hasOption( "dom")) {
 				if (_topic==null){
-					LOGGER.error("The targeted domain is defined but " +
-							"a topic definition is not applied. " +
-							"Regarding Topic definition and targeted domain," +
-							" you should either define both or none of them.");
+					LOGGER.warn("The targeted domain is defined but a topic definition is not applied. " +
+							"So, the domain will be used as provided, i.e. it will not be identified.");
 					help();
 				}else
 					_targetDomain = line.getOptionValue("dom");
 			}else{
 				if (_topic!=null){
-					LOGGER.error("Even though a topic definition is applied " +
-							"the targeted domain is not defined. "+
-							"Regarding Topic definition and targeted domain," +
-							"you should either define both or none of them.");
+					LOGGER.error("Even though a topic definition is applied the targeted domain is not defined. Define a domain name ");
 					help();
 				}
 			}
@@ -177,7 +179,7 @@ public class ExporterOptions {
 			if(line.hasOption( "mtlen")) {
 				_minTokensNumber = Integer.parseInt(line.getOptionValue("mtlen"));
 			} 
-			if(line.hasOption( "n")) {
+			if(line.hasOption( "neg")) {
 				_negwords = new File(line.getOptionValue("n"));
 				_negwords = new File(_negwords.getAbsolutePath());
 			} 
@@ -189,19 +191,12 @@ public class ExporterOptions {
 				_outputdir = new File(_outputdir.getAbsolutePath());
 			} else help();						
 			if(line.hasOption( "of")) {
-				_outputFile = new File(line.getOptionValue("of"));
-				_outputFile = new File(_outputFile.getAbsolutePath());
+				_outputFile = new File(line.getOptionValue("of") );
+				_outputFile = new File(_outputFile.getAbsolutePath()+XMLlist);
+				if(line.hasOption( "oxslt")) {
+					_outputFileHTML = new File(line.getOptionValue("of")+XMLHTMLlist);
+				} 
 			} else help();				
-			if(line.hasOption( "ofh")) {
-				_outputFileHTML = new File(line.getOptionValue("ofh"));
-				_outputFileHTML = new File(_outputFileHTML.getAbsolutePath());
-				_html = true;
-			}else{
-				_html = false;
-			}
-			if(line.hasOption( "ces")) {
-				_cesdoc = true;
-			} 
 			if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
 				if (_paths_repl.endsWith("/")){
@@ -214,6 +209,7 @@ public class ExporterOptions {
 			System.exit(64);
 		}
 	}
+	
 	public  void help(){
 		printHelp( APPNAME  , options );
 		System.exit(0);
@@ -252,11 +248,11 @@ public class ExporterOptions {
 	public boolean get_textexport(){
 		return _textexport;
 	}
-	public boolean get_style(){
-		return _cesdoc;
+	public boolean getRunOffLine(){
+		return _offline;
 	}
-	public boolean get_htmloutput(){
-		return _html;
+	public boolean applyOfflineXSLT(){
+		return _applyOfflineXSLT;
 	}
 	public  File getOutputFile() {
 		return _outputFile;
@@ -272,5 +268,8 @@ public class ExporterOptions {
 	}
 	public String getConfig(){
 		return _config;
+	}
+	public boolean runOffLine(){
+		return _offline;
 	}
 }

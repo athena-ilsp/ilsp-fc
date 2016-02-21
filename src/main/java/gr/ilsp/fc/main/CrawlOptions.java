@@ -57,7 +57,7 @@ public class CrawlOptions {
 	private String _config;
 	private String ws_dir;
 	private String _methods = "auidsp";
-	
+
 	//private String default_genrefile="genres_keys.txt";
 	private URL _genre;
 
@@ -76,28 +76,32 @@ public class CrawlOptions {
 	private  int _threads = 10;
 	private  int _numLoops = 1;
 	private  int _crawlDuration = 10;	
-	private  int _minTokensNumber = 200;
+	private  int _minTokensNumber = 100;
 	private  int _length = 3;
 
 	private boolean _debug = false;
 	private boolean _del=false;
 	private boolean _keepBoiler = true;
 	private boolean _keepimagefp=false;
-	private boolean _cesAlign = false;
+	//private boolean _xslt = false;
 	private boolean _force = false;
-	private boolean offlineXSLT = false;
+	private boolean _offlineXSLT = false;
 	private boolean _cc = false;
 	private boolean _metadata = false;
 
+	private static final String XMLlist = ".XMLlist.txt";
+	private static final String XMLHTMLlist = ".XMLlist.html";
+	private static final String TMXlist = ".TMXlist.txt";
+	private static final String TMXHTMLlist = ".TMXlist.html";
+	private static final String TMXEXT = ".tmx";
+	private static final String HTMLEXT = ".html";
 	private static final String UNDERSCORE_STR = "_";
-	private static final String EXTHTML = ".html";
-	private static final String TMX_STR = "tmx";
 	private static final Logger LOGGER = Logger.getLogger(CrawlOptions.class);
 	private static final String type_p = "p";
 	private static final String type_q = "q";
 	private static final String type_m = "m";
 	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
-	private static final String QUEST_SEPAR = ";";
+	private static final String SEMI_SEPAR = ";";
 	private static final String DOUBLEQUEST_SEPAR = ";;";
 
 	private static String _selectDocs = "auidhml";
@@ -140,7 +144,7 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt("crawl")
 				.withDescription( "if exists, operation includes crawl" )				
 				.create("crawl") );
-		
+
 		options.addOption( OptionBuilder.withLongOpt("export")
 				.withDescription( "if exists, operation includes export to cesDoc files of downloaded documents" )				
 				.create("export") );
@@ -171,7 +175,7 @@ public class CrawlOptions {
 				.hasArg()
 				.create("segtypes") );
 
-	/*	options.addOption( OptionBuilder.withLongOpt( "dictionary for aligning sentences" )
+		/*	options.addOption( OptionBuilder.withLongOpt( "dictionary for aligning sentences" )
 				.withDescription( "This dictionary will be used for the sentence alignment" +
 						"If has no argument the default dictionary of the aligner will be used if exists" )
 						.hasOptionalArg()
@@ -184,12 +188,6 @@ public class CrawlOptions {
 				.withDescription( "A descriptive title for the targeted domain" )
 				.hasArg()
 				.create("dom") );
-
-		/*options.addOption( OptionBuilder.withLongOpt("hostdomain")
-				.withDescription( "domain to crawl (e.g. cnn.com) or path to file " +
-						"with domains to crawl. Use for crawling ONLY inside specific domain(s)" )
-						.hasArg()
-						.create("d") );*/
 		options.addOption( OptionBuilder.withLongOpt("stay_in_webdomain")
 				.withDescription( "Force monolingual crawler to stay in a specific webdomain" )				
 				.create("d") );
@@ -197,7 +195,6 @@ public class CrawlOptions {
 				.withDescription( "file with list of urls to crawl" )
 				.hasArg()
 				.create("u") );
-
 		options.addOption( OptionBuilder.withLongOpt( "inputdir" )
 				.withDescription( "input directory for deduplication, or pairdetection, or alignment" )
 				.hasArg()
@@ -210,23 +207,6 @@ public class CrawlOptions {
 				.withDescription( "fullpath of text file with list of paths of XML files" )
 				.hasArg()
 				.create("of") );
-		options.addOption( OptionBuilder.withLongOpt( "outputHTML_XML" )
-				.withDescription( "fullpath of HTML file with links pointing to HTML (rendered XML) files" )
-				.hasArg()
-				.create("ofh") );
-		options.addOption( OptionBuilder.withLongOpt( "outputTMX" )
-				.withDescription( "fullpath of text file with list of paths of TMX files" )
-				.hasArg()  
-				.create("oft") );
-		options.addOption( OptionBuilder.withLongOpt( "outputHTML_TMX" )
-				.withDescription( "fullpath of HTML file with links pointing to HTML (rendered TMX) files" )
-				.hasArg()  
-				.create("ofth") );
-		options.addOption( OptionBuilder.withLongOpt( "tmx" )
-				.withDescription( "fullpath of the TMX file to be constructed by merging the generated TMX files, excluding : a) 0:1 segment pairs, b)identical tus, c) tus with identical tuvs" )
-				.hasArg()  
-				.create("tmx") );
-
 		options.addOption( OptionBuilder.withLongOpt( "agentname" )
 				.withDescription( "user agent name" )
 				.hasArg()
@@ -262,7 +242,6 @@ public class CrawlOptions {
 				.withDescription( "if exists, it forces to start new crawl. " +
 						"Caution: This will remove any previous crawl data (if they exist)." )				
 						.create("f") );		
-
 		options.addOption( OptionBuilder.withLongOpt( "length" )
 				.withDescription( "Minimum number of tokens per text block. Shorter text block will be annoteted as \"ooi-length\"" )	
 				.hasArg()
@@ -283,20 +262,11 @@ public class CrawlOptions {
 				.withDescription( "Use this regex to force crawler storing only webpages with urls that match this regex." )	
 				.hasArg()
 				.create("storefilter") );
-		/*options.addOption( OptionBuilder.withLongOpt( "specialFilter" )
-				.withDescription( "Use this special filter for filter urls in order to stay in sub webdomains." )	
-				.hasArg()
-				.create("filter") );*/
-
 		options.addOption( OptionBuilder.withLongOpt( "language(s)" )
 				.withDescription( "Iso code(s) of target language(s). If more than one, separate them with ';', " +
 						"i.e. en;el" )
 						.hasArg()
 						.create("lang") );
-
-		options.addOption( OptionBuilder.withLongOpt( "xslt" )
-				.withDescription( "Insert a stylesheet for rendering xml results as html.")
-				.create("xslt") );
 		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
 				.withDescription( "Apply an xsl transformation to generate html files during exporting.")
 				.create("oxslt") );
@@ -323,12 +293,11 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt( "licence_detected_for_document_pairs" )
 				.withDescription( "If exists, only document pairs for which"
 						+ " a license has been detected will be selected in generating the merged TMX.")
-				.create("cc") );
-		
+						.create("cc") );
 		options.addOption( OptionBuilder.withLongOpt( "export_metadata_of_the_collection" )
 				.withDescription( "If exists, metadata of the collection (i.e. the merged TMX file), will be exported")
 				.create("metadata") );
-		
+
 		return options;
 	}
 
@@ -350,7 +319,7 @@ public class CrawlOptions {
 			if(line.hasOption( PAIRDETECT_operation)) 	{	_operation=_operation+PAIRDETECT_operation;		}
 			if(line.hasOption( ALIGN_operation)) 		{	_operation=_operation+ALIGN_operation;			}
 			if(line.hasOption( TMX_MERGE_operation)) 	{	_operation=_operation+TMX_MERGE_operation;		}
-			
+
 			//get parameters concerning languages
 			if(line.hasOption( "lang")) {
 				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase());
@@ -364,14 +333,14 @@ public class CrawlOptions {
 			if(line.hasOption( "i"))			{	_inputDir = new File(line.getOptionValue("i"));			}
 			if(line.hasOption( "o"))			{	_outputDir = new File(line.getOptionValue("o"));		}
 
+			if (_operation.contains(CRAWL_operation)){
+				getParams4Crawl(line);
+			}
 			if (_operation.contains(TMX_MERGE_operation) /*|| _operation.contains(CREATEPCORPUS_operation)*/){
 				getParams4MergingAlignments(line);
 			}
 			if (_operation.contains(ALIGN_operation)){
 				getParams4Align(line);
-			}
-			if (_operation.contains(CRAWL_operation)){
-				getParams4Crawl(line);
 			}
 			if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation)){
 				getParams4Topicness(line);
@@ -383,51 +352,31 @@ public class CrawlOptions {
 				}	
 			}
 			if (_operation.contains(PAIRDETECT_operation)){
-				if(line.hasOption( "ifp")) {
+				if(line.hasOption( "ifp")) 
 					_keepimagefp  = true;
-				}
-				if(line.hasOption( "meth")) {
+				if(line.hasOption( "meth"))
 					_methods = line.getOptionValue("meth");
-				}
-				if(line.hasOption( "del")) 		{	_del  = true;				}
+				if(line.hasOption( "del")) 		
+					_del  = true;
 			}
-
 			if (line.hasOption( "of")) {
-				_outputFile = new File(line.getOptionValue("of"));
-				//_outputFile = of.getAbsolutePath();
-				if (line.hasOption( "ofh")){
-					if (line.hasOption( "oxslt")){
-						_outputFileHTML = new File(line.getOptionValue("ofh"));
-						//_outputFileHTML = ofh.getAbsolutePath();
-					}else{
-						LOGGER.error("File for the output list to HTML (rendered XML) files but transformation of XML to HTML will not be done. Add -oxslt or remove -ofh");
-						_outputFileHTML=null;
-						System.exit(0);
-					}
-				}
-				else{
-					LOGGER.info("File for the output list to HTML (rendered XML) files will not be generated.");
-					_outputFileHTML=null;
-				}
+				_outputFile = new File(line.getOptionValue("of")+XMLlist);
+				if (line.hasOption( "oxslt"))
+					_outputFileHTML = new File(line.getOptionValue("of")+XMLHTMLlist);
 			}else{
 				if (_operation.contains(EXPORT_operation)){
 					LOGGER.error("Outputfile required since exporting is asked");
 					System.exit(0);
 				}
 			}
-
 			if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
 				if (_paths_repl.endsWith("/")){
 					_paths_repl=_paths_repl.substring(0, _paths_repl.length()-1);
 				}
 			}
-			if(line.hasOption( "xslt")) 
-				_cesAlign  = true;
-			if(line.hasOption( "oxslt")) {
-				_cesAlign  = false;
-				offlineXSLT = true;
-			}
+			if(line.hasOption( "oxslt")) 
+				_offlineXSLT  = true;
 		} catch( ParseException exp ) {
 			// oops, something went wrong
 			System.err.println( "Parsing options failed.  Reason: " + exp.getMessage() );			
@@ -546,7 +495,7 @@ public class CrawlOptions {
 			}
 		}
 		if (_type.equals(type_p) | _type.equals(type_q)){
-			if (!_language.contains(QUEST_SEPAR)){
+			if (!_language.contains(SEMI_SEPAR)){
 				LOGGER.error("You crawl for parallel or comparable but only 1 language has been defined.");
 				help();
 			}
@@ -557,7 +506,7 @@ public class CrawlOptions {
 				String[] aa=temp.split(DOUBLEQUEST_SEPAR);
 				String[][] urls_repls =new String[aa.length][2];  
 				for (int ii=0;ii<aa.length;ii++){
-					String[] bb = aa[ii].split(QUEST_SEPAR);
+					String[] bb = aa[ii].split(SEMI_SEPAR);
 					if (bb.length<=1){
 						LOGGER.error("the argument for URL replacements is not correct." +
 								" Use ;; to seperate pairs and ; to separate the parts of each pair." +
@@ -691,23 +640,25 @@ public class CrawlOptions {
 		}else{
 			_dict=null;
 		}
-		if (line.hasOption( "oft")) {
-			_outputFileTMX = new File(line.getOptionValue("oft"));		
-		} else {
-			LOGGER.error("You asked for sentence alignment but" +
-					" no file for list to TMX files is provided.");
-			help();
-		}
-		if (line.hasOption( "ofth")) {
-			if (line.hasOption( "oxslt")){
-				_outputFileHTMLTMX  = new File(line.getOptionValue("ofth"));
-			}else{
-				LOGGER.info("File for the output list to HTML (rendered XML) files but transformation of XML to HTML will not be done. Add -oxslt.");
-				_outputFileHTMLTMX=null;
-			}
-		}else{
-			_outputFileHTMLTMX=null;	
-		}
+		//if (line.hasOption( "oft")) {
+		//_outputFileTMX = new File(line.getOptionValue("oft"));	
+		_outputFileTMX = new File(line.getOptionValue("of")+TMXlist);	
+		//} else {
+		//	LOGGER.error("You asked for sentence alignment but" +
+		//			" no file for list to TMX files is provided.");
+		//	help();
+		//}
+		//if (line.hasOption( "ofth")) {
+		if (line.hasOption( "oxslt"))//{
+			//_outputFileHTMLTMX  = new File(line.getOptionValue("ofth"));
+			_outputFileHTMLTMX = new File(line.getOptionValue("of")+TMXHTMLlist);	
+		//	}else{
+		//		LOGGER.info("File for the output list to HTML (rendered XML) files but transformation of XML to HTML will not be done. Add -oxslt.");
+		//_outputFileHTMLTMX=null;
+		//	}
+		//}else{
+		//	_outputFileHTMLTMX=null;	
+		//}
 	}
 
 	/**
@@ -719,18 +670,14 @@ public class CrawlOptions {
 	 * @param line
 	 */
 	private void getParams4MergingAlignments(CommandLine line) {
-		if (line.hasOption(TMX_STR)){
-			_outputFile_mergedTMX = new File(line.getOptionValue(TMX_STR));	
-		}else{
-			LOGGER.error("You should use tmx parameter since TMXMerging is asked");
-			System.exit(0);
-		}
-		_outputFile_mergedTMXHTML = new File(_outputFile_mergedTMX.getAbsolutePath()+EXTHTML);
+		_outputFile_mergedTMX =  new File(line.getOptionValue("of")+TMXEXT);
+		if (line.hasOption( "oxslt"))	
+			_outputFile_mergedTMXHTML = new File(line.getOptionValue("of")+HTMLEXT);
 		if (line.hasOption("doctypes")){
 			_selectDocs = line.getOptionValue("doctypes");
 		}
 		if (line.hasOption("segtypes")){
-			String[] temp= line.getOptionValue("segtypes").split(QUEST_SEPAR); 
+			String[] temp= line.getOptionValue("segtypes").split(SEMI_SEPAR); 
 			for (String str:temp){
 				_selectSegs.add(str);
 			}
@@ -747,7 +694,7 @@ public class CrawlOptions {
 	 */
 	private void checkAnalyzers(String languages) {
 		Analyzer analyzer =null;
-		String[] langs=languages.split(QUEST_SEPAR);
+		String[] langs=languages.split(SEMI_SEPAR);
 		for (int ii=0;ii<langs.length;ii++){
 			try {
 				AnalyzerFactory analyzerFactory = new AnalyzerFactory();
@@ -792,7 +739,7 @@ public class CrawlOptions {
 	 */
 	private String[] findKeys4lang(String language) {
 		ArrayList<String> langKeys=new ArrayList<String>();
-		String[] langs = _language.split(QUEST_SEPAR);
+		String[] langs = _language.split(SEMI_SEPAR);
 		try {
 			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
 			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
@@ -943,9 +890,9 @@ public class CrawlOptions {
 	public String getPathReplace() {
 		return _paths_repl;
 	}
-	public boolean getAlign() {
-		return _cesAlign;
-	}
+	//public boolean useXSLT() {
+	//	return _xslt;
+	//}
 	public String getDesc() {
 		return _descr;
 	}
@@ -959,10 +906,7 @@ public class CrawlOptions {
 		return _keepimagefp;
 	}
 	public boolean isOfflineXSLT() {
-		return offlineXSLT;
-	}
-	public void setOfflineXSLT(boolean offlineXSLT) {
-		this.offlineXSLT = offlineXSLT;
+		return _offlineXSLT;
 	}
 	public int getminTokenslength() {
 		return _minTokensNumber;

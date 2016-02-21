@@ -178,7 +178,7 @@ public abstract class Aligner {
 			outputHTMLTMXList = new File(outputTMXList.getAbsolutePath()+appHTMLext);
 		}
 
-		WriteResources.WriteHTMLList(htmlTmxFiles, outputHTMLTMXList, true);
+		WriteResources.WriteHTMLList(htmlTmxFiles, outputHTMLTMXList);
 
 		StringBuffer tmxContent = new StringBuffer();
 		int tmxI = 0;

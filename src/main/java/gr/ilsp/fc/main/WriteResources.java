@@ -57,23 +57,18 @@ public class WriteResources {
 	/**
 	 * Generates HTML file with list of links pointing to the cesDocFiles or the transformed cesDocFiles
 	 */
-	public static void WriteHTMLList(List<File> htmlTmxFiles, File outputFileHTML, boolean applyOfflineXSLT) {
+	public static void WriteHTMLList(List<File> htmlTmxFiles, File outputFileHTML) {
 		if (htmlTmxFiles.size()>0){
 			OutputStreamWriter xmlFileListWrt1;
 			try {
 				xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputFileHTML),"UTF-8");
 				xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
-				String ttt, fileURL;
+				String ttt;
 				for (File file: htmlTmxFiles) {
 					if (!file.getAbsolutePath().endsWith(appHTMLext)){
 						file = new File(file.getAbsolutePath()+appHTMLext);
 					}
-					fileURL = file.getAbsolutePath().replace("\\","/");
-					if (applyOfflineXSLT){
-						ttt= "<a href=\""+fileURL+"\">\n"+file.getName()+"</a>";
-					}else{
-						ttt= "<a href=\""+file.getAbsolutePath()+"\">\n"+file.getName()+"</a>";
-					}
+					ttt= "<a href=\""+file.getAbsolutePath()+"\">\n"+file.getName()+"</a>";
 					xmlFileListWrt1.write("<br />"+ttt.replace("\\","/")+"\n");
 				}
 				xmlFileListWrt1.write("</html>");

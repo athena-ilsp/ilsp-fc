@@ -96,8 +96,6 @@ public class Crawl {
 	private static final String ALIGN_operation = "align";
 	private static final String CONFIG_operation = "config";
 	private static final String TMXMERGE_operation = "tmxmerge";
-	//private static final String CREATEPCORPUS_operation = "pcorpus";
-	
 	//parameters for configuration files
 	private static final String DEFAULT_CONFIG_FILE= "crawler_config.xml";
 	private static final String DEFAULT_MONO_CONFIG_FILE = "FMC_config.xml";
@@ -125,7 +123,6 @@ public class Crawl {
 	private static String dedup_method ="0";
 	//parameters for valid TMXs
 	private static String detectpair_methods ="aupdis"; //i.e. href,url,images,digits, structure
-	//private static int[] thres = new int[] { 5, 5, 5, 5, 5, 8, 8}; //maximum numbers of 0:1 segments in a TMX per pair detection method
 	private static int[] thres = new int[] { 5, 5, 5, 5, 5, 5, 5, 5}; //maximum numbers of 0:1 segments in a TMX per pair detection method
 
 	/**
@@ -504,12 +501,11 @@ public class Crawl {
 				se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
 				se.setTargetLanguages(options.getLanguage().split(QUESTION_SEP));
 				se.setCrawlDirName(outputDirName);
-				se.setOutputFile(options.getOutputFile());	
 				se.setTopic(options.getTopic());
-				se.setStyleExport(options.getAlign()); 
-				se.setOutputFileHTML(options.getOutputFileHTML());
-				se.setHTMLOutput(options.getOutputFileHTML()!=null);
+				se.setRunOffLine(false);
 				se.setApplyOfflineXSLT(options.isOfflineXSLT());
+				se.setOutputFile(options.getOutputFile());
+				se.setOutputFileHTML(options.getOutputFileHTML());	
 				se.setAcceptedMimeTypes(mimes);
 				se.setTargetedDomain(options.getTargetedDomain());
 				se.setGenres(options.getGenre());
@@ -535,7 +531,7 @@ public class Crawl {
 					ded.setOutTextList(options.getOutputFile());
 					ded.setOutHTMLList(options.getOutputFileHTML());
 					ded.setExcludeSetFiles(filesinPairs);
-					ded.setApplyXSLT(options.isOfflineXSLT());
+					ded.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ded.setMIN_TOK_LEN(MIN_TOK_LEN);
 					ded.setMIN_PAR_LEN(MIN_PAR_LEN);
 					ded.setIntersectionThr(intersection_thres);
@@ -589,7 +585,7 @@ public class Crawl {
 					ded.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
 					ded.setOutTextList(options.getOutputFile());
 					ded.setOutHTMLList(options.getOutputFileHTML());
-					ded.setApplyXSLT(options.isOfflineXSLT());
+					ded.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ded.setMIN_TOK_LEN(MIN_TOK_LEN);
 					ded.setMIN_PAR_LEN(MIN_PAR_LEN);
 					ded.setIntersectionThr(intersection_thres);
@@ -731,7 +727,8 @@ public class Crawl {
 	 */
 	private static void parseTopicDefinition(File topicFile, String[] langs) {
 		if (topicFile!=null){
-			topic=TopicTools.analyzeTopic(topicFile,langs, conf);
+			//topic=TopicTools.analyzeTopic(topicFile,langs, conf);
+			topic=TopicTools.analyzeTopic(topicFile,langs);
 			if (topic.isEmpty()){
 				LOGGER.error("Even though a file for topic definition is defined, no terms have been found (check the file for existance and/or format).");
 				System.exit(0);

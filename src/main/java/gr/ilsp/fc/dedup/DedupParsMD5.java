@@ -22,7 +22,6 @@ public class DedupParsMD5 {
 	private static final Logger LOGGER = Logger.getLogger(DedupParsMD5.class);
 	private static File input;
 	private static File out_textfile;
-	private static boolean html=false;
 	private static final String xmlext="xml";
 	private static final String txtext="txt";
 	private static final String appHTMLext = ".html";
@@ -48,15 +47,11 @@ public class DedupParsMD5 {
 			File outputHTMLfilename, 	boolean applyOfflineXSLT, int MIN_PAR_LEN, double inter_thr, final String input_type) {
 
 		input= indirname;
-
 		if (!input.exists() || !input.isDirectory()){
 			System.err.println( "the directory with the cesdoc files does not exist!!!!!!!!" );			
 			System.exit(64);
 		}
 		out_textfile =outputfilename;
-		if (!(outputHTMLfilename==null)){
-			html=true;
-		}
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
 				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type) && !arg1.contains(UNDERSCORE_STR));
@@ -184,12 +179,11 @@ public class DedupParsMD5 {
 		for (File file:files){
 			remFiles.add(file); 
 		}
-		if (out_textfile.exists()){
-			WriteResources.WriteTextList(remFiles, out_textfile);
-			if (html){
-				WriteResources.WriteHTMLList(remFiles, outputHTMLfilename, applyOfflineXSLT);
-			}
+		WriteResources.WriteTextList(remFiles, out_textfile);
+		if (applyOfflineXSLT){
+				WriteResources.WriteHTMLList(remFiles, outputHTMLfilename);
 		}
+	
 		long elapsedTime = System.currentTimeMillis()-start;
 		LOGGER.info("Deduplication completed in " + elapsedTime + " milliseconds. "+ remFiles.size() +  " files remained.");
 	}

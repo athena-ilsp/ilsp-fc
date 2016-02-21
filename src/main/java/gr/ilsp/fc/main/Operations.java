@@ -24,13 +24,9 @@ import org.apache.log4j.Logger;
 public class Operations {
 	private static final Logger LOGGER = Logger.getLogger(Operations.class);
 	private static final String XML_EXTENSION = ".xml";
-	//private static final String TMX_EXTENSION = ".tmx";
-	//private static final String HTML_EXTENSION = ".html";
 	private static final String UNDERSCORE_STR = "_";
 	private static final String QUESTION_SEP=";";
-	//private static final String type_p ="p";
 	private static String default_dedup_method="0";
-	//private static String default_pairdetect_method="auids";
 
 	/**
 	 * detects pairs of candidate parallel documents 
@@ -75,7 +71,7 @@ public class Operations {
 		ded.setOutHTMLList(options.getOutputFileHTML());
 		ded.setExcludeSetFiles(null);
 		ded.setInputType(XML_EXTENSION.substring(1));
-		ded.setApplyXSLT(options.isOfflineXSLT());
+		ded.setApplyOfflineXSLT(options.isOfflineXSLT());
 		ded.setIntersectionThr(0.7);
 		ded.setMIN_TOK_LEN(3);
 		ded.setMIN_PAR_LEN(3);
@@ -96,16 +92,16 @@ public class Operations {
 		se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
 		se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
 		se.setTargetLanguages(options.getLanguage().split(QUESTION_SEP));
+		se.setTopic(options.getTopic());
+		se.setTargetedDomain(options.getTargetedDomain());
 		se.setCrawlDirName(options.getInputDir());
 		se.setOutputFile(options.getOutputFile());	
-		se.setTopic(options.getTopic());
-		se.setStyleExport(options.getAlign()); 
 		se.setOutputFileHTML(options.getOutputFileHTML());
-		se.setHTMLOutput(options.getOutputFileHTML()!=null);
+		//FIXME
+		se.setRunOffLine(false); 
 		se.setApplyOfflineXSLT(options.isOfflineXSLT());
 		se.setAcceptedMimeTypes( config.getStringArray("fetcher.valid_mime_types.mime_type[@value]"));
-		se.setTargetedDomain(options.getTargetedDomain());
-		se.setGenres(options.getGenre());
+		//se.setGenres(options.getGenre());
 		Map<String, String> urlsToIds_empty = new HashMap<String, String>();
 		se.setUrlsToIds(urlsToIds_empty);
 		se.export(false);
@@ -197,6 +193,4 @@ public class Operations {
 		ha.setMetadata(options.getMetadata());
 		ha.mergeTMXs();
 	}
-
-
 }

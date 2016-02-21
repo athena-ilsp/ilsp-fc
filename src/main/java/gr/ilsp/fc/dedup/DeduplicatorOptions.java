@@ -17,11 +17,13 @@ public class DeduplicatorOptions {
 	private Options options;
 	private String APPNAME = "(Near) Deduplication";
 	private static String SEPARATOR = ";";
+	private static final String XMLlist = ".XMLlist.txt";
+	private static final String XMLHTMLlist = ".XMLlist.html";
 	private String _method="0";
 	private static double inter_thr=0.7; //intersection of common paragraphs
 	private static int MIN_TOK_LEN = 3; //tokens with less that MIN_TOK_LEN letters are excluded
 	private static int MIN_PAR_LEN = 3; //paragraphs with less than MIN_PAR_LEN tokens are excluded
-	private static boolean applyXSLT= true;
+	private static boolean _applyOfflineXSLT= true;
 	private File _targetDir = null;
 	private File _outTextList = null;
 	private File _outHTMLList = null;
@@ -69,17 +71,17 @@ public class DeduplicatorOptions {
 				.withDescription( "textfile with list of paths of the remained cesDocFiles" )
 				.hasArg()
 				.create("of") );
-		options.addOption( OptionBuilder.withLongOpt( "outputHTMLFile" )
+		/*options.addOption( OptionBuilder.withLongOpt( "outputHTMLFile" )
 				.withDescription( "HTML file with list of links pointing to the remained cesDocFiles" )
 				.hasArg()
-				.create("ofh") );
+				.create("ofh") );*/
 		options.addOption( OptionBuilder.withLongOpt( "exclude_files" )
 				.withDescription( "cesDocFiles to be excluded for deduplication separated by \";\"" )	
 				.hasArg()
 				.create("ex") );
-		options.addOption( OptionBuilder.withLongOpt( "apply_XSLT" )
+		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
 				.withDescription( "cesDocFiles have been XSLT transformed" )				
-				.create("xs") );
+				.create("oxslt") );
 		/*options.addOption( OptionBuilder.withLongOpt( "deduplication" )
 				.withDescription( "near deduplication" )
 				.create("dedup") );*/
@@ -111,23 +113,20 @@ public class DeduplicatorOptions {
 			}
 			if(line.hasOption( "of")){
 				_outTextList = new File(line.getOptionValue("of"));
-				_outTextList = new File(_outTextList.getAbsolutePath());
+				_outTextList = new File(_outTextList.getAbsolutePath()+XMLlist);
 			}
 			if(line.hasOption( "int"))
 				_inputType = line.getOptionValue("int");
 			
-			if(line.hasOption( "ofh")){
-				_outHTMLList = new File(line.getOptionValue("ofh"));
-				_outHTMLList = new File(_outHTMLList.getAbsolutePath());
-			}
 			if(line.hasOption( "exf")){ 
 				String[] temp= line.getOptionValue("exf").split(SEPARATOR);
 				for (int ii=0;ii<temp.length;ii++){
 					_exludefiles.add(FilenameUtils.concat(_targetDir.getAbsolutePath(), temp[ii]));
 				}
 			}
-			if(line.hasOption( "xs")){
-				applyXSLT = true;
+			if(line.hasOption( "oxslt")){
+				_applyOfflineXSLT = true;
+				_outHTMLList = new File(line.getOptionValue("of")+XMLHTMLlist);
 			}
 		} catch( ParseException exp ) {
 			// oops, something went wrong
@@ -171,10 +170,9 @@ public class DeduplicatorOptions {
 	public Set<String> getSetExcludeFiles(){
 		return _exludefiles;
 	}
-	public boolean getApplyXSLT(){
-		return applyXSLT;
+	public boolean applyOfflineXSLT(){
+		return _applyOfflineXSLT;
 	}
-
 	public String getInputType() {
 		return _inputType;
 	}

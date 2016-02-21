@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 public class BitextsDigits {
@@ -53,7 +54,7 @@ public class BitextsDigits {
 				continue;
 			}
 			digits1=features.get(key1).digitList;
-			if (digits1.isEmpty()){
+			if (StringUtils.isBlank(digits1)){
 				paired.add(key1); // even it is not paired, we do not need to examine it 
 				continue;			
 			}
@@ -74,7 +75,7 @@ public class BitextsDigits {
 					continue;
 				}
 				digits2=features.get(key2).digitList;
-				if (digits2.isEmpty()){
+				if (StringUtils.isBlank(digits2)){
 					paired.add(key2); // even it is not paired, we do not need to examine it
 					continue;	
 				}
@@ -156,7 +157,7 @@ public class BitextsDigits {
 			if (features.get(key1)==null)
 				continue;
 			digits1=features.get(key1).symbolList;
-			if (digits1.isEmpty())
+			if (StringUtils.isBlank(digits1))
 				continue;			
 			lang1=features.get(key1).codeLang;
 			level1=features.get(key1).urlLevel;
@@ -174,7 +175,7 @@ public class BitextsDigits {
 				if (lang1.equals(lang2))
 					continue;
 				digits2=features.get(key2).symbolList;
-				if (digits2.isEmpty())
+				if (StringUtils.isBlank(digits2))
 					continue;				
 				level2=features.get(key2).urlLevel;
 				if (Math.abs(level1-level2)>1)

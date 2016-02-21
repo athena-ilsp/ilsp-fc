@@ -117,7 +117,7 @@ public class Classifier implements Serializable{
 			if (s.getKey().equals(description_loc))
 				meta = s.getValue();			
 		}
-		if (_topic==null){
+		if (_topic==null){	
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,length_in_tok);
 		}		
 		if (title==null) title = "";
@@ -308,107 +308,14 @@ public class Classifier implements Serializable{
 	}
 
 
-	/*public double rankLinktest(String text1) {
-		double score = 0, weight=0; int matches=0;
-		String[] tempstr = null;		
-		String term;
-		String text = text1.trim();
-		//		System.out.println(text);
-		ArrayList<String> stems =new ArrayList<String>();
-		try {
-			//vpapa
-			String[] langs = _targetLanguage.split(";");
-			boolean matchL=false;
-			//boolean matchT=false, matchL=false;
-			//for (String lang:langs){
-			//	if (langIdentified.equals(lang)){
-			//		matchT=true; //current page is in one of the targeted languages 
-			//		break;
-			//	}
-			//}
-			String langidentified_link="";
-			//System.out.println("langidentified_page:"+langIdentified);
-			if (!text.isEmpty()){
-				langidentified_link= checkLang(text);
-				//System.out.println("langidentified_link:"+langidentified_link);
-				for (String lang:langs){
-					if (langidentified_link.equals(lang)){
-						matchL=true; //text of current link is in one of the targeted languages 
-						break;
-					}
-				}
-			}else
-				return score;
-			int type=0;
-			if (langs.length>1){
-				int m=0;
-				for (String lang:langs){
-					if (containLangKeys(text,m) & !lang.equals(langIdentified)){
-						//System.out.println("BINGO!");
-						//link's text implies that the link points to candidate translation
-						type=1;
-						break;
-					}
-					m++;
-				}
-				if (type==1){
-					//link's text implies that the link points to candidate translation
-					score +=1000*_thres;
-					return score;
-				}
-			}
-			//if (matchT & matchL){
-			if (matchL){
-				//if (!langidentified_link.equals(langIdentified)){
-				//	score+=10*_thres; //text and link are in dif. langs but both in targ. langs
-				//}else{
-				score+=_thres;  //text and link are in same langs and in targ. langs
-				//}
-				stems = TopicTools.analyze(text, langidentified_link);
-			}
-			else
-				return score;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		text="";
-		for (String s:stems){ text=text.concat(" "+s);}
-		text = text.trim();
-		for (int ii=0;ii<_topic.size();ii++){ 
-			tempstr=_topic.get(ii);
-			term = tempstr[1];
-			matches=0;
-			Pattern pattern = Pattern.compile(" "+term+" ");
-			Matcher matcher = pattern.matcher(" "+text+" ");
-			while (matcher.find()) {
-				matches++;
-			}
-			if (matches>0){
-				weight=Double.parseDouble(tempstr[0]);
-				score += weight*matches;
-				//System.out.println("FoundTerm :"+ term );
-			}
-		}
-		return score;
-	}
-
-	 */
-
-
-
-
-
-
 	public double rankLink(String text1, String anchortext, String pagelang, double vv) {
 		double score = 0, weight=0; int matches=0;
 		String[] tempstr = null;		
 		String term;
 		String text = text1.trim();
-		//System.out.print(text);
 		ArrayList<String> stems =new ArrayList<String>();
-
 		try {
-			//vpapa
+			
 			boolean matchT=false, matchL=false;
 			for (String lang:_targetLanguages){
 				if (pagelang.equals(lang)){

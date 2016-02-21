@@ -41,6 +41,7 @@ import gr.ilsp.fc.utils.TopicTools;
 //import gr.ilsp.fc.genreclassifier.GenreClassifier;
 
 
+
 //import java.io.BufferedReader;
 import java.io.BufferedWriter;
 //import java.io.ByteArrayInputStream;
@@ -99,84 +100,28 @@ import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 @SuppressWarnings("deprecation")
 public class Exporter {
 	private static final Logger LOGGER = Logger.getLogger(Exporter.class);
-	//private static int minTokensNumber=200;
-	//private static int minTokensNumber;
 	//private static String VAR_RES_CACHE = "/var/lib/tomcat6/webapps/soaplab2-results/";
 	//private static final String HTTP_PATH = "http://nlp.ilsp.gr/soaplab2-results/";	
 	private static final String cesDocVersion = "0.4";
-	private static String cesNameSpace = "http://www.w3.org/1999/xlink";
-	private static String cesNameSpace1 = "http://www.xces.org/schema/2003";
-	private static String cesNameSpace2 = "http://www.w3.org/2001/XMLSchema-instance";
-
-	private static String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
-
-	private static int MIN_TOKENS_PER_PARAGRAPH;
-	private static int MIN_TOKENS_NUMBER;
-	private static String[] targetlanguages;
-
-	private static File negWordsFile;
-	private static File crawlDirName;
-	private static File topic;
-	private static File outputDir=null;
-	private static File outputFile = null;
-	//private static String outputListFileName = "outputlist.txt";
-	private static File outputFileHTML = null;
-
-	private static boolean textExport = false;
-
-	private static boolean applyOfflineXSLT = false;
-	public static XSLTransformer xslTransformer = null;
-	public static CompositeConfiguration config;
-	private static boolean cesdoc = false;
-	private static boolean html = false;
-	private static String[] mimetypes;
-	private static String targeteddomain;
-	private static URL genres;
-	private static ExporterOptions options = null;
-	static Analyzer analyzer = null;
-	static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
-	//	private static ArrayList<String> topicTermsAll = null;
-	//private static HashMap<String, String> genres_keys = null;
-	private static ArrayList<File> xmlFiles = new ArrayList<File>();
-
-	private static String xml_type="xml";
-	private static String pdf_type="pdf";
-	private static String tag_type="type";
-	private static String tag_crawlinfo="crawlinfo";
-	private static String attr_boilerplateV = "boilerplate";
-	private static String attr_titleV = "title";
-	private static String attr_lengthV = "ooi-length";
-	private static String attr_langV = "ooi-lang";
-	private static String attr_negV = "ooi-neg";
+	private static final String cesNameSpace = "http://www.w3.org/1999/xlink";
+	private static final String cesNameSpace1 = "http://www.xces.org/schema/2003";
+	private static final String cesNameSpace2 = "http://www.w3.org/2001/XMLSchema-instance";
+	//private static final String XMLlist = ".XMLlist.txt";
+	private static final String xml_type="xml";
+	private static final String pdf_type="pdf";
+	private static final String tag_type="type";
+	private static final String tag_crawlinfo="crawlinfo";
+	private static final String attr_boilerplateV = "boilerplate";
+	private static final String attr_titleV = "title";
+	private static final String attr_lengthV = "ooi-length";
+	private static final String attr_langV = "ooi-lang";
+	private static final String attr_negV = "ooi-neg";
 	private static final String appXMLext = ".xml";
 	private static final String appHTMLext=".html";
 	private static final String appPDFext=".pdf";
-	private static boolean _sort_type = false;
-	private static String researchProject = "ILSP";
 	private static final String separator = ";";
 	private static final String HYPHEN="-";
-	//private static String fs11 = System.getProperty("file.separator");
-	private Map<String, String> urlsToIds;
-
-	private static String identifiedlanguage;
-	private static String title = "";
-	private static String cleanText = "";
-	private static String htmlText = "";
-	private static String genre="";
-	private static String format = "";	
-	private static String subdomains = "";
-	private static String contentEncoding = "";
-	private static String author ="";
-	private static String licenseURL="";
-	private static String pdfname="";
 	private static final String p_type = "p";
-	private static double relscore;
-	//String pubdate="";
-	private static String publisher="";
-	private static ArrayList<String> terms = null;
-	private static String url = "";
-	private static Map<String,String> meta = null;
-
 	private static final String morethan = ">" ; 
 	private static final String lessthan = "<" ; 
 	private static final String text_st = "<text";
@@ -185,6 +130,55 @@ public class Exporter {
 	private static final String boiler_tag = "<boiler>";
 	private static final String boiler_st = "<boiler";
 
+	private static String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
+
+	private static int MIN_TOKENS_PER_PARAGRAPH;
+	private static int MIN_TOKENS_NUMBER;
+	private static String[] targetlanguages;
+
+	public static CompositeConfiguration config;
+	private static File negWordsFile;
+	private static File crawlDirName;
+	private static File topic;
+	private static File outputDir=null;
+	private static File outputFile = null;
+	private static File outputFileHTML = null;
+
+	private static boolean textExport = false;
+
+	private static boolean applyOfflineXSLT = false;
+	public static XSLTransformer xslTransformer = null;
+	private static boolean offline = false;
+	private static String[] mimetypes;
+	private static String targeteddomain;
+	private static URL genres;
+	private static ExporterOptions options = null;
+	static Analyzer analyzer = null;
+	static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
+	//private static HashMap<String, String> genres_keys = null;
+	private static ArrayList<File> xmlFiles = new ArrayList<File>();
+
+	private static String researchProject = "ILSP";
+	
+	private static String identifiedlanguage;
+	private static String title = "";
+	private static String cleanText = "";
+	private static String htmlText = "";
+	private static String genre="";
+	private static String format = "";	
+	private static String subdomains = "";
+	//private static String contentEncoding = "";
+	private static String author ="";
+	private static String licenseURL="";
+	private static String pdfname="";
+	private static String publisher="";
+	private static String url = "";
+	private static double relscore;
+	
+	private static boolean _sort_type = false;
+	private static ArrayList<String> terms = null;
+	private static Map<String,String> meta = null;
+	private Map<String, String> urlsToIds;
 
 	private static void processStatus(JobConf conf, Path curDirPath) throws IOException {
 		Path statusPath = new Path(curDirPath, CrawlConfig.STATUS_SUBDIR_NAME);
@@ -280,21 +274,19 @@ public class Exporter {
 				for (int ii=0;ii<targetlanguages.length;ii++){
 					targetlanguages[ii] = ISOLangCodes.get3LetterCode(targetlanguages[ii]);
 				}
-
 				int prevLoop = -1;
 				Path curDirPath = null;
 				int id = 1;
 				File topicFile = getTopic();
 				ArrayList<String[]> topic = null;
 				if (topicFile!=null) {
-					topic=TopicTools.analyzeTopic(topicFile,targetlanguages, conf);
+					topic=TopicTools.analyzeTopic(topicFile,targetlanguages); //topic=TopicTools.analyzeTopic(topicFile,targetlanguages, conf);
 				}
 				//get array of forbidden words
 				List<String> neg_words = null ;
 				if (getNegWordsFile() != null) {
-					File neg_words_filename = getNegWordsFile();
-					neg_words = FileUtils.readLines(neg_words_filename);
-					
+					neg_words = FileUtils.readLines(getNegWordsFile());
+
 				}
 				//URL genreFile = getGenres();
 				//genres_keys = GenreClassifier.Genres_keywords(genreFile);	
@@ -315,8 +307,8 @@ public class Exporter {
 				LOGGER.info("CesDoc files generated: "+ xmlFiles.size());
 				LOGGER.info("Completed in " + (System.currentTimeMillis()-start) + " milliseconds.");
 				WriteResources.WriteTextList(xmlFiles, outputFile);
-				if (html){
-					WriteResources.WriteHTMLList(xmlFiles, outputFileHTML, applyOfflineXSLT);
+				if (applyOfflineXSLT){
+					WriteResources.WriteHTMLList(xmlFiles, new File(outputFileHTML.getAbsolutePath()));
 				}
 			}
 
@@ -375,8 +367,6 @@ public class Exporter {
 		FileSystem fs = xmlPath.getFileSystem(conf);
 		if (!fs.exists(xmlPath)) fs.mkdirs(xmlPath);
 		///////////////////////
-
-
 		TupleEntryIterator contentIter = contentDbTap.openForRead(conf);
 		iter = parseDbTap.openForRead(conf);
 
@@ -384,7 +374,7 @@ public class Exporter {
 			TupleEntry entry = iter.next();
 			ExtendedParsedDatum datum = new ExtendedParsedDatum(entry);
 			meta = datum.getParsedMeta();
-			contentEncoding = meta.get("Content-Encoding");
+			//contentEncoding = meta.get("Content-Encoding");
 			url = datum.getUrl();
 			licenseURL = meta.get(Metadata.LICENSE_URL);
 			if (licenseURL==null){licenseURL="";}
@@ -410,7 +400,6 @@ public class Exporter {
 		iter.close();
 		classIter.close();
 		contentIter.close();
-		//fs.close();
 		return id;		
 	}
 
@@ -422,22 +411,14 @@ public class Exporter {
 			return false;
 		LOGGER.info(pdfname);
 		cleanText = Pdf2text.run1(new File(pdfname), _sort_type);
-		//LOGGER.info("problem in processing "+ pdfname);
-	
-		if (cleanText==null){
+		if (StringUtils.isBlank(cleanText)){
 			LOGGER.info("PDF to Text Conversion failed." + pdfname);
 			return false;
 		}
-		if (cleanText.isEmpty()){
-			LOGGER.info("PDF to Text Conversion failed." + pdfname);
-			return false;
-		}
-
 		cleanText = ContentNormalizer.normalizeText(cleanText);
 		String maincontent = cleanText;
 		maincontent = maincontent.replaceAll(text_tag, "");
 		maincontent = maincontent.replaceAll(text_tag_en, "");
-		//maincontent = ContentNormalizer.cleanContent(maincontent);
 		int length_in_tok=ReadResources.countTokens(maincontent);
 		if (length_in_tok<MIN_TOKENS_NUMBER){
 			return false;		
@@ -480,8 +461,8 @@ public class Exporter {
 	 */
 	private static void initValues() {
 		identifiedlanguage="";		title = "";		cleanText = "";	 htmlText = ""; genre=""; format = "";  // pubdate="";
-		subdomains = ""; contentEncoding = ""; author =""; licenseURL=""; pdfname=""; publisher=""; url = "";
-		relscore=0;
+		subdomains = "";author =""; licenseURL=""; pdfname=""; publisher=""; url = "";
+		relscore=0; 
 		terms = null;
 		meta = null;
 	}
@@ -513,12 +494,8 @@ public class Exporter {
 				terms.add(s.trim());
 		}
 		subdomains = getSubdomains(url, curDirPath,classIter);
-		//classIter = classifierDbTap.openForRead(conf);
 		relscore = getRelscore(url, curDirPath,classIter1);
-
 		htmlText = meta.get("Comments");
-		//String htmlText1 = getHtml(url,curDirPath,contentIter, contentEncoding);
-		//System.out.println("aaa");
 		//genre = GenreClassifier.GenreClassifier_keywords(genres_keys, url, title);	
 	}
 
@@ -604,7 +581,6 @@ public class Exporter {
 				}
 			}
 		}
-
 		//Write the XML file
 		int parId = 1;
 		XMLOutputFactory2 xof = (XMLOutputFactory2) XMLOutputFactory2.newInstance();
@@ -811,17 +787,13 @@ public class Exporter {
 					parId++;
 				}							
 			} catch (Exception e) {
-				//LOGGER.error("Could not write file with id " + temp_id);	
 				LOGGER.info("Could not write file with id " + temp_id);
-				//LOGGER.error(e.getMessage());
-				//e.printStackTrace();
 				return false;
 			}
 			xtw.writeEndElement();
 			xtw.writeEndElement();
 			xtw.writeEndElement();
 			xtw.flush();
-			//xtw1.flush();
 			xtw.close();
 			xtw1.close();
 			wrt.close();
@@ -840,24 +812,9 @@ public class Exporter {
 			e.printStackTrace();
 		}
 
-		/*finally {
-			try {				
-				xtw.close();
-				xtw1.close();
-				wrt.close();
-				//xof=null;
-			} catch (XMLStreamException e) {
-				LOGGER.error(e.getMessage());
-			} catch (IOException e) {
-				LOGGER.error(e.getMessage());
-			}
-		}*/
-
-		//xmlFiles.add(new File(xml_file.toUri()));
-
 		if (Exporter.applyOfflineXSLT==true) {
 			File inFile = new File(xml_file.toUri());
-			File outFile = new File(FilenameUtils.removeExtension(inFile.getAbsolutePath()) + appXMLext+appHTMLext);			
+			File outFile = new File(FilenameUtils.removeExtension(inFile.getAbsolutePath()) + appXMLext+appHTMLext);
 			try {
 				Exporter.xslTransformer.transform(inFile, outFile);
 			} catch (MalformedURLException e) {
@@ -867,7 +824,6 @@ public class Exporter {
 				LOGGER.warn("Could not transform " + inFile.getAbsolutePath() + " to " + outFile.getAbsolutePath());
 			}
 		}
-
 		return true;
 	}
 
@@ -934,7 +890,7 @@ public class Exporter {
 		}
 		xtw.writeEndElement();
 		xtw.writeEndElement();
-		
+
 		xtw.writeStartElement("pubDate");
 		xtw.writeCharacters(year);
 		xtw.writeEndElement();
@@ -1062,40 +1018,21 @@ public class Exporter {
 		Exporter se = new Exporter();
 		options = new ExporterOptions();
 		options.parseOptions(args);
+		se.setRunOffLine(options.getRunOffLine());
 		se.setMIN_TOKENS_PER_PARAGRAPH(options.get_length());
 		se.setMIN_TOKENS_NUMBER(options.get_minTokenslength());
 		se.setCrawlDirName (options.get_inputdir());
 		se.setOutputFile(options.getOutputFile());
-		se.setOutputFileHTML(options.getOutputFileHTML());
-
-		if (options.get_topic()!=null) {
-			se.setTopic(options.get_topic());
-			se.setTargetedDomain(options.getTargetDomain());
-		}
 		se.setTargetLanguages(options.get_language());
-		if (options.get_topic()!=null) {
-			se.setTopic(options.get_topic());
-		}
-		if (options.get_negwords()!=null) {
-			se.setNegWordsFile(options.get_negwords());
-		}
-		if (options.get_outputdir()!=null) {
-			se.setOutputDir(options.get_outputdir());
-		}
-		if (options.get_textexport()) {
-			se.setTextExport(true);
-		}
-		if (options.get_style()) {
-			se.setStyleExport(options.get_style());
-		}
-
+		se.setTopic(options.get_topic());
+		se.setTargetedDomain(options.getTargetDomain());
+		se.setNegWordsFile(options.get_negwords());
+		se.setOutputDir(options.get_outputdir());
+		se.setTextExport(true);
+		se.setApplyOfflineXSLT(options.applyOfflineXSLT());
 		config = getConfig(options.getConfig());
 		mimetypes = config.getStringArray("fetcher.valid_mime_types.mime_type[@value]");	
 		se.setAcceptedMimeTypes(mimetypes);
-
-		//FIXME The handling of transformed XML should be fixed
-		//if (applyOfflineXSLT==false){
-		//}
 		LangDetectUtils.loadCybozuLangIdentifier();
 		se.export(true);
 	}
@@ -1149,8 +1086,6 @@ public class Exporter {
 		}		
 		return 0;
 	}
-
-	
 	private static String getSubdomains(String url, Path curDirPath, TupleEntryIterator contentIter){
 		String subdomains = "";
 		while (contentIter.hasNext()){
@@ -1186,6 +1121,12 @@ public class Exporter {
 	public static File getCrawlDirName() {
 		return crawlDirName;
 	}
+	public static boolean getRunOffLine(){
+		return offline;
+	}
+	public void setRunOffLine(boolean offline){
+		Exporter.offline = offline;
+	}
 	public void setCrawlDirName(File crawlDirName) {
 		Exporter.crawlDirName = crawlDirName;
 	}
@@ -1210,20 +1151,14 @@ public class Exporter {
 	public void setOutputFile(File outputFile) {
 		Exporter.outputFile  = outputFile;
 	}
-	public void setOutputFileHTML(File outputFileHTML) {
-		Exporter.outputFileHTML  = outputFileHTML;
+	public void setOutputFileHTML(File outputFile) {
+		Exporter.outputFileHTML  = outputFile;
 	}
 	public void setOutputDir(File outputDir) {
 		Exporter.outputDir = outputDir;
 	}
 	public void setTextExport(boolean textexport){
 		Exporter.textExport = textexport;
-	}
-	public void setStyleExport(boolean cesdoc){
-		Exporter.cesdoc = cesdoc;
-	}
-	public void setHTMLOutput(boolean html){
-		Exporter.html = html;
 	}
 	public void setAcceptedMimeTypes(String[] mimes){
 		Exporter.mimetypes = mimes;
@@ -1243,14 +1178,14 @@ public class Exporter {
 	public static void setResearchProject(String researchProject) {
 		Exporter.researchProject = researchProject;
 	}
-	public boolean isApplyOfflineXSLT() {
-		return applyOfflineXSLT;
-	}
 	public void setUrlsToIds(Map<String, String> urlsToIds) {
 		this.urlsToIds = urlsToIds;
 	}
 	public Map<String, String> getUrlsToIds() {
 		return urlsToIds;
+	}
+	public boolean isApplyOfflineXSLT() {
+		return applyOfflineXSLT;
 	}
 	public void setApplyOfflineXSLT(boolean applyOfflineXSLT) {
 		Exporter.applyOfflineXSLT = applyOfflineXSLT;

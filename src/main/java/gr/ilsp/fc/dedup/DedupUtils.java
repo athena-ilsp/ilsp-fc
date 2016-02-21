@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.MD5Hash;
 import org.apache.log4j.Logger;
 
@@ -188,7 +189,7 @@ public class DedupUtils {
 		}
 		LOGGER.debug(text);
 		String string_key="";
-		if (text.isEmpty())
+		if (StringUtils.isBlank(text))
 			return null;
 		byte[] texthashkey = calculateMD5(text, MIN_TOKEN_LEN); //TODO should text be stemmed?
 
@@ -229,7 +230,7 @@ public class DedupUtils {
 			ArrayList<String>  stems = TopicTools.getStems(tempstr, langIdentified);
 			//concatenate stems 
 			tempstr = ContentNormalizer.concatenateStems(stems,min_tok_num);
-			if (tempstr.isEmpty()){
+			if (StringUtils.isBlank(tempstr)){
 				LOGGER.debug/*System.out.println*/(pars[jj]);
 				continue;
 			}

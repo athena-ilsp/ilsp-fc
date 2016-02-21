@@ -14,6 +14,7 @@ public class Deduplicator {
 	private static File outHTMLList;
 	private static Set<String> excludeSetFiles;
 	private static DeduplicatorOptions options = null;
+	private static boolean applyOfflineXSLT=false;
 	private static double IntersectionThr;
 	private static int MIN_PAR_LEN;
 	private static int MIN_TOK_LEN;
@@ -31,7 +32,7 @@ public class Deduplicator {
 		ded.setIntersectionThr(options.getInterThr());
 		ded.setMIN_PAR_LEN(options.getMinParLen());
 		ded.setMIN_TOK_LEN(options.getMinTokLen());
-		ded.setApplyXSLT(options.getApplyXSLT());
+		ded.setApplyOfflineXSLT(options.applyOfflineXSLT());
 		ded.setInputType(options.getInputType());
 		ded.nearDedup();
 	}
@@ -41,7 +42,7 @@ public class Deduplicator {
 	public void nearDedup(){
 		if (method.equals("1")){
 			LOGGER.info("Deduplication by using lists and MD5 method.");
-			DedupMD5.dedup(targetDir, excludeSetFiles, outTextList,outHTMLList,applyXSLT, MIN_TOK_LEN,inputType);
+			DedupMD5.dedup(targetDir, excludeSetFiles, outTextList,outHTMLList,applyOfflineXSLT, MIN_TOK_LEN,inputType);
 		}
 		if (method.equals("2")){
 			LOGGER.info("Deduplication based on common paragraphs.");
@@ -118,8 +119,8 @@ public class Deduplicator {
 	 * cesDocFiles have been XSLT transformed
 	 * @param applyXSLT
 	 */
-	public void setApplyXSLT(boolean applyXSLT){
-		Deduplicator.applyXSLT = applyXSLT;
+	public void setApplyOfflineXSLT(boolean applyXSLT){
+		Deduplicator.applyOfflineXSLT = applyXSLT;
 	}
 	
 	public void setInputType(String inputType ){
