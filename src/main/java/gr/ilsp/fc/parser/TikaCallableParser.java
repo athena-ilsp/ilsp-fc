@@ -102,16 +102,18 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			//FIXME set another property to HTMLSource or in the fetchedDatum. Check if we keep HTML source twice
 			_input.reset();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(_input,_metadata.get(Metadata.CONTENT_ENCODING)));
+			/*System.out.println(IOUtils.toString(reader));
+			_metadata.set(Metadata.COMMENTS, IOUtils.toString(reader));*/
 			StringBuilder builder = new StringBuilder();
 			String aux = "";
 			while ((aux = reader.readLine()) != null) {
+			    //builder.append(aux+" ");
 			    builder.append(aux);
 			}
 			_metadata.set(Metadata.COMMENTS, builder.toString());
-			//_metadata.set(Metadata.SOURCE, builder.toString());
-						
-			//respoCharset = _metadata.get(Metadata.CONTENT_ENCODING);
+			System.out.println(_metadata.get("Comments"));
 
+			//respoCharset = _metadata.get(Metadata.CONTENT_ENCODING);
 			if (respoCharset!=null && respoCharset!=_metadata.get(Metadata.CONTENT_ENCODING))
 				_metadata.set(Metadata.CONTENT_ENCODING, respoCharset);
 

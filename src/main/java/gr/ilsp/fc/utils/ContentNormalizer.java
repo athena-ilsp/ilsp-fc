@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 
 public class ContentNormalizer {
 	
@@ -193,9 +195,9 @@ public class ContentNormalizer {
 
 	public static String normalizeText(String text){
 		
-		if (text==null)
+		if (StringUtils.isBlank(text))
 			return "";
-
+		
         text = surrogatesMatcher.reset(text).replaceAll("");
 		
 		for (String s:invalidChars.keySet()){

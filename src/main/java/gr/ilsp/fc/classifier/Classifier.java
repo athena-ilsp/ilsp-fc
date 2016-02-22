@@ -89,7 +89,8 @@ public class Classifier implements Serializable{
 		if (content.equals(PDFcontent)){
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,0);
 		}
-		if (_keepBoiler) content = ContentNormalizer.cleanContent(content);
+		if (_keepBoiler)
+			content = ContentNormalizer.cleanContent(content);
 		int length_in_tok=ReadResources.countTokens(content);
 		if (length_in_tok<_minTokensNumber){
 			LOGGER.debug(parsedDatum.getUrl()+"\nCUT due to its small clean content length:"+length_in_tok+ "/"+_minTokensNumber);

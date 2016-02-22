@@ -67,7 +67,7 @@ public class ExporterOptions {
 		options.addOption( OptionBuilder.withLongOpt( "language(s)" )
 				.withDescription( "Target language of crawled data" )
 				.hasArg()
-				.create("l") );
+				.create("lang") );
 		options.addOption( OptionBuilder.withLongOpt( "topic" )
 				.withDescription( "Path to topic file" )	
 				.hasArg()
@@ -97,14 +97,14 @@ public class ExporterOptions {
 				.hasArg()
 				.create("o") );	
 		options.addOption( OptionBuilder.withLongOpt( "text_outlist" )
-				.withDescription( "outputlist in text format" )				
+				.withDescription( "outputlist in text format" )	
+				.hasArg()
 				.create("of") );
 		options.addOption( OptionBuilder.withLongOpt( "textexport" )
 				.withDescription( "Export raw txt files" )				
 				.create("te") );
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
-				.hasArg()
 				.create("h") );
 		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
 				.withDescription( "Apply an xsl transformation to generate list of links pointing to HTML (rendered XML) files.")
@@ -141,8 +141,8 @@ public class ExporterOptions {
 			if(line.hasOption( "off")) {
 				_offline=true;
 			}
-			if(line.hasOption( "l")) {
-				_targetlanguages = line.getOptionValue("l").split(SEPARATOR);
+			if(line.hasOption( "lang")) {
+				_targetlanguages = line.getOptionValue("lang").split(SEPARATOR);
 			}
 			if(line.hasOption( "t")) {
 				_topic = new File(line.getOptionValue("t"));
@@ -191,7 +191,7 @@ public class ExporterOptions {
 				_outputdir = new File(_outputdir.getAbsolutePath());
 			} else help();						
 			if(line.hasOption( "of")) {
-				_outputFile = new File(line.getOptionValue("of") );
+				_outputFile = new File(line.getOptionValue("of"));
 				_outputFile = new File(_outputFile.getAbsolutePath()+XMLlist);
 				if(line.hasOption( "oxslt")) {
 					_outputFileHTML = new File(line.getOptionValue("of")+XMLHTMLlist);

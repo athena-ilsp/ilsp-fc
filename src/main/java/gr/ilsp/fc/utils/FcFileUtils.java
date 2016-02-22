@@ -304,7 +304,7 @@ public class FcFileUtils {
 	}
 
 
-	public static ArrayList<File> getFilesList(File datadir, String start_name,	String end_name) {
+	/*public static ArrayList<File> getFilesList(File datadir, String start_name,	String end_name) {
 		File[] allfiles=datadir.listFiles(); 
 		ArrayList<File> temp = new ArrayList<File>();
 		for (int ii=0;ii<allfiles.length;ii++){
@@ -330,7 +330,7 @@ public class FcFileUtils {
 		}
 
 		return temp;
-	}
+	}*/
 
 	/**
 	 * gets the cesDoc files (i.e. end with .xml and do not contain "_" from the datadir)

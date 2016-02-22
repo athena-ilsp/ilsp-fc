@@ -144,19 +144,15 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt("crawl")
 				.withDescription( "if exists, operation includes crawl" )				
 				.create("crawl") );
-
 		options.addOption( OptionBuilder.withLongOpt("export")
 				.withDescription( "if exists, operation includes export to cesDoc files of downloaded documents" )				
 				.create("export") );
-
 		options.addOption( OptionBuilder.withLongOpt( "apply_near_deduplication" )
 				.withDescription( "if exists, operation includes deduplication, i.e.compares clean text content and discards near duplicates" )				
 				.create("dedup") );
-
 		options.addOption( OptionBuilder.withLongOpt( "pair_detection" )
 				.withDescription( "if exists, detection of document pairs will be applied" )				
 				.create("pairdetect") );
-
 		options.addOption( OptionBuilder.withLongOpt( "align_sentences" )
 				.withDescription( "if exists, operation includes extraction of sentences from the detected document pairs and " +
 						"alignment of the extracted sentences by using an aligner (default is maligna)" )

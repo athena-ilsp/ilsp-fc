@@ -5,6 +5,7 @@ import gr.ilsp.fc.utils.ContentNormalizer;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,6 +63,12 @@ public class CleanerUtils {
 	}
 
 	
+	public static String getContent(File file, boolean keepBoiler) {
+		ExtractorBase  arcExtr = ArticleExtractor.INSTANCE;
+		ExtractorBase  numExtr = NumWordsRulesExtractor.INSTANCE;
+		return getContent(numExtr, arcExtr, file, keepBoiler) ;
+}
+	
 	/**
 	 * Returns the main content of a fetched webpage using a combination of NumofWords boilerpipeExtractor and Aritcle boilerpipeExtractor
 	 * @param boilerpipeExtractor
@@ -80,7 +87,6 @@ public class CleanerUtils {
 			reader = new BufferedReader(new InputStreamReader(input,metadata.get(Metadata.CONTENT_ENCODING)));
 			String[] content2 = arcExtr.getText(reader, false).split("\n");
 			content = combineNumArt(content1, content2);
-			//System.out.println(content);
 			if (!keepBoiler) {
 				content = ContentNormalizer.removeBoilerPars(content);
 			}
@@ -97,6 +103,43 @@ public class CleanerUtils {
 		content = ContentNormalizer.normalizeText(content);
 		return content;
 	}
+	
+	
+	/**
+	 * Returns the main content of a fetched webpage using a combination of NumofWords boilerpipeExtractor and Aritcle boilerpipeExtractor
+	 * @param boilerpipeExtractor
+	 * @param input
+	 * @param metadata
+	 * @param keepBoiler
+	 * @return
+	 */
+	public static String getContent(ExtractorBase  numExtr, ExtractorBase  arcExtr, File file, boolean keepBoiler) {
+		String content="";
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()),"UTF-8"));
+			String[] content1 = numExtr.getText(reader, true).split("\n");
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()),"UTF-8"));
+			String[] content2 = arcExtr.getText(reader, false).split("\n");
+			content = combineNumArt(content1, content2);
+			System.out.println(content);
+			if (!keepBoiler) {
+				content = ContentNormalizer.removeBoilerPars(content);
+			}
+			reader.close();
+			reader=null;
+		} catch (IOException e) {
+			LOGGER.warn("Problem in reading content of webpage " +file.getAbsolutePath());
+			e.printStackTrace();
+		} catch (BoilerpipeProcessingException e) {
+			LOGGER.warn("Problem in calling Boilerpipe for webpage " +file.getAbsolutePath());
+			e.printStackTrace();
+		}
+		//if (keepBoiler) content = CleanerUtils.cleanContent(content);
+		content = ContentNormalizer.normalizeText(content);
+		return content;
+	}
+	
+	
 	
 	
 	/**
