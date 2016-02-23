@@ -1,10 +1,12 @@
 package gr.ilsp.fc.utils;
 
 import java.text.BreakIterator;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-public  class StringLengthUtils {
+public  class FCStringUtils {
 
     private static final String NOT_A_LETTER_PATTERN = "\\P{L}+";
 
@@ -22,7 +24,15 @@ public  class StringLengthUtils {
 		if (StringUtils.isBlank(string)) {
 			return 0;
 		} else { 
-			return string.split(NOT_A_LETTER_PATTERN).length;
+			return getTokens(string).size();
+		}
+	}
+
+	public static List<String> getTokens(String string) {
+		if (StringUtils.isBlank(string)) {
+			return null;
+		} else { 
+			return Arrays.asList(string.split(NOT_A_LETTER_PATTERN));
 		}
 	}
 }
