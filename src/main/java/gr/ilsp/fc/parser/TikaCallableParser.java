@@ -111,7 +111,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			    builder.append(aux);
 			}
 			_metadata.set(Metadata.COMMENTS, builder.toString());
-			System.out.println(_metadata.get("Comments"));
+			//System.out.println(_metadata.get("Comments"));
 
 			//respoCharset = _metadata.get(Metadata.CONTENT_ENCODING);
 			if (respoCharset!=null && respoCharset!=_metadata.get(Metadata.CONTENT_ENCODING))

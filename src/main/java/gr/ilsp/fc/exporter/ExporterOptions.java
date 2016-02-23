@@ -38,6 +38,7 @@ public class ExporterOptions {
 	private boolean _textexport=false;
 	private boolean _offline=false;
 	private boolean _applyOfflineXSLT=false;
+	private boolean _httrack=false;
 	
 	private String _paths_repl="";
 	private String _targetDomain="";
@@ -63,10 +64,12 @@ public class ExporterOptions {
 		options.addOption( OptionBuilder.withLongOpt( "inputdir" )
 				.withDescription( "Directory containing crawled data" )
 				.hasArg()
+				.isRequired()
 				.create("i") );
 		options.addOption( OptionBuilder.withLongOpt( "language(s)" )
 				.withDescription( "Target language of crawled data" )
 				.hasArg()
+				.isRequired()
 				.create("lang") );
 		options.addOption( OptionBuilder.withLongOpt( "topic" )
 				.withDescription( "Path to topic file" )	
@@ -97,7 +100,8 @@ public class ExporterOptions {
 				.hasArg()
 				.create("o") );	
 		options.addOption( OptionBuilder.withLongOpt( "text_outlist" )
-				.withDescription( "outputlist in text format" )	
+				.withDescription( "outputlist in text format" )
+				.isRequired()
 				.hasArg()
 				.create("of") );
 		options.addOption( OptionBuilder.withLongOpt( "textexport" )
@@ -105,7 +109,10 @@ public class ExporterOptions {
 				.create("te") );
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
-				.create("h") );
+				.create("help") );
+		options.addOption( OptionBuilder.withLongOpt( "webpages_by_httrack" )
+				.withDescription( "Httrack website copier has been used to download html pages" )
+				.create("httrack") );
 		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
 				.withDescription( "Apply an xsl transformation to generate list of links pointing to HTML (rendered XML) files.")
 				.create("oxslt") );
@@ -127,7 +134,7 @@ public class ExporterOptions {
 		try {
 			CommandLine line = clParser.parse( options, args );
 
-			if(line.hasOption( "h")) {
+			if(line.hasOption( "help")) {
 				help();
 			}
 			if(line.hasOption( "cfg")) {
@@ -140,6 +147,9 @@ public class ExporterOptions {
 			else help();
 			if(line.hasOption( "off")) {
 				_offline=true;
+			}
+			if(line.hasOption( "httrack")) {
+				_httrack=true;
 			}
 			if(line.hasOption( "lang")) {
 				_targetlanguages = line.getOptionValue("lang").split(SEPARATOR);
@@ -253,6 +263,9 @@ public class ExporterOptions {
 	}
 	public boolean applyOfflineXSLT(){
 		return _applyOfflineXSLT;
+	}
+	public boolean usedHttrack(){
+		return _httrack;
 	}
 	public  File getOutputFile() {
 		return _outputFile;

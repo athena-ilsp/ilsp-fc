@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -29,7 +30,9 @@ public class TempUtils {
 	private static final String appHTMLext = ".html";
 	private static final String appXMLHTMLext = ".xml.html";
 	private static final String type_p ="p";
-
+	private static final String HTTRACK1 = "<!-- Mirrored from"; 
+	private static final String HTTRACK2 = "by HTTrack Website Copier";
+	
 	public static void main(String[] args) {
 
 		String filename="C:\\Users\\vpapa\\ABU\\spidextor_output.uniq.rand.filt.txt";
@@ -674,6 +677,32 @@ public class TempUtils {
 				}
 			}
 		}
+	}
+
+
+	public static String handleCopiedSite(InputStream input) {
+		String url="";
+		int len = +HTTRACK1.length();
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new InputStreamReader(input,"UTF-8"));
+			String nextLine="";
+			while((nextLine = reader.readLine())!=null){
+				int i1 = nextLine.indexOf(HTTRACK1);
+				int i2 = nextLine.indexOf(HTTRACK2);
+				if (i1<i2){
+					url=nextLine.substring(i1+len, i2-1).trim();
+					break;
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return url;
 	}
 
 	/*public static String convertStreamToString(InputStream is)

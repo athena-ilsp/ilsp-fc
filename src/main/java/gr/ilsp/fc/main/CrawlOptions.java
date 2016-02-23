@@ -636,25 +636,10 @@ public class CrawlOptions {
 		}else{
 			_dict=null;
 		}
-		//if (line.hasOption( "oft")) {
-		//_outputFileTMX = new File(line.getOptionValue("oft"));	
 		_outputFileTMX = new File(line.getOptionValue("of")+TMXlist);	
-		//} else {
-		//	LOGGER.error("You asked for sentence alignment but" +
-		//			" no file for list to TMX files is provided.");
-		//	help();
-		//}
-		//if (line.hasOption( "ofth")) {
 		if (line.hasOption( "oxslt"))//{
-			//_outputFileHTMLTMX  = new File(line.getOptionValue("ofth"));
 			_outputFileHTMLTMX = new File(line.getOptionValue("of")+TMXHTMLlist);	
-		//	}else{
-		//		LOGGER.info("File for the output list to HTML (rendered XML) files but transformation of XML to HTML will not be done. Add -oxslt.");
-		//_outputFileHTMLTMX=null;
-		//	}
-		//}else{
-		//	_outputFileHTMLTMX=null;	
-		//}
+		
 	}
 
 	/**
@@ -677,6 +662,8 @@ public class CrawlOptions {
 			for (String str:temp){
 				_selectSegs.add(str);
 			}
+		}else{
+			_selectSegs.add("1:1");
 		}
 		if (line.hasOption("cc"))
 			_cc=true;

@@ -227,22 +227,26 @@ public class Crawl {
 			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
 			String line = "";
 			//UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
-			ArrayList<String> seedUrls = new ArrayList<String>();
+			List<String> seedUrls = new ArrayList<String>();
+			int linecounter=0;
 			while ((line=rdr.readLine())!=null){
+				linecounter++;
 				if (skipLineM.reset(line).matches()) 
 					continue;
-				byte[] bts = line.getBytes("UTF-8");
-				if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
-					byte[] bts2 = new byte[bts.length-3];
-					for (int i = 3; i<bts.length;i++)
-						bts2[i-3]=bts[i];
-					line = new String(bts2);
+				if (linecounter==1){ //checks BOM
+					byte[] bts = line.getBytes("UTF-8");
+					if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
+						byte[] bts2 = new byte[bts.length-3];
+						for (int i = 3; i<bts.length;i++)
+							bts2[i-3]=bts[i];
+						line = new String(bts2);
+					}
 				}
-				if (seedUrls.contains(line))
+				if (seedUrls.contains(line)) 
 					continue;
 				else
 					seedUrls.add(line);
-				if (line.equals("") || line.startsWith("ftp") || line.equals("http://")) continue;
+				if ( line.startsWith("ftp") || line.equals("http://")) continue;
 				//if (!urlValidator.isValid(line)&& !line.contains("#")) continue;
 
 				CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize(line), 0, 0, 

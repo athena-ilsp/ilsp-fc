@@ -114,7 +114,6 @@ public class Operations {
 	public static void alignment(CrawlOptions options,	CompositeConfiguration config) {
 		String[] langs = options.getLanguage().split(QUESTION_SEP);
 		Aligner aligner = null; 
-
 		if (options.toAlign()!=null) {
 			aligner = Crawl.prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), langs);
 			if (aligner==null){

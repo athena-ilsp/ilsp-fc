@@ -38,24 +38,22 @@ import gr.ilsp.fc.utils.CrawlConfig;
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.PrettyPrintHandler;
+import gr.ilsp.fc.utils.TempUtils;
 import gr.ilsp.fc.utils.TopicTools;
 //import gr.ilsp.fc.genreclassifier.GenreClassifier;
 
 
-//import java.io.BufferedReader;
 import java.io.BufferedWriter;
-//import java.io.ByteArrayInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-//import java.io.InputStream;
-//import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
-//import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -85,10 +83,8 @@ import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamWriter2;
 
 import bixo.datum.FetchedDatum;
-//import bixo.datum.UrlStatus;
 import bixo.utils.CrawlDirUtils;
 import cascading.scheme.SequenceFile;
-//import cascading.scheme.TextLine;
 import cascading.tap.Hfs;
 import cascading.tap.Tap;
 import cascading.tuple.TupleEntry;
@@ -151,6 +147,7 @@ public class Exporter {
 	private static boolean applyOfflineXSLT = false;
 	public static XSLTransformer xslTransformer = null;
 	private static boolean offline = false;
+	private static boolean httrack = false;
 	private static String[] mimetypes;
 	private static String targeteddomain;
 	private static URL genres;
@@ -263,13 +260,23 @@ public class Exporter {
 			//invole pdf files in offline exporting
 			List<File> htmlfiles = (List<File>) FileUtils.listFiles(crawlDirName, temp, true);
 			for (File file:htmlfiles){
-				String content = CleanerUtils.getContent(file, keepBoiler);
-				content = ContentNormalizer.cleanContent(content);
-				//content = ContentNormalizer.normalizeText(content);
-				String identifiedlanguage = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
-				//FIXME get metadata info, extract text in case of pdf
-				XMLExporter(file,"text/html", title, "", targetlanguages, identifiedlanguage, content, "", author,
-						publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, pdfname);
+				try {
+					byte[] array = FileUtils.readFileToByteArray(file);
+					InputStream input = new ByteArrayInputStream(array);
+					String content = CleanerUtils.getContent(input, keepBoiler);
+					String identifiedlanguage = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
+					if (!LangDetectUtils.istargetedlang(identifiedlanguage,targetlanguages))
+						continue;
+					if (httrack){//FIXME
+						input.reset();
+						url = TempUtils.handleCopiedSite(input);
+					}
+					XMLExporter(file,"text/html", title, url, targetlanguages, identifiedlanguage, content, "", author,
+							publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, pdfname);
+				} catch (IOException e1) {
+					LOGGER.error("problem in getting byte[] for file "+ file.getAbsolutePath());
+					e1.printStackTrace();
+				}
 			}
 			xmlFiles =(List<File>) FileUtils.listFiles(crawlDirName, ext, true);
 		}else{
@@ -1002,6 +1009,7 @@ public class Exporter {
 		se.setOutputDir(options.get_outputdir());
 		se.setTextExport(true);
 		se.setApplyOfflineXSLT(options.applyOfflineXSLT());
+		se.setUsedHttrack(options.usedHttrack());
 		config = getConfig(options.getConfig());
 		mimetypes = config.getStringArray("fetcher.valid_mime_types.mime_type[@value]");	
 		se.setAcceptedMimeTypes(mimetypes);
@@ -1093,15 +1101,19 @@ public class Exporter {
 	public static File getCrawlDirName() {
 		return crawlDirName;
 	}
-	public static boolean getRunOffLine(){
+	public static boolean getRunOffLine1(){
 		return offline;
 	}
 	public void setRunOffLine(boolean offline){
 		Exporter.offline = offline;
 	}
+	public void setUsedHttrack(boolean httrack){
+		Exporter.httrack = httrack;
+	}
 	public void setCrawlDirName(File crawlDirName) {
 		Exporter.crawlDirName = crawlDirName;
 	}
+
 	public void setTargetLanguages(String[] targetlanguages) {
 		Exporter.targetlanguages = targetlanguages;
 	}

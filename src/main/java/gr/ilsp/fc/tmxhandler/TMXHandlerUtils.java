@@ -107,24 +107,34 @@ public class TMXHandlerUtils {
 		File f1 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[0])+XML_EXTENSION);
 		File f2 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[1])+XML_EXTENSION);
 		String site="", license="";
+		URL url = null;
+		String webpage1=ReadResources.extractNodefromXML(f1.getAbsolutePath(), eAddressNode, false);
+		String webpage2=ReadResources.extractNodefromXML(f2.getAbsolutePath(), eAddressNode, false);
 		try {
-			URL url = new URL(ReadResources.extractNodefromXML(f1.getAbsolutePath(), eAddressNode, false));
-			String webpage1 = url.getProtocol()+"://"+ url.getHost();
-			url = new URL(ReadResources.extractNodefromXML(f2.getAbsolutePath(), eAddressNode, false));
-			String webpage2 = url.getProtocol()+"://"+ url.getHost();
-			if (!webpage1.equals(webpage2)){
-				if (webpage1.contains(webpage2))
-					site = webpage1;
-				else if (webpage2.contains(webpage1))
-					site = webpage2;
-				else
-					site = webpage1+SEMI_SEPAR+webpage2;
-			}else
-				site = webpage1;
+			url = new URL(webpage1);
+			webpage1 = url.getProtocol()+"://"+ url.getHost();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			webpage1 = webpage1.substring(0, webpage1.indexOf("/"));
+			LOGGER.warn("no protocol "+ webpage1);
 		}
+		try {
+			url = new URL(webpage2);
+			webpage2 = url.getProtocol()+"://"+ url.getHost();
+		} catch (MalformedURLException e) {
+			webpage2 = webpage2.substring(0, webpage2.indexOf("/"));
+			LOGGER.warn("no protocol "+ webpage2);
+		}
+		
+		if (!webpage1.equals(webpage2)){
+			if (webpage1.contains(webpage2))
+				site = webpage1;
+			else if (webpage2.contains(webpage1))
+				site = webpage2;
+			else
+				site = webpage1+SEMI_SEPAR+webpage2;
+		}else
+			site = webpage1;
+
 		String license1 = ReadResources.extractAttrfromXML(f1.getAbsolutePath(), licenseNode, TARGET_STR,true, true);
 		String license2 = ReadResources.extractAttrfromXML(f2.getAbsolutePath(), licenseNode, TARGET_STR,true, true);
 		if (!license1.isEmpty())
@@ -229,7 +239,7 @@ public class TMXHandlerUtils {
 	}
 	/**
 	 * counts words of i-th TUV of each TU in  the alignmentList
- 	 * @param alignmentList
+	 * @param alignmentList
 	 * @param i
 	 * @return
 	 */

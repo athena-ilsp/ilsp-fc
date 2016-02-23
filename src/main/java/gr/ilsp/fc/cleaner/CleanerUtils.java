@@ -5,7 +5,6 @@ import gr.ilsp.fc.utils.ContentNormalizer;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -63,10 +62,10 @@ public class CleanerUtils {
 	}
 
 	
-	public static String getContent(File file, boolean keepBoiler) {
+	public static String getContent(InputStream input, boolean keepBoiler) {
 		ExtractorBase  arcExtr = ArticleExtractor.INSTANCE;
 		ExtractorBase  numExtr = NumWordsRulesExtractor.INSTANCE;
-		return getContent(numExtr, arcExtr, file, keepBoiler) ;
+		return getContent(numExtr, arcExtr, input, keepBoiler) ;
 }
 	
 	/**
@@ -113,25 +112,26 @@ public class CleanerUtils {
 	 * @param keepBoiler
 	 * @return
 	 */
-	public static String getContent(ExtractorBase  numExtr, ExtractorBase  arcExtr, File file, boolean keepBoiler) {
+	public static String getContent(ExtractorBase  numExtr, ExtractorBase  arcExtr, InputStream input, boolean keepBoiler) {
 		String content="";
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()),"UTF-8"));
+			input.reset();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(input,"UTF-8"));
 			String[] content1 = numExtr.getText(reader, true).split("\n");
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()),"UTF-8"));
+			input.reset();
+			reader = new BufferedReader(new InputStreamReader(input,"UTF-8"));
 			String[] content2 = arcExtr.getText(reader, false).split("\n");
 			content = combineNumArt(content1, content2);
-			System.out.println(content);
 			if (!keepBoiler) {
 				content = ContentNormalizer.removeBoilerPars(content);
 			}
 			reader.close();
 			reader=null;
 		} catch (IOException e) {
-			LOGGER.warn("Problem in reading content of webpage " +file.getAbsolutePath());
+			LOGGER.warn("Problem in reading content of webpage ");
 			e.printStackTrace();
 		} catch (BoilerpipeProcessingException e) {
-			LOGGER.warn("Problem in calling Boilerpipe for webpage " +file.getAbsolutePath());
+			LOGGER.warn("Problem in calling Boilerpipe for webpage ");
 			e.printStackTrace();
 		}
 		//if (keepBoiler) content = CleanerUtils.cleanContent(content);
