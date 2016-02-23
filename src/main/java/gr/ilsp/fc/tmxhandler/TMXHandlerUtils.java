@@ -2,6 +2,7 @@ package gr.ilsp.fc.tmxhandler;
 
 import gr.ilsp.fc.aligner.factory.ILSPAlignment;
 import gr.ilsp.fc.main.ReadResources;
+import gr.ilsp.fc.utils.FCStringUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -253,13 +254,11 @@ public class TMXHandlerUtils {
 			if (i==2)
 				temp =align.getTargetSegmentList();
 			for (String str:temp){
-				str= str.replaceAll("\\W", " ").toLowerCase();
-				len =len +ReadResources.countTokens(str);
-				str=str.replaceAll("(\\s){2,}", " ");
-				String[] tempwords = str.split(" ");
-				for (String tempword:tempwords){
-					if (!words.contains(tempword)){
-						words.add(tempword);
+				List<String> toks = FCStringUtils.getWords(str); 
+				len =len +toks.size();
+				for (String tok:toks){
+					if (!words.contains(tok)){
+						words.add(tok);
 					}
 				}
 			}

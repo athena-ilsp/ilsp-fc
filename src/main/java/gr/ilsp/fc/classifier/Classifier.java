@@ -3,10 +3,9 @@ package gr.ilsp.fc.classifier;
 import gr.ilsp.fc.datums.ClassifierDatum;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
-import gr.ilsp.fc.main.ReadResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
+import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.TopicTools;
-//import gr.ilsp.fc.main.Bitexts;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -91,7 +90,7 @@ public class Classifier implements Serializable{
 		}
 		if (_keepBoiler)
 			content = ContentNormalizer.cleanContent(content);
-		int length_in_tok=ReadResources.countTokens(content);
+		int length_in_tok=FCStringUtils.countTokens(content);
 		if (length_in_tok<_minTokensNumber){
 			LOGGER.debug(parsedDatum.getUrl()+"\nCUT due to its small clean content length:"+length_in_tok+ "/"+_minTokensNumber);
 			return null;
@@ -230,7 +229,7 @@ public class Classifier implements Serializable{
 		str="";
 		for (String s:stems){ str+=" "+s;}
 		str = str.trim();
-		double words_num= ReadResources.countTokens(str);
+		double words_num= FCStringUtils.countTokens(str);
 		//initialization of scores array
 		Double[][] scores = new Double[classes.length+1][2];
 		for (int ii=0;ii<classes.length;ii++){
@@ -358,7 +357,7 @@ public class Classifier implements Serializable{
 				}
 			}
 			if (matchT & matchL){
-				if (!langidentified_link.equals(pagelang) & ReadResources.countTokens(text)>3 & vv>=_absthres){
+				if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text)>3 & vv>=_absthres){
 					score+=10*_absthres; //text and link are in dif. langs but both in targ. langs
 				}else{
 					score+=_absthres;  //text and link are in same langs and in targ. langs
@@ -472,7 +471,7 @@ public class Classifier implements Serializable{
 			}
 		}
 		if (matchT & matchL){
-			if (!langidentified_link.equals(pagelang) & ReadResources.countTokens(text)>3 & vv>=_absthres){
+			if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text)>3 & vv>=_absthres){
 				score+=1; //text and link are in dif. langs but both in targ. langs
 			}else{
 				score+=1;  //text and link are in same langs and in targ. langs

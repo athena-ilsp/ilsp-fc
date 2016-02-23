@@ -29,18 +29,19 @@ import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.extractors.Pdf2text;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
-import gr.ilsp.fc.main.ReadResources;
 import gr.ilsp.fc.main.Crawl;
 import gr.ilsp.fc.main.WriteResources;
 import gr.ilsp.fc.utils.AnalyzerFactory;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.CrawlConfig;
+import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.PrettyPrintHandler;
 import gr.ilsp.fc.utils.TempUtils;
 import gr.ilsp.fc.utils.TopicTools;
 //import gr.ilsp.fc.genreclassifier.GenreClassifier;
+
 
 
 import java.io.BufferedWriter;
@@ -398,7 +399,7 @@ public class Exporter {
 		String maincontent = cleanText;
 		maincontent = maincontent.replaceAll(text_tag, "");
 		maincontent = maincontent.replaceAll(text_tag_en, "");
-		int length_in_tok=ReadResources.countTokens(maincontent);
+		int length_in_tok=FCStringUtils.countTokens(maincontent);
 		if (length_in_tok<MIN_TOKENS_NUMBER){
 			return false;		
 		}
@@ -625,7 +626,7 @@ public class Exporter {
 					}else if (line.substring(0, 5).equals(text_st)){
 						if (line.substring(0,6).equals(text_tag)) {
 							line = line.substring(6, line.length()-7).trim();
-							if (!ReadResources.isLong(line,MIN_TOKENS_PER_PARAGRAPH))
+							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH))
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 							else if (langs.length>0){
 								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
@@ -641,7 +642,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='t")) {
 							line = line.substring(19, line.length()-7).trim();
-							if (!ReadResources.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,attr_titleV);
 							}
@@ -665,7 +666,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='l")) {
 							line = line.substring(22, line.length()-7).trim();
-							if (!ReadResources.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,"listitem");
 							}
@@ -689,7 +690,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='h")) {
 							line = line.substring(21, line.length()-7).trim();
-							if (!ReadResources.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,"heading");
 							}
@@ -715,7 +716,7 @@ public class Exporter {
 					}else {
 						if (line.trim().length()<=1) continue;
 
-						if (!ReadResources.isLong(line, MIN_TOKENS_PER_PARAGRAPH )) {
+						if (!FCStringUtils.isLong(line, MIN_TOKENS_PER_PARAGRAPH )) {
 							xtw.writeAttribute(tag_type,"length");
 						}else {
 							identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
@@ -1270,7 +1271,7 @@ public class Exporter {
 					}else if (line.substring(0, 5).equals(text_st)){
 						if (line.substring(0,6).equals(text_tag)) {
 							line = line.substring(6, line.length()-7).trim();
-							if (!ReadResources.isLong(line,MIN_TOKENS_PER_PARAGRAPH))
+							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH))
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 							else if (langs.length>0){
 								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
@@ -1286,7 +1287,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='t")) {
 							line = line.substring(19, line.length()-7).trim();
-							if (!ReadResources.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,attr_titleV);
 							}
@@ -1310,7 +1311,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='l")) {
 							line = line.substring(22, line.length()-7).trim();
-							if (!ReadResources.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,"listitem");
 							}
@@ -1334,7 +1335,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='h")) {
 							line = line.substring(21, line.length()-7).trim();
-							if (!ReadResources.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,"heading");
 							}
@@ -1360,7 +1361,7 @@ public class Exporter {
 					}else {
 						if (line.trim().length()<=1) continue;
 
-						if (!ReadResources.isLong(line, MIN_TOKENS_PER_PARAGRAPH )) {
+						if (!FCStringUtils.isLong(line, MIN_TOKENS_PER_PARAGRAPH )) {
 							xtw.writeAttribute(tag_type,"length");
 						}else {
 							identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());

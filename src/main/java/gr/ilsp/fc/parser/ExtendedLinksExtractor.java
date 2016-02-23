@@ -1,7 +1,7 @@
 package gr.ilsp.fc.parser;
 
-import gr.ilsp.fc.main.ReadResources;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
+import gr.ilsp.fc.utils.FCStringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -112,9 +112,9 @@ public class ExtendedLinksExtractor {
 						}
 					}
 					pre_extendedtext=pre_extendedtext.trim();
-					countpre = ReadResources.countTokens(pre_extendedtext);
+					countpre = FCStringUtils.countTokens(pre_extendedtext);
 					post_extendedtext=post_extendedtext.trim();
-					countpost = ReadResources.countTokens(post_extendedtext);
+					countpost = FCStringUtils.countTokens(post_extendedtext);
 					count = countpre+countpost;
 					count = countpre+countpost;
 					if (count>=context_thresh){

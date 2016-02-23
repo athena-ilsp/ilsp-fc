@@ -41,6 +41,7 @@ import gr.ilsp.fc.main.ReadResources;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.Eurovoc;
+import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
 
 public class TMXHandler {
@@ -171,23 +172,7 @@ public class TMXHandler {
 			String m= Character.toString(doctypes.charAt(ii));
 			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, cc);
 		}
-		/*if (doctypes.contains(a_type))
-			alignmentList = addTMXs(tmxTypeFiles.get(a_type),alignmentList,a_type, cc);
-		if (doctypes.contains(p_type))
-			alignmentList = addTMXs(tmxTypeFiles.get(p_type),alignmentList,p_type, cc);
-		if (doctypes.contains(i_type))
-			alignmentList = addTMXs(tmxTypeFiles.get(i_type),alignmentList,i_type, cc);
-		if (doctypes.contains(d_type))
-			alignmentList = addTMXs(tmxTypeFiles.get(d_type),alignmentList,d_type, cc);
-		if (doctypes.contains(u_type))
-			alignmentList = addTMXs(tmxTypeFiles.get(u_type),alignmentList,u_type, cc);
-		if (doctypes.contains(h_type))
-			alignmentList = addTMXs(tmxTypeFiles.get(h_type),alignmentList,h_type, cc);
-		if (doctypes.contains(m_type))
-			alignmentList = addTMXs(tmxTypeFiles.get(m_type),alignmentList,m_type, cc);
-		if (doctypes.contains(l_type))
-			alignmentList = addTMXs(tmxTypeFiles.get(l_type),alignmentList,l_type, cc);*/
-
+		
 		if (!alignmentList.isEmpty()){
 			int[] stats1 =TMXHandlerUtils.countWordsInTMX(alignmentList,1);
 			int[] stats2 =TMXHandlerUtils.countWordsInTMX(alignmentList,2);
@@ -322,9 +307,9 @@ public class TMXHandler {
 					continue;
 				if (normS.equals(normT))
 					continue;
-				if (ReadResources.countTokens(normS)<length_THR)
+				if (FCStringUtils.countTokens(normS)<length_THR)
 					continue;
-				if (ReadResources.countTokens(normT)<length_THR)
+				if (FCStringUtils.countTokens(normT)<length_THR)
 					continue;
 				//FIXME should we check language?	//FIXME keep MD5 instead of string
 				String temp = normS+TAB+normT;

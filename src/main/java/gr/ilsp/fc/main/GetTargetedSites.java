@@ -32,7 +32,7 @@ public class GetTargetedSites {
 	
 		
 	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar "
-			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -f -k -xslt -oxslt "
+			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -f -k -oxslt "
 			+ "-type p -n 100 -t 20 -len 0 -mtlen 100 -p_r \"http://nlp.ilsp.gr/elrc\" -doctypes \"aupidh\" -segtypes \"1:1\"";
 
 	private static final String JAR_CRAWL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar "
@@ -64,14 +64,14 @@ public class GetTargetedSites {
 
 	public static void main(String[] args)  {
 		//getSeeds(args);
-		//input4SeedsAndAllTasks(args);
+		input4SeedsAndAllTasks(args);
 		//input4AllTasks(args);
 		//input4Crawl(args);
 		//input4Export(args);
 		//input4Dedup(args);
 		//input4PairDetection(args);
 		//input4Align(args);
-		input4TmxMerge(args);
+		//input4TmxMerge(args);
 	}
 
 	

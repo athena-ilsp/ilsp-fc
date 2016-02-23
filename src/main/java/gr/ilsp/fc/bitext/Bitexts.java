@@ -2,6 +2,7 @@ package gr.ilsp.fc.bitext;
 
 import gr.ilsp.fc.main.ImageExtractor;
 import gr.ilsp.fc.main.ReadResources;
+import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 
 import java.io.File;
@@ -185,8 +186,8 @@ public class Bitexts {
 					}else
 						curElement = "";
 				}
-				numofToksb = ReadResources.countTokens(tempstr);
-				numofTokso = ReadResources.countTokens(newtempstr);
+				numofToksb = FCStringUtils.countTokens(tempstr);
+				numofTokso = FCStringUtils.countTokens(newtempstr);
 
 				listofDigits=ReadResources.extractNumsfromXML(FilenameUtils.concat(xmldir.getPath(),files[ii]), P_ELE,ooi_crawlinfo, ooi_boilerplate, false);
 				//listofSymbols = ReadResources.extractSymbolsfromXML(FilenameUtils.concat(xmldir.getPath(),files[ii]), P_ELE,ooi_crawlinfo, ooi_boilerplate, false);

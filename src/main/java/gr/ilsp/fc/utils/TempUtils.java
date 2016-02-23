@@ -301,9 +301,9 @@ public class TempUtils {
 				String text_temp = ReadResources.extractTextfromXML_clean(file1.getAbsolutePath(),type_p,"crawlinfo", false);
 
 				if (langIdentified.equals(langs[0]))
-					tokens[0]=tokens[0]+ReadResources.countTokens(text_temp);
+					tokens[0]=tokens[0]+FCStringUtils.countTokens(text_temp);
 				else
-					tokens[1]=tokens[1]+ReadResources.countTokens(text_temp);
+					tokens[1]=tokens[1]+FCStringUtils.countTokens(text_temp);
 				xml1++;
 
 				//ReadResources.writetextfile(source_path+"\\"+langs[0]+"\\"+xml1+".txt", text_temp);
@@ -316,9 +316,9 @@ public class TempUtils {
 				String langIdentified = ReadResources.extractAttrfromXML(file1.getAbsolutePath(), "language", "iso639", true, false);
 				String text_temp = ReadResources.extractTextfromXML_clean(file2.getAbsolutePath(),type_p,"crawlinfo", false);
 				if (langIdentified.equals(langs[0]))
-					tokens[0]=tokens[0]+ReadResources.countTokens(text_temp);
+					tokens[0]=tokens[0]+FCStringUtils.countTokens(text_temp);
 				else
-					tokens[1]=tokens[1]+ReadResources.countTokens(text_temp);
+					tokens[1]=tokens[1]+FCStringUtils.countTokens(text_temp);
 				xml2++;
 				//ReadResources.writetextfile(source_path+"\\"+langs[1]+"\\"+xml1+".txt", text_temp);
 				//FileUtils.copyFile(file2, new File(source_path+"\\"+langs[1]+"\\"+xml2+appXMLext));
@@ -672,7 +672,7 @@ public class TempUtils {
 						int s=lines[jj].indexOf(">")+1;
 						int e=lines[jj].length()-4;
 						String temp=lines[jj].substring(s, e);
-						tokens_num=tokens_num+ReadResources.countTokens(temp);
+						tokens_num=tokens_num+FCStringUtils.countTokens(temp);
 					}
 				}
 			}

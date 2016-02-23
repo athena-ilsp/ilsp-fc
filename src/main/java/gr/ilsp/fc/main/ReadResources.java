@@ -30,7 +30,7 @@ public class ReadResources {
 	private static final String ooi_crawlinfo = "crawlinfo";
 	private static final String UNDERSCORE = "_";
 	private static final String XML_EXTENSION = ".xml";
-
+	
 	public static String extractNodefromXML(String inputString, String ele_name) {
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -78,31 +78,6 @@ public class ReadResources {
 		return result;
 	}
 
-
-	/*public static String extractLangfromXML(String inputFile, String ele_name, String attr_name) {
-		String result="";
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db;
-		try {
-			db = dbf.newDocumentBuilder();
-			Document doc = db.parse(inputFile);
-			doc.getDocumentElement().normalize();
-			NodeList nodeLstP = doc.getElementsByTagName(ele_name);
-			for(int s=0; s<nodeLstP.getLength() ; s++){
-				Element NameElement = (Element)nodeLstP.item(s);
-				if (NameElement.hasAttribute(attr_name)){
-					result+=NameElement.getAttributeNode(attr_name).getTextContent();
-				}
-			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}*/
 
 	public static String extractTextfromXML_clean(String inputFile, String ele_name, String attr_name, boolean included) {
 		//System.out.println(inputString);
@@ -224,34 +199,6 @@ public class ReadResources {
 		return numstring;
 	}
 
-
-	/*public static String extractURLfromXML(File inputfile) {
-		String result="";
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db;
-		try {
-			db = dbf.newDocumentBuilder();
-			Document doc = db.parse(inputfile.getAbsolutePath());
-			doc.getDocumentElement().normalize();
-			NodeList nodeLstP = doc.getElementsByTagName("eAddress");
-			for(int s=0; s<nodeLstP.getLength() ; s++){
-				Element NameElement = (Element)nodeLstP.item(s);
-				if (!NameElement.hasAttribute("type")){
-					result+=NameElement.getTextContent();
-					break;
-				}
-			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}*/
-
-
 	/**
 	 * count tokens in paragraphs (with no crawlinfo attribute) of the cesDoc Files in the targetDir 
 	 * @param outputDirName
@@ -277,35 +224,7 @@ public class ReadResources {
 		return total_tokens;
 	}
 
-
-
-	/**
-	 * counts tokens (based on a naive tokenizer) of the input text and compares the number with the thresh 
-	 * @param text
-	 * @param thresh
-	 * @return
-	 */
-	public static Boolean isLong(String text, int thresh){
-		if (thresh<=0)
-			return true;
-		StringTokenizer st = new StringTokenizer(text);
-		int count=st.countTokens();
-		if (count<thresh){	
-			return false;
-		}else
-			return true;				
-	}
-
-	/**
-	 * counts tokens (based on a naive tokenizer)
-	 * @param text
-	 * @return
-	 */
-	public static int countTokens(String text) {
-		StringTokenizer st = new StringTokenizer(text);
-		return st.countTokens();
-	}
-
+	
 	public static String extractSymbolsfromXML(String inputfile, String ele_name,	String attr_name, String ooiType, boolean included) {
 		String symstring="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -402,4 +321,8 @@ public class ReadResources {
 		}
 		return domain;
 	}
+
+	
+	
+	
 }
