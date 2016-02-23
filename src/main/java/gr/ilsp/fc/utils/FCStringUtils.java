@@ -20,15 +20,15 @@ public  class FCStringUtils {
 	    return count;
 	}
 	
-	public static int getTokenLength(String string) {
+	public static int getWordLength(String string) {
 		if (StringUtils.isBlank(string)) {
 			return 0;
 		} else { 
-			return getTokens(string).size();
+			return getWords(string).size();
 		}
 	}
 
-	public static List<String> getTokens(String string) {
+	public static List<String> getWords(String string) {
 		if (StringUtils.isBlank(string)) {
 			return null;
 		} else { 
