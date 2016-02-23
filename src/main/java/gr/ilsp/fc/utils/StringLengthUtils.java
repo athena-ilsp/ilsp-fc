@@ -1,0 +1,28 @@
+package gr.ilsp.fc.utils;
+
+import java.text.BreakIterator;
+
+import org.apache.commons.lang3.StringUtils;
+
+public  class StringLengthUtils {
+
+    private static final String NOT_A_LETTER_PATTERN = "\\P{L}+";
+
+	public static int getGraphemeLength(String str) {
+	    BreakIterator it = BreakIterator.getCharacterInstance();
+	    it.setText(str);
+	    int count = 0;
+	    while (it.next() != BreakIterator.DONE) {
+	        count++;
+	    }
+	    return count;
+	}
+	
+	public static int getTokenLength(String string) {
+		if (StringUtils.isBlank(string)) {
+			return 0;
+		} else { 
+			return string.split(NOT_A_LETTER_PATTERN).length;
+		}
+	}
+}
