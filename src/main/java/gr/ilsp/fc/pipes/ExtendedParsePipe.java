@@ -94,7 +94,6 @@ public class ExtendedParsePipe extends SubAssembly {
         public void operate(FlowProcess flowProcess, FunctionCall<NullContext> functionCall) {
         	long time = System.currentTimeMillis();
             FetchedDatum fetchedDatum = new FetchedDatum(functionCall.getArguments());
-            
             try {
             	ExtendedParsedDatum parseResult = _parser.parse(fetchedDatum);            	
                 _flowProcess.increment(ExtendedParserCounters.PARSER_DOCUMENTS_PARSED, 1);

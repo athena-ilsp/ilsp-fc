@@ -116,7 +116,6 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace(String.format("Parsing %s", fetchedDatum.getUrl()));
 		}
-
 		// Provide clues to the parser about the format of the content.
 		Metadata metadata = new Metadata();
 		metadata.add(Metadata.RESOURCE_NAME_KEY, fetchedDatum.getUrl());
@@ -167,7 +166,6 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 			//result.setParsedText(ArticleExtractor.INSTANCE.getText(new InputStreamReader(is)));
 			// TODO KKr Should there be a BaseParser to take care of copying
 			// these two fields?
-			LOGGER.debug("FETCHED URL :"+baseUrl);
 			result.setHostAddress(fetchedDatum.getHostAddress());
 			result.setPayload(fetchedDatum.getPayload());
 			return result;

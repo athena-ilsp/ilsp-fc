@@ -346,7 +346,7 @@ public class Exporter {
 
 		FileSystem fs = xmlPath.getFileSystem(conf);
 		if (!fs.exists(xmlPath)) fs.mkdirs(xmlPath);
-		///////////////////////
+		
 		TupleEntryIterator contentIter = contentDbTap.openForRead(conf);
 		iter = parseDbTap.openForRead(conf);
 
@@ -354,7 +354,6 @@ public class Exporter {
 			TupleEntry entry = iter.next();
 			ExtendedParsedDatum datum = new ExtendedParsedDatum(entry);
 			meta = datum.getParsedMeta();
-			//contentEncoding = meta.get("Content-Encoding");
 			url = datum.getUrl();
 			licenseURL = meta.get(Metadata.LICENSE_URL);
 			if (licenseURL==null){licenseURL="";}
@@ -367,6 +366,10 @@ public class Exporter {
 				htmlText =""; 
 			}else{
 				getHTMLInfo(datum, meta, id, curDirPath, classIter, classIter1, contentIter);
+			}
+			if (StringUtils.isBlank(identifiedlanguage)){
+				//FIXME this should not happen
+				continue;
 			}
 			if (XMLExporter(xmlPath,format, title, url, targetlanguages, identifiedlanguage, htmlText, cleanText,id, "", author,
 					publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, pdfname)){
@@ -512,7 +515,7 @@ public class Exporter {
 
 		if (html_text==null){
 			//return false;
-			//FIXME Why does it happen when there is content? 
+			//FIXME Why does it happen when there is no content? 
 			LOGGER.warn("HTML content of "+eAddress + " cannot be stored.");
 			html_text=""; //for avoiding future catches
 		}
@@ -1008,7 +1011,7 @@ public class Exporter {
 		se.setTargetedDomain(options.getTargetDomain());
 		se.setNegWordsFile(options.get_negwords());
 		se.setOutputDir(options.get_outputdir());
-		se.setTextExport(true);
+		se.setTextExport(options.get_textexport());
 		se.setApplyOfflineXSLT(options.applyOfflineXSLT());
 		se.setUsedHttrack(options.usedHttrack());
 		config = getConfig(options.getConfig());

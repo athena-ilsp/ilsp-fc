@@ -145,9 +145,9 @@ public class ExtendedLinksExtractor {
 				// A check for links with hreflang () attributes.
 				if (link.hasAttr(HREFLANG_ATTR)   ) {// && link.hasAttr(REL_ATTR)) {
 					//if (!linktext.contains("http://www.bundesregierung.de/Webs/Breg/")) {
-						extendedOutLink.setToUrl(normalizer.normalize(extendedOutLink.getToUrl()));
-						extendedOutLink.setHrefLang(link.attr(HREFLANG_ATTR));
-						logger.debug("Found hreflang link (" + extendedOutLink.getHrefLang() + "): " + extendedOutLink.getToUrl());
+					extendedOutLink.setToUrl(normalizer.normalize(extendedOutLink.getToUrl()));
+					extendedOutLink.setHrefLang(link.attr(HREFLANG_ATTR));
+					logger.debug("Found hreflang link (" + extendedOutLink.getHrefLang() + "): " + extendedOutLink.getToUrl());
 					//}
 				}		
 

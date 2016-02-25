@@ -34,7 +34,48 @@ public class TempUtils {
 	private static final String HTTRACK2 = "by HTTrack Website Copier";
 	
 	public static void main(String[] args) {
-
+	List<String> res=new ArrayList<String>();	
+	int group=4;
+	try {
+		List<String> tusinfo = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/eng-fra_culture_aupdih.csv"));
+		String[][] tus=new String[tusinfo.size()][2];
+		//String[] itus=new String[tusinfo.size()];
+		int counter=0;
+		for (String tu:tusinfo){
+			if (counter==0){
+				counter++;
+				continue;
+			}
+			String[] temp = tu.split("\t");
+			tus[counter][0] = temp[3];
+			tus[counter][1] = temp[4];
+			//itus[counter] = temp[6];
+			counter++;
+		}
+		//FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_charRatios.csv"), Arrays.asList(itus));
+		
+		List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture.txt"));
+		counter=0;
+		for (String line:lines){
+			if (counter==0){
+				counter++;
+				continue;
+			}
+			String[] temp = line.split("\t");
+			if (!temp[group].trim().isEmpty()){
+				System.out.println(temp[group]);
+				int ind = Integer.parseInt(temp[group].trim()) ;
+				res.add(temp[group].trim()+"\t"+tus[ind][0]+"\t"+tus[ind][1]);
+			}	
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_g"+Integer.toString(group+1)+".csv"), res);
+	} catch (IOException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
+	
+	System.exit(0);
+		
 		String filename="C:\\Users\\vpapa\\ABU\\spidextor_output.uniq.rand.filt.txt";
 		String inputLine;
 		BufferedReader in;

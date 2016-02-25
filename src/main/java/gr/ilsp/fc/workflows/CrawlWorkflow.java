@@ -41,8 +41,6 @@ import java.util.Properties;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
-//import org.apache.log4j.Logger;
-
 
 import bixo.config.DefaultFetchJobPolicy;
 import bixo.config.FetcherPolicy;
@@ -411,10 +409,8 @@ public class CrawlWorkflow {
 		//The links scored by the classifier are handled be the urlFromOutlinksPipe
 		Pipe urlFromOutlinksPipe = new Pipe("url from outlinks", classifyPipe.getScoredLinksTailPipe());
 		//Outlinks are filtered and normalized
-		//if (_mainhost==null)
-		//	urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter));
-		//else
 		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter, _mainhost));
+		//urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedNormalizeUrlFunction(new ILSPFCUrlNormalizer()));
 		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedNormalizeUrlFunction(new ILSPFCUrlNormalizer()));
 
 		//The second pipe returned from the fetcher, is assigned to urlFromFetchPipe.

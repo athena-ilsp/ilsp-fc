@@ -7,7 +7,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -31,9 +33,9 @@ public class GetTargetedSites {
 	private static String destpath="\"/var/www/html/elrc4/culture/eng-fra/";
 	
 		
-	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar "
-			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -f -k -oxslt "
-			+ "-type p -n 100 -t 20 -len 0 -mtlen 100 -p_r \"http://nlp.ilsp.gr/elrc\" -doctypes \"aupidh\" -segtypes \"1:1\"";
+	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.3-jar-with-dependencies.jar "
+			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -f -k "
+			+ "-type p -n 100 -t 20 -len 0 -mtlen 100 -p_r \"http://nlp.ilsp.gr/elrc\" -doctypes \"aupdih\" -segtypes \"1:1\"";
 
 	private static final String JAR_CRAWL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar "
 			+ "-crawl -f -k -type p -n 100 -t 20 -len 0 -mtlen 100 ";
@@ -64,8 +66,8 @@ public class GetTargetedSites {
 
 	public static void main(String[] args)  {
 		//getSeeds(args);
-		input4SeedsAndAllTasks(args);
-		//input4AllTasks(args);
+		//input4SeedsAndAllTasks(args);
+		input4AllTasks(args);
 		//input4Crawl(args);
 		//input4Export(args);
 		//input4Dedup(args);
@@ -215,12 +217,16 @@ public class GetTargetedSites {
 		File shellSiteFile = new File(FilenameUtils.concat(sitesFile.getParent(), lang1+SEP+lang2+SEP+COMMANDS));
 				
 		String commands = "";
+		Set<String> hosts=new HashSet<String>();
 		for (String line:lines){
 			URL url;
 			try {
 				url = new URL(line);
 				String host = url.getHost();
-				commands = commands+generateAllTasksCommand(host,urlSeedFile)+"\n";
+				if (!hosts.contains(host)){
+					commands = commands+generateAllTasksCommand(host,urlSeedFile)+"\n";
+					hosts.add(host);
+				}
 			} catch (MalformedURLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -240,9 +246,7 @@ public class GetTargetedSites {
 		String dest1 = "/var/www/html/elrc1/culture/"+lang1+SEP+lang2+"/";
 		String dest2 =  dest1+"output_"+agent;
 		String command = JAR_ALL + L + QUOTE+lang1 + QUEST+ lang2 + QUOTE+ AGENT + agent +FILTER + filter + U +QUOTE+urlSeedFile.getAbsolutePath()+QUOTE +
-				dest+QUOTE+dest1+QUOTE + " -of " + QUOTE+dest2+".txt"+QUOTE + " -ofh "+QUOTE + dest2+".html" +QUOTE+ 
-				" -oft "+QUOTE+dest2+".tmx.txt"+QUOTE + " -ofth "+QUOTE+dest2+".tmx.html"+QUOTE +
-				" -tmx "+QUOTE+dest2+".tmx"+QUOTE + FORW +QUOTE+dest1+ "log_"+ agent + QUOTE; 
+				dest+QUOTE+dest1+QUOTE + " -of " + QUOTE+dest2+".txt"+QUOTE + FORW +QUOTE+dest1+ "log_"+ agent + QUOTE; 
 						
 		return command;
 	}

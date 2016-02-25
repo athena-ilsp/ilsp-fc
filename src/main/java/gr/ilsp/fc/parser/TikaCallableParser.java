@@ -86,7 +86,6 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 		try {        	 	        	
 			TeeContentHandler teeContentHandler;
 			ProfilingHandler profilingHandler = null;
-
 			if (_extractLanguage) {
 				profilingHandler = new ProfilingHandler();
 				teeContentHandler = new TeeContentHandler(_contentExtractor,  profilingHandler);
@@ -117,14 +116,11 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			if (respoCharset!=null && respoCharset!=_metadata.get(Metadata.CONTENT_ENCODING))
 				_metadata.set(Metadata.CONTENT_ENCODING, respoCharset);
 
-			//LOGGER.info(_metadata.get(Metadata.CONTENT_LOCATION));
-			//LOGGER.info(_metadata.get(Metadata.RESOURCE_NAME_KEY));
 			if (!_metadata.get(Metadata.CONTENT_LOCATION).equals(_metadata.get(Metadata.RESOURCE_NAME_KEY))){
-				_metadata.set(Metadata.RESOURCE_NAME_KEY, _metadata.get(Metadata.CONTENT_LOCATION));
-				//LOGGER.info(_metadata.get(Metadata.RESOURCE_NAME_KEY) +"\t-->\t"+_metadata.get(Metadata.CONTENT_LOCATION));
+				//_metadata.set(Metadata.RESOURCE_NAME_KEY, _metadata.get(Metadata.CONTENT_LOCATION));
+				LOGGER.warn("KEY: "+_metadata.get(Metadata.RESOURCE_NAME_KEY)+"\tLOC: "+_metadata.get(Metadata.CONTENT_LOCATION));	
+				_metadata.set(Metadata.CONTENT_LOCATION, _metadata.get(Metadata.RESOURCE_NAME_KEY));
 			}
-			//LOGGER.info("------------------------");
-			
 			//String lang = _extractLanguage ? _metadata.get(Metadata.CONTENT_LANGUAGE) : null;
 			/*String lang = _extractLanguage ? detectLanguageFromMetadata(_metadata, profilingHandler) : null;
 			String content = "";
