@@ -266,7 +266,13 @@ public class IOtools{
 
 			Element translationElement = (Element)translationNodes.item(i);
 			try {
-				URL loc1 = new URL(translationElement.getAttribute("trans.loc"));
+				URL loc1;
+				String transloc=translationElement.getAttribute("trans.loc");
+				try{
+					loc1 = new URL(transloc);
+				}catch(java.net.MalformedURLException e){
+					loc1 = new URL("file:///"+transloc);
+				}
 				File loc = new File(loc1.getFile());
 
 				//loc.getTextContent();
