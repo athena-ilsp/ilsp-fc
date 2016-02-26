@@ -1,6 +1,8 @@
 package gr.ilsp.fc.aligner.factory;
 
 import gr.ilsp.fc.bitext.BitextUtils;
+import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitter;
+import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitterFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -327,8 +329,12 @@ public  class ScriptAligner {
 			//String tlFile = cesAlignPath.substring(0, cesAlignPath.lastIndexOf(fs1)+1)+tFile+".xml";
 			//String slFile = sFile+".xml";
 			//String tlFile = tFile+".xml";
-			String slText=IOtools.stripXcesDocument(new File(sFile.getParent()+fs+sFile.getName()+".xml"));
-			String tlText=IOtools.stripXcesDocument(new File(tFile.getParent()+fs+tFile.getName()+".xml"));
+			SentenceSplitterFactory sentenceSplitterFactory = new SentenceSplitterFactory();
+			SentenceSplitter sourceLangSentenceSplitter = sentenceSplitterFactory.getSentenceSplitter(this.sLang);
+			SentenceSplitter targetLangSentenceSplitter = sentenceSplitterFactory.getSentenceSplitter(this.tLang);
+			
+			String slText=IOtools.stripXcesDocument(sourceLangSentenceSplitter, new File(sFile.getParent()+fs+sFile.getName()+".xml"));
+			String tlText=IOtools.stripXcesDocument(targetLangSentenceSplitter, new File(tFile.getParent()+fs+tFile.getName()+".xml"));
 			ArrayList<String> slSents = new ArrayList<String>(Arrays.asList(slText.split(System.getProperty("line.separator"))));
 			ArrayList<String> tlSents = new ArrayList<String>(Arrays.asList(tlText.split(System.getProperty("line.separator"))));
 			//ArrayList<String> slSents = new ArrayList<String>(Arrays.asList(slText.split(fs1)));
