@@ -17,6 +17,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.List;
 import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -40,6 +41,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitter;
 import gr.ilsp.fc.utils.sentencesplitters.SimpleSentenceSplitter;
 
 /**
@@ -509,13 +511,12 @@ public class IOtools{
 	 * @param sUrl The file of the XCES document
 	 * @return Text of the document as a String
 	 */
-	public static String stripXcesDocument(File file){
+	public static String stripXcesDocument(SentenceSplitter sp, File file){
 		StringBuffer sb=new StringBuffer();
 		DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
 		dbf.setValidating(false);
 		DocumentBuilder db=null;
 		Document doc=null;
-		SimpleSentenceSplitter sp=new SimpleSentenceSplitter();
 		try{
 			db=dbf.newDocumentBuilder();
 			doc=db.parse(file);
@@ -536,7 +537,12 @@ public class IOtools{
 			else{
 				String sText = translationNode.getTextContent();
 				//Run the sentence splitter on the paragraph
-				Vector<String> sents=sp.getSentences(sText, 2);
+				List<String> sents=null;
+				try{
+					sents=sp.getSentences(sText, 2);
+				}catch(IOException e){
+					e.printStackTrace();
+				}
 				sText="";
 				for(String sent:sents)
 					sText+=sent+System.getProperty("line.separator");
