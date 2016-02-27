@@ -321,10 +321,9 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
-							<tarLongFileMode>gnu</tarLongFileMode>
-							<descriptorRefs>
-								<descriptorRef>project</descriptorRef>
-							</descriptorRefs>
+							<descriptors>
+								<descriptor>src/main/assembly/package-project.xml</descriptor>
+							</descriptors>
 						</configuration>
 					</execution>
 					<execution>
@@ -344,26 +343,22 @@
 							</archive>
 						</configuration>
 					</execution>
-
-					<execution>
-						<id>package-source-with-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>src/main/assembly/assembly.xml</descriptor>
-							</descriptors>
-							<archive>
-							</archive>
-						</configuration>
-					</execution>
+<!-- 					<execution> -->
+<!-- 						<id>package-source-with-dependencies</id> -->
+<!-- 						<phase>package</phase> -->
+<!-- 						<goals> -->
+<!-- 							<goal>single</goal> -->
+<!-- 						</goals> -->
+<!-- 						<configuration> -->
+<!-- 							<descriptors> -->
+<!-- 								<descriptor>src/main/assembly/source-with-dependencies.xml</descriptor> -->
+<!-- 							</descriptors> -->
+<!-- 							<archive> -->
+<!-- 							</archive> -->
+<!-- 						</configuration> -->
+<!-- 					</execution> -->
 				</executions>
-
 			</plugin>
-
-
 		</plugins>
 	</build>
 	<organization>
