@@ -25,7 +25,8 @@ public  class ScriptAligner {
 	//String with the target language
 	protected String tLang;
 	//String with default file types to read from the output of the crawler
-	protected String filetypes="[auidhml]";
+	//protected String filetypes="[auidhml]";
+	protected String filetypes="[abcdefghijklmnopqrstuvwxyz]";
 	//Default url of the europarl sentence splitter service
 	protected String sentSplitUrl="http://www.cngl.ie/panacea-soaplab2-axis/services/panacea.europarl_sentence_splitter";
 	//Default url of the service to transform the sentence splitter output to the TO format
