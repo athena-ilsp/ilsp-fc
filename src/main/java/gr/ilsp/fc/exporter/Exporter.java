@@ -317,9 +317,11 @@ public class Exporter {
 		}
 		LOGGER.info("CesDoc files generated: "+ xmlFiles.size());
 		LOGGER.info("Completed in " + (System.currentTimeMillis()-start) + " milliseconds.");
-		WriteResources.WriteTextList(xmlFiles, outputFile);
-		if (applyOfflineXSLT){
-			WriteResources.WriteHTMLList(xmlFiles, new File(outputFileHTML.getAbsolutePath()));
+		if (outputFile!=null){
+			WriteResources.WriteTextList(xmlFiles, outputFile);
+			if (applyOfflineXSLT){
+				WriteResources.WriteHTMLList(xmlFiles, new File(outputFileHTML.getAbsolutePath()));
+			}
 		}
 	}
 
