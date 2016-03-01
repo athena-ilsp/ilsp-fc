@@ -78,14 +78,6 @@ public class TMXHandler {
 	private final static String UTF_8 = "UTF-8";
 	//private final static String XSL_TMX2HTML = "http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl";
 	private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
-	/*private final static String a_type = "a";
-	private final static String p_type = "p";
-	private final static String u_type = "u";
-	private final static String i_type = "i";
-	private final static String d_type = "d";
-	private final static String h_type = "h";
-	private final static String m_type = "m";
-	private final static String l_type = "l";*/
 	private static final String SEMI_SEPAR = ";";
 	private final static int length_THR = 5;
 	private static int totalcounter=0;

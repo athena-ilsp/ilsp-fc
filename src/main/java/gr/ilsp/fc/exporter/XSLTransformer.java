@@ -20,7 +20,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 public class XSLTransformer {
-	private static Logger logger = Logger.getLogger(Crawl.class);
+	private static Logger logger = Logger.getLogger(XSLTransformer.class);
 	private TransformerFactory transFact = null;
 	private Transformer transformer= null;
 	private String baseDir= null;

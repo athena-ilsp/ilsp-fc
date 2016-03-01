@@ -24,7 +24,7 @@ public class LangDetectUtils {
 	private static final String QUEST_SEPAR = ";";
 	//private static final String LANG_CODES_RESOURCE = "langcode-langs.txt";
 	//private static final String SPACE_SEPERATOR = " ";
-	private static int min_strlen=5;
+	private static final int min_strlen=5;
 	
 	/**
 	 * Detects language of the provided content with loaded Cybozu. 

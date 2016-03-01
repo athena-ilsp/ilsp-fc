@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,7 +35,22 @@ public class TempUtils {
 	private static final String HTTRACK2 = "by HTTrack Website Copier";
 	
 	public static void main(String[] args) {
-	List<String> res=new ArrayList<String>();	
+		FilenameFilter filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.endsWith("_u.xml") );
+			}
+		};	
+		
+	File t = new File("C:\\Users\\vpapa\\ELRC");
+	
+	List<File> files=FcFileUtils.listFiles(t, filter, true);
+	System.out.println(files.size());
+	for (File file:files){
+		file.delete();
+	}
+	System.exit(0);
+
+		List<String> res=new ArrayList<String>();	
 	int group=4;
 	try {
 		List<String> tusinfo = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/eng-fra_culture_aupdih.csv"));

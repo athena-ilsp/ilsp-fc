@@ -118,7 +118,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 
 			if (!_metadata.get(Metadata.CONTENT_LOCATION).equals(_metadata.get(Metadata.RESOURCE_NAME_KEY))){
 				//_metadata.set(Metadata.RESOURCE_NAME_KEY, _metadata.get(Metadata.CONTENT_LOCATION));
-				LOGGER.warn("KEY: "+_metadata.get(Metadata.RESOURCE_NAME_KEY)+"\tLOC: "+_metadata.get(Metadata.CONTENT_LOCATION));	
+				LOGGER.debug("KEY: "+_metadata.get(Metadata.RESOURCE_NAME_KEY)+"\tLOC: "+_metadata.get(Metadata.CONTENT_LOCATION));	
 				_metadata.set(Metadata.CONTENT_LOCATION, _metadata.get(Metadata.RESOURCE_NAME_KEY));
 			}
 			//String lang = _extractLanguage ? _metadata.get(Metadata.CONTENT_LANGUAGE) : null;
