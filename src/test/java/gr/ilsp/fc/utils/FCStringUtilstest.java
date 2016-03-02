@@ -22,7 +22,7 @@ public class FCStringUtilstest {
 		System.out.println(FCStringUtils.getWordLength(str));
 		assertTrue(FCStringUtils.getWordLength(str)==3);
 		List<String> parts = FCStringUtils.getParts(str, "");
-		assertTrue(FCStringUtils.getPartLength(str, "")==5);
+		assertTrue(parts.size()==5);
 	}
 	
 }
