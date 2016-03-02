@@ -106,7 +106,7 @@ public class CrawlOptions {
 	private static String _selectDocs = "auidhml";
 	private static List<String> _selectSegs = new ArrayList<String>();
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
-	private static String default_aligner="malign"; 
+	private static String default_aligner="maligna"; 
 	private static final String CRAWL_operation = "crawl";
 	private static final String EXPORT_operation = "export";
 	private static final String DEDUP_operation = "dedup";
@@ -631,9 +631,9 @@ public class CrawlOptions {
 		}else{
 			_dict=null;
 		}
-		_outputFileTMX = new File(line.getOptionValue("of")+TMXlist);	
+		_outputFileTMX = new File(line.getOptionValue("bs")+TMXlist);	
 		if (line.hasOption( "oxslt"))//{
-			_outputFileHTMLTMX = new File(line.getOptionValue("of")+TMXHTMLlist);	
+			_outputFileHTMLTMX = new File(line.getOptionValue("bs")+TMXHTMLlist);	
 		
 	}
 
@@ -648,7 +648,7 @@ public class CrawlOptions {
 	private void getParams4MergingAlignments(CommandLine line) {
 		_outputFile_mergedTMX =  new File(line.getOptionValue("bs")+TMXEXT);
 		if (line.hasOption( "oxslt"))	
-			_outputFile_mergedTMXHTML = new File(line.getOptionValue("bs")+HTMLEXT);
+			_outputFile_mergedTMXHTML = new File(line.getOptionValue("bs")+TMXEXT+HTMLEXT);
 		if (line.hasOption("doctypes")){
 			_selectDocs = line.getOptionValue("doctypes");
 		}

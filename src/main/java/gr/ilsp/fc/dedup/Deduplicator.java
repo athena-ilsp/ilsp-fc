@@ -18,7 +18,7 @@ public class Deduplicator {
 	private static double IntersectionThr;
 	private static int MIN_PAR_LEN;
 	private static int MIN_TOK_LEN;
-	private static boolean applyXSLT;
+	//private static boolean applyXSLT;
 
 	public static void main(String[] args) {
 		Deduplicator ded = new Deduplicator();
@@ -46,13 +46,13 @@ public class Deduplicator {
 		}
 		if (method.equals("2")){
 			LOGGER.info("Deduplication based on common paragraphs.");
-			DedupParsMD5.dedup(targetDir, excludeSetFiles, outTextList,outHTMLList,applyXSLT, MIN_PAR_LEN, IntersectionThr,inputType);
+			DedupParsMD5.dedup(targetDir, excludeSetFiles, outTextList,outHTMLList,applyOfflineXSLT, MIN_PAR_LEN, IntersectionThr,inputType);
 		}
 		if (method.equals("0")){
 			LOGGER.info("Deduplication by using lists and MD5 method.");
-			DedupMD5.dedup(targetDir, excludeSetFiles,  outTextList,outHTMLList,applyXSLT, MIN_TOK_LEN,inputType);
+			DedupMD5.dedup(targetDir, excludeSetFiles,  outTextList,outHTMLList,applyOfflineXSLT, MIN_TOK_LEN,inputType);
 			LOGGER.info("Deduplication based on common paragraphs.");
-			DedupParsMD5.dedup(targetDir, excludeSetFiles,  outTextList,outHTMLList,applyXSLT, MIN_PAR_LEN, IntersectionThr,inputType);
+			DedupParsMD5.dedup(targetDir, excludeSetFiles,  outTextList,outHTMLList,applyOfflineXSLT, MIN_PAR_LEN, IntersectionThr,inputType);
 		}
 	}
 	/**

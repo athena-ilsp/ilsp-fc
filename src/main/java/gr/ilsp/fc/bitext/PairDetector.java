@@ -78,7 +78,8 @@ public class PairDetector {
 			BitextUtils.removeRedundantFiles(indir,bitextsALL);
 				
 		FcFileUtils.moveZipDeleteFiles(indir,html, Arrays.asList(htmlExt, pdfExt), UNDERSCORE_STR, false);
-		FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
+		if (!offlineXSLT)
+			FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
 		
 	}
 
