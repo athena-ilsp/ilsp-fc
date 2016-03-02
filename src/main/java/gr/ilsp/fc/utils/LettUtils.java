@@ -10,6 +10,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.codec.binary.Base64;
@@ -34,7 +37,7 @@ public class LettUtils {
 	private static final String HTML_EXTENSION = ".html";
 	private static final String TAB_SEPARATOR = "\t";
 	private static final Logger logger = LoggerFactory.getLogger(LettUtils.class);
-
+	private static Map<String, String> file2Url = new HashMap<String, String>();
 	/**
 	 * Reads an (optionally gzipped) wmt-16 lett file, base64-decodes the html
 	 * content in each line and writes this content in a file in corpusOutDir
@@ -64,11 +67,12 @@ public class LettUtils {
 			File outFileHtml = new File(FilenameUtils.concat(corpusOutDir.getAbsolutePath(), fields[0] + HYPHEN + id++ + HTML_EXTENSION));
 			String decoded = new String(base64.decode(fields[4].getBytes()));
 			FileUtils.write(outFileHtml, decoded);
+			file2Url.put(outFileHtml.getAbsolutePath(), (fields[3] + "\t" +fields[0]));
 		}
 		br.close();
 	}
 
-	public static void main(String[] args)  {
+	public static void main(String[] args) throws IOException  {
 		File lettDir = new File(args[0]);
 		File lettDirHtml = new File(args[1]);
 		logger.info("Creating corpus from lett files in "+ lettDir.getAbsolutePath());
@@ -87,6 +91,13 @@ public class LettUtils {
 				e.printStackTrace();
 			}
 		}
+		File f = new File("/tmp/file_url_lang.txt"); 
+		TreeSet<String> treeSet = new TreeSet<String>(file2Url.keySet());
+		for (String key : treeSet) {
+		    String value = file2Url.get(key);
+		    FileUtils.write(f,  (key + "\t" + value+"\n"),  "UTF-8", true);
+		}
+		
 		logger.info("Done.");
 	}
 

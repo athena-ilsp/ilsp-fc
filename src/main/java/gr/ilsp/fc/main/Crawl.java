@@ -268,10 +268,6 @@ public class Crawl {
 	 */
 	public static void main(String[] args) {
 		LOGGER.info(Arrays.toString(args));
-		if (args.length==0){
-			LOGGER.info("Usage: Crawl [crawl|export|config|align|pairdetect|dedup|tmxmerge]");
-			System.exit(-1);
-		}
 		CrawlOptions options = new CrawlOptions();
 		options.parseOptions(args);		
 
@@ -482,7 +478,7 @@ public class Crawl {
 
 				LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
 				LOGGER.info("Total pages failed classification or are too short : " + PAGES_FAILED_CLASSIFICATION );
-				LOGGER.info("Total tokens stored: " + TOKENS_STORED);
+				LOGGER.info("Total tokens stored: " + TOKENS_STORED );
 				stor_vis.add(new int[] {PAGES_STORED,PAGES_VISITED});
 				loopLogFiles.add(loopLogFile);
 				// flow.writeDOT("build/valid-flow.dot");

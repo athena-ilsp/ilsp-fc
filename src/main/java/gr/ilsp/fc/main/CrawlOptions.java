@@ -1,8 +1,5 @@
 package gr.ilsp.fc.main;
 
-import gr.ilsp.fc.langdetect.LangDetectUtils;
-import gr.ilsp.fc.utils.AnalyzerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,14 +25,16 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
-import org.apache.lucene.analysis.Analyzer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.InternetDomainName;
 
+import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.utils.AnalyzerFactory;
+
 public class CrawlOptions {
 	public static int NO_CRAWL_DURATION = 0;
-	private  final String APPNAME = "Crawl crawlandexport";
+	private  final String APPNAME = "ILSP Focused Crawler";
 	private Options options;
 
 	private String _domain=null;
@@ -89,10 +88,10 @@ public class CrawlOptions {
 	private boolean _cc = false;
 	private boolean _metadata = false;
 
-	private static final String XMLlist = ".XMLlist.txt";
-	private static final String XMLHTMLlist = ".XMLlist.html";
-	private static final String TMXlist = ".TMXlist.txt";
-	private static final String TMXHTMLlist = ".TMXlist.html";
+	private static final String XMLlist = ".xmllist.txt";
+	private static final String XMLHTMLlist = ".xmllist.html";
+	private static final String TMXlist = ".tmxlist.txt";
+	private static final String TMXHTMLlist = ".tmxlist.html";
 	private static final String TMXEXT = ".tmx";
 	private static final String HTMLEXT = ".html";
 	private static final String UNDERSCORE_STR = "_";
@@ -107,8 +106,7 @@ public class CrawlOptions {
 	private static String _selectDocs = "auidhml";
 	private static List<String> _selectSegs = new ArrayList<String>();
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
-	//private String default_aligner; //hunalign v1.1
-	private static String default_aligner="default"; //hunalign v1.1
+	private static String default_aligner="malign"; 
 	private static final String CRAWL_operation = "crawl";
 	private static final String EXPORT_operation = "export";
 	private static final String DEDUP_operation = "dedup";
@@ -125,49 +123,46 @@ public class CrawlOptions {
 		options = new Options();
 
 		options.addOption( OptionBuilder.withLongOpt( "help" )
-				.withDescription( "Help" )
+				.withDescription( "This message" )
 				.create("h") );
 		options.addOption( OptionBuilder.withLongOpt( "debug" )
-				.withDescription( "debug logging" )				
+				.withDescription( "Use debug level for logging" )				
 				.create("dbg") );
 
 		options.addOption( OptionBuilder.withLongOpt( "loggingAppender" )
-				.withDescription( "set logging appender (console, DRFA)")
+				.withDescription( "Logging appender (console, DRFA) to use")
 				.hasArg()
 				.create("l") );
-
 		options.addOption( OptionBuilder.withLongOpt( "config" )
-				.withDescription( "XML file with configuration for the tool." )
+				.withDescription( "Path to the XML configuration file" )
 				.hasArg()
 				.create("cfg") );
-
 		options.addOption( OptionBuilder.withLongOpt("crawl")
-				.withDescription( "if exists, operation includes crawl" )				
+				.withDescription( "Start a crawl" )				
 				.create("crawl") );
 		options.addOption( OptionBuilder.withLongOpt("export")
-				.withDescription( "if exists, operation includes export to cesDoc files of downloaded documents" )				
+				.withDescription( "Export crawled documents to cesDoc XML files" )				
 				.create("export") );
-		options.addOption( OptionBuilder.withLongOpt( "apply_near_deduplication" )
-				.withDescription( "if exists, operation includes deduplication, i.e.compares clean text content and discards near duplicates" )				
+		options.addOption( OptionBuilder.withLongOpt( "deduplicate" )
+				.withDescription( "Deduplicate and discard (near) duplicate documents" )				
 				.create("dedup") );
 		options.addOption( OptionBuilder.withLongOpt( "pair_detection" )
-				.withDescription( "if exists, detection of document pairs will be applied" )				
+				.withDescription( "Detect document pairs in crawled documents" )				
 				.create("pairdetect") );
 		options.addOption( OptionBuilder.withLongOpt( "align_sentences" )
-				.withDescription( "if exists, operation includes extraction of sentences from the detected document pairs and " +
-						"alignment of the extracted sentences by using an aligner (default is maligna)" )
+				.withDescription( "Sentence align document pairs using this aligner (default is " + default_aligner + ")" )
 						.hasOptionalArg()
 						.create("align") );
 		options.addOption( OptionBuilder.withLongOpt("tmxmerge")
-				.withDescription( "if exists, operation includes tmx merging" )				
+				.withDescription( "Merge aligned segments from each document pair into one tmx file" )				
 				.create("tmxmerge") );
 
-		options.addOption( OptionBuilder.withLongOpt("SelectDocsForTMXmerge")
-				.withDescription( "selects document pairs (to get their segment pairs) that have been identified by specific methods, ie. auidh" )	
+		options.addOption( OptionBuilder.withLongOpt("doctypes")
+				.withDescription( "When creating a merged TMX file, only use sentence alignments from document pairs that have been identified by specific methods, e.g. auidh. See the pdm option." )	
 				.hasArg()
 				.create("doctypes") );
-		options.addOption( OptionBuilder.withLongOpt("SelectSegsForTMXmerge")
-				.withDescription( "selects segment pairs from document pairs that have been identified by specific methods, see doctypes parameters" )	
+		options.addOption( OptionBuilder.withLongOpt("segtypes")
+				.withDescription( "When creating a merged TMX file, only use sentence alignments of specific types, ie. 1:1" )	
 				.hasArg()
 				.create("segtypes") );
 
@@ -177,47 +172,47 @@ public class CrawlOptions {
 						.hasOptionalArg()
 						.create("dict") );*/
 		options.addOption( OptionBuilder.withLongOpt( "topic" )
-				.withDescription( "fullpath of the text file containing the topic definition" )
+				.withDescription( "Path to a file with the topic definition" )
 				.hasArg()
 				.create("tc") );
-		options.addOption( OptionBuilder.withLongOpt( "TargetedDomainTitle" )
+		options.addOption( OptionBuilder.withLongOpt( "domain" )
 				.withDescription( "A descriptive title for the targeted domain" )
 				.hasArg()
 				.create("dom") );
 		options.addOption( OptionBuilder.withLongOpt("stay_in_webdomain")
-				.withDescription( "Force monolingual crawler to stay in a specific webdomain" )				
+				.withDescription( "Force the monolingual crawler to stay in a specific web domain" )				
 				.create("d") );
 		options.addOption( OptionBuilder.withLongOpt( "urls" )
-				.withDescription( "file with list of urls to crawl" )
+				.withDescription( "File with seed urls used to initialize the crawl" )
 				.hasArg()
 				.create("u") );
 		options.addOption( OptionBuilder.withLongOpt( "inputdir" )
-				.withDescription( "input directory for deduplication, or pairdetection, or alignment" )
+				.withDescription( "Input directory for deduplication, pairdetection, or alignment" )
 				.hasArg()
 				.create("i") );
 		options.addOption( OptionBuilder.withLongOpt( "outputdir" )
-				.withDescription( "output directory" )
+				.withDescription( "Output directory" )
 				.hasArg()
 				.create("o") );
-		options.addOption( OptionBuilder.withLongOpt( "outputXML" )
-				.withDescription( "fullpath of text file with list of paths of XML files" )
+		options.addOption( OptionBuilder.withLongOpt( "basename" )
+				.withDescription( "Basename to be used in generating all files for easier content navigation" )
 				.hasArg()
-				.create("of") );
+				.create("bs") );
 		options.addOption( OptionBuilder.withLongOpt( "agentname" )
-				.withDescription( "user agent name" )
+				.withDescription( "Agent name to identify the person or the organization responsible for the crawl" )
 				.hasArg()
 				.create("a") );
 
 		options.addOption( OptionBuilder.withLongOpt( "threads" )
-				.withDescription( "maximum number of fetcher threads to use" )
+				.withDescription( "Maximum number of fetcher threads to use" )
 				.hasArg()
 				.create("t") );		
 		options.addOption( OptionBuilder.withLongOpt( "numloops" )
-				.withDescription( "number of fetch/update loops" )
+				.withDescription( "Maximum number of fetch/update loops" )
 				.hasArg()
 				.create("n") );		
 		options.addOption( OptionBuilder.withLongOpt( "crawlduration" )
-				.withDescription( "crawl duration in minutes" )
+				.withDescription( "Maximum crawl duration in minutes" )
 				.hasArg()
 				.create("c") );
 		//options.addOption( OptionBuilder.withLongOpt( "genre" )
@@ -225,80 +220,80 @@ public class CrawlOptions {
 		//		.hasArg()
 		//		.create("gnr") );
 		options.addOption( OptionBuilder.withLongOpt( "keepboiler" )
-				.withDescription( "if exists, boilerplate content in parsed text will be kept and annotated" )				
+				.withDescription( "Keep and annotate boilerplate content in parsed text" )				
 				.create("k") );
 		options.addOption( OptionBuilder.withLongOpt( "delete_redundant_files" )
-				.withDescription( "if exists, the files tha have not been involved into pairs, will be deleted" )				
+				.withDescription( "Delete redundant crawled documents that have not been detected as members of a document pair" )				
 				.create("del") );
 
-		options.addOption( OptionBuilder.withLongOpt( "image_fullpath" )
-				.withDescription( "if exists, fullpath of images will be used in pair detection" )				
+		options.addOption( OptionBuilder.withLongOpt( "image_urls" )
+				.withDescription( "Full image URLs (and not only their basenames) will be used in pair detection with common images")				
 				.create("ifp") );
 		options.addOption( OptionBuilder.withLongOpt( "force" )
-				.withDescription( "if exists, it forces to start new crawl. " +
-						"Caution: This will remove any previous crawl data (if they exist)." )				
+				.withDescription( "Force a new crawl. Caution: This will remove any previously crawled data" )				
 						.create("f") );		
 		options.addOption( OptionBuilder.withLongOpt( "length" )
-				.withDescription( "Minimum number of tokens per text block. Shorter text block will be annoteted as \"ooi-length\"" )	
+				.withDescription( "Μinimum number of tokens per text block. Shorter text blocks will be annoteted as \"ooi-length\"" )	
 				.hasArg()
 				.create("len") );
 		options.addOption( OptionBuilder.withLongOpt( "minlength" )
-				.withDescription( "Minimum number of tokens in cleaned document. Shorter documents will not be stored" )	
+				.withDescription( "Minimum number of tokens in crawled documents (after boilerplate detection). Shorter documents will be discarded.")
 				.hasArg()
 				.create("mtlen") );
 		options.addOption( OptionBuilder.withLongOpt( "type" )
-				.withDescription( "Crawling for monolingual (m), parallel (p), comparable (q)" )	
+				.withDescription("Crawl type: m (monolingual) or  p (parallel) or q (comparable)" )
 				.hasArg()
 				.create("type") );
-		options.addOption( OptionBuilder.withLongOpt( "Fetching_Filter" )
-				.withDescription( "Use this regex to force crawler staying in sub webdomains. Webpages with urls that do not match this regex will not be fetched." )	
+		options.addOption( OptionBuilder.withLongOpt( "fetchfilter" )
+				.withDescription( "Use this regex to force the crawler to crawl only in specific sub webdomains. Webpages with urls that do not match this regex will not be fetched." )	
 				.hasArg()
 				.create("filter") );
-		options.addOption( OptionBuilder.withLongOpt( "Storing_Filter" )
-				.withDescription( "Use this regex to force crawler storing only webpages with urls that match this regex." )	
+		options.addOption( OptionBuilder.withLongOpt( "storefilter" )
+				.withDescription( "Use this regex to force the crawler to store only webpages with urls that match this regex." )	
 				.hasArg()
 				.create("storefilter") );
-		options.addOption( OptionBuilder.withLongOpt( "language(s)" )
-				.withDescription( "Iso code(s) of target language(s). If more than one, separate them with ';', " +
-						"i.e. en;el" )
-						.hasArg()
+		options.addOption( OptionBuilder.withLongOpt( "languages" )
+				.withDescription( "Two or three letter ISO code(s) of target language(s), e.g. el (for a monolingual crawl for Greek content) or en;el (for a bilingual crawl)" )
+						.hasArg().isRequired()
 						.create("lang") );
-		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
+		options.addOption( OptionBuilder.withLongOpt( "offline_xslt" )
 				.withDescription( "Apply an xsl transformation to generate html files during exporting.")
 				.create("oxslt") );
 		options.addOption( OptionBuilder.withLongOpt( "destination" )
-				.withDescription( "fullpath of the directory in which the acquired/generated resources will be stored.")
+				.withDescription( "Path to a directory where the acquired/generated resources will be stored")
 				.hasArg()
 				.create("dest") );
 		options.addOption( OptionBuilder.withLongOpt( "url_replacements" )
-				.withDescription( "Put the strings to be replaced, separated by ';'.")
+				.withDescription( "A string to be replaced, separated by ';'.")
 				.hasArg()
 				.create("u_r") );
-		options.addOption( OptionBuilder.withLongOpt( "methods_to_be_used_for_pair_detection" )
-				.withDescription( "Put a string which contains \"a\" for checking links,"
-						+ "\"u\" for checking urls for patterns, \"p\" for using common images and digits" 
-						+ "\"i\" for using common images"
-						+ "\"d\" for examining digit sequences, \"s\" for examining structures")
+		options.addOption( OptionBuilder.withLongOpt( ""
+				+ "pair_detection_methods" )
+				.withDescription( "Α string forcing the crawler to detect pairs using one or more specific methods: "
+						+ "a (links between documents), "
+						+ "u (patterns in urls), "
+						+ "p (common images and similar digit sequences),"
+						+ "i (common images), "
+						+ "d (similar digit sequences), "
+						+ "s (similar html structure)")
 						.hasArg()
-						.create("meth") );
-		options.addOption( OptionBuilder.withLongOpt( "paths_replacements" )
-				.withDescription( "Put the strings to be replaced, separated by ';'." +
-						" This might be useful for crawling via the web service")
+						.create("pdm") );
+		options.addOption( OptionBuilder.withLongOpt( "path_replacements" )
+				.withDescription( "Put the strings to be replaced, separated by ';'. This might be useful for crawling via the web service")
 						.hasArg()
 						.create("p_r") );
-		options.addOption( OptionBuilder.withLongOpt( "licence_detected_for_document_pairs" )
-				.withDescription( "If exists, only document pairs for which"
-						+ " a license has been detected will be selected in generating the merged TMX.")
+		options.addOption( OptionBuilder.withLongOpt( "creative_commons" )
+				.withDescription( "Force the alignment process to generate a merged TMX with sentence alignments only from document pairs for which an open content license has been detected.")
 						.create("cc") );
-		options.addOption( OptionBuilder.withLongOpt( "export_metadata_of_the_collection" )
-				.withDescription( "If exists, metadata of the collection (i.e. the merged TMX file), will be exported")
+		options.addOption( OptionBuilder.withLongOpt( "metadata" )
+				.withDescription( "Generate a metadata description with information for a resource created with the crawler")
 				.create("metadata") );
 
 		return options;
 	}
 
 	public  void parseOptions ( String[] args) {
-		if (helpAsked(args)){
+		if ((args.length==0) || (helpAsked(args) )) {
 			help();
 		}	
 		// create the command line parser
@@ -350,15 +345,15 @@ public class CrawlOptions {
 			if (_operation.contains(PAIRDETECT_operation)){
 				if(line.hasOption( "ifp")) 
 					_keepimagefp  = true;
-				if(line.hasOption( "meth"))
-					_methods = line.getOptionValue("meth");
+				if(line.hasOption( "pdm"))
+					_methods = line.getOptionValue("pdm");
 				if(line.hasOption( "del")) 		
 					_del  = true;
 			}
-			if (line.hasOption( "of")) {
-				_outputFile = new File(line.getOptionValue("of")+XMLlist);
+			if (line.hasOption( "bs")) {
+				_outputFile = new File(line.getOptionValue("bs")+XMLlist);
 				if (line.hasOption( "oxslt"))
-					_outputFileHTML = new File(line.getOptionValue("of")+XMLHTMLlist);
+					_outputFileHTML = new File(line.getOptionValue("bs")+XMLHTMLlist);
 			}else{
 				if (_operation.contains(EXPORT_operation)){
 					LOGGER.error("Outputfile required since exporting is asked");
@@ -651,9 +646,9 @@ public class CrawlOptions {
 	 * @param line
 	 */
 	private void getParams4MergingAlignments(CommandLine line) {
-		_outputFile_mergedTMX =  new File(line.getOptionValue("of")+TMXEXT);
+		_outputFile_mergedTMX =  new File(line.getOptionValue("bs")+TMXEXT);
 		if (line.hasOption( "oxslt"))	
-			_outputFile_mergedTMXHTML = new File(line.getOptionValue("of")+HTMLEXT);
+			_outputFile_mergedTMXHTML = new File(line.getOptionValue("bs")+HTMLEXT);
 		if (line.hasOption("doctypes")){
 			_selectDocs = line.getOptionValue("doctypes");
 		}
@@ -676,12 +671,11 @@ public class CrawlOptions {
 	 * @param _languages
 	 */
 	private void checkAnalyzers(String languages) {
-		Analyzer analyzer =null;
 		String[] langs=languages.split(SEMI_SEPAR);
 		for (int ii=0;ii<langs.length;ii++){
 			try {
 				AnalyzerFactory analyzerFactory = new AnalyzerFactory();
-				analyzer = analyzerFactory.getAnalyzer(langs[ii]);
+				analyzerFactory.getAnalyzer(langs[ii]);
 			} catch (Exception e) {
 				LOGGER.error("No analyser available for language "+ langs[ii]);
 				System.exit(0);
@@ -760,6 +754,7 @@ public class CrawlOptions {
 
 	public  void printHelp(String program, Options options) {
 		HelpFormatter formatter = new HelpFormatter();
+		formatter.setWidth(100);
 		formatter.printHelp( program, options );
 	}
 	public String getLanguage() { 
