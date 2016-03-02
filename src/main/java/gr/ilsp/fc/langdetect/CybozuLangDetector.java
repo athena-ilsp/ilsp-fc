@@ -63,7 +63,7 @@ public class CybozuLangDetector extends LangDetector {
 			detector.append(text);
 			return ISOLangCodes.get3LetterCode(detector.detect());
 		} catch (LangDetectException e) {
-			logger.info("Cannot detect language in " + text);
+			logger.debug("Cannot detect language in " + text);
 		}
 		return null;
 	}
@@ -82,5 +82,16 @@ public class CybozuLangDetector extends LangDetector {
 		String jsonProfile = JSON.encode(langProfile);
 		FileUtils.writeStringToFile(profileFile, jsonProfile);
 	}
+	
+	
+	public static void main(String[] args) throws Exception {
+		String lang = args[0];
+		File trainFile = new File(args[1]);
+		File profileFile = new File(args[2]);
+		LangProfile langProfile = GenProfile.loadFromText(lang, trainFile);
+		String jsonProfile = JSON.encode(langProfile);
+		FileUtils.writeStringToFile(profileFile, jsonProfile);
+	}
+
 	
 }

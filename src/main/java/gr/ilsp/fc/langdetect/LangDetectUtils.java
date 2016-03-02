@@ -55,14 +55,12 @@ public class LangDetectUtils {
 	 * @return
 	 */
 	public static boolean istargetedlang(String lang, String[] targeted_langs) {
-		boolean match = false;
 		for (String l:targeted_langs){
 			if (lang.equals(l)){
-				match = true;
-				break;
+				return true;
 			}
 		}
-		return match;
+		return false;
 	}
 	
 	/**
