@@ -18,7 +18,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.List;
-import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -42,7 +41,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitter;
-import gr.ilsp.fc.utils.sentencesplitters.SimpleSentenceSplitter;
 
 /**
  * Static Class with various methods for  
@@ -539,7 +537,7 @@ public class IOtools{
 				//Run the sentence splitter on the paragraph
 				List<String> sents=null;
 				try{
-					sents=sp.getSentences(sText, 2);
+					sents=sp.getSentences(sText, 1);
 				}catch(IOException e){
 					e.printStackTrace();
 				}
@@ -552,13 +550,12 @@ public class IOtools{
 		return sb.toString();
 	}
 
-	public static String readTMXTranslations(File fTMX){
+	public static String readTMXTranslations(SentenceSplitter sp, File fTMX){
 		StringBuffer sb=new StringBuffer();
 		DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
 		dbf.setValidating(false);
 		DocumentBuilder db=null;
 		Document doc=null;
-		SimpleSentenceSplitter sp=new SimpleSentenceSplitter();
 		try{
 			db=dbf.newDocumentBuilder();
 			doc=db.parse(fTMX);
@@ -579,7 +576,12 @@ public class IOtools{
 			else{
 				String sText = translationNode.getTextContent();
 				//Run the sentence splitter on the paragraph
-				Vector<String> sents=sp.getSentences(sText, 2);
+				List<String> sents=null;
+				try {
+					sents = sp.getSentences(sText, 1);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				sText="";
 				for(String sent:sents)
 					sText+=sent+System.getProperty("line.separator");
