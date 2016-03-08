@@ -24,6 +24,7 @@ import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,37 @@ public abstract class Aligner {
 
 	public abstract void destroy ();
 
+	
+	/**
+	 * Processes a list of l1File l2File pairs  
+	 * 
+	 * @param An org.apache.commons.lang3.tuple.Pair with l1 and l2 files
+	 * @param l1
+	 * @param l2
+	 * @return a list of tmxfiles
+	 */
+	public List<File> processl1L2Files(List<Pair<File, File>> l1L2Files, String l1, String l2)  {
+		int id = 1;
+		List<File> tmxFiles = new ArrayList<File>();
+		for (Pair<File, File> filePair : l1L2Files) {
+			File l1File = filePair.getLeft(); 
+			File l2File = filePair.getRight();
+			File tmxFile = new File (StringUtils.join(new String[]{l1, l2, String.valueOf(id)}, "_") + ".tmx");		
+			try {
+				this.process(l1File, l2File, tmxFile);
+			} catch (Exception e) {
+				logger.warn("Cannot align: " + l1File  +  " - " + l2File);
+				e.printStackTrace();
+			}
+			tmxFiles.add(tmxFile);
+			id++;
+		}
+		return tmxFiles;
+	}
+
+		
+	
+	
 	public void processCesAlignList(File cesAlignList, File outputTMXList, File outputHTMLTMXList, boolean xslt)  {
 		List<String> lines=new ArrayList<String>();
 		try {
