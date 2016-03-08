@@ -34,18 +34,14 @@ public class PairDetectorOptions {
 	private String _methods="auidps";
 	private String _language;
 	private boolean _keepimagefp=false;
-	//private String _aligner=null;
-	//private String _dict=null;
-	//private String _dictpath=null;
-	private boolean _cesAlign = false;
 	private boolean offlineXSLT = false;
 	private static final Logger LOGGER = Logger.getLogger(PairDetectorOptions.class);
 	private static final String QUEST_SEPAR = ";";
 	private static String DOUBLEQUEST_SEPAR = ";;";
 	private boolean _delFiles = false;
-	//private String default_aligner; //hunalign v1.1
-	//private String default_aligner="default"; //hunalign v1.1
-
+	private static final String XMLlist = ".xmllist.txt";
+	private static final String XMLHTMLlist = ".xmllist.html";
+	
 	public PairDetectorOptions() {
 		createOptions();
 	}
@@ -68,15 +64,11 @@ public class PairDetectorOptions {
 				.withDescription( "output directory" )
 				.hasArg()
 				.create("o") );
-		options.addOption( OptionBuilder.withLongOpt( "outputXML" )
-				.withDescription( "output list to XML files" )
+		options.addOption( OptionBuilder.withLongOpt( "baseName" )
+				.withDescription( "Basename to be used in generating all output files for easier content navigation" )
 				.hasArg()
-				.create("of") );
-		options.addOption( OptionBuilder.withLongOpt( "outputHTML_XML" )
-				.withDescription( "output list to HTML (rendered XML) files" )
-				.hasArg()
-				.create("ofh") );
-		options.addOption( OptionBuilder.withLongOpt( "image_fullpath" )
+				.create("bs") );
+		options.addOption( OptionBuilder.withLongOpt( "imageFullPath" )
 				.withDescription( "Keep image fullpath for pair detection" )				
 				.create("ifp") );
 		options.addOption( OptionBuilder.withLongOpt( "help" )
@@ -87,9 +79,6 @@ public class PairDetectorOptions {
 						"i.e. en;el" )
 						.hasArg()
 						.create("lang") );
-		options.addOption( OptionBuilder.withLongOpt( "xslt" )
-				.withDescription( "Insert a stylesheet for rendering xml results as html.")
-				.create("xslt") );
 		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
 				.withDescription( "Apply an xsl transformation to generate html files during exporting.")
 				.create("oxslt") );
@@ -102,16 +91,16 @@ public class PairDetectorOptions {
 						" This might be useful for crawling via the web service")
 						.hasArg()
 						.create("p_r") );
-		options.addOption( OptionBuilder.withLongOpt( "methods_to_be_used_for_pair_detection" )
+		options.addOption( OptionBuilder.withLongOpt( "PairDetectMeth" )
 				.withDescription( "Put a string which contains \"a\" for checking links,"
 						+ "\"u\" for checking urls for patterns, \"p\" for combining common images and digits, \"i\" for using common images"
 						+ "\"d\" for examining digit sequences, \"s\" for examining structures")
 						.hasArg()
 						.create("meth") );
-		options.addOption( OptionBuilder.withLongOpt( "delete_redundant_files" )
+		options.addOption( OptionBuilder.withLongOpt( "DelRedundantFiles" )
 				.withDescription( "deletes files that have not been pairs" )				
 				.create("del") );
-		options.addOption( OptionBuilder.withLongOpt( "textfile_with_groundTruth" )
+		options.addOption( OptionBuilder.withLongOpt( "GT_TextFile" )
 				.withDescription( "in case of evaluation we need this file with 2 coloumns, i.e. <file in lang1> <file in lang2>" )	
 				.hasArg()
 				.create("gt") );
@@ -147,13 +136,14 @@ public class PairDetectorOptions {
 				_outputDir = new File(line.getOptionValue("o"));
 				_outputDir = new File(_outputDir.getAbsolutePath());
 			}
-			if(line.hasOption( "of")) {
-				_outputTextList = new File(line.getOptionValue("of"));
-				_outputTextList = new File(_outputTextList.getAbsolutePath());
-			}
-			if (line.hasOption( "ofh")){
-				_outputHTMLList = new File(line.getOptionValue("ofh"));
-				_outputHTMLList = new File(_outputHTMLList.getAbsolutePath());
+			if(line.hasOption( "bs")) {
+				_outputTextList = new File(line.getOptionValue("bs"));
+				_outputTextList = new File(_outputTextList.getAbsolutePath()+XMLlist);
+				if(line.hasOption( "oxslt")) {
+					offlineXSLT  = true;
+					_outputHTMLList = new File(line.getOptionValue("bs"));
+					_outputHTMLList = new File(_outputHTMLList.getAbsolutePath()+XMLHTMLlist);
+				}
 			}
 			if(line.hasOption( "lang")) {
 				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase());
@@ -173,15 +163,6 @@ public class PairDetectorOptions {
 			}
 			if(line.hasOption( "ifp")) {
 				_keepimagefp  = true;
-			}
-			if(line.hasOption( "xslt")) 
-				_cesAlign  = true;
-			else	
-				_cesAlign  = false;
-
-			if(line.hasOption( "oxslt")) {
-				_cesAlign  = false;
-				offlineXSLT = true;
 			}
 			if(line.hasOption( "del")) {
 				_delFiles  = true;
@@ -234,16 +215,16 @@ public class PairDetectorOptions {
 	public  File getInDir() {
 		return _inDir;
 	}
-	public  File getOutputDir() {
+	public  File getOutDir() {
 		return _outputDir;
 	}
-	public  File getOutputFile() {
+	public  File getOutFile() {
 		return _outputTextList;
 	}
 	public  File getGroundTruth() {
 		return _groundTruth;
 	}
-	public  File getOutputFileHTML() {
+	public  File getOutFileHTML() {
 		return _outputHTMLList;
 	}
 	public  String getMethods() {
@@ -258,9 +239,9 @@ public class PairDetectorOptions {
 	public String getPathReplace() {
 		return _paths_repl;
 	}
-	public boolean getAlign() {
-		return _cesAlign;
-	}
+	//public boolean getAlign() {
+	//	return _cesAlign;
+	//}
 	public boolean getImpath() {
 		return _keepimagefp;
 	}

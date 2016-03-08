@@ -83,11 +83,11 @@ public class ExporterOptions {
 		//		.withDescription( "text file with genre types and keywords for each type." )
 		//		.hasArg()
 		//		.create("gnr") );
-		options.addOption( OptionBuilder.withLongOpt( "length" )
+		options.addOption( OptionBuilder.withLongOpt( "MinParLen" )
 				.withDescription( "Minimum number of tokens per text block" )	
 				.hasArg()
 				.create("len") );
-		options.addOption( OptionBuilder.withLongOpt( "Minlength" )
+		options.addOption( OptionBuilder.withLongOpt( "MinDocLen" )
 				.withDescription( "Minimum number of tokens in clean content" )	
 				.hasArg()
 				.create("mtlen") );
@@ -99,11 +99,11 @@ public class ExporterOptions {
 				.withDescription( "output directory" )
 				.hasArg()
 				.create("o") );	
-		options.addOption( OptionBuilder.withLongOpt( "text_outlist" )
-				.withDescription( "outputlist in text format" )
+		options.addOption( OptionBuilder.withLongOpt( "basename" )
+				.withDescription( "Basename to be used in generating all output files for easier content navigation" )
 				.isRequired()
 				.hasArg()
-				.create("of") );
+				.create("bs") );
 		options.addOption( OptionBuilder.withLongOpt( "textexport" )
 				.withDescription( "Export raw txt files" )				
 				.create("te") );
@@ -116,15 +116,11 @@ public class ExporterOptions {
 		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
 				.withDescription( "Apply an xsl transformation to generate list of links pointing to HTML (rendered XML) files.")
 				.create("oxslt") );
-
 		options.addOption( OptionBuilder.withLongOpt( "paths_replacements" )
 				.withDescription( "Put the strings to be replaced, separated by ';'." +
 						" This might be useful for crawling via the web service")
 						.hasArg()
 						.create("p_r") );
-		//options.addOption( OptionBuilder.withLongOpt( "mimes" )
-		//		.withDescription( "MimeTypes that the exporter can handle" )				
-		//		.create("mime") );
 		return options;
 	}
 
@@ -200,11 +196,11 @@ public class ExporterOptions {
 				_outputdir = new File(line.getOptionValue("o"));
 				_outputdir = new File(_outputdir.getAbsolutePath());
 			} else help();						
-			if(line.hasOption( "of")) {
-				_outputFile = new File(line.getOptionValue("of"));
+			if(line.hasOption( "bs")) {
+				_outputFile = new File(line.getOptionValue("bs"));
 				_outputFile = new File(_outputFile.getAbsolutePath()+XMLlist);
 				if(line.hasOption( "oxslt")) {
-					_outputFileHTML = new File(line.getOptionValue("of")+XMLHTMLlist);
+					_outputFileHTML = new File(line.getOptionValue("bs")+XMLHTMLlist);
 				} 
 			} else help();				
 			if(line.hasOption( "p_r")) {

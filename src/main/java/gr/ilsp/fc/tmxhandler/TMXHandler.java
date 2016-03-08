@@ -54,7 +54,7 @@ public class TMXHandler {
 	private static CompositeConfiguration config;
 	private static String[] languages;
 	private static int[] thres;// = { 100,100,100,100,100,100,100};
-	private static boolean xslt=false;
+	private static boolean oxslt=false;
 	private static boolean cc=false;
 	private static boolean metadata=false;
 	private static String doctypes;// = "auidhml";
@@ -107,7 +107,7 @@ public class TMXHandler {
 		ha.setDocTypes(options.getDocTypes());
 		ha.setThres(options.getThres());
 		ha.setSegTypes(options.getSegTypes());
-		ha.setOutputTMX(options.getOutTMX());
+		ha.setOutFile(options.getOutTMX());
 		ha.setApplyOfflineXSLT(options.getXSLTransform());
 		ha.setLanguage(options.getLanguage());
 		ha.setCC(options.getCC());
@@ -183,7 +183,7 @@ public class TMXHandler {
 						alignmentList, alignmentList.size(), stats1[0], stats2[0],stats1[1], stats2[1], domain, domainEurovocId, UNKNOWN_STR, creationDescription,
 						projectId, projectURL, organization, organizationURL);
 			}
-			if (xslt) { 
+			if (oxslt) { 
 				outHTML =  new File(FilenameUtils.concat(outTMX.getParent(),  FilenameUtils.getBaseName(outTMX.getAbsolutePath()) + HTML));
 				LOGGER.info("Rendering merged TMX as " + outHTML);
 			}
@@ -330,7 +330,7 @@ public class TMXHandler {
 	 * absolute path of the TMX file that will contain all TMXs 
 	 * @param outTMX
 	 */
-	public void setOutputTMX(File outTMX) {
+	public void setOutFile(File outTMX) {
 		TMXHandler.outTMX  = outTMX;
 	}
 
@@ -356,7 +356,7 @@ public class TMXHandler {
 	 * @param offlineXSLT
 	 */
 	public void setApplyOfflineXSLT(boolean offlineXSLT) {
-		TMXHandler.xslt  = offlineXSLT;
+		TMXHandler.oxslt  = offlineXSLT;
 	}
 
 	public void setCC(boolean cc) {

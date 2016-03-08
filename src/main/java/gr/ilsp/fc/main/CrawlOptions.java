@@ -55,7 +55,8 @@ public class CrawlOptions {
 	private String _dictpath=null;
 	private String _config;
 	private String ws_dir;
-	private String _methods = "auidsp";
+	private String _methods = "aupdis";
+	private String defaultSegType="1:1";
 
 	//private String default_genrefile="genres_keys.txt";
 	private URL _genre;
@@ -103,7 +104,7 @@ public class CrawlOptions {
 	private static final String SEMI_SEPAR = ";";
 	private static final String DOUBLEQUEST_SEPAR = ";;";
 
-	private static String _selectDocs = "auidhml";
+	private static String _selectDocs = "aupdihml";
 	private static List<String> _selectSegs = new ArrayList<String>();
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	private static String default_aligner="maligna"; 
@@ -157,10 +158,10 @@ public class CrawlOptions {
 				.withDescription( "Merge aligned segments from each document pair into one tmx file" )				
 				.create("tmxmerge") );
 
-		options.addOption( OptionBuilder.withLongOpt("doctypes")
+		options.addOption( OptionBuilder.withLongOpt("pdm")
 				.withDescription( "When creating a merged TMX file, only use sentence alignments from document pairs that have been identified by specific methods, e.g. auidh. See the pdm option." )	
 				.hasArg()
-				.create("doctypes") );
+				.create("pdm") );
 		options.addOption( OptionBuilder.withLongOpt("segtypes")
 				.withDescription( "When creating a merged TMX file, only use sentence alignments of specific types, ie. 1:1" )	
 				.hasArg()
@@ -195,14 +196,13 @@ public class CrawlOptions {
 				.hasArg()
 				.create("o") );
 		options.addOption( OptionBuilder.withLongOpt( "basename" )
-				.withDescription( "Basename to be used in generating all files for easier content navigation" )
+				.withDescription( "Basename to be used in generating all output files for easier content navigation" )
 				.hasArg()
 				.create("bs") );
 		options.addOption( OptionBuilder.withLongOpt( "agentname" )
 				.withDescription( "Agent name to identify the person or the organization responsible for the crawl" )
 				.hasArg()
 				.create("a") );
-
 		options.addOption( OptionBuilder.withLongOpt( "threads" )
 				.withDescription( "Maximum number of fetcher threads to use" )
 				.hasArg()
@@ -324,10 +324,21 @@ public class CrawlOptions {
 			if(line.hasOption( "i"))			{	_inputDir = new File(line.getOptionValue("i"));			}
 			if(line.hasOption( "o"))			{	_outputDir = new File(line.getOptionValue("o"));		}
 
+			if (line.hasOption( "bs")) {
+				_outputFile = new File(line.getOptionValue("bs")+XMLlist);
+				if (line.hasOption( "oxslt"))
+					_outputFileHTML = new File(line.getOptionValue("bs")+XMLHTMLlist);
+			}else{
+				if (_operation.contains(EXPORT_operation) || _operation.contains(DEDUP_operation) || _operation.contains(PAIRDETECT_operation) || _operation.contains(ALIGN_operation) ||  _operation.contains(TMX_MERGE_operation)){
+					LOGGER.error("Outputfile required ");
+					System.exit(0);
+				}
+			}
+			
 			if (_operation.contains(CRAWL_operation)){
 				getParams4Crawl(line);
 			}
-			if (_operation.contains(TMX_MERGE_operation) /*|| _operation.contains(CREATEPCORPUS_operation)*/){
+			if (_operation.contains(TMX_MERGE_operation) ){
 				getParams4MergingAlignments(line);
 			}
 			if (_operation.contains(ALIGN_operation)){
@@ -337,7 +348,7 @@ public class CrawlOptions {
 				getParams4Topicness(line);
 				getParams4ContentProps(line);
 			}
-			if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation) ||  _operation.contains(ALIGN_operation) ||  _operation.contains(TMX_MERGE_operation)){
+			if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation) ||  _operation.contains(ALIGN_operation) ||  _operation.contains(TMX_MERGE_operation) ){
 				if(line.hasOption( "cfg")) {
 					_config = line.getOptionValue("cfg");
 				}	
@@ -350,16 +361,7 @@ public class CrawlOptions {
 				if(line.hasOption( "del")) 		
 					_del  = true;
 			}
-			if (line.hasOption( "bs")) {
-				_outputFile = new File(line.getOptionValue("bs")+XMLlist);
-				if (line.hasOption( "oxslt"))
-					_outputFileHTML = new File(line.getOptionValue("bs")+XMLHTMLlist);
-			}else{
-				if (_operation.contains(EXPORT_operation)){
-					LOGGER.error("Outputfile required since exporting is asked");
-					System.exit(0);
-				}
-			}
+			
 			if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
 				if (_paths_repl.endsWith("/")){
@@ -634,7 +636,6 @@ public class CrawlOptions {
 		_outputFileTMX = new File(line.getOptionValue("bs")+TMXlist);	
 		if (line.hasOption( "oxslt"))//{
 			_outputFileHTMLTMX = new File(line.getOptionValue("bs")+TMXHTMLlist);	
-		
 	}
 
 	/**
@@ -649,8 +650,8 @@ public class CrawlOptions {
 		_outputFile_mergedTMX =  new File(line.getOptionValue("bs")+TMXEXT);
 		if (line.hasOption( "oxslt"))	
 			_outputFile_mergedTMXHTML = new File(line.getOptionValue("bs")+TMXEXT+HTMLEXT);
-		if (line.hasOption("doctypes")){
-			_selectDocs = line.getOptionValue("doctypes");
+		if (line.hasOption("pdm")){
+			_selectDocs = line.getOptionValue("pdm");
 		}
 		if (line.hasOption("segtypes")){
 			String[] temp= line.getOptionValue("segtypes").split(SEMI_SEPAR); 
@@ -658,7 +659,7 @@ public class CrawlOptions {
 				_selectSegs.add(str);
 			}
 		}else{
-			_selectSegs.add("1:1");
+			_selectSegs.add(defaultSegType);
 		}
 		if (line.hasOption("cc"))
 			_cc=true;
@@ -763,9 +764,6 @@ public class CrawlOptions {
 	public String[] getLangKeys() {
 		return _langKeys;
 	}
-	//	public String getDest3() {
-	//		return ws_dir;
-	//	}
 	public File getTopic() {
 		return _topic;
 	}
@@ -868,9 +866,6 @@ public class CrawlOptions {
 	public String getPathReplace() {
 		return _paths_repl;
 	}
-	//public boolean useXSLT() {
-	//	return _xslt;
-	//}
 	public String getDesc() {
 		return _descr;
 	}

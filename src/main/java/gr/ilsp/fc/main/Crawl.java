@@ -507,8 +507,7 @@ public class Crawl {
 				se.setTopic(options.getTopic());
 				se.setRunOffLine(false);
 				se.setApplyOfflineXSLT(options.isOfflineXSLT());
-				se.setOutputFile(options.getOutputFile());
-				se.setOutputFileHTML(options.getOutputFileHTML());	
+				se.setOutFile(options.getOutputFile());
 				se.setAcceptedMimeTypes(mimes);
 				se.setTargetedDomain(options.getTargetedDomain());
 				se.setGenres(options.getGenre());
@@ -531,8 +530,7 @@ public class Crawl {
 					Set<String> filesinPairs = BitextUtils.getDocsinPairs(idPairsFromTranslationLinks);  
 					Deduplicator ded = new Deduplicator();
 					ded.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
-					ded.setOutTextList(options.getOutputFile());
-					ded.setOutHTMLList(options.getOutputFileHTML());
+					ded.setOutFile(options.getOutputFile());
 					ded.setExcludeSetFiles(filesinPairs);
 					ded.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ded.setMIN_TOK_LEN(MIN_TOK_LEN);
@@ -548,8 +546,8 @@ public class Crawl {
 					pd.setLanguage(options.getLanguage());
 					pd.setSourceDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
 					pd.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
-					pd.setOutTextList(options.getOutputFile());
-					pd.setOutHTMLList(options.getOutputFileHTML());
+					pd.setOutFile(options.getOutputFile());
+					//pd.setOutHTMLList(options.getOutputFileHTML());
 					pd.setExcludeSetFiles(null);
 					pd.setUseImagepath(options.getImpath());
 					pd.setApplyXSLT(options.isOfflineXSLT());
@@ -568,7 +566,7 @@ public class Crawl {
 					TMXHandler ha = new TMXHandler();
 					ha.setTargetDir(xmldir);
 					ha.setConfig(config);
-					ha.setOutputTMX(options.getMergedTMX());
+					ha.setOutFile(options.getMergedTMX());
 					ha.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ha.setDocTypes(options.getDocTypes());
 					ha.setThres( thres);
@@ -586,8 +584,7 @@ public class Crawl {
 				if (operation.contains(DEDUP_operation)){
 					Deduplicator ded = new Deduplicator();
 					ded.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
-					ded.setOutTextList(options.getOutputFile());
-					ded.setOutHTMLList(options.getOutputFileHTML());
+					ded.setOutFile(options.getOutputFile());
 					ded.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ded.setMIN_TOK_LEN(MIN_TOK_LEN);
 					ded.setMIN_PAR_LEN(MIN_PAR_LEN);

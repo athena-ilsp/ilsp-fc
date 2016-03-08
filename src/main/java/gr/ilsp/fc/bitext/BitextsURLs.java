@@ -285,7 +285,8 @@ public class BitextsURLs {
 				| url1.replace("lang,1", "lang,2").equals(url2)
 				| url1.replace("lang="+lang1, "lang="+lang2).equals(url2)
 				| url1.toLowerCase().replace("langid=1", "langid=2").equals(url2.toLowerCase())
-				| url1.replace("lang,1","lang,2").equals(url2) | url1.replace("lang,2","lang,1").equals(url2)	
+				| url1.replace("lang,1","lang,2").equals(url2) | url1.replace("lang,2","lang,1").equals(url2)
+				| url1.replace(lang1,lang2).equals(url2)
 				| (url1.substring(0, url1.length()-4).equals(url2.substring(0, url2.length()-4)) &
 						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
 			found =true;
@@ -296,6 +297,7 @@ public class BitextsURLs {
 				| url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2)
 				| url1.replace("/"+lang1+"/", "").equals(url2) | url2.replace("/"+lang2+"/", "").equals(url1)
 				| url1.replace("lang="+lang1, "lang="+lang2).equals(url2)
+				| url1.replace(lang1,lang2).equals(url2)
 				| (url1.substring(0, url1.length()-4).equals(url2.substring(0, url2.length()-4)) &
 						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
 			found =true;

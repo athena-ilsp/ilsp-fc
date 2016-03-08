@@ -40,8 +40,7 @@ public class Operations {
 		pd.setLanguage(options.getLanguage());
 		pd.setSourceDir(options.getOutputDir());
 		pd.setTargetDir(options.getOutputDir());
-		pd.setOutTextList(options.getOutputFile());
-		pd.setOutHTMLList(options.getOutputFileHTML());
+		pd.setOutFile(options.getOutputFile());
 		pd.setExcludeSetFiles(null);
 		pd.setUseImagepath(options.getImpath());
 		pd.setApplyXSLT(options.isOfflineXSLT());
@@ -67,8 +66,7 @@ public class Operations {
 		LOGGER.info("Running (near)Deduplicator");
 		Deduplicator ded = new Deduplicator();
 		ded.setTargetDir(options.getOutputDir());
-		ded.setOutTextList(options.getOutputFile());
-		ded.setOutHTMLList(options.getOutputFileHTML());
+		ded.setOutFile(options.getOutputFile());
 		ded.setExcludeSetFiles(null);
 		ded.setInputType(XML_EXTENSION.substring(1));
 		ded.setApplyOfflineXSLT(options.isOfflineXSLT());
@@ -95,8 +93,7 @@ public class Operations {
 		se.setTopic(options.getTopic());
 		se.setTargetedDomain(options.getTargetedDomain());
 		se.setCrawlDirName(options.getInputDir());
-		se.setOutputFile(options.getOutputFile());	
-		se.setOutputFileHTML(options.getOutputFileHTML());
+		se.setOutFile(options.getOutputFile());	
 		//FIXME
 		se.setRunOffLine(false); 
 		se.setApplyOfflineXSLT(options.isOfflineXSLT());
@@ -182,11 +179,11 @@ public class Operations {
 		TMXHandler ha = new TMXHandler();
 		ha.setConfig(TMXHandler.getConfig( options.getConfig()));
 		ha.setTargetDir(options.getInputDir());
-		ha.setOutputTMX(options.getMergedTMX());
+		ha.setOutFile(options.getMergedTMX());
 		ha.setApplyOfflineXSLT(options.isOfflineXSLT());
 		ha.setDocTypes(options.getDocTypes());
 		ha.setSegTypes(options.getSegTypes());
-		ha.setThres( new int[] {5, 5, 5, 5, 5, 5, 5});
+		ha.setThres( new int[] {5, 5, 5, 5, 5, 5, 5, 5});
 		ha.setLanguage(options.getLanguage());
 		ha.setCC(options.getCC());
 		ha.setMetadata(options.getMetadata());

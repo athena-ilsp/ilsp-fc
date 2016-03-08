@@ -27,7 +27,7 @@ public class BitextsStruct {
 	private static final String SupportVectorsFile = "SVs19_last.txt";
 	private static final String WeightsFile = "Ws19_last.txt";
 	private static final String ConstFile = "B19_last.txt";
-	private static final int URL_LEVEL=1;
+	private static final int URL_LEVEL=10;
 
 	public static ArrayList<String[]> findpairsXML_SVM_NEW(File xmldir,HashMap<String, DocVector> features) {
 		LOGGER.info("Examining pages based on structure");

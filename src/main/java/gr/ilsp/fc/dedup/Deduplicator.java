@@ -18,15 +18,13 @@ public class Deduplicator {
 	private static double IntersectionThr;
 	private static int MIN_PAR_LEN;
 	private static int MIN_TOK_LEN;
-	//private static boolean applyXSLT;
 
 	public static void main(String[] args) {
 		Deduplicator ded = new Deduplicator();
 		options = new DeduplicatorOptions();
 		options.parseOptions(args);
 		ded.setTargetDir(options.getTargetDir());
-		ded.setOutTextList(options.getOutTextList());
-		ded.setOutHTMLList(options.getOutHTMLList());
+		ded.setOutFile(options.getOutTextList());
 		ded.setExcludeSetFiles(options.getListExcludeFiles());
 		ded.setMethod(options.getMethod());
 		ded.setIntersectionThr(options.getInterThr());
@@ -90,15 +88,8 @@ public class Deduplicator {
 	 * textfile with list of paths of the remained cesDocFiles
 	 * @param outTextList
 	 */
-	public void setOutTextList(File outTextList) {
+	public void setOutFile(File outTextList) {
 		Deduplicator.outTextList= outTextList;
-	}
-	/**
-	 * HTML file with list of links pointing to the remained cesDocFiles
-	 * @param outHTMLList
-	 */
-	public void setOutHTMLList(File outHTMLList) {
-		Deduplicator.outHTMLList= outHTMLList;
 	}
 	/**
 	 * cesDocFiles to be excluded for deduplication
@@ -122,7 +113,6 @@ public class Deduplicator {
 	public void setApplyOfflineXSLT(boolean applyXSLT){
 		Deduplicator.applyOfflineXSLT = applyXSLT;
 	}
-	
 	public void setInputType(String inputType ){
 		Deduplicator.inputType = inputType;
 	}

@@ -347,7 +347,7 @@ public class BitextUtils {
 			a = FileUtils.readLines(new File(docpairsfile));
 			for (String t:a){
 				String[] l=t.split(" ");
-				res.put(l[2], l[3]);
+				res.put(l[0], l[1]);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -19,6 +19,7 @@ public class TMXHandlerOptions {
 	private Options options;
 	private String APPNAME = "TMX Handler";
 	private static final String HTML =".html";
+	private static final String TMXEXT = ".tmx";
 	private static final Logger LOGGER = Logger.getLogger(TMXHandlerOptions.class);
 	private static final String QUESTION_SEP = ";";
 	private File _targetDir = null;
@@ -27,7 +28,7 @@ public class TMXHandlerOptions {
 	private String _config;
 	private String _language;
 	private String _doctypes="aupdih";
-	private boolean xslt=false;
+	private boolean oxslt=false;
 	private boolean _cc=false;
 	private boolean _metadata=false;
 	private List<String> _segtypes=new ArrayList<String>();
@@ -50,14 +51,14 @@ public class TMXHandlerOptions {
 				.isRequired()
 				.hasArg()
 				.create("i") );
-		options.addOption( OptionBuilder.withLongOpt( "outputTMXFile" )
-				.withDescription( "content of the merged TMX files will be stored in this new TMX file" )
+		options.addOption( OptionBuilder.withLongOpt( "baseName" )
+				.withDescription( "baseName to be used for outfiles" )
 				.isRequired()
 				.hasArg()
-				.create("tmx") );
+				.create("bs") );
 		options.addOption( OptionBuilder.withLongOpt( "transform_TMX2HTML" )
 				.withDescription( "render the generated merged TMX file as HTML" )
-				.create("xslt") );
+				.create("oxslt") );
 		options.addOption( OptionBuilder.withLongOpt( "language(s)" )
 				.withDescription( "Target languages separated by ';' i.e. en;el" )
 						.hasArg()
@@ -65,7 +66,7 @@ public class TMXHandlerOptions {
 		options.addOption( OptionBuilder.withLongOpt( "TMX_types_to_be_processed" )
 				.withDescription( "types of TMXs, i.e. methods the document pairs have been detected (auipdhml), to be processed, default is \"auipdh\"")
 				.hasArg()
-				.create("doctypes") );
+				.create("pdm") );
 		options.addOption( OptionBuilder.withLongOpt( "thresholds_for_0:1_alignments_per_type" )
 				.withDescription( "it should be of the same length with the types parameter. "
 						+ "If a TMX of type X contains more 0:1 segment pairs than the corresponding threshold, it will not be selected ")
@@ -106,13 +107,13 @@ public class TMXHandlerOptions {
 					System.exit(0);
 				}
 			}
-			if(line.hasOption( "tmx")){
-				_outTMX = new File(line.getOptionValue("tmx"));
-				_outTMX = new File(_outTMX.getAbsolutePath());
+			if(line.hasOption( "bs")){
+				_outTMX = new File(line.getOptionValue("bs"));
+				_outTMX = new File(_outTMX.getAbsolutePath()+TMXEXT);
 				if (!_outTMX.getParentFile().exists()){
 					_outTMX.getParentFile().mkdirs();
 				}
-				if (line.hasOption("xslt")){
+				if (line.hasOption("oxslt")){
 					_outHTML=new File(_outTMX.getAbsolutePath()+HTML);
 				}
 				if (line.hasOption("cc")){
@@ -133,7 +134,7 @@ public class TMXHandlerOptions {
 				LOGGER.error("No languages have been defined.");
 				System.exit(0);
 			}
-			if(line.hasOption( "doctypes")){
+			if(line.hasOption( "pdm")){
 				_doctypes = line.getOptionValue("doctypes");
 			}
 			if(line.hasOption( "thres")){
@@ -178,7 +179,7 @@ public class TMXHandlerOptions {
 	}
 
 	public boolean getXSLTransform() {
-		return xslt;
+		return oxslt;
 	}
 	public boolean getCC() {
 		return _cc;

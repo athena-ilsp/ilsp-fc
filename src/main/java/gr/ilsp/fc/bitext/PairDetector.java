@@ -41,9 +41,8 @@ public class PairDetector {
 		options.parseOptions(args);
 		pd.setLanguage(options.getLanguage());
 		pd.setSourceDir(options.getInDir());
-		pd.setTargetDir(options.getOutputDir());
-		pd.setOutTextList(options.getOutputFile());
-		pd.setOutHTMLList(options.getOutputFileHTML());
+		pd.setTargetDir(options.getOutDir());
+		pd.setOutFile(options.getOutFile());
 		pd.setExcludeSetFiles(null);
 		pd.setUseImagepath(options.getImpath());
 		pd.setApplyXSLT(options.isOfflineXSLT());
@@ -69,11 +68,9 @@ public class PairDetector {
 			LOGGER.info("No pairs found");
 		}
 		List<File> filelist = Arrays.asList(indir.listFiles());
-		//BitextUtils.removeCesDocRelatedFiles(filelist,tempFileExt);
 		FcFileUtils.removeFiles(filelist,tempFileExt);
-		filelist = Arrays.asList(indir.listFiles());
-		//BitextUtils.removeCesDocRelatedFiles(filelist,transCesExt);
-		FcFileUtils.removeFiles(filelist,transCesExt);
+		//filelist = Arrays.asList(indir.listFiles());
+		//FcFileUtils.removeFiles(filelist,transCesExt);
 		if (delFiles)
 			BitextUtils.removeRedundantFiles(indir,bitextsALL);
 				
@@ -92,11 +89,8 @@ public class PairDetector {
 	public void setTargetDir(File outDir) {
 		PairDetector.outdir = outDir;
 	}
-	public void setOutTextList(File outTextList) {
+	public void setOutFile(File outTextList) {
 		PairDetector.outTextList = outTextList;
-	}
-	public void setOutHTMLList(File outHTMLList) {
-		PairDetector.outHTMLList = outHTMLList;
 	}
 	public void setGroundTruth(File gt) {
 		PairDetector.groundTruth = gt;

@@ -23,7 +23,7 @@ public class DeduplicatorOptions {
 	private static double inter_thr=0.7; //intersection of common paragraphs
 	private static int MIN_TOK_LEN = 3; //tokens with less that MIN_TOK_LEN letters are excluded
 	private static int MIN_PAR_LEN = 3; //paragraphs with less than MIN_PAR_LEN tokens are excluded
-	private static boolean _applyOfflineXSLT= true;
+	private static boolean _applyOfflineXSLT= false;
 	private File _targetDir = null;
 	private File _outTextList = null;
 	private File _outHTMLList = null;
@@ -38,18 +38,18 @@ public class DeduplicatorOptions {
 	private  Options createOptions() {
 		options = new Options();
 
-		options.addOption( OptionBuilder.withLongOpt( "methodtype" )
+		options.addOption( OptionBuilder.withLongOpt( "methodType" )
 				.withDescription( "Method type for deduplication: "
 						+ "1 for Deduplication by using lists and MD5 method."
 						+ "2 for Deduplication based on common paragraphs."
 						+ "0 for applying both methods." )
 				.hasArg()
 				.create("m") );
-		options.addOption( OptionBuilder.withLongOpt( "minimum_token_length" )
+		options.addOption( OptionBuilder.withLongOpt( "min_tok_len" )
 				.withDescription( "Tokens with less than MIN_TOK_LEN (default is 3) are excluded from content" )
 				.hasArg()
 				.create("mtl") );
-		options.addOption( OptionBuilder.withLongOpt( "minimum_paragraph_length_in_tokens" )
+		options.addOption( OptionBuilder.withLongOpt( "min_par_len_in_toks" )
 				.withDescription( "Paragraphs with less than MIN_PAR_LEN (default is 3) tokens are excluded from content" )	
 				.hasArg()
 				.create("mpl") );
@@ -63,18 +63,13 @@ public class DeduplicatorOptions {
 				.hasArg()
 				.create("o") );	
 		options.addOption( OptionBuilder.withLongOpt( "inputType" )
-				.withDescription( "type of input files, default is xml, also supportes txt" )
+				.withDescription( "type of input files, default is xml, also supports txt" )
 				.hasArg()
 				.create("int") );
-		
-		options.addOption( OptionBuilder.withLongOpt( "outputTextFile" )
-				.withDescription( "textfile with list of paths of the remained cesDocFiles" )
+		options.addOption( OptionBuilder.withLongOpt( "baseName" )
+				.withDescription( "baseName to be used for outfiles (textfile or HTML file with list of paths of the remained cesDocFiles)" )
 				.hasArg()
-				.create("of") );
-		/*options.addOption( OptionBuilder.withLongOpt( "outputHTMLFile" )
-				.withDescription( "HTML file with list of links pointing to the remained cesDocFiles" )
-				.hasArg()
-				.create("ofh") );*/
+				.create("bs") );
 		options.addOption( OptionBuilder.withLongOpt( "exclude_files" )
 				.withDescription( "cesDocFiles to be excluded for deduplication separated by \";\"" )	
 				.hasArg()
@@ -82,9 +77,6 @@ public class DeduplicatorOptions {
 		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
 				.withDescription( "cesDocFiles have been XSLT transformed" )				
 				.create("oxslt") );
-		/*options.addOption( OptionBuilder.withLongOpt( "deduplication" )
-				.withDescription( "near deduplication" )
-				.create("dedup") );*/
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
 				.create("h") );
@@ -111,8 +103,8 @@ public class DeduplicatorOptions {
 				_targetDir = new File(line.getOptionValue("o"));
 				_targetDir = new File(_targetDir.getAbsolutePath());
 			}
-			if(line.hasOption( "of")){
-				_outTextList = new File(line.getOptionValue("of"));
+			if(line.hasOption( "bs")){
+				_outTextList = new File(line.getOptionValue("bs"));
 				_outTextList = new File(_outTextList.getAbsolutePath()+XMLlist);
 			}
 			if(line.hasOption( "int"))
@@ -126,7 +118,7 @@ public class DeduplicatorOptions {
 			}
 			if(line.hasOption( "oxslt")){
 				_applyOfflineXSLT = true;
-				_outHTMLList = new File(line.getOptionValue("of")+XMLHTMLlist);
+				_outHTMLList = new File(line.getOptionValue("bs")+XMLHTMLlist);
 			}
 		} catch( ParseException exp ) {
 			// oops, something went wrong
@@ -142,7 +134,6 @@ public class DeduplicatorOptions {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp( program, options );
 	}
-
 	public String getMethod() {
 		return _method;
 	}
@@ -165,9 +156,6 @@ public class DeduplicatorOptions {
 		return _outHTMLList;
 	}
 	public Set<String> getListExcludeFiles(){
-		return _exludefiles;
-	}
-	public Set<String> getSetExcludeFiles(){
 		return _exludefiles;
 	}
 	public boolean applyOfflineXSLT(){

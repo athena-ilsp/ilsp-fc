@@ -15,10 +15,8 @@ import org.apache.log4j.Logger;
 public class BitextsDigits {
 	private static final Logger LOGGER = Logger.getLogger(BitextsDigits.class);
 	private final static int len_thr=30;
-	//private final static int len_thr3=7;
 	private final static int len_thr2=15;
 	private final static int len_thr1=90;
-	//private final static int toknum_thr=500;
 	private final static double max_dig_dif=0.3;
 	private final static double max_par_dif=0.6;
 	private final static double max_tok_dif=0.4;

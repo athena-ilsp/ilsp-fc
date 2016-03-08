@@ -63,7 +63,7 @@ public class Bitexts {
 	private static final String im_type = "i";
 	private static final String str_type = "s";
 	private static final String imdi_type = "p";
-	//private static final String HYPHEN="-";
+	private static final String UNDERSCORE="_";
 	private static HashMap<String, DocVector> features = new HashMap<String, DocVector>();		//keeps features of docs 
 	private static HashMap<String, DocVector> features_paired = new HashMap<String, DocVector>(); //keeps features of docs that have been considered pairs
 	private static HashMap<String, String[]> imagesInHTML=new HashMap<String,String[]>();
@@ -98,7 +98,7 @@ public class Bitexts {
 	public static HashMap<String, DocVector> extractXML_Features(File xmldir) {
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-4).equals(appXMLext));
+				return (arg1.substring(arg1.length()-4).equals(appXMLext) && !arg1.contains(UNDERSCORE));
 			}
 		};
 		String[] files= xmldir.list(filter);
@@ -294,7 +294,6 @@ public class Bitexts {
 				bitexts=new ArrayList<String[]>();
 				if (imagesInHTML.size()>1){
 					bitexts=BitextsImages.findpairsIMDI(imagesInHTML,features);
-					//bitexts=BitextsImages.findpairsIM(imagesInHTML,features);
 					if (bitexts.size()>0){
 						LOGGER.info(bitexts.size()+ " pairs found (based on images and digits).");
 						WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
@@ -408,15 +407,15 @@ public class Bitexts {
 		HashMap<String,int[]> results = new HashMap<String,int[]>();
 		LOGGER.info("Found pairs: "+ bitexts.size());
 		for (int ii=0;ii<bitexts.size();ii++){
-			String key1 = bitexts.get(ii)[0].replaceAll("-el-", "-ell-");
-			String key2 = bitexts.get(ii)[1].replaceAll("-en-", "-eng-");
+			String key1 = bitexts.get(ii)[0];
+			String key2 = bitexts.get(ii)[1];
 			String method =bitexts.get(ii)[4];
 			boolean correct=false;
 			if ((truepairs.containsKey(key1) && truepairs.get(key1).equals(key2)) || (truepairs.containsKey(key2) && truepairs.get(key2).equals(key1))){
-				System.out.println("\t\t"+key1+" "+key2+"\t"+bitexts.get(ii)[5]+"\t1");
+				System.out.println("http://nlp.ilsp.gr/pgv/data/"+key1+".html\t"+"http://nlp.ilsp.gr/pgv/data/"+key2+".html\t"+method+"\t"+bitexts.get(ii)[5]+"\t1");
 				correct=true;
 			}else{
-				System.out.println("\t\t"+key1+" "+key2+"\t"+bitexts.get(ii)[5]+"\t0");
+				System.out.println("http://nlp.ilsp.gr/pgv/data/"+key1+".html\t"+"http://nlp.ilsp.gr/pgv/data/"+key2+".html\t"+method+"\t"+bitexts.get(ii)[5]+"\t0\thttp://nlp.ilsp.gr/pgv/data/"+truepairs.get(key1)+".html");
 			}
 			int[] res=new int[2];
 			if (results.containsKey(method)){

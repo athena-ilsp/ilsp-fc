@@ -1007,7 +1007,7 @@ public class Exporter {
 		se.setMIN_TOKENS_PER_PARAGRAPH(options.get_length());
 		se.setMIN_TOKENS_NUMBER(options.get_minTokenslength());
 		se.setCrawlDirName (options.get_inputdir());
-		se.setOutputFile(options.getOutputFile());
+		se.setOutFile(options.getOutputFile());
 		se.setTargetLanguages(options.get_language());
 		se.setTopic(options.get_topic());
 		se.setTargetedDomain(options.getTargetDomain());
@@ -1138,12 +1138,12 @@ public class Exporter {
 	public void setNegWordsFile(File file) {
 		Exporter.negWordsFile = file;
 	}
-	public void setOutputFile(File outputFile) {
+	public void setOutFile(File outputFile) {
 		Exporter.outputFile  = outputFile;
 	}
-	public void setOutputFileHTML(File outputFile) {
-		Exporter.outputFileHTML  = outputFile;
-	}
+	//public void setOutputFileHTML(File outputFile) {
+	//	Exporter.outputFileHTML  = outputFile;
+	//}
 	public void setOutputDir(File outputDir) {
 		Exporter.outputDir = outputDir;
 	}
@@ -1455,125 +1455,6 @@ public class Exporter {
 		}
 		return true;
 	}
-
-
-	/*private static void processStatus(JobConf conf, Path curDirPath) throws IOException {
-	Path statusPath = new Path(curDirPath, CrawlConfig.STATUS_SUBDIR_NAME);
-	Tap statusTap = new Hfs(new TextLine(), statusPath.toUri().toString());
-
-	TupleEntryIterator iter = statusTap.openForRead(conf);
-
-	UrlStatus[] statusValues = UrlStatus.values();
-	int[] statusCounts = new int[statusValues.length];
-	int totalEntries = 0;
-	while (iter.hasNext()) {
-		TupleEntry entry = iter.next();
-		totalEntries += 1;
-		// STATUS_FN, HEADERS_FN, EXCEPTION_FN, STATUS_TIME_FN, HOST_ADDRESS_FN).append(getSuperFields(StatusDatum.class)
-		String statusLine = entry.getString("line");
-		String[] pieces = statusLine.split("\t");
-		UrlStatus status = UrlStatus.valueOf(pieces[0]);
-		statusCounts[status.ordinal()] += 1;
-	}
-
-	for (int i = 0; i < statusCounts.length; i++) {
-		if (statusCounts[i] != 0) {
-			LOGGER.info(String.format("Status %s: %d", statusValues[i].toString(), statusCounts[i]));
-		}
-	}
-	LOGGER.info("Total status: " + totalEntries);
-	LOGGER.info("");
-}*/
-
-
-	/*
-	public void export(boolean loadProfile) {
-		long start = System.currentTimeMillis();
-		LOGGER.info("Exporting cesDoc Files");
-		try {
-			JobConf conf = new JobConf();
-			Path crawlDirPath = new Path(crawlDirName.getAbsolutePath());			//LOGGER.info(crawlDirName);
-			FileSystem fs = crawlDirPath.getFileSystem(conf);
-			if (!fs.exists(crawlDirPath)) {
-				LOGGER.error("Prior crawl output directory does not exist: " + crawlDirName);
-				System.exit(-1);
-			}
-			// Skip Hadoop/Cascading DEBUG messages.
-			Logger.getRootLogger().setLevel(Level.INFO);
-			boolean exportAllXmls = true;
-			//Exporting
-			if (exportAllXmls) {
-				for (int ii=0;ii<targetlanguages.length;ii++){
-					targetlanguages[ii] = ISOLangCodes.get3LetterCode(targetlanguages[ii]);
-				}
-				int prevLoop = -1;
-				Path curDirPath = null;
-				int id = 1;
-				File topicFile = getTopic();
-				ArrayList<String[]> topic = null;
-				if (topicFile!=null) {
-					topic=TopicTools.analyzeTopic(topicFile,targetlanguages); //topic=TopicTools.analyzeTopic(topicFile,targetlanguages, conf);
-				}
-				//get array of forbidden words
-				List<String> neg_words = null ;
-				if (getNegWordsFile() != null) {
-					neg_words = FileUtils.readLines(getNegWordsFile());
-
-				}
-				//URL genreFile = getGenres();
-				//genres_keys = GenreClassifier.Genres_keywords(genreFile);	
-
-				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
-
-					id = exportToXml(conf,curDirPath, id,topic,targeteddomain, urlsToIds, neg_words);
-
-					LOGGER.debug("Current loop path in xml export is " + curDirPath );
-					int curLoop = CrawlDirUtils.extractLoopNumber(curDirPath);
-					if (curLoop != prevLoop + 1) {
-						LOGGER.warn(String.format("Missing directories between %d and %d", prevLoop, curLoop));
-					}
-					prevLoop = curLoop;
-				}
-				//xmlFiles = FcFileUtils.getFilesList(new File(crawlDirName+fs1+xml_type), "", appXMLext);
-				xmlFiles = FcFileUtils.getFilesList(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type)), "", appXMLext);
-				LOGGER.info("CesDoc files generated: "+ xmlFiles.size());
-				LOGGER.info("Completed in " + (System.currentTimeMillis()-start) + " milliseconds.");
-				WriteResources.WriteTextList(xmlFiles, outputFile);
-				if (applyOfflineXSLT){
-					WriteResources.WriteHTMLList(xmlFiles, new File(outputFileHTML.getAbsolutePath()));
-				}
-			}
-
-			boolean exportDb = true;
-			if (exportDb) {
-				Path latestCrawlDirPath = CrawlDirUtils.findLatestLoopDir(fs, crawlDirPath);
-				processCrawlDb(conf, latestCrawlDirPath, exportDb);	
-				//exportToXml(conf, latestCrawlDirPath, "el");
-			} else {
-				int prevLoop = -1;
-				Path curDirPath = null;
-				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
-					String curDirName = curDirPath.toUri().toString();
-					LOGGER.info("");
-					LOGGER.info("================================================================");
-					LOGGER.info("Processing " + curDirName);
-					LOGGER.info("================================================================");
-					int curLoop = CrawlDirUtils.extractLoopNumber(curDirPath);
-					if (curLoop != prevLoop + 1) {
-						LOGGER.warn(String.format("Missing directories between %d and %d", prevLoop, curLoop));
-					}
-					prevLoop = curLoop;
-					// Process the status and crawldb in curPath
-					processStatus(conf, curDirPath);
-					processCrawlDb(conf, curDirPath, exportDb);
-				}
-			}
-			//fs.close();
-		} catch (Throwable t) {
-			LOGGER.error("Exception running tool", t);
-			System.exit(-1);
-		}
-	}*/
 
 
 }
