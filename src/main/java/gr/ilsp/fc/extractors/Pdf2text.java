@@ -88,6 +88,7 @@ public class Pdf2text {
 					//	System.err.println("Error: Document is encrypted with a password.");
 				} catch (CryptographyException e) {
 					System.err.println("Error: CryptographyException.");
+					return "";
 				}
 			}
 			PrintTextLocations printer = new PrintTextLocations();
@@ -103,6 +104,7 @@ public class Pdf2text {
 				}
 				else {/*FIXME since pageheight is unknown, it cannot be used for footer/header detection*/
 					LOGGER.error("PROBLEM in getMediaBox");
+					return "";
 				}
 				chardata.clear();
 				linedata.clear();
