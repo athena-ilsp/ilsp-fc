@@ -1,9 +1,11 @@
 package gr.ilsp.fc.aligner.factory;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -14,6 +16,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +129,9 @@ public class HunalignAligner extends Aligner {
 				this.dictalign_path.getAbsolutePath(),
 				slF.getAbsolutePath(),
 				tlF.getAbsolutePath()};
-		this.runCommand(cmd, outFile.getAbsolutePath());
+		this.runCommand(cmd, outFile);
+		//this.runCommand2(cmd, outFile.getAbsolutePath());
+		
 		Object[] alOb=hunalignOutputToAlignmentList(outFile, sourceSentences, targetSentences);
 		//Delete temporary files
 		slF.delete();
@@ -137,11 +144,15 @@ public class HunalignAligner extends Aligner {
 	 * @param file The local location of the hunalign output
 	 * @param slSents List with all source sentences
 	 * @param tlSents List with all target sentences
+	 * @throws IOException 
 	 * @ret An Object[] containing an instance of List<Alignment> with all the alignments
 	 * and an AlignmentStats instance
 	 */
-	public Object[] hunalignOutputToAlignmentList(File hunalignfile, List<String> slSents, List<String> tlSents){
-		ArrayList<String> content=IOtools.readFileToArray(hunalignfile.getAbsolutePath());
+	public Object[] hunalignOutputToAlignmentList(File hunalignfile, List<String> slSents, List<String> tlSents) throws IOException{
+		List<String> content=FileUtils.readLines(hunalignfile);
+
+		//logger.info(hunalignfile.getAbsolutePath());
+		//logger.info(content.toString());
 		List<Alignment> alignmentList=new ArrayList<Alignment>();
 		
 		int zeroToOneAlignments=0;
@@ -190,7 +201,36 @@ public class HunalignAligner extends Aligner {
 	 * @param cmd The command 
 	 * @param outFile
 	 */
-	protected void runCommand(String[] cmd, String outFile){
+	protected void runCommand(String[] cmd, File outFile){
+		 
+        try {
+        	String s = null;
+            Process p = Runtime.getRuntime().exec(cmd);
+            BufferedReader stdInput = new BufferedReader(new
+                 InputStreamReader(p.getInputStream()));
+            BufferedReader stdError = new BufferedReader(new
+                 InputStreamReader(p.getErrorStream()));
+            // read the output from the command
+            while ((s = stdInput.readLine()) != null) {
+            	FileUtils.write(outFile, s+"\n", true);
+            }
+            // read any errors from the attempted command
+            while ((s = stdError.readLine()) != null) {
+              //  System.err.println(s);
+            }
+        } catch (IOException e) {
+            System.out.println("exception happened - here's what I know: ");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+	}
+
+	/**
+	 * Runs the command for hunalign 
+	 * @param cmd The command 
+	 * @param outFile
+	 */
+	protected void runCommand2(String[] cmd, String outFile){
 		try{  
 			FileOutputStream fos = new FileOutputStream(outFile);
 			Runtime rt = Runtime.getRuntime();
@@ -211,12 +251,15 @@ public class HunalignAligner extends Aligner {
 			//System.out.println("Completed file: " + outFile.replace(".out", ""));
 			fos.flush();
 			fos.close();  
-		}catch (Throwable t){
+		}catch (Exception t){
 			t.printStackTrace();
 		}
 
 	}
-
+	
+	
+	
+	
 	private Writer getSingleWriter(File outFile) throws UnsupportedEncodingException, FileNotFoundException {
 		Writer writer;
 		if (outFile!=null) {
