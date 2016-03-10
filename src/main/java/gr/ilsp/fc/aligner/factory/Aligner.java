@@ -90,9 +90,11 @@ public abstract class Aligner {
 		for (Pair<File, File> filePair : l1L2Files) {
 			File l1File = filePair.getLeft(); 
 			File l2File = filePair.getRight();
-			File tmxFile = new File (StringUtils.join(new String[]{l1, l2, String.valueOf(id)}, "_") + ".tmx");		
+			File tmxFile = new File (l1File.getParentFile() + File.separator + StringUtils.join(new String[]{l1, l2, String.valueOf(id)}, "_") + ".tmx");
+			String outFile = l1File.getParentFile() + File.separator + StringUtils.join(new String[]{l1, l2, String.valueOf(id)}, "_") + ".out";
 			try {
-				this.process(l1File, l2File, tmxFile);
+				AlignmentStats as=this.process(l1File, l2File, tmxFile);
+				IOtools.writeToFile(outFile, new StringBuffer(as.toString()));
 			} catch (Exception e) {
 				logger.warn("Cannot align: " + l1File  +  " - " + l2File);
 				e.printStackTrace();

@@ -60,8 +60,10 @@ public class HunalignAligner extends Aligner {
 	@Override
 	public AlignmentStats process(File sourceFile, File targetFile, File tmxFile)
 			throws IOException, Exception {
-		logger.warn("Not implemented yet! Returning null!");
-		return null;
+		ScriptAligner ra=new ScriptAligner(this.aligner_runnable, this.dictalign_path, sourceLang, targetLang, null);
+		AlignmentStats as=ra.process(sourceFile, targetFile, tmxFile);
+
+		return as;
 	}
 
 	@Override
