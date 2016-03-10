@@ -224,10 +224,12 @@ public class IOtools{
 	 * @param sb The StringBuffer to save
 	 */
 	public static boolean writeToFile(String fName, List<String> lstr){
+		StringBuffer sb=new StringBuffer();
+		for(String str:lstr)
+			sb.append(str+System.getProperty("line.separator"));
 		try{
 			BufferedWriter out=new BufferedWriter(new FileWriter(fName));
-			for(String str:lstr)
-				out.write(str+System.getProperty("line.separator"));
+			out.write(sb.toString().trim());
 			out.flush();
 			out.close();
 		}catch(IOException e){

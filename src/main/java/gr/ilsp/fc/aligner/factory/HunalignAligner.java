@@ -1,14 +1,24 @@
 package gr.ilsp.fc.aligner.factory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.loomchild.maligna.coretypes.Alignment;
+import net.loomchild.maligna.formatter.Formatter;
 
 public class HunalignAligner extends Aligner {
 	private static final Logger logger = LoggerFactory.getLogger(HunalignAligner.class);
@@ -79,7 +89,15 @@ public class HunalignAligner extends Aligner {
 			}
 		}
 		//Run aligner using List<String> sourceSentences and List<String> targetSentences
-		AlignmentStats as=align(sourceSentences, targetSentences, tmxFile);
+		Object[] alOb=align(sourceSentences, targetSentences, tmxFile);
+		@SuppressWarnings("unchecked")
+		List<Alignment> alignmentList=(List<Alignment>) alOb[0];
+		AlignmentStats as=(AlignmentStats) alOb[1];
+		//Create TMX file
+		Writer writer = getSingleWriter(tmxFile);
+		Formatter formatter = new BilingualScoredTmxFormatter(writer, getSourceLang(), getTargetLang(), sourceFile, targetFile);
+		formatter.format(alignmentList);
+		writer.close();
 		return as;
 	}
 
@@ -88,9 +106,10 @@ public class HunalignAligner extends Aligner {
 	 * @param sourceSentences List with all the source sentences
 	 * @param targetSentences List with all the target sentences
 	 * @param tmxFile The File to store the produced tmx file
+	 * @return An Object[] containing an instance of List<Alignment> with all the alignments
 	 * @throws IOException 
 	 */
-	public AlignmentStats align(List<String> sourceSentences, List<String> targetSentences, File tmxFile) throws IOException{
+	public Object[] align(List<String> sourceSentences, List<String> targetSentences, File tmxFile) throws IOException{
 		File slF=IOtools.createRandomTmpFile(); //Source sentences
 		File tlF=IOtools.createRandomTmpFile(); //Target sentences
 		File outFile=IOtools.createRandomTmpFile(); //For storing the hunalign output
@@ -101,14 +120,70 @@ public class HunalignAligner extends Aligner {
 		//Run the hunalign sentence split program using a system call
 		String[] cmd={this.aligner_runnable.getAbsolutePath(),
 				//"-realign",
+				"-text",
 				this.dictalign_path.getAbsolutePath(),
 				slF.getAbsolutePath(),
 				tlF.getAbsolutePath()};
 		this.runCommand(cmd, outFile.getAbsolutePath());
-		int alignments=IOtools.createTMXfileFromHunalign(outFile.getAbsolutePath(), this.sourceLang, this.targetLang, sourceSentences, targetSentences, tmxFile.getAbsolutePath());
-		//Delete the hunalign output file
+		Object[] alOb=hunalignOutputToAlignmentList(outFile, sourceSentences, targetSentences);
+		//Delete temporary files
+		slF.delete();
+		tlF.delete();
 		outFile.delete();
-		return new AlignmentStats(alignments, sourceSentences.size(), targetSentences.size()) ;
+		return alOb;
+	}
+	/**
+	 * Stores the output of hunalign as an instance of List<Alignment> 
+	 * @param file The local location of the hunalign output
+	 * @param slSents List with all source sentences
+	 * @param tlSents List with all target sentences
+	 * @ret An Object[] containing an instance of List<Alignment> with all the alignments
+	 * and an AlignmentStats instance
+	 */
+	public Object[] hunalignOutputToAlignmentList(File hunalignfile, List<String> slSents, List<String> tlSents){
+		ArrayList<String> content=IOtools.readFileToArray(hunalignfile.getAbsolutePath());
+		List<Alignment> alignmentList=new ArrayList<Alignment>();
+		
+		int zeroToOneAlignments=0;
+		int alignments=0;
+		float totalScore=0;
+		for(String line:content){
+			List<String> sourceSentences=new ArrayList<String>();
+			List<String> targetSentences=new ArrayList<String>();
+			String[] lineArray=line.split("\t");
+			String slText=lineArray[0];
+			String tlText=lineArray[1];
+
+			String[] slA=slText.split(" ~~~ ");
+			String[] tlA=tlText.split(" ~~~ ");
+			if(slText.compareTo("")!=0)
+				sourceSentences.addAll(Arrays.asList(slA));
+			if(tlText.compareTo("")!=0)
+				targetSentences.addAll(Arrays.asList(tlA));
+			alignments++;
+			if(slText.compareTo("")==0||slText.compareTo("")==0)
+				zeroToOneAlignments++;
+
+			float score=0;
+			try{
+				score=Float.parseFloat(lineArray[2]);
+			}catch(java.lang.ArrayIndexOutOfBoundsException e){
+				score=0;
+			}
+			totalScore+=score;
+			Alignment al=new Alignment(sourceSentences, targetSentences);
+			al.setScore(score);
+			alignmentList.add(al);
+		}
+		//Alignment alignment = new Alignment(sourceSentences, targetSentences);
+		AlignmentStats as=new AlignmentStats(alignments, slSents.size(), tlSents.size());
+		as.setZeroToOneAlignmentsSize(zeroToOneAlignments);
+		as.setMeanScore((double) (totalScore/alignments));
+		
+		Object[] ret=new Object[2];
+		ret[0] = alignmentList;//Collections.singletonList(alignment);
+		ret[1] = as;
+		return ret;
 	}
 	/**
 	 * Runs the command for hunalign 
@@ -142,6 +217,16 @@ public class HunalignAligner extends Aligner {
 
 	}
 
+	private Writer getSingleWriter(File outFile) throws UnsupportedEncodingException, FileNotFoundException {
+		Writer writer;
+		if (outFile!=null) {
+			writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile),"UTF-8"), true);
+		} else {
+			writer = new PrintWriter(new OutputStreamWriter((System.out),"UTF-8"), true);
+		}
+		return writer;
+	}
+	
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
