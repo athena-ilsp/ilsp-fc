@@ -38,8 +38,8 @@ public class Operations {
 		LOGGER.info("Running PairDetector");
 		PairDetector pd = new PairDetector();
 		pd.setLanguage(options.getLanguage());
-		pd.setSourceDir(options.getOutputDir());
-		pd.setTargetDir(options.getOutputDir());
+		pd.setSourceDir(options.getInputDir());
+		pd.setTargetDir(options.getInputDir());
 		pd.setOutFile(options.getOutputFile());
 		pd.setExcludeSetFiles(null);
 		pd.setUseImagepath(options.getImpath());
@@ -65,7 +65,7 @@ public class Operations {
 	public static void deduplication(CrawlOptions options) {
 		LOGGER.info("Running (near)Deduplicator");
 		Deduplicator ded = new Deduplicator();
-		ded.setTargetDir(options.getOutputDir());
+		ded.setTargetDir(options.getInputDir());
 		ded.setOutFile(options.getOutputFile());
 		ded.setExcludeSetFiles(null);
 		ded.setInputType(XML_EXTENSION.substring(1));

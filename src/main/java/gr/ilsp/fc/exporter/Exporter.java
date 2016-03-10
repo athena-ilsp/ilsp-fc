@@ -306,7 +306,10 @@ public class Exporter {
 					prevLoop = curLoop;
 				}
 				//xmlFiles = FcFileUtils.getFilesList(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type)), "", appXMLext);
-				xmlFiles =  (List<File>) FileUtils.listFiles(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type)), ext, true);
+				File tf = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type));
+				if (!tf.exists())
+					tf.mkdir();
+				xmlFiles =  (List<File>) FileUtils.listFiles(tf, ext, true);
 				Path latestCrawlDirPath = CrawlDirUtils.findLatestLoopDir(fs, crawlDirPath);
 				processCrawlDb(conf, latestCrawlDirPath, true);	//exportDb
 				//fs.close();

@@ -57,7 +57,7 @@ public class TMXHandler {
 	private static boolean oxslt=false;
 	private static boolean cc=false;
 	private static boolean metadata=false;
-	private static String doctypes;// = "auidhml";
+	private static String doctypes;// = "aupidhml";
 	
 	private static List<String> segtypes;// = new ArrayList<String>();
 	private static Set<String> segs = new HashSet<String>() ;
@@ -80,6 +80,8 @@ public class TMXHandler {
 	private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
 	private static final String SEMI_SEPAR = ";";
 	private final static int length_THR = 5;
+	private final static float lowThr = (float) 0.6;
+	private final static float highThr = (float) 1.6;
 	private static int totalcounter=0;
 
 	public static CompositeConfiguration getConfig() {
@@ -286,6 +288,7 @@ public class TMXHandler {
 				continue;
 			}
 			totalcounter=totalcounter+segpairs.size();
+			float ratio;
 			for (SegPair segpair:segpairs){
 				if (!segtypes.isEmpty()){
 					if (!segtypes.contains(segpair.type)){
@@ -303,6 +306,16 @@ public class TMXHandler {
 					continue;
 				if (FCStringUtils.countTokens(normT)<length_THR)
 					continue;
+				ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
+				if (ratio>highThr || ratio < lowThr)
+					continue;
+				String num1=segpair.seg1.replaceAll("\\D+","");
+				String num2=segpair.seg2.replaceAll("\\D+","");
+				if (!num1.equals(num2)){
+					System.out.println(segpair.seg1);
+					System.out.println(segpair.seg2);
+					continue;
+				}
 				//FIXME should we check language?	//FIXME keep MD5 instead of string
 				String temp = normS+TAB+normT;
 				if (!segs.contains(temp)){
@@ -315,7 +328,7 @@ public class TMXHandler {
 					alignment.setMethod(segpair.method);
 					alignment.setLicense(segpair.license);
 					alignment.setType(segpair.type);
-					float ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
+					//float ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
 					alignment.setLengthRatio(Float.toString(ratio));
 					alignmentList.add(alignment);
 				}
