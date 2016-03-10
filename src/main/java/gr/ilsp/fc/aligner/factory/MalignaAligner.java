@@ -6,7 +6,6 @@ import static net.loomchild.maligna.util.Util.getReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -18,9 +17,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import net.loomchild.maligna.calculator.Calculator;
 import net.loomchild.maligna.calculator.content.OracleCalculator;
@@ -61,11 +57,8 @@ import net.loomchild.maligna.parser.Parser;
 //import net.loomchild.maligna.ui.console.command.exception.ParameterFormatException;
 //import net.loomchild.maligna.ui.console.command.exception.UnknownParameterException;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gr.ilsp.fc.exporter.XSLTransformer;
 
 public class MalignaAligner extends Aligner {
 	
@@ -102,8 +95,7 @@ public class MalignaAligner extends Aligner {
 	private int radius = BandMatrixFactory.DEFAULT_BAND_RADIUS;
 	private int margin = AdaptiveBandAlgorithm.DEFAULT_MIN_BAND_MARGIN;
 	private float increment = AdaptiveBandAlgorithm.DEFAULT_BAND_INCREMENT_RATIO;
-	private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
-	
+
 	@Override
 	public void initialize(String sourceLang, String targetLang) {		
 		super.initialize(sourceLang, targetLang);
@@ -176,23 +168,6 @@ public class MalignaAligner extends Aligner {
 		Formatter formatter = new BilingualScoredTmxFormatter(writer, getSourceLang(), getTargetLang(), sourceFile, targetFile);
 		formatter.format(alignmentList);
 		writer.close();
-		
-		//Now create the html file. Needed when only running the aligner from the alignerfactory main class
-		File outHTML=new File(tmxFile.getParent() + File.separator + tmxFile.getName() + ".html");
-		try {
-			XSLTransformer xslTransformer = new XSLTransformer(XSL_TMX2HTML);
-			xslTransformer.setBaseDir(tmxFile.getParent());
-			xslTransformer.transform(tmxFile, outHTML);
-		} catch (TransformerConfigurationException | IOException e) {
-			logger.warn("problem in writing the transformed merged TMX file: "+ outHTML.getAbsolutePath());
-			e.printStackTrace();
-		} catch (TransformerException e) {
-			logger.warn("problem in writing the transformed merged TMX file: "+ outHTML.getAbsolutePath());
-			e.printStackTrace();
-		}
-		////////
-		
-		
 		return new AlignmentStats(alignmentList.size(), 
 				alignment.getSourceSegmentList().size(), alignment.getTargetSegmentList().size()) ;
 	}
