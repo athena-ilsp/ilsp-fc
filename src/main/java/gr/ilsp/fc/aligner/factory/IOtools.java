@@ -219,6 +219,23 @@ public class IOtools{
 		return true;
 	}
 	/**
+	 * Save a List pf trings to a File
+	 * @param fName The name of the new file
+	 * @param sb The StringBuffer to save
+	 */
+	public static boolean writeToFile(String fName, List<String> lstr){
+		try{
+			BufferedWriter out=new BufferedWriter(new FileWriter(fName));
+			for(String str:lstr)
+				out.write(str+System.getProperty("line.separator"));
+			out.flush();
+			out.close();
+		}catch(IOException e){
+			return false;
+		}
+		return true;
+	}
+	/**
 	 * Create a folder in the local filesystem
 	 * @param dirname The name of the new folder 
 	 * @return TRUE if the folder was created successfully or it existed, else FALSE
@@ -303,7 +320,7 @@ public class IOtools{
 	 * @param outFile The filename to store the tmx output
 	 * @ret the number of alignments produced
 	 */
-	public static int createTMXfileFromHunalign(String file, String sLang, String tLang, ArrayList<String> slSents, ArrayList<String> tlSents, String outFile){
+	public static int createTMXfileFromHunalign(String file, String sLang, String tLang, List<String> slSents, List<String> tlSents, String outFile){
 		String TMXHEADER="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tmx version=\"1.1\">\n"
 				+ "<header "
 				+ "creationtool='hunalign' " 

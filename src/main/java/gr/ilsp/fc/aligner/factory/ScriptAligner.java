@@ -1,4 +1,4 @@
-package gr.ilsp.fc.aligner.factory;
+/*package gr.ilsp.fc.aligner.factory;
 
 import gr.ilsp.fc.bitext.BitextUtils;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitter;
@@ -48,13 +48,13 @@ public  class ScriptAligner {
 	private File dictalign_path;
 	
 	
-	/**
+	*//**
 	 * ScriptAligner Constructor
 	 * @param sLang The source Language
 	 * @param tLang The target Language
 	 * @param fileTypes the type of crawled files that we wish to run
 	 * the aligner over
-	 */
+	 *//*
 	public ScriptAligner(String sLang, String tLang, String fileTypes){
 		this.sLang=sLang;
 		this.tLang=tLang;
@@ -64,7 +64,7 @@ public  class ScriptAligner {
 		slSentsPerType=new HashMap<String, Integer>();
 		tlSentsPerType=new HashMap<String, Integer>();
 	}
-	/**
+	*//**
 	 * ScriptAligner Constructor
 	 * @param hunalign_path The path to the hunalign executable
 	 * @param dict_path The path to the hunalign dictionary
@@ -72,7 +72,7 @@ public  class ScriptAligner {
 	 * @param tLang The target Language
 	 * @param fileTypes the type of crawled files that we wish to run
 	 * the aligner over
-	 */
+	 *//*
 	public ScriptAligner(File hunalign_path, File dict_path, String sLang, String tLang, String fileTypes){
 		this.sLang=sLang;
 		this.tLang=tLang;
@@ -84,21 +84,21 @@ public  class ScriptAligner {
 		slSentsPerType=new HashMap<String, Integer>();
 		tlSentsPerType=new HashMap<String, Integer>();
 	}
-	/**
+	*//**
 	 * Method to read the list of files from a file stored locally or from a URL 
 	 * @param filepath String with the path to the file containing the file list
 	 * @return
-	 */
+	 *//*
 	private ArrayList<String> getFileList(String filepath){
 		if(filepath.startsWith("http"))
 			return IOtools.readURLToArray(filepath);
 		return IOtools.readFileToArrayForDcuService(filepath);
 	}
-	/**
+	*//**
 	 * Method to process all files containing document pairs
 	 * @param filepath String with the path to the file containing the file list
-	 */
-	public void processFiles(String runaligner_path, String dictalign_path, 
+	 *//*
+	public void processsFiles(String runaligner_path, String dictalign_path, 
 			String filePath, String dictPath, String tmxlist, String htmltmxlist){
 		int pairNumber=0;
 		int skippedNumber=0;
@@ -181,35 +181,20 @@ public  class ScriptAligner {
 		}
 	}
 
-	/**
-	 * Method to process all files containing document pairs
-	 * @param filepath String with the path to the file containing the file list
-	 */
-	public AlignmentStats process(File sourceFile, File targetFile, File tmxFile){
-		String outFile=sourceFile.getParentFile()+fs+"out.txt";
-		SentenceSplitterFactory sentenceSplitterFactory = new SentenceSplitterFactory();
-		SentenceSplitter sourceLangSentenceSplitter = sentenceSplitterFactory.getSentenceSplitter(this.sLang);
-		SentenceSplitter targetLangSentenceSplitter = sentenceSplitterFactory.getSentenceSplitter(this.tLang);
-		String slText=IOtools.stripXcesDocument(sourceLangSentenceSplitter, new File(sourceFile.getParent()+fs+sourceFile.getName()));
-		String tlText=IOtools.stripXcesDocument(targetLangSentenceSplitter, new File(targetFile.getParent()+fs+targetFile.getName()));
-		ArrayList<String> slSents = new ArrayList<String>(Arrays.asList(slText.split(System.getProperty("line.separator"))));
-		ArrayList<String> tlSents = new ArrayList<String>(Arrays.asList(tlText.split(System.getProperty("line.separator"))));
-		File slF=null;
-		File tlF=null;
-
-		try{
-			slF=IOtools.createRandomTmpFile();
-			BufferedWriter slW=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(slF),Charset.forName("UTF8")));
-			slW.write(slText);
-			slW.close();
-
-			tlF=IOtools.createRandomTmpFile();
-			BufferedWriter tlW=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tlF),Charset.forName("UTF8")));
-			tlW.write(tlText);
-			tlW.close();
-		}catch(IOException e){
-			e.printStackTrace();
-		}
+	*//**
+	 * Method for running the hunalign
+	 * @param sourceSentences ArrayList with all the source sentences
+	 * @param targetSentences ArrayList with all the target sentences
+	 * @param tmxFile The File to store the produced tmx file
+	 * @throws IOException 
+	 *//*
+	public AlignmentStats process(ArrayList<String> sourceSentences, ArrayList<String> targetSentences, File tmxFile) throws IOException{
+		File slF=IOtools.createRandomTmpFile(); //Source sentences
+		File tlF=IOtools.createRandomTmpFile(); //Target sentences
+		File outFile=IOtools.createRandomTmpFile(); //For storing the hunalign output
+		
+		IOtools.writeToFile(slF.getAbsolutePath(), sourceSentences);
+		IOtools.writeToFile(tlF.getAbsolutePath(), targetSentences);
 
 		//Run the hunalign sentence split program using a system call
 		String[] cmd={this.aligner_runnable.getAbsolutePath(),
@@ -217,18 +202,18 @@ public  class ScriptAligner {
 				this.dictalign_path.getAbsolutePath(),
 				slF.getAbsolutePath(),
 				tlF.getAbsolutePath()};
-		this.runCommand(cmd, outFile);
-		int alignments=IOtools.createTMXfileFromHunalign(outFile, this.sLang, this.tLang, slSents, tlSents, tmxFile.getAbsolutePath());
+		this.runCommand(cmd, outFile.getAbsolutePath());
+		int alignments=IOtools.createTMXfileFromHunalign(outFile.getAbsolutePath(), this.sLang, this.tLang, sourceSentences, targetSentences, tmxFile.getAbsolutePath());
 		//Delete the hunalign output file
-		new File(outFile).delete();
-		return new AlignmentStats(alignments, slSents.size(), tlSents.size()) ;
+		outFile.delete();
+		return new AlignmentStats(alignments, sourceSentences.size(), targetSentences.size()) ;
 	}
 
 	private static String fs = System.getProperty("file.separator");
-	/*
+	
 	 * Enum of available platforms for hunalign
-	 */
-	/*public enum Platform{		
+	 
+	public enum Platform{		
 		Linux("/linux/src/hunalign", "hunalign"), 
 		Win("/win", "hunalign.exe");
 
@@ -239,28 +224,28 @@ public  class ScriptAligner {
 			this.hunPath = path;
 			this.command = cmd;
 		}
-	}*/
+	}
 
-	/**
+	*//**
 	 * @return The platform, null if not recognized
-	 */
-	/*public static Platform getPlatform(){
+	 *//*
+	public static Platform getPlatform(){
 		String prop=System.getProperty("os.name").toLowerCase();
 		if(prop.equals("linux"))
 			return Platform.Linux;
 		else if(prop.startsWith("windows"))
 			return Platform.Linux; Platform.Win;
 		return null;
-	}*/
-	/**
+	}
+	*//**
 	 * Get the path to the hunalign dir
 	 * @return String with the absolute path to the hunalign dir
-	 */
+	 *//*
 	//public static String getHunalignPath(){
 	//    File file = new File("hunalign-1.1");
 	//	return file.getAbsolutePath();
 	//}
-	/**
+	*//**
 	 * Get the path to the hunalign dir
 	 * @return String with the absolute path to the hunalign dir
 	 *//*
@@ -280,22 +265,22 @@ public  class ScriptAligner {
 	    //File file = new File("hunalign-1.1"+getPlatform().hunPath);
 	    //return file.getAbsolutePath();
 		return hunpath;
-	}*/
-	/**
+	}
+	*//**
 	 * Get the path to the hunalign executable script
 	 * @return String with the absolute path to the hunalign executable
-	 */
-	/*public static String getHunalignExec(){
+	 *//*
+	public static String getHunalignExec(){
 	    File file = new File(getHunalignPlatformPath()+fs+getPlatform().command);
 		return file.getAbsolutePath();
-	}*/
-	/**
+	}
+	*//**
 	 * Returns the path to a hunalign sample dictionary for a language pair
 	 * @param sl The source language
 	 * @param tl The target language
 	 * @return String to the absolute path of the language pair dictionary
-	 */
-	/*public static String getHunalignDict(String sl, String tl){
+	 *//*
+	public static String getHunalignDict(String sl, String tl){
 		//String pathPfx=getHunalignPath()+"/dict/";
 
 		File file =new File(new File(getHunalignPlatformPath()).getParent()+fs+"dict");
@@ -312,7 +297,7 @@ public  class ScriptAligner {
 				return dictFile.getAbsolutePath();
 		}
 		return new File(pathPfx+"null.dic").getAbsolutePath();
-	}	*/
+	}	
 
 	public static String getHunalignDict(String dict_path, String sl,String tl) {
 		//File file =new File(getHunalignPlatformPath()+fs+runalign_path);
@@ -333,11 +318,11 @@ public  class ScriptAligner {
 		return new File(dict_path+fs+"null.dic").getAbsolutePath();
 	}
 
-		/**
+		*//**
 		 * Runs the command for hunalign 
 		 * @param cmd The command 
 		 * @param outFile
-		 */
+		 *//*
 		protected void runCommand(String[] cmd, String outFile){
 			try{  
 				FileOutputStream fos = new FileOutputStream(outFile);
@@ -364,7 +349,7 @@ public  class ScriptAligner {
 			}
 
 		}
-		/**
+		*//**
 		 * Run the aligner over the document pair
 		 * @param cesAlignPath Main part of the URL for the two files
 		 * @param sFile The name of the source language document
@@ -372,7 +357,7 @@ public  class ScriptAligner {
 		 * @param outputPath The output path
 		 * @param type The type of the crawled document
 		 * @return String with an output message regarding the alignment process
-		 */
+		 *//*
 		protected int processDocPair(String runalign_path, String dictalign_path, String cesAlignPath, File sFile, File tFile, String outputPath, String type, String dict){
 			File outputDir = new File(cesAlignPath).getParentFile();
 			String basename = FilenameUtils.getBaseName(cesAlignPath);
@@ -447,7 +432,7 @@ public  class ScriptAligner {
 			
 			//Run the hunalign sentence split program using a system call
 			String[] cmd={runalign_path,
-					//"-realign",/*getHunalignExec()*/
+					//"-realign"
 					dictF,
 					slF.getAbsolutePath(),
 					tlF.getAbsolutePath()};
@@ -460,22 +445,4 @@ public  class ScriptAligner {
 			new File(outFile).delete();
 			return alignments;
 		}
-
-		/**
-		 * Main method
-		 * @param arg
-		 */
-		public static void main(String[] arg){
-			String slang=arg[0].toLowerCase();
-			String tlang=arg[1].toLowerCase();
-			String regexp=arg[2];
-			String str=arg[3];
-			String runaligner_path=arg[6];  //FIXME
-			String dictalign_path = arg[5]; //FIXME
-			String tmxlist = arg[7];
-			String htmltmxlist = arg[8];
-			ScriptAligner ra=new ScriptAligner(slang, tlang, regexp);
-			ra.processFiles(runaligner_path, dictalign_path, str, arg[4], tmxlist, htmltmxlist );
-		}
-	
-}
+}*/
