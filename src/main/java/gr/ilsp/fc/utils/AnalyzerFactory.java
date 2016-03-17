@@ -106,7 +106,7 @@ public class AnalyzerFactory {
 		} else if (lang3.equals("cat")) {
 			return new CatalanAnalyzer();
 		} else if (lang3.equals("est")) {
-			return new GermanAnalyzer(); //FIXME GermanAnalyzer since Estonian is not available
+			return new FinnishAnalyzer(); //FIXME FinnishAnalyzer since Estonian is not available
 		} 
 		else {
 			throw new Exception("No analyzer available for language " + lang3 + ".\n" + 
