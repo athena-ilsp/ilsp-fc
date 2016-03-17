@@ -19,16 +19,19 @@ public class PairDetector {
 	private static File outdir;
 	private static File outTextList;
 	private static File outHTMLList;
+	private static File outBaseName;
 	private static File groundTruth;
 	private static String methods;
 	private static boolean useImagePath=false;
-	private static boolean offlineXSLT;
+	private static boolean offlineXSLT=false;
 	private static String[][] urlReplaces;
 	private static Map<String, String> excludeSetFiles =null;
 	private static String QUEST_SEPAR = ";";
 	private static final String UNDERSCORE_STR = "_";
 	private static final String tempFileExt = ".xml.txt";
 	private static final String transCesExt = ".xml.html";
+	private static final String XMLlist = ".xmllist.txt";
+	private static final String XMLHTMLlist = ".xmllist.html";
 	private static final String pdfExt=".pdf";
 	private static final String htmlExt = ".html";
 	private static final String html = "html";
@@ -42,7 +45,7 @@ public class PairDetector {
 		pd.setLanguage(options.getLanguage());
 		pd.setSourceDir(options.getInDir());
 		pd.setTargetDir(options.getOutDir());
-		pd.setOutFile(options.getOutFile());
+		pd.setBaseName(options.getBaseName());
 		pd.setExcludeSetFiles(null);
 		pd.setUseImagepath(options.getImpath());
 		pd.setApplyXSLT(options.isOfflineXSLT());
@@ -57,13 +60,23 @@ public class PairDetector {
 		for (int ii=0;ii<languages.length;ii++){
 			languages[ii] = ISOLangCodes.get3LetterCode(languages[ii]);
 		}
+		if (languages.length>2){
+			LOGGER.info("exact two languages required");
+			System.exit(0);
+		}
 		LOGGER.info("Detection of pairs of parallel documents.");
 		ArrayList<String[]> bitextsALL = Bitexts.findPairsUIDS(indir, methods, languages, excludeSetFiles 
 				, outdir.getAbsolutePath(), urlReplaces, offlineXSLT, useImagePath, groundTruth);
-
+		
+		outTextList = new File(outBaseName.getAbsolutePath()+XMLlist);
+		if (offlineXSLT)
+			outHTMLList = new File(outBaseName.getAbsolutePath()+XMLHTMLlist);
 		if (bitextsALL!=null){
 			LOGGER.info("Total pairs found: "+ bitextsALL.size());
 			WriteBitexts.writeOutList(outdir,outTextList,outHTMLList,bitextsALL);
+			LOGGER.info("Created list of cesAling files in "+ outTextList.getAbsolutePath());
+			if (outHTMLList!=null)
+				LOGGER.info("Created list of rendered cesAling files in "+ outHTMLList.getAbsolutePath());
 		}else{
 			LOGGER.info("No pairs found");
 		}
@@ -73,11 +86,10 @@ public class PairDetector {
 		//FcFileUtils.removeFiles(filelist,transCesExt);
 		if (delFiles)
 			BitextUtils.removeRedundantFiles(indir,bitextsALL);
-				
+
 		FcFileUtils.moveZipDeleteFiles(indir,html, Arrays.asList(htmlExt, pdfExt), UNDERSCORE_STR, false);
 		if (!offlineXSLT)
 			FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
-		
 	}
 
 	public void setLanguage(String languages) {
@@ -89,8 +101,8 @@ public class PairDetector {
 	public void setTargetDir(File outDir) {
 		PairDetector.outdir = outDir;
 	}
-	public void setOutFile(File outTextList) {
-		PairDetector.outTextList = outTextList;
+	public void setBaseName(File outBaseName) {
+		PairDetector.outBaseName = outBaseName;
 	}
 	public void setGroundTruth(File gt) {
 		PairDetector.groundTruth = gt;

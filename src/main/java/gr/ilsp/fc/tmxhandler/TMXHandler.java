@@ -43,11 +43,13 @@ import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.Eurovoc;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
+import gr.ilsp.fc.utils.ISOLangCodes;
 
 public class TMXHandler {
 	private static final Logger LOGGER = Logger.getLogger(TMXHandler.class);
 	private static TMXHandlerOptions options = null;
 	private static File inputFile = null;
+	private static File baseName = null;
 	private static File outTMX = null;
 	private static File outHTML = null;
 	private static final String DEFAULT_BI_CONFIG_FILE = "FBC_config.xml";
@@ -55,33 +57,32 @@ public class TMXHandler {
 	private static String[] languages;
 	private static int[] thres;// = { 100,100,100,100,100,100,100};
 	private static boolean oxslt=false;
+	private static boolean iso6393=false;
 	private static boolean cc=false;
 	private static boolean metadata=false;
 	private static String doctypes;// = "aupidhml";
-	
-	private static List<String> segtypes;// = new ArrayList<String>();
+	private static List<String> segtypes;
 	private static Set<String> segs = new HashSet<String>() ;
 	static Matcher twitterHandleMatcher = Pattern.compile("(^|[^@\\w])@(\\w{1,15})\\b").matcher("");
-	//private final static String TMX = "tmx";
-	//private final static String MERGED = ".merged";
-	private static final String HTML =".html";
-	private static final String TMX_EXTENSION = ".tmx";
 	private static final String UNDERSCORE = "_";
 	//private final static String PUNCT = ".";
+	//private final static String SEP = "-";
 	//private final static String UNDERSCORE = "_";
+	private static final String SEMI_SEPAR = ";";
 	private final static String UNKNOWN_STR ="unknown";
+	private static final String HTML =".html";
+	private static final String TMXEXT = ".tmx";
 	private final static String MetadataExt = ".md.xml";
 	private final static String domainNode = "domain";
 	private final static String FREE_STR="free";
-	//private final static String SEP = "-";
 	private final static String TAB = "\t";
 	private final static String UTF_8 = "UTF-8";
 	//private final static String XSL_TMX2HTML = "http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl";
 	private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
-	private static final String SEMI_SEPAR = ";";
 	private final static int length_THR = 5;
 	private final static float lowThr = (float) 0.6;
 	private final static float highThr = (float) 1.6;
+	private static final double percent_thr=0.15;
 	private static int totalcounter=0;
 
 	public static CompositeConfiguration getConfig() {
@@ -97,8 +98,17 @@ public class TMXHandler {
 	private String creationDescription = "The ILSP Focused Crawler was used for the acquisition "
 			+ "of bilingual data from multilingual websites, and for the normalization, cleaning, deduplication and identification of parallel documents. "
 			+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
-			+ "As a post-processing step, alignments were merged into one TMX file and non-1:1 alignments were filtered out.";
+			+ "As a post-processing step, alignments were merged into one TMX file. The following filters applied: ";
 
+	private String filter1 = "";
+	private String filter2 = " TMX files in which zeroToOne alignments/total alignments is more than "+ percent_thr + " were discarded.";
+	private String filter3 = "";
+	private String filter4 = " Alignments in which a TUV (after normalization) has less than "+ length_THR + " tokens are filtered out.";
+	private String filter5 = " Alignments for which the ratio of TUVs' length is less than " + lowThr+ " or more "+ highThr + " are filtered out.";
+	private String filter6 = " Alignments for which the TUVs include different digits are filtered out.";
+	private String filter7 = " Alignments with identical TUVs are filtered out.";
+	private String filter8 = " Duplicate alignments are filtered out.";
+	
 
 	public static void main(String[] args) {
 		TMXHandler ha = new TMXHandler();
@@ -109,9 +119,10 @@ public class TMXHandler {
 		ha.setDocTypes(options.getDocTypes());
 		ha.setThres(options.getThres());
 		ha.setSegTypes(options.getSegTypes());
-		ha.setOutFile(options.getOutTMX());
+		ha.setBaseName(options.getBaseName());
 		ha.setApplyOfflineXSLT(options.getXSLTransform());
 		ha.setLanguage(options.getLanguage());
+		ha.useISO6393(options.useISO6393());
 		ha.setCC(options.getCC());
 		ha.setMetadata(options.getMetadata());
 		ha.mergeTMXs();	
@@ -125,21 +136,42 @@ public class TMXHandler {
 	 * 
 	 */
 	public void mergeTMXs() {
-
+		LOGGER.info("------------Merging of generated TMXs.------------");
+		outTMX = new File(baseName.getAbsolutePath()+TMXEXT);
+		if (!outTMX.getParentFile().exists())
+			outTMX.getParentFile().mkdirs();
+		filter1 = " Only TMX files generated from document pairs which have been identified by methods "+ doctypes + " were selected.";
+		filter3 = " Alignments of non-" + segtypes+ " were filtered out";
+		LOGGER.info(filter1);
+		LOGGER.info(filter2);
+		LOGGER.info(filter3);
+		LOGGER.info(filter4);
+		LOGGER.info(filter5);
+		LOGGER.info(filter6);
+		LOGGER.info(filter7);
+		LOGGER.info(filter8);
+		
+		if (!iso6393){
+			languages[0]=ISOLangCodes.get2LetterCode(languages[0]);
+			languages[1]=ISOLangCodes.get2LetterCode(languages[1]);
+		}else{
+			languages[0]=ISOLangCodes.get3LetterCode(languages[0]);
+			languages[1]=ISOLangCodes.get3LetterCode(languages[1]);			
+		}
 		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.endsWith(TMX_EXTENSION));
+				return (arg1.endsWith(TMXEXT));
 			}
 		};
 		String[] types = new String[doctypes.length()];
 		for (int ii=0;ii<doctypes.length();ii++){
-			types[ii] = UNDERSCORE+Character.toString(doctypes.charAt(ii))+TMX_EXTENSION;
+			types[ii] = UNDERSCORE+Character.toString(doctypes.charAt(ii))+TMXEXT;
 		}
 		List<File> tmxfiles = new ArrayList<File>();
 		if (inputFile.isDirectory()){
 			List<File> tfs = FcFileUtils.listFiles(inputFile, filter,true);
-			tmxfiles = TMXHandlerUtils.selectTypes(tfs, types);
+			tmxfiles = FcFileUtils.selectTypes(tfs, types);
 		}else{ //it is considered a text file containing a list with full paths of targeted directories (a full path per line)
 			List<String> targetdirs;
 			try {
@@ -147,14 +179,14 @@ public class TMXHandler {
 				for (String targetdir:targetdirs){
 					LOGGER.info("finding files from "+ targetdir);
 					List<File> tfs = FcFileUtils.listFiles(new File(targetdir), filter,true);
-					tmxfiles.addAll(TMXHandlerUtils.selectTypes(tfs, types));
+					tmxfiles.addAll(FcFileUtils.selectTypes(tfs, types));
 				}
 			} catch (IOException e) {
 				LOGGER.error("Problem in reading file "+ inputFile.getAbsolutePath() );
 				e.printStackTrace();
 			} 
 		}
-
+		creationDescription = creationDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8;
 		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
 		List<String> domainEurovocIds=getEurovocId(domains);
 		//FIXME
@@ -166,7 +198,6 @@ public class TMXHandler {
 			String m= Character.toString(doctypes.charAt(ii));
 			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, cc);
 		}
-		
 		if (!alignmentList.isEmpty()){
 			int[] stats1 =TMXHandlerUtils.countWordsInTMX(alignmentList,1);
 			int[] stats2 =TMXHandlerUtils.countWordsInTMX(alignmentList,2);
@@ -174,7 +205,6 @@ public class TMXHandler {
 			String organizationURL = config.getString("resourceCreator.organizationURL"); 
 			String projectId= config.getString("fundingProject.projectId"); 
 			String projectURL = config.getString("fundingProject.projectURL"); 
-			
 			BilingualCorpusInformation bilingualCorpusInfo;
 			if (cc) {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), TMXHandler.languages[0], TMXHandler.languages[1], 
@@ -185,15 +215,16 @@ public class TMXHandler {
 						alignmentList, alignmentList.size(), stats1[0], stats2[0],stats1[1], stats2[1], domain, domainEurovocId, UNKNOWN_STR, creationDescription,
 						projectId, projectURL, organization, organizationURL);
 			}
-			if (oxslt) { 
-				outHTML =  new File(FilenameUtils.concat(outTMX.getParent(),  FilenameUtils.getBaseName(outTMX.getAbsolutePath()) + HTML));
-				LOGGER.info("Rendering merged TMX as " + outHTML);
-			}
+			if (oxslt) 
+				outHTML =  new File(baseName.getAbsolutePath() + HTML);
+			
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
-
+			LOGGER.info("Merged TMX at " + outTMX.getAbsolutePath());
+			LOGGER.info("Rendering merged TMX as " + outHTML.getAbsolutePath());
+			
 			if (metadata){
 				BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
-				File metadataFile = new File(FilenameUtils.concat(outTMX.getParent(),  FilenameUtils.getBaseName(outTMX.getAbsolutePath()) + MetadataExt));
+				File metadataFile = new File(baseName.getAbsolutePath()+ MetadataExt);
 				LOGGER.info("Generating metadata descriptor " + metadataFile);
 				bilingualTmxMetashareDescriptor.setOutFile(metadataFile);
 				bilingualTmxMetashareDescriptor.run();
@@ -312,9 +343,12 @@ public class TMXHandler {
 				String num1=segpair.seg1.replaceAll("\\D+","");
 				String num2=segpair.seg2.replaceAll("\\D+","");
 				if (!num1.equals(num2)){
-					System.out.println(segpair.seg1);
-					System.out.println(segpair.seg2);
+					//double temp=Statistics.editDist(num1, num2) / (double) Math.min(num1.length(),num2.length());
+					//if (temp>0.35){
+					LOGGER.info(segpair.seg1);
+					LOGGER.info(segpair.seg2);
 					continue;
+					//}
 				}
 				//FIXME should we check language?	//FIXME keep MD5 instead of string
 				String temp = normS+TAB+normT;
@@ -340,11 +374,11 @@ public class TMXHandler {
 
 
 	/**
-	 * absolute path of the TMX file that will contain all TMXs 
-	 * @param outTMX
+	 * absolute path of the baseName for the outfiles  
+	 * @param baseName
 	 */
-	public void setOutFile(File outTMX) {
-		TMXHandler.outTMX  = outTMX;
+	public void setBaseName(File baseName) {
+		TMXHandler.baseName  = baseName;
 	}
 
 	/**
@@ -362,7 +396,9 @@ public class TMXHandler {
 	public void setLanguage(String languages) {
 		TMXHandler.languages = languages.split(SEMI_SEPAR);
 	}
-
+	public void useISO6393(boolean iso6393) {
+		TMXHandler.iso6393 = iso6393;
+	}
 
 	/**
 	 * apply transformation of the generated TMX to HTML. if exists, an HTML file will be created next to the generated TMX
@@ -401,7 +437,6 @@ public class TMXHandler {
 	public void setSegTypes(List<String> list) {
 		TMXHandler.segtypes=list;
 	}
-	
 	/**
 	 * Loads the default configuration file and checks if user supplied a custom one.
 	 * @param type

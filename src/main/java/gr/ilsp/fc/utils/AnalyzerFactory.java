@@ -40,7 +40,7 @@ public class AnalyzerFactory {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyzerFactory.class);
 	
 	static String[] langs = { "deu", "ell", "eng", "spa", "fra", "ita", "por", "lav", "lit", "hrv", "hun", "jpn", 
-			"gle", "fin", "grc", "pol", "ron", "nor", "nld", "glg", "ces", "dan", "euq", "bul", "rus", "swe", "slv", "cat" };
+			"gle", "fin", "grc", "pol", "ron", "nor", "nld", "glg", "ces", "dan", "euq", "bul", "rus", "swe", "slv", "cat", "est" };
 	List<String> langsList = Arrays.asList(langs);
 	
 	
@@ -105,7 +105,10 @@ public class AnalyzerFactory {
 			return new SloveneAnalyzer();
 		} else if (lang3.equals("cat")) {
 			return new CatalanAnalyzer();
-		} else {
+		} else if (lang3.equals("est")) {
+			return new GermanAnalyzer(); //FIXME GermanAnalyzer since Estonian is not available
+		} 
+		else {
 			throw new Exception("No analyzer available for language " + lang3 + ".\n" + 
 					"Available languages are " + langsList.toString() + ".\n");
 		}

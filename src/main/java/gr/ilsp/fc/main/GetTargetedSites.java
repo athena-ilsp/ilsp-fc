@@ -33,7 +33,7 @@ public class GetTargetedSites {
 	private static String destpath="\"/var/www/html/elrc4/culture/eng-fra/";
 	
 		
-	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.3-jar-with-dependencies.jar "
+	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.3-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -f -k "
 			+ "-type p -n 100 -t 20 -len 0 -mtlen 100 -p_r \"http://nlp.ilsp.gr/elrc\" -doctypes \"aupdih\" -segtypes \"1:1\"";
 
@@ -246,7 +246,7 @@ public class GetTargetedSites {
 		String dest1 = "/var/www/html/elrc1/culture/"+lang1+SEP+lang2+"/";
 		String dest2 =  dest1+"output_"+agent;
 		String command = JAR_ALL + L + QUOTE+lang1 + QUEST+ lang2 + QUOTE+ AGENT + agent +FILTER + filter + U +QUOTE+urlSeedFile.getAbsolutePath()+QUOTE +
-				dest+QUOTE+dest1+QUOTE + " -of " + QUOTE+dest2+".txt"+QUOTE + FORW +QUOTE+dest1+ "log_"+ agent + QUOTE; 
+				dest+QUOTE+dest1+QUOTE + " -bs " + QUOTE+dest2+QUOTE + FORW +QUOTE+dest1+ "log_"+ agent + QUOTE; 
 						
 		return command;
 	}

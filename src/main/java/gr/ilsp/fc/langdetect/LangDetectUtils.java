@@ -25,7 +25,7 @@ public class LangDetectUtils {
 	//private static final String LANG_CODES_RESOURCE = "langcode-langs.txt";
 	//private static final String SPACE_SEPERATOR = " ";
 	private static final int min_strlen=5;
-	
+
 	/**
 	 * Detects language of the provided content with loaded Cybozu. 
 	 * @param content
@@ -47,8 +47,7 @@ public class LangDetectUtils {
 		}
 		return lang;
 	}
-	
-	
+
 	/**
 	 * compares language with the targeted languages
 	 * @param lang
@@ -62,7 +61,7 @@ public class LangDetectUtils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * compares language with the targeted languages
 	 * @param lang
@@ -77,9 +76,7 @@ public class LangDetectUtils {
 		}
 		return ind;
 	}
-	
-	
-	
+
 	/**
 	 * Loads Cybozu Language Detector
 	 */
@@ -105,20 +102,24 @@ public class LangDetectUtils {
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * checks languages provided by the user (i.e. lang codes separated by ;)
-	 * returns unique targeted languages in 3digit LangCodeFormat
+	 * returns unique targeted languages in 3digit (if iso6393 is true)
+	 * or 2digit (if iso6393 is false) LangCodeFormat 
 	 * @param languages
 	 * @return
 	 */
-	public static String updateLanguages(String languages) {
+	public static String updateLanguages(String languages, boolean iso6393) {
 		String targetlanguages="";
 		String[] initlangs= languages.split(QUEST_SEPAR);
 		List<String> langs = new ArrayList<String>();
+		String temp="";
 		for (int ii=0;ii<initlangs.length;ii++) {
-			String temp = ISOLangCodes.get3LetterCode(initlangs[ii].toLowerCase()); 
+			if (iso6393)
+				temp = ISOLangCodes.get3LetterCode(initlangs[ii].toLowerCase());
+			else
+				temp = ISOLangCodes.get2LetterCode(initlangs[ii].toLowerCase());
 			if (!langs.contains(temp))
 				langs.add(temp);
 		}
@@ -132,8 +133,7 @@ public class LangDetectUtils {
 		targetlanguages=targetlanguages.substring(1);
 		return targetlanguages;
 	}
-	
-	
+
 	/*//LanguageIdentifier initialization	
 	if (loadProfile){
 		URL urldir = Crawl.class.getResource("/profiles");
@@ -158,67 +158,6 @@ public class LangDetectUtils {
 
 		}
 	}*/
-	
-/*	
-	*//**
-	 * given the HashMap langcodes (key is the 2-iso langcode, value is the 3-iso langcode),
-	 * returns the 2-letter or 3-letter language code (if a 3-letter or 2-letter language code is provided)   
-	 * @param langcode1
-	 * @return
-	 *//*
-	public static String convertlangCodes(String langcode, HashMap<String,String> langcodes) {
-		if (langcode.length()==2){
-			if (langcodes.containsKey(langcode)){
-				return langcodes.get(langcode);
-			}
-		}
-		Set<String> lang2codes = langcodes.keySet();
-		Iterator<String> langit = lang2codes.iterator();
-		String lang = null;
-		while (langit.hasNext()){
-			lang = langit.next();
-			if (langcodes.get(lang).equals(langcode)){
-				break;
-			}
-		}
-		return lang;
-	}
-	
 
-	
-	*//**
-	 * parses the predefined project resource LANG_CODES_RESOURCE and 
-	 * returns an array with the 2-letter or 3-letter language code    
-	 * @param langcode1
-	 * @return
-	 *//*
-	public static HashMap<String,String> getlangCodes() {
-		HashMap<String, String> langcodes = new HashMap<String,String>();
-		try {
-			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_CODES_RESOURCE);
-			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
-			String str;
-			String[] b = new String[3];
-			while ((str = in.readLine()) != null) {
-				b=str.split(SPACE_SEPERATOR);
-				if (b[0].length()==2 && b[1].length()==3){
-					if (!langcodes.containsKey(b[0])){
-						langcodes.put(b[0], b[1]);
-					}
-				}else if (b[0].length()==3 && b[1].length()==2){
-					if (!langcodes.containsKey(b[1])){
-						langcodes.put(b[1], b[0]);
-					}
-				}else{
-					LOGGER.warn("Problem in reading the file for "+LANG_CODES_RESOURCE + " . the first 2 columns should be for 2-let and 3-let language codes.");
-				}
-			}
-			in.close();
-		} catch (IOException e) {
-			LOGGER.error("Problem in reading the file for "+LANG_CODES_RESOURCE);
-		}		
-		return langcodes;
-	}*/
-	
-	
+
 }

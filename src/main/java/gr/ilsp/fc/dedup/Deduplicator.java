@@ -10,6 +10,7 @@ public class Deduplicator {
 	private static String method;
 	private static File targetDir;
 	private static File outTextList;
+	private static File outBaseName;
 	private static String inputType;
 	private static File outHTMLList;
 	private static Set<String> excludeSetFiles;
@@ -18,13 +19,15 @@ public class Deduplicator {
 	private static double IntersectionThr;
 	private static int MIN_PAR_LEN;
 	private static int MIN_TOK_LEN;
-
+	private static final String XMLlist = ".xmllist.txt";
+	private static final String XMLHTMLlist = ".xmllist.html";
+	
 	public static void main(String[] args) {
 		Deduplicator ded = new Deduplicator();
 		options = new DeduplicatorOptions();
 		options.parseOptions(args);
 		ded.setTargetDir(options.getTargetDir());
-		ded.setOutFile(options.getOutTextList());
+		ded.setBaseName(options.getBaseName());
 		ded.setExcludeSetFiles(options.getListExcludeFiles());
 		ded.setMethod(options.getMethod());
 		ded.setIntersectionThr(options.getInterThr());
@@ -38,18 +41,21 @@ public class Deduplicator {
 	 * apply near Deduplication
 	 */
 	public void nearDedup(){
+		outTextList = new File(outBaseName.getAbsolutePath()+XMLlist);
+		if (applyOfflineXSLT)
+			outHTMLList = new File(outBaseName.getAbsolutePath()+XMLHTMLlist);
 		if (method.equals("1")){
-			LOGGER.info("Deduplication by using lists and MD5 method.");
+			LOGGER.info("------------Deduplication by using lists and MD5 method.------------");
 			DedupMD5.dedup(targetDir, excludeSetFiles, outTextList,outHTMLList,applyOfflineXSLT, MIN_TOK_LEN,inputType);
 		}
 		if (method.equals("2")){
-			LOGGER.info("Deduplication based on common paragraphs.");
+			LOGGER.info("------------Deduplication based on common paragraphs.------------");
 			DedupParsMD5.dedup(targetDir, excludeSetFiles, outTextList,outHTMLList,applyOfflineXSLT, MIN_PAR_LEN, IntersectionThr,inputType);
 		}
 		if (method.equals("0")){
-			LOGGER.info("Deduplication by using lists and MD5 method.");
+			LOGGER.info("------------Deduplication by using lists and MD5 method.------------");
 			DedupMD5.dedup(targetDir, excludeSetFiles,  outTextList,outHTMLList,applyOfflineXSLT, MIN_TOK_LEN,inputType);
-			LOGGER.info("Deduplication based on common paragraphs.");
+			LOGGER.info("------------Deduplication based on common paragraphs.------------");
 			DedupParsMD5.dedup(targetDir, excludeSetFiles,  outTextList,outHTMLList,applyOfflineXSLT, MIN_PAR_LEN, IntersectionThr,inputType);
 		}
 	}
@@ -85,11 +91,11 @@ public class Deduplicator {
 		Deduplicator.targetDir = targetDir;
 	}
 	/**
-	 * textfile with list of paths of the remained cesDocFiles
-	 * @param outTextList
+	 * outBaseName of output files
+	 * @param outBaseName
 	 */
-	public void setOutFile(File outTextList) {
-		Deduplicator.outTextList= outTextList;
+	public void setBaseName(File outBaseName) {
+		Deduplicator.outBaseName= outBaseName;
 	}
 	/**
 	 * cesDocFiles to be excluded for deduplication

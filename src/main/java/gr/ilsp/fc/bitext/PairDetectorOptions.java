@@ -28,8 +28,7 @@ public class PairDetectorOptions {
 	private  String _loggingAppender = null;
 	private  File _outputDir;
 	private  File _inDir;
-	private  File _outputTextList;
-	private  File _outputHTMLList;
+	private  File _outBaseName;
 	private  File _groundTruth;
 	private String _methods="auidps";
 	private String _language;
@@ -39,8 +38,6 @@ public class PairDetectorOptions {
 	private static final String QUEST_SEPAR = ";";
 	private static String DOUBLEQUEST_SEPAR = ";;";
 	private boolean _delFiles = false;
-	private static final String XMLlist = ".xmllist.txt";
-	private static final String XMLHTMLlist = ".xmllist.html";
 	
 	public PairDetectorOptions() {
 		createOptions();
@@ -75,10 +72,9 @@ public class PairDetectorOptions {
 				.withDescription( "Help" )
 				.create("h") );
 		options.addOption( OptionBuilder.withLongOpt( "language(s)" )
-				.withDescription( "Target language. If more than one, separate with ';', " +
-						"i.e. en;el" )
-						.hasArg()
-						.create("lang") );
+				.withDescription( "Target language. If more than one, separate with ';', i.e. en;el" )
+				.hasArg()
+				.create("lang") );
 		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
 				.withDescription( "Apply an xsl transformation to generate html files during exporting.")
 				.create("oxslt") );
@@ -116,18 +112,14 @@ public class PairDetectorOptions {
 		try {
 			CommandLine line = clParser.parse( options, args );
 
-			if(line.hasOption( "h")) {
+			if(line.hasOption( "h"))
 				help();
-			}
-			if(line.hasOption( "dbg")) {
+			if(line.hasOption( "dbg"))
 				_debug = true;
-			}
-			if(line.hasOption( "l")) {
+			if(line.hasOption( "l"))
 				_loggingAppender = line.getOptionValue("l");
-			}
-			if(line.hasOption( "meth")) {
+			if(line.hasOption( "meth")) 
 				_methods = line.getOptionValue("meth");
-			}
 			if(line.hasOption( "i")) {
 				_inDir = new File(line.getOptionValue("i"));
 				_inDir = new File(_inDir.getAbsolutePath());
@@ -137,16 +129,12 @@ public class PairDetectorOptions {
 				_outputDir = new File(_outputDir.getAbsolutePath());
 			}
 			if(line.hasOption( "bs")) {
-				_outputTextList = new File(line.getOptionValue("bs"));
-				_outputTextList = new File(_outputTextList.getAbsolutePath()+XMLlist);
-				if(line.hasOption( "oxslt")) {
+				_outBaseName = new File(line.getOptionValue("bs"));
+				if(line.hasOption( "oxslt"))
 					offlineXSLT  = true;
-					_outputHTMLList = new File(line.getOptionValue("bs"));
-					_outputHTMLList = new File(_outputHTMLList.getAbsolutePath()+XMLHTMLlist);
-				}
 			}
 			if(line.hasOption( "lang")) {
-				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase());
+				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(), true);
 				if (_language.split(QUEST_SEPAR).length!=2){
 					LOGGER.error("You should provide 2 languages.");
 					help();
@@ -157,19 +145,15 @@ public class PairDetectorOptions {
 			}
 			if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
-				if (_paths_repl.endsWith("/")){
+				if (_paths_repl.endsWith("/"))
 					_paths_repl=_paths_repl.substring(0, _paths_repl.length()-1);
-				}
 			}
-			if(line.hasOption( "ifp")) {
+			if(line.hasOption( "ifp")) 
 				_keepimagefp  = true;
-			}
-			if(line.hasOption( "del")) {
+			if(line.hasOption( "del")) 
 				_delFiles  = true;
-			}
-			if(line.hasOption( "gt")) {
+			if(line.hasOption( "gt"))
 				_groundTruth  = new File(line.getOptionValue("gt"));
-			}
 			String temp= line.getOptionValue("u_r");
 			if (temp!=null){
 				String[] aa=temp.split(DOUBLEQUEST_SEPAR);
@@ -218,14 +202,11 @@ public class PairDetectorOptions {
 	public  File getOutDir() {
 		return _outputDir;
 	}
-	public  File getOutFile() {
-		return _outputTextList;
+	public  File getBaseName() {
+		return _outBaseName;
 	}
 	public  File getGroundTruth() {
 		return _groundTruth;
-	}
-	public  File getOutFileHTML() {
-		return _outputHTMLList;
 	}
 	public  String getMethods() {
 		return _methods;
@@ -239,9 +220,6 @@ public class PairDetectorOptions {
 	public String getPathReplace() {
 		return _paths_repl;
 	}
-	//public boolean getAlign() {
-	//	return _cesAlign;
-	//}
 	public boolean getImpath() {
 		return _keepimagefp;
 	}

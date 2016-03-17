@@ -17,8 +17,6 @@ import org.apache.log4j.Logger;
 public class ExporterOptions {
 	private static final Logger LOGGER = Logger.getLogger(ExporterOptions.class);
 	private static final String SEPARATOR = ";";
-	private static final String XMLlist = ".XMLlist.txt";
-	private static final String XMLHTMLlist = ".XMLlist.html";
 	
 	private String APPNAME = "Export";
 	private Options options;
@@ -27,9 +25,8 @@ public class ExporterOptions {
 	private File _outputdir;
 	private File _topic;
 	private File _negwords;
-	private File _outputFile;
-	private File _outputFileHTML;
-	
+	private File _outBaseName;
+		
 	private String[] _targetlanguages;
 		
 	private int _length=3;
@@ -39,7 +36,6 @@ public class ExporterOptions {
 	private boolean _offline=false;
 	private boolean _applyOfflineXSLT=false;
 	private boolean _httrack=false;
-	
 	private String _paths_repl="";
 	private String _targetDomain="";
 	
@@ -129,27 +125,21 @@ public class ExporterOptions {
 		CommandLineParser clParser = new GnuParser();
 		try {
 			CommandLine line = clParser.parse( options, args );
-
-			if(line.hasOption( "help")) {
+			if(line.hasOption( "help")) 
 				help();
-			}
-			if(line.hasOption( "cfg")) {
+			if(line.hasOption( "cfg"))
 				_config = line.getOptionValue("cfg");
-			}	
 			if(line.hasOption( "i")) {
 				_inputdir = new File(line.getOptionValue("i"));
 				_inputdir = new File(_inputdir.getAbsolutePath());
 			}
 			else help();
-			if(line.hasOption( "off")) {
+			if(line.hasOption( "off")) 
 				_offline=true;
-			}
-			if(line.hasOption( "httrack")) {
+			if(line.hasOption( "httrack")) 
 				_httrack=true;
-			}
-			if(line.hasOption( "lang")) {
+			if(line.hasOption( "lang")) 
 				_targetlanguages = line.getOptionValue("lang").split(SEPARATOR);
-			}
 			if(line.hasOption( "t")) {
 				_topic = new File(line.getOptionValue("t"));
 				_topic = new File(_topic.getAbsolutePath());
@@ -179,35 +169,27 @@ public class ExporterOptions {
 				_genre =SimpleCrawl.class.getClassLoader().getResource(default_genrefile);
 				LOGGER.info("Genre types and keywrods are included in file: " + _genre);
 			}*/
-			if(line.hasOption( "len")) {
+			if(line.hasOption( "len")) 
 				_length = Integer.parseInt(line.getOptionValue("len"));
-			} 
-			if(line.hasOption( "mtlen")) {
+			if(line.hasOption( "mtlen"))
 				_minTokensNumber = Integer.parseInt(line.getOptionValue("mtlen"));
-			} 
 			if(line.hasOption( "neg")) {
 				_negwords = new File(line.getOptionValue("n"));
 				_negwords = new File(_negwords.getAbsolutePath());
 			} 
-			if(line.hasOption( "te")) {
+			if(line.hasOption( "te"))
 				_textexport = true;
-			} 
 			if(line.hasOption( "o")) {
 				_outputdir = new File(line.getOptionValue("o"));
 				_outputdir = new File(_outputdir.getAbsolutePath());
 			} else help();						
 			if(line.hasOption( "bs")) {
-				_outputFile = new File(line.getOptionValue("bs"));
-				_outputFile = new File(_outputFile.getAbsolutePath()+XMLlist);
-				if(line.hasOption( "oxslt")) {
-					_outputFileHTML = new File(line.getOptionValue("bs")+XMLHTMLlist);
-				} 
+				_outBaseName = new File(line.getOptionValue("bs"));
 			} else help();				
 			if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
-				if (_paths_repl.endsWith("/")){
+				if (_paths_repl.endsWith("/"))
 					_paths_repl=_paths_repl.substring(0, _paths_repl.length()-1);
-				}
 			}
 		} catch( ParseException exp ) {
 			// oops, something went wrong
@@ -263,11 +245,8 @@ public class ExporterOptions {
 	public boolean usedHttrack(){
 		return _httrack;
 	}
-	public  File getOutputFile() {
-		return _outputFile;
-	}
-	public  File getOutputFileHTML() {
-		return _outputFileHTML;
+	public  File getBaseName() {
+		return _outBaseName;
 	}
 	public  String getTargetDomain() {
 		return _targetDomain;

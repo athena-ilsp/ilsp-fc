@@ -180,8 +180,10 @@ public class DedupParsMD5 {
 			remFiles.add(file); 
 		}
 		WriteResources.WriteTextList(remFiles, out_textfile);
+		LOGGER.info("Created list of remaining cesDoc in "+ out_textfile.getAbsolutePath());
 		if (applyOfflineXSLT){
 				WriteResources.WriteHTMLList(remFiles, outputHTMLfilename);
+				LOGGER.info("Created list of rendered remaining cesDoc in "+ outputHTMLfilename.getAbsolutePath());
 		}
 	
 		long elapsedTime = System.currentTimeMillis()-start;

@@ -498,4 +498,24 @@ public class FcFileUtils {
 		return tmxfiles;
 	}
 	
+	
+	/**
+	 * Selects files that end with one of elements of types 
+	 * @param tfs
+	 * @param types
+	 * @return
+	 */
+	public static  List<File> selectTypes(List<File> tfs, String[] types) {
+		List<File> tmxfiles = new ArrayList<File>();
+		for (File tf:tfs){
+			for (int ii=0;ii<types.length;ii++){
+				if (tf.getName().endsWith(types[ii])){
+					tmxfiles.add(tf);
+					break;
+				}
+			}
+		}
+		return tmxfiles;
+	}
+	
 }

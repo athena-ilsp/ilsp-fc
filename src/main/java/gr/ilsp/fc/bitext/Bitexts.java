@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,7 +62,9 @@ public class Bitexts {
 	private static final String d_type = "d";
 	private static final String a_type = "a";
 	private static final String im_type = "i";
-	private static final String str_type = "s";
+	private static final String h_type = "s";
+	private static final String m_type = "m";
+	private static final String l_type = "l";
 	private static final String imdi_type = "p";
 	private static final String UNDERSCORE="_";
 	private static HashMap<String, DocVector> features = new HashMap<String, DocVector>();		//keeps features of docs 
@@ -90,12 +93,13 @@ public class Bitexts {
 	 * and stores them in a DocVector.
 	 * Also generates a text file with the fingerprint of the cesDoc. 
 	 * @param xmldir input directory
+	 * @param langs 
 	 * @return HashMap with features of the cesDoc files. Key is the filename of the cesDoc (with no extension) 
 	 * @throws FileNotFoundException
 	 * @throws XMLStreamException
 	 * 
 	 */
-	public static HashMap<String, DocVector> extractXML_Features(File xmldir) {
+	public static HashMap<String, DocVector> extractXML_Features(File xmldir, List<String> langs) {
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
 				return (arg1.substring(arg1.length()-4).equals(appXMLext) && !arg1.contains(UNDERSCORE));
@@ -107,7 +111,9 @@ public class Bitexts {
 		String codelang="", listofDigits, fileFinger, listofSymbols ;
 		int urllevel=0, numofpars, numofToksb, numofTokso, numofcleanpars  ;
 		int counter=1;
+		boolean skip;
 		for (int ii=0; ii<files.length ; ii++){
+			skip=false;
 			fileFinger =  files[ii]+appTXText;
 			numofpars=0; numofToksb=0; numofTokso=0; numofcleanpars=0;
 			String tempstr="", newtempstr="";
@@ -132,6 +138,10 @@ public class Bitexts {
 						curElement = xmlr.getLocalName().toString();
 						if (curElement.equals(LANGUAGE_ELE)) {
 							codelang=ISOLangCodes.get3LetterCode(xmlr.getAttributeValue(0));
+							if (!langs.contains(codelang)){
+								skip=true;
+								break;
+							}
 						}else{
 							if (curElement.equals(URL_ELE)){
 								if (xmlr.getAttributeCount()<1){
@@ -186,17 +196,19 @@ public class Bitexts {
 					}else
 						curElement = "";
 				}
-				numofToksb = FCStringUtils.countTokens(tempstr);
-				numofTokso = FCStringUtils.countTokens(newtempstr);
+				if (!skip){
+					numofToksb = FCStringUtils.countTokens(tempstr);
+					numofTokso = FCStringUtils.countTokens(newtempstr);
 
-				listofDigits=ReadResources.extractNumsfromXML(FilenameUtils.concat(xmldir.getPath(),files[ii]), P_ELE,ooi_crawlinfo, ooi_boilerplate, false);
-				//listofSymbols = ReadResources.extractSymbolsfromXML(FilenameUtils.concat(xmldir.getPath(),files[ii]), P_ELE,ooi_crawlinfo, ooi_boilerplate, false);
-				listofSymbols ="";
-				DocVector filevector= new DocVector(url, urllevel, codelang, numofpars, numofcleanpars, numofToksb, numofTokso, listofDigits, fileFinger, listofSymbols); 
+					listofDigits=ReadResources.extractNumsfromXML(FilenameUtils.concat(xmldir.getPath(),files[ii]), P_ELE,ooi_crawlinfo, ooi_boilerplate, false);
+					//listofSymbols = ReadResources.extractSymbolsfromXML(FilenameUtils.concat(xmldir.getPath(),files[ii]), P_ELE,ooi_crawlinfo, ooi_boilerplate, false);
+					listofSymbols ="";
+					DocVector filevector= new DocVector(url, urllevel, codelang, numofpars, numofcleanpars, numofToksb, numofTokso, listofDigits, fileFinger, listofSymbols); 
 
-				if (res.containsKey(files[ii].substring(0, files[ii].indexOf(PUNCT))))
-					System.out.println("OOPS");
-				res.put(files[ii].substring(0, files[ii].indexOf(PUNCT)), filevector);
+					if (res.containsKey(files[ii].substring(0, files[ii].indexOf(PUNCT))))
+						System.out.println("OOPS");
+					res.put(files[ii].substring(0, files[ii].indexOf(PUNCT)), filevector);
+				}
 				xmlFileListWrt.close();
 				xmlr.close();
 			} catch (UnsupportedEncodingException e) {
@@ -233,7 +245,7 @@ public class Bitexts {
 		ArrayList<String[]> bitextsALL=new ArrayList<String[]>();
 		LOGGER.info("Feature extraction from generated cesDoc and corresponding HTML files");
 		//extracts features and images of docs
-		features = Bitexts.extractXML_Features(xmldir);
+		features = Bitexts.extractXML_Features(xmldir, Arrays.asList(langs));
 		//Are there enough docs for identification of pairs?
 		int[] langfiles=BitextUtils.check_crawl_stats(langs, features);
 		if (langfiles==null)
@@ -362,7 +374,7 @@ public class Bitexts {
 				}
 			}*/
 		//Find pairs based on similar structures
-		if (methods.contains(str_type)){
+		if (methods.contains(h_type) || methods.contains(m_type) || methods.contains(l_type)){
 			if (features.size()>1){
 				bitexts  = BitextsStruct.findpairsXML_SVM_NEW(xmldir,features);
 				ArrayList<String[]> bitextsSTRUCT = BitextsStruct.findBestPairs_SVM_NEW(bitexts);

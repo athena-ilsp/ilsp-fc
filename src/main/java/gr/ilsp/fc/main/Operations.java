@@ -26,7 +26,13 @@ public class Operations {
 	private static final String XML_EXTENSION = ".xml";
 	private static final String UNDERSCORE_STR = "_";
 	private static final String QUESTION_SEP=";";
+	
 	private static String default_dedup_method="0";
+	private static int default_dedup_minTokLen=3;
+	private static int default_dedup_minParLen=3;
+	private static double default_dedup_intersection=0.7;
+	
+	private static int[] thres={ 10, 10, 10, 10, 10, 10, 10, 10};
 
 	/**
 	 * detects pairs of candidate parallel documents 
@@ -40,7 +46,7 @@ public class Operations {
 		pd.setLanguage(options.getLanguage());
 		pd.setSourceDir(options.getInputDir());
 		pd.setTargetDir(options.getInputDir());
-		pd.setOutFile(options.getOutputFile());
+		pd.setBaseName(options.getBaseName());
 		pd.setExcludeSetFiles(null);
 		pd.setUseImagepath(options.getImpath());
 		pd.setApplyXSLT(options.isOfflineXSLT());
@@ -66,13 +72,13 @@ public class Operations {
 		LOGGER.info("Running (near)Deduplicator");
 		Deduplicator ded = new Deduplicator();
 		ded.setTargetDir(options.getInputDir());
-		ded.setOutFile(options.getOutputFile());
+		ded.setBaseName(options.getBaseName());
 		ded.setExcludeSetFiles(null);
 		ded.setInputType(XML_EXTENSION.substring(1));
 		ded.setApplyOfflineXSLT(options.isOfflineXSLT());
-		ded.setIntersectionThr(0.7);
-		ded.setMIN_TOK_LEN(3);
-		ded.setMIN_PAR_LEN(3);
+		ded.setIntersectionThr(default_dedup_intersection);
+		ded.setMIN_TOK_LEN(default_dedup_minTokLen);
+		ded.setMIN_PAR_LEN(default_dedup_minParLen);
 		ded.setMethod(default_dedup_method);
 		ded.nearDedup();
 	}
@@ -93,7 +99,7 @@ public class Operations {
 		se.setTopic(options.getTopic());
 		se.setTargetedDomain(options.getTargetedDomain());
 		se.setCrawlDirName(options.getInputDir());
-		se.setOutFile(options.getOutputFile());	
+		se.setBaseName(options.getBaseName());	
 		//FIXME
 		se.setRunOffLine(false); 
 		se.setApplyOfflineXSLT(options.isOfflineXSLT());
@@ -129,7 +135,8 @@ public class Operations {
 					}
 				}
 				FileUtils.writeLines(docpairsFile, cesAlignList);
-				aligner.processCesAlignList(docpairsFile, docpairsFile, options.getOutputFileHTMLTMX(),options.isOfflineXSLT());
+				//aligner.processCesAlignList(docpairsFile, docpairsFile, options.getOutputFileHTMLTMX(),options.isOfflineXSLT(), options.useISO6393());
+				aligner.processCesAlignList(docpairsFile, options.isOfflineXSLT(), options.useISO6393());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -179,11 +186,12 @@ public class Operations {
 		TMXHandler ha = new TMXHandler();
 		ha.setConfig(TMXHandler.getConfig( options.getConfig()));
 		ha.setTargetDir(options.getInputDir());
-		ha.setOutFile(options.getMergedTMX());
+		ha.setBaseName(options.getBaseName());
 		ha.setApplyOfflineXSLT(options.isOfflineXSLT());
 		ha.setDocTypes(options.getDocTypes());
 		ha.setSegTypes(options.getSegTypes());
-		ha.setThres( new int[] {5, 5, 5, 5, 5, 5, 5, 5});
+		//ha.setThres( new int[] {5, 5, 5, 5, 5, 5, 5, 5});
+		ha.setThres(thres);
 		ha.setLanguage(options.getLanguage());
 		ha.setCC(options.getCC());
 		ha.setMetadata(options.getMetadata());

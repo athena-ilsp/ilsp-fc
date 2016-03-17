@@ -17,16 +17,14 @@ public class DeduplicatorOptions {
 	private Options options;
 	private String APPNAME = "(Near) Deduplication";
 	private static String SEPARATOR = ";";
-	private static final String XMLlist = ".XMLlist.txt";
-	private static final String XMLHTMLlist = ".XMLlist.html";
+	
 	private String _method="0";
 	private static double inter_thr=0.7; //intersection of common paragraphs
 	private static int MIN_TOK_LEN = 3; //tokens with less that MIN_TOK_LEN letters are excluded
 	private static int MIN_PAR_LEN = 3; //paragraphs with less than MIN_PAR_LEN tokens are excluded
 	private static boolean _applyOfflineXSLT= false;
 	private File _targetDir = null;
-	private File _outTextList = null;
-	private File _outHTMLList = null;
+	private File _outBaseName = null;
 	private String _inputType = "xml";
 	private Set<String> _exludefiles=null;
 		
@@ -90,7 +88,6 @@ public class DeduplicatorOptions {
 			CommandLine line = clParser.parse( options, args );
 			if(line.hasOption( "h")) 
 				help();
-			
 			if(line.hasOption( "m")) 
 				_method = line.getOptionValue("mt");
 			if(line.hasOption( "mtl")) 
@@ -103,23 +100,18 @@ public class DeduplicatorOptions {
 				_targetDir = new File(line.getOptionValue("o"));
 				_targetDir = new File(_targetDir.getAbsolutePath());
 			}
-			if(line.hasOption( "bs")){
-				_outTextList = new File(line.getOptionValue("bs"));
-				_outTextList = new File(_outTextList.getAbsolutePath()+XMLlist);
-			}
+			if(line.hasOption( "bs"))
+				_outBaseName = new File(line.getOptionValue("bs"));
 			if(line.hasOption( "int"))
 				_inputType = line.getOptionValue("int");
-			
 			if(line.hasOption( "exf")){ 
 				String[] temp= line.getOptionValue("exf").split(SEPARATOR);
 				for (int ii=0;ii<temp.length;ii++){
 					_exludefiles.add(FilenameUtils.concat(_targetDir.getAbsolutePath(), temp[ii]));
 				}
 			}
-			if(line.hasOption( "oxslt")){
+			if(line.hasOption( "oxslt"))
 				_applyOfflineXSLT = true;
-				_outHTMLList = new File(line.getOptionValue("bs")+XMLHTMLlist);
-			}
 		} catch( ParseException exp ) {
 			// oops, something went wrong
 			System.err.println( "Parsing options failed.  Reason: " + exp.getMessage() );			
@@ -149,11 +141,8 @@ public class DeduplicatorOptions {
 	public File getTargetDir() {
 		return _targetDir;
 	}
-	public File getOutTextList() {
-		return _outTextList;
-	}
-	public File getOutHTMLList(){
-		return _outHTMLList;
+	public File getBaseName() {
+		return _outBaseName;
 	}
 	public Set<String> getListExcludeFiles(){
 		return _exludefiles;

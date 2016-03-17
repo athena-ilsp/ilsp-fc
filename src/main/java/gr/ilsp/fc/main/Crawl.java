@@ -507,7 +507,7 @@ public class Crawl {
 				se.setTopic(options.getTopic());
 				se.setRunOffLine(false);
 				se.setApplyOfflineXSLT(options.isOfflineXSLT());
-				se.setOutFile(options.getOutputFile());
+				se.setBaseName(options.getBaseName());
 				se.setAcceptedMimeTypes(mimes);
 				se.setTargetedDomain(options.getTargetedDomain());
 				se.setGenres(options.getGenre());
@@ -530,7 +530,7 @@ public class Crawl {
 					Set<String> filesinPairs = BitextUtils.getDocsinPairs(idPairsFromTranslationLinks);  
 					Deduplicator ded = new Deduplicator();
 					ded.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
-					ded.setOutFile(options.getOutputFile());
+					ded.setBaseName(options.getBaseName());
 					ded.setExcludeSetFiles(filesinPairs);
 					ded.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ded.setMIN_TOK_LEN(MIN_TOK_LEN);
@@ -546,8 +546,7 @@ public class Crawl {
 					pd.setLanguage(options.getLanguage());
 					pd.setSourceDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
 					pd.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
-					pd.setOutFile(options.getOutputFile());
-					//pd.setOutHTMLList(options.getOutputFileHTML());
+					pd.setBaseName(options.getBaseName());
 					pd.setExcludeSetFiles(null);
 					pd.setUseImagepath(options.getImpath());
 					pd.setApplyXSLT(options.isOfflineXSLT());
@@ -557,21 +556,20 @@ public class Crawl {
 					pd.pairDetect();
 				}
 				if (aligner!=null) {
-					LOGGER.info("Alignment of segments in the detected document pairs.");
-					aligner.processCesAlignList(options.getOutputFile(),options.getOutputFileTMX(), options.getOutputFileHTMLTMX(), options.isOfflineXSLT());
+					aligner.processCesAlignList(options.getOutputFile(), options.isOfflineXSLT(), options.useISO6393());
 				}					
 				//////////////////////////////////////////////////////////////////////////////////////////////
 				if (operation.contains(TMXMERGE_operation)){
-					LOGGER.info("Merging of generated TMXs.");
 					TMXHandler ha = new TMXHandler();
 					ha.setTargetDir(xmldir);
 					ha.setConfig(config);
-					ha.setOutFile(options.getMergedTMX());
+					ha.setBaseName(options.getBaseName());
 					ha.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ha.setDocTypes(options.getDocTypes());
 					ha.setThres( thres);
 					ha.setSegTypes(options.getSegTypes());
 					ha.setLanguage(options.getLanguage());
+					ha.useISO6393(options.useISO6393());
 					ha.setCC(options.getCC());
 					ha.setMetadata(options.getMetadata());
 					ha.mergeTMXs();
@@ -584,7 +582,7 @@ public class Crawl {
 				if (operation.contains(DEDUP_operation)){
 					Deduplicator ded = new Deduplicator();
 					ded.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
-					ded.setOutFile(options.getOutputFile());
+					ded.setBaseName(options.getOutputFile());
 					ded.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ded.setMIN_TOK_LEN(MIN_TOK_LEN);
 					ded.setMIN_PAR_LEN(MIN_PAR_LEN);
@@ -606,7 +604,6 @@ public class Crawl {
 					List<File> outputFiles =  new ArrayList<File>();
 					outputFiles.add(options.getOutputFile());
 					outputFiles.add(options.getOutputFileHTML());
-					//String topDirName = options.getOutputDir().getAbsoluteFile().getParentFile().getParentFile().getAbsolutePath().replace("\\","/");
 
 					String topDirName = getTopNDir(options.getOutputDir(), default_depth).replace("\\","/");
 

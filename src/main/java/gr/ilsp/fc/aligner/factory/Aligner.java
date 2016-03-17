@@ -3,6 +3,7 @@ package gr.ilsp.fc.aligner.factory;
 import gr.ilsp.fc.bitext.BitextUtils;
 import gr.ilsp.fc.exporter.XSLTransformer;
 import gr.ilsp.fc.main.WriteResources;
+import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitter;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitterFactory;
 
@@ -42,8 +43,9 @@ import com.google.common.collect.Lists;
  */
 public abstract class Aligner {
 
-
 	private static final String OOI_LANG = "ooi-lang";
+	private static final String TMXlist = ".tmxlist.txt";
+	private static final String TMXHTMLlist = ".tmxlist.html";
 	//private static final String TYPE = "type";
 	private static final Logger logger = LoggerFactory.getLogger(Aligner.class);
 	protected Properties properties ;
@@ -52,10 +54,10 @@ public abstract class Aligner {
 	private static final String BOILERPLATE = "boilerplate";
 	private static final String CRAWLINFO = "crawlinfo";
 	protected static final String P_ELE = "p";
-	private static final String appHTMLext = ".html";
 	private static final String appXMLext = ".xml";
 	private static final String appTMXext = ".tmx";
 	private static final String appTMXHTMLext = ".tmx.html";
+	private static final String UNDERSCORE_STR = "_";
 	private static final String tmx_xsl= "http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl";
 	protected boolean useBoilerplateParagraphs = false;
 	protected boolean useOoiLang = true;
@@ -75,7 +77,7 @@ public abstract class Aligner {
 
 	public abstract void destroy ();
 
-	
+
 	/**
 	 * Processes a list of l1File l2File pairs  
 	 * 
@@ -105,16 +107,23 @@ public abstract class Aligner {
 		return tmxFiles;
 	}
 
-		
-	
-	
-	public void processCesAlignList(File cesAlignList, File outputTMXList, File outputHTMLTMXList, boolean xslt)  {
+
+	public void processCesAlignList(File cesAlignList, boolean oxslt, boolean iso6393)  {
+		logger.info("------------Alignment of segments in the detected document pairs.------------");
 		List<String> lines=new ArrayList<String>();
-		try {
-			lines = FileUtils.readLines(cesAlignList);
-		} catch (IOException e) {
-			logger.error("problem in reading the file " +cesAlignList.getAbsolutePath() +" list of detected pairs");
-			e.printStackTrace();
+		if (cesAlignList.isDirectory()){
+			File[] docpairs= cesAlignList.listFiles();
+			for (File file:docpairs){
+				if (file.getName().contains(UNDERSCORE_STR) && file.getName().endsWith(appXMLext))
+					lines.add(file.getAbsolutePath());
+			}
+		}else{
+			try {
+				lines = FileUtils.readLines(cesAlignList);
+			} catch (IOException e) {
+				logger.error("problem in reading the file " +cesAlignList.getAbsolutePath() +" list of detected pairs");
+				e.printStackTrace();
+			}
 		}
 		logger.info("Aligning sentences in document pairs using "+ this.getClass().getSimpleName());
 		logger.debug("... from cesAlign list " + cesAlignList);
@@ -125,7 +134,7 @@ public abstract class Aligner {
 		Map<String, Integer> sourceSentsMap = new HashMap<String, Integer>();
 		Map<String, Integer> targetSentsMap = new HashMap<String, Integer>();
 		XSLTransformer xslTransformer=null;
-		if (xslt){
+		if (oxslt){
 			try {
 				xslTransformer = new XSLTransformer(tmx_xsl);
 			} catch (MalformedURLException e) {
@@ -156,24 +165,24 @@ public abstract class Aligner {
 					File transFile = new File(translationElement.getAttribute("trans.loc"));
 					basenameMap.put(translationElement.getAttribute("xml:lang"), FilenameUtils.getBaseName(transFile.getName()));
 				}
+				//FIXME ungly fix to keep 3-letter for everything but the language code in TMX 
+				this.sourceLang= ISOLangCodes.get3LetterCode(this.sourceLang);
+				this.targetLang= ISOLangCodes.get3LetterCode(this.targetLang);
 				File sourceFile = new File(FilenameUtils.concat(cesAlignFile.getParent(), basenameMap.get(sourceLang) + appXMLext));
 				File targetFile = new File(FilenameUtils.concat(cesAlignFile.getParent(), basenameMap.get(targetLang) + appXMLext));
 				File tmxFile = 	new File(FilenameUtils.concat(cesAlignFile.getParent(), cesAlignBasename + appTMXext)); 
-				//String[] temp = new File(line).getName().split("_");
-				//File sourceFile = new File(FilenameUtils.concat(cesAlignFile.getParent(), temp[0] + appXMLext));
-				//File targetFile = new File(FilenameUtils.concat(cesAlignFile.getParent(), temp[1] + appXMLext));
-				//File tmxFile = 	new File(FilenameUtils.concat(cesAlignFile.getParent(), temp[0]+"_"+temp[1]+"_"+temp[2] + appTMXext)); 
-
+				if (!iso6393){
+					this.sourceLang= ISOLangCodes.get2LetterCode(this.sourceLang);
+					this.targetLang= ISOLangCodes.get2LetterCode(this.targetLang);
+				}
 				AlignmentStats alignmentStats = this.process(sourceFile, targetFile, tmxFile);
 				tmxFiles.add(tmxFile);
-				
+
 				File htmlTmxFile = null;
-				if (xslt && xslTransformer!=null){
+				if (oxslt && xslTransformer!=null){
 					htmlTmxFile =   new File(FilenameUtils.removeExtension(tmxFile.getAbsolutePath()) + appTMXHTMLext);
-					//IOtools.tmxTOhtml(tmxFile.getAbsolutePath(), htmlTmxFile.getAbsolutePath());
 					xslTransformer.setBaseDir(tmxFile.getParent());
 					xslTransformer.transform(tmxFile, htmlTmxFile);
-
 					htmlTmxFiles.add(htmlTmxFile);
 				}
 				alignmentsPerFile.add(alignmentStats.getAlignmentsSize());
@@ -190,30 +199,30 @@ public abstract class Aligner {
 				alignmentsMap.put(documentAlignmentMethod, count + alignmentStats.getAlignmentsSize());
 
 				logger.debug("Exported results to tmx file " + tmxFile);
-				if (xslt){
+				if (oxslt){
 					logger.debug("Exported results to html tmx file " + htmlTmxFile);
 				}
 			} catch (Exception ex) {
 				logger.warn( "Problem in generating TMX files: \n"+ ex.getMessage());
 			}
 		}
-		
+		String tempparent = cesAlignList.getParent();
+		String tempname =  FilenameUtils.getBaseName(FilenameUtils.getBaseName(cesAlignList.getName()));
+		File outputTMXList = new File(FilenameUtils.concat(tempparent, tempname)+TMXlist);
+		File outputHTMLTMXList = new File(FilenameUtils.concat(tempparent, tempname)+TMXHTMLlist);
 		generateTmxListFiles(outputTMXList, outputHTMLTMXList, lines, tmxFiles,
-					htmlTmxFiles, alignmentsPerFile, alignmentsMap, sourceSentsMap,
-					targetSentsMap);
-		
+				htmlTmxFiles, alignmentsPerFile, alignmentsMap, sourceSentsMap,
+				targetSentsMap);
 	}
 
 	private void generateTmxListFiles(File outputTMXList, File outputHTMLTMXList, List<String> lines, List<File> tmxFiles,
 			List<File> htmlTmxFiles, List<Integer> alignmentsPerFile, 	Map<String, Integer> alignmentsMap,
 			Map<String, Integer> sourceSentsMap, Map<String, Integer> targetSentsMap) {
 
-		if (outputHTMLTMXList==null){
-			outputHTMLTMXList = new File(outputTMXList.getAbsolutePath()+appHTMLext);
+		if (outputHTMLTMXList!=null){
+			WriteResources.WriteHTMLList(htmlTmxFiles, outputHTMLTMXList);
+			logger.info("Created list of tmx in " + outputHTMLTMXList.getAbsolutePath());
 		}
-
-		WriteResources.WriteHTMLList(htmlTmxFiles, outputHTMLTMXList);
-
 		StringBuffer tmxContent = new StringBuffer();
 		int tmxI = 0;
 		for (File tmxFile : tmxFiles){
@@ -258,7 +267,7 @@ public abstract class Aligner {
 			logger.warn("Encoding problem in writing the list of the TMX files");
 			e.printStackTrace();
 		}
-		logger.info("Created list of tmx results in " + outputTMXList.getAbsolutePath());
+		logger.info("Created list of tmx in " + outputTMXList.getAbsolutePath());
 	}
 
 	public void initialize (String sourceLang, String targetLang) {

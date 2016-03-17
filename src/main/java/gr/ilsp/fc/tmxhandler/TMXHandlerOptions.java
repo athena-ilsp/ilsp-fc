@@ -18,17 +18,16 @@ import org.apache.log4j.Logger;
 public class TMXHandlerOptions {
 	private Options options;
 	private String APPNAME = "TMX Handler";
-	private static final String HTML =".html";
-	private static final String TMXEXT = ".tmx";
+	
 	private static final Logger LOGGER = Logger.getLogger(TMXHandlerOptions.class);
 	private static final String QUESTION_SEP = ";";
 	private File _targetDir = null;
-	private File _outTMX = null;
-	private File _outHTML = null;
+	private File _baseName=null;
 	private String _config;
 	private String _language;
 	private String _doctypes="aupdih";
-	private boolean oxslt=false;
+	private boolean _oxslt=false;
+	private boolean _iso6393=false;
 	private boolean _cc=false;
 	private boolean _metadata=false;
 	private List<String> _segtypes=new ArrayList<String>();
@@ -61,8 +60,11 @@ public class TMXHandlerOptions {
 				.create("oxslt") );
 		options.addOption( OptionBuilder.withLongOpt( "language(s)" )
 				.withDescription( "Target languages separated by ';' i.e. en;el" )
-						.hasArg()
-						.create("lang") );
+				.hasArg()
+				.create("lang") );
+		options.addOption( OptionBuilder.withLongOpt( "lang_code" )
+				.withDescription( "if exists iso6393 language codes are used.")
+				.create("iso6393") );
 		options.addOption( OptionBuilder.withLongOpt( "TMX_types_to_be_processed" )
 				.withDescription( "types of TMXs, i.e. methods the document pairs have been detected (auipdhml), to be processed, default is \"auipdh\"")
 				.hasArg()
@@ -96,9 +98,8 @@ public class TMXHandlerOptions {
 		CommandLineParser clParser = new GnuParser();
 		try {
 			CommandLine line = clParser.parse( options, args );
-			if(line.hasOption( "cfg")) {
+			if(line.hasOption( "cfg"))
 				_config = line.getOptionValue("cfg");
-			}
 			if(line.hasOption( "i")) {
 				_targetDir = new File(line.getOptionValue("i"));
 				_targetDir = new File(_targetDir.getAbsolutePath());
@@ -108,24 +109,21 @@ public class TMXHandlerOptions {
 				}
 			}
 			if(line.hasOption( "bs")){
-				_outTMX = new File(line.getOptionValue("bs"));
-				_outTMX = new File(_outTMX.getAbsolutePath()+TMXEXT);
-				if (!_outTMX.getParentFile().exists()){
-					_outTMX.getParentFile().mkdirs();
-				}
-				if (line.hasOption("oxslt")){
-					_outHTML=new File(_outTMX.getAbsolutePath()+HTML);
-				}
-				if (line.hasOption("cc")){
-					_cc=true;
-				}
-				if (line.hasOption("metadata"))
-					_metadata=true;
+				_baseName = new File(line.getOptionValue("bs"));
+				_baseName = _baseName.getAbsoluteFile();
 			}else{
-				LOGGER.error("You should provide a fullpath of the TMX to be constructed.");
+				LOGGER.error("You should provide a baseName to be used for outfiles.");
 			}
+			if (line.hasOption("oxslt"))
+				_oxslt=true;
+			if (line.hasOption("cc"))
+				_cc=true;
+			if (line.hasOption("metadata"))
+				_metadata=true;
+			if (line.hasOption("iso6393"))		
+				_iso6393=true;
 			if(line.hasOption( "lang")) {
-				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase());
+				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),_iso6393);
 				if (_language.split(QUEST_SEPAR).length!=2){
 					LOGGER.error("You should provide 2 languages.");
 					help();
@@ -134,9 +132,8 @@ public class TMXHandlerOptions {
 				LOGGER.error("No languages have been defined.");
 				System.exit(0);
 			}
-			if(line.hasOption( "pdm")){
+			if(line.hasOption( "pdm"))
 				_doctypes = line.getOptionValue("doctypes");
-			}
 			if(line.hasOption( "thres")){
 				String[] temp = line.getOptionValue("thres").split(QUESTION_SEP); 
 				if (_doctypes.length()!=temp.length){
@@ -170,16 +167,14 @@ public class TMXHandlerOptions {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp( program, options );
 	}
-
 	public File getTargetDir() {
 		return _targetDir;
 	}
-	public File getOutTMX() {
-		return _outTMX;
-	}
-
 	public boolean getXSLTransform() {
-		return oxslt;
+		return _oxslt;
+	}
+	public boolean useISO6393() {
+		return _iso6393;
 	}
 	public boolean getCC() {
 		return _cc;
@@ -187,8 +182,8 @@ public class TMXHandlerOptions {
 	public boolean getMetadata() {
 		return _metadata;
 	}
-	public File getOutHTML(){
-		return _outHTML;
+	public File getBaseName(){
+		return _baseName;
 	}
 	public String getLanguage() { 
 		return _language;

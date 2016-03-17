@@ -44,6 +44,9 @@ import gr.ilsp.fc.utils.TopicTools;
 
 
 
+
+
+
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -103,7 +106,7 @@ public class Exporter {
 	private static final String cesNameSpace = "http://www.w3.org/1999/xlink";
 	private static final String cesNameSpace1 = "http://www.xces.org/schema/2003";
 	private static final String cesNameSpace2 = "http://www.w3.org/2001/XMLSchema-instance";
-	//private static final String XMLlist = ".XMLlist.txt";
+	//private static final String XMLlist = ".xmllist.txt";
 
 	private static final String xml_type="xml";
 	private static final String html_type="html";
@@ -128,7 +131,9 @@ public class Exporter {
 	private static final String text_tag_en = "</text>";
 	private static final String boiler_tag = "<boiler>";
 	private static final String boiler_st = "<boiler";
-
+	private static final String XMLlist = ".xmllist.txt";
+	private static final String XMLHTMLlist = ".xmllist.html";
+	
 	private static String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
 
 	private static int MIN_TOKENS_PER_PARAGRAPH;
@@ -140,9 +145,9 @@ public class Exporter {
 	private static File crawlDirName;
 	private static File topic;
 	private static File outputDir=null;
+	private static File outBaseName = null;
 	private static File outputFile = null;
 	private static File outputFileHTML = null;
-
 	private static boolean textExport = false;
 
 	private static boolean applyOfflineXSLT = false;
@@ -229,10 +234,13 @@ public class Exporter {
 
 	public void export(boolean loadProfile) {
 		long start = System.currentTimeMillis();
-		LOGGER.info("Exporting cesDoc Files");
+		LOGGER.info("------------Exporting cesDoc Files------------");
 		for (int ii=0;ii<targetlanguages.length;ii++){
 			targetlanguages[ii] = ISOLangCodes.get3LetterCode(targetlanguages[ii]);
 		}
+		outputFile = new File(outBaseName.getAbsolutePath()+XMLlist);
+		if (applyOfflineXSLT)
+			outputFileHTML = new File(outBaseName.getAbsolutePath()+XMLHTMLlist);
 		//get array of forbidden words
 		List<String> neg_words = null ;
 		if (getNegWordsFile() != null) {
@@ -247,9 +255,8 @@ public class Exporter {
 		//genres_keys = GenreClassifier.Genres_keywords(genreFile);	
 		File topicFile = getTopic();
 		ArrayList<String[]> topic = null;
-		if (topicFile!=null) {
+		if (topicFile!=null)
 			topic=TopicTools.analyzeTopic(topicFile,targetlanguages); 
-		}
 		String[] ext = {xml_type}; 
 		if (offline){
 			String[] temp = {html_type};
@@ -322,8 +329,10 @@ public class Exporter {
 		LOGGER.info("Completed in " + (System.currentTimeMillis()-start) + " milliseconds.");
 		if (outputFile!=null){
 			WriteResources.WriteTextList(xmlFiles, outputFile);
+			LOGGER.info("Created list of cesDoc in "+ outputFile.getAbsolutePath());
 			if (applyOfflineXSLT){
 				WriteResources.WriteHTMLList(xmlFiles, new File(outputFileHTML.getAbsolutePath()));
+				LOGGER.info("Created list of rendered cesDoc in "+ outputFileHTML.getAbsolutePath());
 			}
 		}
 	}
@@ -351,7 +360,7 @@ public class Exporter {
 
 		FileSystem fs = xmlPath.getFileSystem(conf);
 		if (!fs.exists(xmlPath)) fs.mkdirs(xmlPath);
-		
+
 		TupleEntryIterator contentIter = contentDbTap.openForRead(conf);
 		iter = parseDbTap.openForRead(conf);
 
@@ -1010,7 +1019,7 @@ public class Exporter {
 		se.setMIN_TOKENS_PER_PARAGRAPH(options.get_length());
 		se.setMIN_TOKENS_NUMBER(options.get_minTokenslength());
 		se.setCrawlDirName (options.get_inputdir());
-		se.setOutFile(options.getOutputFile());
+		se.setBaseName(options.getBaseName());
 		se.setTargetLanguages(options.get_language());
 		se.setTopic(options.get_topic());
 		se.setTargetedDomain(options.getTargetDomain());
@@ -1141,12 +1150,9 @@ public class Exporter {
 	public void setNegWordsFile(File file) {
 		Exporter.negWordsFile = file;
 	}
-	public void setOutFile(File outputFile) {
-		Exporter.outputFile  = outputFile;
+	public void setBaseName(File outBaseName) {
+		Exporter.outBaseName  = outBaseName;
 	}
-	//public void setOutputFileHTML(File outputFile) {
-	//	Exporter.outputFileHTML  = outputFile;
-	//}
 	public void setOutputDir(File outputDir) {
 		Exporter.outputDir = outputDir;
 	}
