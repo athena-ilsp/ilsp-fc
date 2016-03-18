@@ -570,6 +570,11 @@ public class Crawl {
 					ha.setSegTypes(options.getSegTypes());
 					ha.setLanguage(options.getLanguage());
 					ha.useISO6393(options.useISO6393());
+					ha.setMinTuvLen(options.getMinTuvLen());
+					ha.setMinPerce01Align(options.getMinPerce01Align());
+					ha.setMinTuLenRatio(options.getMinTuLenRatio());
+					ha.setMaxTuLenRatio(options.getMaxTuLenRatio());
+					ha.KeepTuSameNum(options.keepTuSameNum());
 					ha.setCC(options.getCC());
 					ha.setMetadata(options.getMetadata());
 					ha.mergeTMXs();

@@ -54,7 +54,7 @@ public class BilingualTmxMetashareDescriptor extends MetashareDescriptor {
 		this.setResourceName(bilingualCorpusInfo.getName());
 		this.setDescription(bilingualCorpusInfo.getDescription());
 		this.setCreationDescription(bilingualCorpusInfo.getCreationDescription());
-		this.setMetadataLang("eng");
+		this.setMetadataLang("en");
 
 		// L1
 		SizeInfoType l1LenInWordsInfoType = new SizeInfoType();

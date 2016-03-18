@@ -55,9 +55,8 @@ public class CrawlOptions {
 	private String _dictpath=null;
 	private String _config;
 	private String ws_dir;
-	private String _methods = "aupdis";
+	private String _methods = "aupdihml";
 	private String defaultSegType="1:1";
-
 	//private String default_genrefile="genres_keys.txt";
 	private URL _genre;
 
@@ -79,10 +78,15 @@ public class CrawlOptions {
 	private  int _crawlDuration = 10;	
 	private  int _minTokensNumber = 100;
 	private  int _length = 3;
-
+	private  int _minTuvLen = 0;
+	private  double _minPerce01Align = 1;
+	private  double _minTULenRatio = 0;
+	private  double _maxTULenRatio = 100;
+	
 	private boolean _debug = false;
 	private boolean _del=false;
 	private boolean _keepBoiler = true;
+	private boolean _keepsn = false;
 	private boolean _keepimagefp=false;
 	private boolean _iso6393 = false;
 	private boolean _force = false;
@@ -234,6 +238,25 @@ public class CrawlOptions {
 				.withDescription( "Μinimum number of tokens per text block. Shorter text blocks will be annoteted as \"ooi-length\"" )	
 				.hasArg()
 				.create("len") );
+		options.addOption( OptionBuilder.withLongOpt( "Min_TUV_Length" )
+				.withDescription( "minimum length in tokens of an acceptable TUV")
+				.hasArg()
+				.create("mtuvl") );
+		options.addOption( OptionBuilder.withLongOpt( "MinPerce01Align" )
+				.withDescription( "minimum percentage of 0:1 alignments in a TMX, to be accepted")
+				.hasArg()
+				.create("mpa") );
+		options.addOption( OptionBuilder.withLongOpt( "MinTuLenRatio" )
+				.withDescription( "minimum ratio of length (in chars) in a TU")
+				.hasArg()
+				.create("minlr") );
+		options.addOption( OptionBuilder.withLongOpt( "MaxTuLenRatio" )
+				.withDescription( "maximum ratio of length (in chars) in a TU")
+				.hasArg()
+				.create("maxlr") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepTuSameNum" )
+				.withDescription( "keeps only TUs with same digits")
+				.create("ksn") );
 		options.addOption( OptionBuilder.withLongOpt( "minlength" )
 				.withDescription( "Minimum number of tokens in crawled documents (after boilerplate detection). Shorter documents will be discarded.")
 				.hasArg()
@@ -253,7 +276,6 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt( "languages" )
 				.withDescription( "Two or three letter ISO code(s) of target language(s), e.g. el (for a monolingual crawl for Greek content) or en;el (for a bilingual crawl)" )
 				.hasArg()
-				//.isRequired()
 				.create("lang") );
 		options.addOption( OptionBuilder.withLongOpt( "lang_code" )
 				.withDescription( "if exists iso6393 language codes are used.")
@@ -290,7 +312,6 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt( "metadata" )
 				.withDescription( "Generate a metadata description with information for a resource created with the crawler")
 				.create("metadata") );
-
 		return options;
 	}
 
@@ -666,9 +687,18 @@ public class CrawlOptions {
 			_outputFile_mergedTMXHTML = new File(line.getOptionValue("bs")+TMXEXT+HTMLEXT);
 			_outputFile_mergedTMXHTML =_outputFile_mergedTMXHTML.getAbsoluteFile();
 		}
-		if (line.hasOption("pdm")){
+		if (line.hasOption("pdm"))
 			_selectDocs = line.getOptionValue("pdm");
-		}
+		if(line.hasOption( "mtuvl"))
+			_minTuvLen = Integer.parseInt(line.getOptionValue("mtuvl"));
+		if(line.hasOption( "mpa"))
+			_minPerce01Align = Double.parseDouble(line.getOptionValue("mpa"));
+		if(line.hasOption( "minlr"))
+			_minTULenRatio = Double.parseDouble(line.getOptionValue("minlr"));
+		if(line.hasOption( "maxlr"))
+			_maxTULenRatio = Double.parseDouble(line.getOptionValue("maxlr"));
+		if(line.hasOption( "ksn"))
+			_keepsn = true;
 		if (line.hasOption("segtypes")){
 			String[] temp= line.getOptionValue("segtypes").split(SEMI_SEPAR); 
 			for (String str:temp){
@@ -863,6 +893,21 @@ public class CrawlOptions {
 	}
 	public int getlength() {
 		return _length;
+	}
+	public int getMinTuvLen() {
+		return _minTuvLen;
+	}
+	public double getMinPerce01Align() {
+		return _minPerce01Align;
+	}
+	public double getMaxTuLenRatio() {
+		return _maxTULenRatio;
+	}
+	public double getMinTuLenRatio() {
+		return _minTULenRatio;
+	}
+	public boolean keepTuSameNum() {
+		return _keepsn;
 	}
 	public int getTokensNumber() {
 		return _minTokensNumber;

@@ -27,11 +27,22 @@ public class TMXHandlerOptions {
 	private String _language;
 	private String _doctypes="aupdih";
 	private boolean _oxslt=false;
+	private boolean _keepsn = false;
 	private boolean _iso6393=false;
 	private boolean _cc=false;
 	private boolean _metadata=false;
 	private List<String> _segtypes=new ArrayList<String>();
 	private int[] _thres={ 10, 10, 10, 10, 10, 10, 10, 10};
+/*	private int _minTuvLen = 5;
+	private double _minPerce01Align = 0.15;
+	private  double _minTULenRatio = 0.6;
+	private  double _maxTULenRatio = 1.6;*/
+	private  int _minTuvLen = 0;
+	private  double _minPerce01Align = 1;
+	private  double _minTULenRatio = 0;
+	private  double _maxTULenRatio = 100;
+	
+	
 	private static final String QUEST_SEPAR = ";";
 	
 	public TMXHandlerOptions() {
@@ -86,6 +97,25 @@ public class TMXHandlerOptions {
 		options.addOption( OptionBuilder.withLongOpt( "export_collection_metadata" )
 				.withDescription( "If exist, metadata of the collection (i.e. the merged TMX file), will be exported")
 				.create("metadata") );
+		options.addOption( OptionBuilder.withLongOpt( "Min_TUV_Length" )
+				.withDescription( "minimum length of an acceptable TUV")
+				.hasArg()
+				.create("mtuvl") );
+		options.addOption( OptionBuilder.withLongOpt( "MinPerce01Align" )
+				.withDescription( "minimum percentage of 0:1 alignments in a TMX, to be accepted ")
+				.hasArg()
+				.create("mpa") );
+		options.addOption( OptionBuilder.withLongOpt( "MinTuLenRatio" )
+				.withDescription( "minimum ratio of length (in chars) in a TU")
+				.hasArg()
+				.create("minlr") );
+		options.addOption( OptionBuilder.withLongOpt( "MaxTuLenRatio" )
+				.withDescription( "maximum ratio of length (in chars) in a TU")
+				.hasArg()
+				.create("maxlr") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepTuSameNum" )
+				.withDescription( "keeps only TUs with same digits")
+				.create("ksn") );
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
 				.create("h") );
@@ -134,6 +164,16 @@ public class TMXHandlerOptions {
 			}
 			if(line.hasOption( "pdm"))
 				_doctypes = line.getOptionValue("doctypes");
+			if(line.hasOption( "mtuvl"))
+				_minTuvLen = Integer.parseInt(line.getOptionValue("mtl"));
+			if(line.hasOption( "mpa"))
+				_minPerce01Align = Double.parseDouble(line.getOptionValue("mpa"));
+			if(line.hasOption( "minlr"))
+				_minTULenRatio = Double.parseDouble(line.getOptionValue("minlr"));
+			if(line.hasOption( "maxlr"))
+				_maxTULenRatio = Double.parseDouble(line.getOptionValue("maxlr"));
+			if(line.hasOption( "ksn"))
+				_keepsn = true;
 			if(line.hasOption( "thres")){
 				String[] temp = line.getOptionValue("thres").split(QUESTION_SEP); 
 				if (_doctypes.length()!=temp.length){
@@ -182,6 +222,9 @@ public class TMXHandlerOptions {
 	public boolean getMetadata() {
 		return _metadata;
 	}
+	public boolean keepTuSameNum() {
+		return _keepsn;
+	}
 	public File getBaseName(){
 		return _baseName;
 	}
@@ -196,6 +239,18 @@ public class TMXHandlerOptions {
 	}
 	public int[] getThres() {
 		return _thres;
+	}
+	public int getMinTuvLen() {
+		return _minTuvLen;
+	}
+	public double getMinPerce01Align() {
+		return _minPerce01Align;
+	}
+	public double getMaxTuLenRatio() {
+		return _maxTULenRatio;
+	}
+	public double getMinTuLenRatio() {
+		return _minTULenRatio;
 	}
 	public String getConfig(){
 		return _config;

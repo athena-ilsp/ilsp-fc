@@ -44,6 +44,7 @@ import gr.ilsp.fc.utils.Eurovoc;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.fc.utils.Statistics;
 
 public class TMXHandler {
 	private static final Logger LOGGER = Logger.getLogger(TMXHandler.class);
@@ -60,6 +61,11 @@ public class TMXHandler {
 	private static boolean iso6393=false;
 	private static boolean cc=false;
 	private static boolean metadata=false;
+	private static boolean keepsn=false;
+	private static int minTuvLen=0;
+	private static double minPerce01Align=1;
+	private static double minTuLenRatio = 0;
+	private static double maxTuLenRatio = 100;
 	private static String doctypes;// = "aupidhml";
 	private static List<String> segtypes;
 	private static Set<String> segs = new HashSet<String>() ;
@@ -79,12 +85,10 @@ public class TMXHandler {
 	private final static String UTF_8 = "UTF-8";
 	//private final static String XSL_TMX2HTML = "http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl";
 	private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
-	private final static int length_THR = 5;
-	private final static float lowThr = (float) 0.6;
-	private final static float highThr = (float) 1.6;
-	private static final double percent_thr=0.15;
-	private static int totalcounter=0;
 
+	private static int totalcounter=0;
+	private static int distthr=5; //FIXME add as parameter
+	
 	public static CompositeConfiguration getConfig() {
 		return config;
 	}
@@ -100,15 +104,9 @@ public class TMXHandler {
 			+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
 			+ "As a post-processing step, alignments were merged into one TMX file. The following filters applied: ";
 
-	private String filter1 = "";
-	private String filter2 = " TMX files in which zeroToOne alignments/total alignments is more than "+ percent_thr + " were discarded.";
-	private String filter3 = "";
-	private String filter4 = " Alignments in which a TUV (after normalization) has less than "+ length_THR + " tokens are filtered out.";
-	private String filter5 = " Alignments for which the ratio of TUVs' length is less than " + lowThr+ " or more "+ highThr + " are filtered out.";
-	private String filter6 = " Alignments for which the TUVs include different digits are filtered out.";
 	private String filter7 = " Alignments with identical TUVs are filtered out.";
 	private String filter8 = " Duplicate alignments are filtered out.";
-	
+
 
 	public static void main(String[] args) {
 		TMXHandler ha = new TMXHandler();
@@ -123,6 +121,11 @@ public class TMXHandler {
 		ha.setApplyOfflineXSLT(options.getXSLTransform());
 		ha.setLanguage(options.getLanguage());
 		ha.useISO6393(options.useISO6393());
+		ha.setMinTuvLen(options.getMinTuvLen());
+		ha.setMinPerce01Align(options.getMinPerce01Align());
+		ha.setMinTuLenRatio(options.getMinTuLenRatio());
+		ha.setMaxTuLenRatio(options.getMaxTuLenRatio());
+		ha.KeepTuSameNum(options.keepTuSameNum());
 		ha.setCC(options.getCC());
 		ha.setMetadata(options.getMetadata());
 		ha.mergeTMXs();	
@@ -140,17 +143,17 @@ public class TMXHandler {
 		outTMX = new File(baseName.getAbsolutePath()+TMXEXT);
 		if (!outTMX.getParentFile().exists())
 			outTMX.getParentFile().mkdirs();
-		filter1 = " Only TMX files generated from document pairs which have been identified by methods "+ doctypes + " were selected.";
-		filter3 = " Alignments of non-" + segtypes+ " were filtered out";
-		LOGGER.info(filter1);
-		LOGGER.info(filter2);
-		LOGGER.info(filter3);
-		LOGGER.info(filter4);
-		LOGGER.info(filter5);
-		LOGGER.info(filter6);
-		LOGGER.info(filter7);
-		LOGGER.info(filter8);
-		
+
+		String filter1=" Only TMX files generated from document pairs which have been identified by methods "+ doctypes + " were selected.";
+		String filter2=" TMX files in which zeroToOne alignments/total alignments is more than "+ minPerce01Align + " were discarded.";
+		String filter3=" Alignments of non-" + segtypes+ " were filtered out";
+		String filter4=" Alignments in which a TUV (after normalization) has less than "+ minTuvLen + " tokens are filtered out.";
+		String filter5=" Alignments for which the ratio of TUVs' length is less than " + minTuLenRatio+ " or more "+ maxTuLenRatio + " are filtered out.";
+		String filter6="";
+		if (keepsn)
+			filter6=" Alignments for which the TUVs include different digits are filtered out.";
+		LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8);
+
 		if (!iso6393){
 			languages[0]=ISOLangCodes.get2LetterCode(languages[0]);
 			languages[1]=ISOLangCodes.get2LetterCode(languages[1]);
@@ -217,11 +220,9 @@ public class TMXHandler {
 			}
 			if (oxslt) 
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
-			
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
 			LOGGER.info("Merged TMX at " + outTMX.getAbsolutePath());
 			LOGGER.info("Rendering merged TMX as " + outHTML.getAbsolutePath());
-			
 			if (metadata){
 				BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
 				File metadataFile = new File(baseName.getAbsolutePath()+ MetadataExt);
@@ -313,7 +314,7 @@ public class TMXHandler {
 		if (tmxFiles.isEmpty())
 			return alignmentList;
 		for (File tmxFile : tmxFiles) {
-			List<SegPair> segpairs = TMXHandlerUtils.getTUsFromTMX(tmxFile,thr, languages[0], languages[1], cc);
+			List<SegPair> segpairs = TMXHandlerUtils.getTUsFromTMX(tmxFile,thr, minPerce01Align, languages[0], languages[1], cc);
 			if (segpairs==null){
 				LOGGER.info("Cut due to many 0:1 alignments: " +tmxFile.getAbsolutePath());
 				continue;
@@ -333,22 +334,43 @@ public class TMXHandler {
 					continue;
 				if (normS.equals(normT))
 					continue;
-				if (FCStringUtils.countTokens(normS)<length_THR)
+				if (FCStringUtils.countTokens(normS)<minTuvLen){
+					LOGGER.warn("Discard due to toklength of a TUV ");
+					LOGGER.warn("\t"+segpair.seg1);
+					LOGGER.warn("\t"+ segpair.seg2);
 					continue;
-				if (FCStringUtils.countTokens(normT)<length_THR)
+				}
+				if (FCStringUtils.countTokens(normT)<minTuvLen){
+					LOGGER.warn("Discard due to toklength of a TUV ");
+					LOGGER.warn("\t"+segpair.seg1);
+					LOGGER.warn("\t"+ segpair.seg2);
 					continue;
+				}
 				ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
-				if (ratio>highThr || ratio < lowThr)
+				if (ratio>maxTuLenRatio || ratio < minTuLenRatio){
+					LOGGER.warn("Discard due to charlength ratio of TUVs ");
+					LOGGER.warn("\t"+segpair.seg1);
+					LOGGER.warn("\t"+ segpair.seg2);
 					continue;
-				String num1=segpair.seg1.replaceAll("\\D+","");
-				String num2=segpair.seg2.replaceAll("\\D+","");
-				if (!num1.equals(num2)){
-					//double temp=Statistics.editDist(num1, num2) / (double) Math.min(num1.length(),num2.length());
-					//if (temp>0.35){
-					LOGGER.info(segpair.seg1);
-					LOGGER.info(segpair.seg2);
+				}
+				if (Statistics.editDist(normS,normT)<distthr){ //FIXME add as parameter, check its influence
+					LOGGER.warn("Discard due to high similarity of TUVs ");
+					LOGGER.warn("\t"+segpair.seg1);
+					LOGGER.warn("\t"+ segpair.seg2);
 					continue;
-					//}
+				}
+				if (keepsn){
+					String num1=segpair.seg1.replaceAll("\\D+","");
+					String num2=segpair.seg2.replaceAll("\\D+","");
+					if (!num1.equals(num2)){
+						//double temp=Statistics.editDist(num1, num2) / (double) Math.min(num1.length(),num2.length());
+						//if (temp>0.35){
+						LOGGER.warn("Discard due to different numbers in TUVs ");
+						LOGGER.warn("\t"+segpair.seg1);
+						LOGGER.warn("\t"+ segpair.seg2);
+						continue;
+						//}
+					}
 				}
 				//FIXME should we check language?	//FIXME keep MD5 instead of string
 				String temp = normS+TAB+normT;
@@ -415,6 +437,10 @@ public class TMXHandler {
 		TMXHandler.metadata  = metadata;
 	}
 
+	public void KeepTuSameNum(boolean keep){
+		TMXHandler.keepsn=keep;
+	}
+
 	/**
 	 * types of TMXs to be merged, i.e. method by which the documents have been paired (and then aligned), default "auidhml" 
 	 * @param docTypes
@@ -436,6 +462,19 @@ public class TMXHandler {
 	 */
 	public void setSegTypes(List<String> list) {
 		TMXHandler.segtypes=list;
+	}
+
+	public void setMinTuvLen(int minTuvLen) {
+		TMXHandler.minTuvLen = minTuvLen;
+	}
+	public void setMinPerce01Align(double minPerce01align) {
+		TMXHandler.minPerce01Align = minPerce01align;
+	}
+	public void setMinTuLenRatio(double minTuLenRatio) {
+		TMXHandler.minTuLenRatio = minTuLenRatio;
+	}
+	public void setMaxTuLenRatio(double maxTuLenRatio) {
+		TMXHandler.maxTuLenRatio = maxTuLenRatio;
 	}
 	/**
 	 * Loads the default configuration file and checks if user supplied a custom one.

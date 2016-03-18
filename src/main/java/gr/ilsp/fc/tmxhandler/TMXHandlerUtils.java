@@ -3,6 +3,7 @@ package gr.ilsp.fc.tmxhandler;
 import gr.ilsp.fc.aligner.factory.ILSPAlignment;
 import gr.ilsp.fc.main.ReadResources;
 import gr.ilsp.fc.utils.FCStringUtils;
+import gr.ilsp.fc.utils.ISOLangCodes;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,15 +44,15 @@ public class TMXHandlerUtils {
 	private final static String SEGMENTTYPE = "segmentType";
 	private static boolean doNotCountZeroToOneAlignments = true;
 	static Matcher twitterHandleMatcher = Pattern.compile("(^|[^@\\w])@(\\w{1,15})\\b").matcher("");
-	private static final double percent_thr=0.15;
 	//private static final int length_THR = 6;
 
 	/**
 	 * gets the tus of a tmx if the 0:1 alignments are less than thr
 	 * @param tmxFile
 	 * @param thr
+	 * @param minPerce01Align 
 	 */
-	public static List<SegPair>  getTUsFromTMX(File tmxFile, int thr, String lang1, String lang2, boolean lic) {
+	public static List<SegPair>  getTUsFromTMX(File tmxFile, int thr, double minPerce01Align, String lang1, String lang2, boolean lic) {
 		List<SegPair> segpairs = new ArrayList<SegPair>();
 		Tmx tmx;
 		try {
@@ -92,7 +93,7 @@ public class TMXHandlerUtils {
 			}
 			LOGGER.debug("Examining " + tmxFile.getAbsolutePath() + SPACE_SEPARATOR + tus.size());
 			double percent = (double)zeroToOneAlignments / (double)tus.size();
-			if (percent>percent_thr){
+			if (percent>minPerce01Align){
 				return null;
 			}
 			/*if (zeroToOneAlignments>thr || percent>percent_thr){
@@ -155,8 +156,13 @@ public class TMXHandlerUtils {
 
 	public static List<String> createSegmentList(Tu tu, String languageCode) {
 		List<String> segmentList = new ArrayList<String>();
+		String languageCode1 = "";
+		if (languageCode.length()==2)
+			languageCode1 = ISOLangCodes.get3LetterCode(languageCode);
+		else
+			languageCode1 = ISOLangCodes.get2LetterCode(languageCode);
 		for (Tuv tuv : tu.getTuv()) {
-			if (languageCode.equals(tuv.getLang())) {
+			if (languageCode.equals(tuv.getLang()) || languageCode1.equals(tuv.getLang())) {
 				String segment = getSegment(tuv.getSeg());
 				segmentList.add(segment);
 			}

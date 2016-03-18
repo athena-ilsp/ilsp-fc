@@ -192,6 +192,12 @@ public class Operations {
 		ha.setSegTypes(options.getSegTypes());
 		//ha.setThres( new int[] {5, 5, 5, 5, 5, 5, 5, 5});
 		ha.setThres(thres);
+		ha.setMinTuvLen(options.getMinTuvLen());
+		ha.setMinPerce01Align(options.getMinPerce01Align());
+		ha.setMinTuLenRatio(options.getMinTuLenRatio());
+		ha.setMaxTuLenRatio(options.getMaxTuLenRatio());
+		ha.KeepTuSameNum(options.keepTuSameNum());
+		ha.useISO6393(options.useISO6393());
 		ha.setLanguage(options.getLanguage());
 		ha.setCC(options.getCC());
 		ha.setMetadata(options.getMetadata());
