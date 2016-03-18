@@ -66,6 +66,7 @@ public class TMXHandler {
 	private static double minPerce01Align=1;
 	private static double minTuLenRatio = 0;
 	private static double maxTuLenRatio = 100;
+	private static double median_word_length=15;
 	private static String doctypes;// = "aupidhml";
 	private static List<String> segtypes;
 	private static Set<String> segs = new HashSet<String>() ;
@@ -334,14 +335,26 @@ public class TMXHandler {
 					continue;
 				if (normS.equals(normT))
 					continue;
+				if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normS)))>median_word_length){
+					LOGGER.warn("Discard due to long tokens in a TUV ");
+					LOGGER.warn("\t"+segpair.seg1);
+					LOGGER.warn("\t"+ segpair.seg2);
+					continue;
+				}
+				if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normT)))>median_word_length){
+					LOGGER.warn("Discard due to long tokens in a TUV ");
+					LOGGER.warn("\t"+segpair.seg1);
+					LOGGER.warn("\t"+ segpair.seg2);
+					continue;
+				}
 				if (FCStringUtils.countTokens(normS)<minTuvLen){
-					LOGGER.warn("Discard due to toklength of a TUV ");
+					LOGGER.warn("Discard due to length (in tokens) of a TUV ");
 					LOGGER.warn("\t"+segpair.seg1);
 					LOGGER.warn("\t"+ segpair.seg2);
 					continue;
 				}
 				if (FCStringUtils.countTokens(normT)<minTuvLen){
-					LOGGER.warn("Discard due to toklength of a TUV ");
+					LOGGER.warn("Discard due to length (in tokens) of a TUV ");
 					LOGGER.warn("\t"+segpair.seg1);
 					LOGGER.warn("\t"+ segpair.seg2);
 					continue;

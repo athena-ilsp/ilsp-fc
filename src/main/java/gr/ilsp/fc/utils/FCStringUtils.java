@@ -105,4 +105,27 @@ public  class FCStringUtils {
 		return st.countTokens();
 	}
 	
+	/**
+	 * counts tokens (space separated)
+	 * @param text
+	 * @return
+	 */
+	public static List<String> getTokens(String text) {
+		List<String> tokens = new ArrayList<String>();
+		StringTokenizer st = new StringTokenizer(text);
+		while (st.hasMoreTokens()){
+			tokens.add(st.nextToken());
+		}
+		return tokens;
+	}
+	
+	
+	public static Double[] getTokensLength(List<String> tokens) {
+		Double[] lens = new Double[tokens.size()];
+		for (int ii=0;ii<tokens.size();ii++){
+			lens[ii] = (double) tokens.get(ii).length();
+		}
+		return lens;
+	}
+	
 }
