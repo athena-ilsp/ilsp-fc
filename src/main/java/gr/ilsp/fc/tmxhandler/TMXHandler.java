@@ -103,10 +103,11 @@ public class TMXHandler {
 	private String creationDescription = "The ILSP Focused Crawler was used for the acquisition "
 			+ "of bilingual data from multilingual websites, and for the normalization, cleaning, deduplication and identification of parallel documents. "
 			+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
-			+ "As a post-processing step, alignments were merged into one TMX file. The following filters are applied: ";
+			+ "As a post-processing step, alignments were merged into one TMX file. "
+			+ "The following filters were applied: ";
 
-	private String filter7 = " Alignments with identical TUVs are filtered out.";
-	private String filter8 = " Duplicate alignments are filtered out.";
+	private String filter7 = " Alignments with identical TUVs were discarded.";
+	private String filter8 = " Duplicate alignments were discarded.";
 
 
 	public static void main(String[] args) {
@@ -145,14 +146,15 @@ public class TMXHandler {
 		if (!outTMX.getParentFile().exists())
 			outTMX.getParentFile().mkdirs();
 
-		String filter1=" Only TMX files generated from document pairs which have been identified by methods "+ doctypes + " were selected.";
-		String filter2=" TMX files in which zeroToOne alignments/total alignments is more than "+ minPerce01Align + " were discarded.";
-		String filter3=" Alignments of non-" + segtypes+ " were filtered out";
-		String filter4=" Alignments in which a TUV (after normalization) has less than "+ minTuvLen + " tokens are filtered out.";
-		String filter5=" Alignments for which the ratio of TUVs' length is less than " + minTuLenRatio+ " or more "+ maxTuLenRatio + " are filtered out.";
+		String filter1=" TMX files generated from document pairs which have been identified by non-"+ doctypes + " methods were discarded.";
+		String filter2=" TMX files with a zeroToOne_alignments/total_alignments ratio is larger than "+ minPerce01Align + ", were discarded.";
+		String filter3=" Alignments of non-" + segtypes+ " were discarded.";
+		String filter4=" Alignments with a TUV (after normalization) that has less than "+ minTuvLen + " tokens, were discarded.";
+		String filter5=" Alignments with a TUVs' length ratio less than " + minTuLenRatio+ " or more than "+ maxTuLenRatio + ", were discarded.";
 		String filter6="";
-		if (keepsn)
-			filter6=" Alignments for which the TUVs include different digits are filtered out.";
+		if (keepsn) {
+			filter6=" Alignments in which different digits appear in each TUV were discarded.";
+		}
 		LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8);
 
 		if (!iso6393){
