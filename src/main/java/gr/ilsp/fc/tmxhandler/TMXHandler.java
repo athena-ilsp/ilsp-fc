@@ -102,7 +102,7 @@ public class TMXHandler {
 	private String creationDescription = "The ILSP Focused Crawler was used for the acquisition "
 			+ "of bilingual data from multilingual websites, and for the normalization, cleaning, deduplication and identification of parallel documents. "
 			+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
-			+ "As a post-processing step, alignments were merged into one TMX file. The following filters applied: ";
+			+ "As a post-processing step, alignments were merged into one TMX file. The following filters are applied: ";
 
 	private String filter7 = " Alignments with identical TUVs are filtered out.";
 	private String filter8 = " Duplicate alignments are filtered out.";
