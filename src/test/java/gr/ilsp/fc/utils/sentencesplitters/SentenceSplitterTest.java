@@ -13,7 +13,6 @@ public class SentenceSplitterTest {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SentenceSplitterTest.class);
 	
-	
 	SentenceSplitterFactory sentenceSplitterFactory ;
 
 	@Before
@@ -24,9 +23,12 @@ public class SentenceSplitterTest {
 	private void testSentenceSplitter(SentenceSplitter sentenceSplitter, String input, int numOfSents, String testName) {
 		try {
 			List<String> sentences = sentenceSplitter.getSentences(input, 1);
-			logger.debug(sentences.toString());
+			//if (numOfSents!=sentences.size()) {
+				logger.debug(sentences.size() + " > " + sentences.toString());
+			//}
 			Assert.assertEquals(testName + ": ", numOfSents, sentences.size());
 		} catch (Exception e) {
+			e.printStackTrace();
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -57,9 +59,29 @@ public class SentenceSplitterTest {
 				"This is a paragraph. It contains several sentences. \"But why,\" you ask?'",
 				3,
 				"eng sentence splitter");
+		
 		testSentenceSplitter(sentenceSplitter, 
 				"Hey! Now.",
 				2,
+				"eng sentence splitter");
+		
+		testSentenceSplitter(sentenceSplitter, 
+				"I still get goose bumps thinking about it,\" 'Der Bomber' said recently.",
+				1,
+				"eng sentence splitter");
+		
+		testSentenceSplitter(sentenceSplitter, 				
+				"It was a fairy tale,\" Rossi said.",
+				1,
+				"eng sentence splitter");
+
+		testSentenceSplitter(sentenceSplitter, 
+				"They left around 12:30:20.", 
+						1,
+				"eng sentence splitter");
+
+		testSentenceSplitter(sentenceSplitter, "The wreck, fully loaded with trade amphorae that are dated in the end of 2nd or beginning of 1st cent. B.C., was assessed as partcularly interesting.",
+				1,
 				"eng sentence splitter");
 
 		// Notice that arts. is not an abbr in eng list, but art. is 
@@ -69,6 +91,13 @@ public class SentenceSplitterTest {
 				+ "that puts music in relation with the plastic arts. It is, therefore, an event that aims to promote the various representations of the guitar, its music, composers or interpreters.",
 				2,
 				"eng sentence splitter");
+
+// 		FIXME
+//		testSentenceSplitter(sentenceSplitter,
+//				"The wreck, fully loaded with trade amphorae that are dated in the end of 2nd or beginning of 1st b.C., was assessed as partcularly interesting.",
+//				1,
+//				"eng sentence splitter");
+		
 	
 	}
 
@@ -93,7 +122,19 @@ public class SentenceSplitterTest {
 						2,
 				"ell sentence splitter");
 		
-		 
+		testSentenceSplitter(sentenceSplitter, 
+				"Από τις αρχές του 1ου αιώνα π.Χ., είχε αξιολογηθεί ως ιδιαίτερα ενδιαφέρον. Από τις αρχές του 1ου αιώνα π.Χ.) είχε αξιολογηθεί ως ιδιαίτερα ενδιαφέρον. ", 
+						2,
+				"ell sentence splitter");
+
+		testSentenceSplitter(sentenceSplitter, 
+				"Από τις αρχές του 1ου αιώνα π.Χ.), είχε αξιολογηθεί ως ιδιαίτερα ενδιαφέρον.", 
+						1,
+				"ell sentence splitter");
+		testSentenceSplitter(sentenceSplitter, 
+				"Έφυγαν π.χ. κατά τις 12:30:20 το μεσημέρι.", 
+						1,
+				"ell sentence splitter");
 	}
 
 	@Test

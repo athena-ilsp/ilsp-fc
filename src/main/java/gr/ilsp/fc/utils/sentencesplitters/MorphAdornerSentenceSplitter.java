@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import edu.northwestern.at.morphadorner.corpuslinguistics.abbreviations.Abbreviations;
 import edu.northwestern.at.morphadorner.corpuslinguistics.sentencesplitter.DefaultSentenceSplitter;
 import edu.northwestern.at.morphadorner.corpuslinguistics.sentencesplitter.ICU4JBreakIteratorSentenceSplitter;
-import edu.northwestern.at.morphadorner.corpuslinguistics.tokenizer.DefaultPreTokenizer;
+import edu.northwestern.at.morphadorner.corpuslinguistics.sentencesplitter.SentenceSplitterIterator;
 import edu.northwestern.at.morphadorner.corpuslinguistics.tokenizer.DefaultWordTokenizer;
 import edu.northwestern.at.morphadorner.corpuslinguistics.tokenizer.ICU4JBreakIteratorWordTokenizer;
 import edu.northwestern.at.morphadorner.corpuslinguistics.tokenizer.PreTokenizer;
@@ -23,19 +23,18 @@ import edu.northwestern.at.morphadorner.corpuslinguistics.tokenizer.WordTokenize
 
 public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 
+	private static final String TXT_SUFFIX = ".txt";
+	private static final String DEFAULT_ICU_SEGMENTATION_RULES = "/sentence-splitters/icu_segmentation_rules";
+	private static final Logger logger = LoggerFactory.getLogger(MorphAdornerSentenceSplitter.class);
 	private String lang;
-	
 	private Set<String> noLatinPunctuationLangs = new HashSet<String>();
 
-
-	
 	edu.northwestern.at.morphadorner.corpuslinguistics.sentencesplitter.SentenceSplitter splitter;
 	PreTokenizer preTokenizer;
 	WordTokenizer tokenizer;
-	private static final Logger logger = LoggerFactory
-			.getLogger(MorphAdornerSentenceSplitter.class);
+	SentenceSplitterIterator sentenceSplitterIterator;
 
-	public MorphAdornerSentenceSplitter(String lang) {
+	public MorphAdornerSentenceSplitter(String lang)  {
 		
 		noLatinPunctuationLangs.addAll(Arrays.asList(new String[] { "rus",
 				"ben", "jpn", "ori", "ara", "fas", "urd", "heb", "amh", "kor",
@@ -43,16 +42,35 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 				
 		this.lang = lang;
 		logger.debug(this.lang);
-		preTokenizer = new DefaultPreTokenizer();
-		
-		if (noLatinPunctuationLangs.contains(lang)) {
+	
+		if (noLatinPunctuationLangs.contains(lang)  ) {
 			tokenizer = new ICU4JBreakIteratorWordTokenizer(Locale.forLanguageTag(lang));
-			splitter = new ICU4JBreakIteratorSentenceSplitter(Locale.forLanguageTag(lang));
+			splitter = new ICU4JBreakIteratorSentenceSplitter(Locale.forLanguageTag(lang)  );
 		} else  {
 			logger.debug("Loading default segmenters");
-			splitter = new DefaultSentenceSplitter();
+			splitter = new  DefaultSentenceSplitter();
+
+			String segmentationRules = getSegmentationRulesURL(lang);
+			try {
+				sentenceSplitterIterator = new ICU4JRBBISentenceSplitterIterator(this.getClass().getResource(segmentationRules));
+				splitter.setSentenceSplitterIterator(sentenceSplitterIterator);
+			} catch (Exception e) {
+				logger.error("Cannot load segmentation rules. Skipping.");
+			}
 			tokenizer = new DefaultWordTokenizer();
 		}
+	}
+
+	/**
+	 * @param lang
+	 * @return
+	 */
+	private String getSegmentationRulesURL(String lang) {
+		String segmentationRules = DEFAULT_ICU_SEGMENTATION_RULES + TXT_SUFFIX;
+		if (this.getClass().getResource(DEFAULT_ICU_SEGMENTATION_RULES + "-" + lang + TXT_SUFFIX) != null) {
+			segmentationRules = DEFAULT_ICU_SEGMENTATION_RULES + "-" + lang + TXT_SUFFIX;
+		}
+		return segmentationRules;
 	}
 
 	@Override
@@ -63,6 +81,7 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 
 		// No need to bother looking for offsets if sentsize = 1
 		if (splitterSents.size()==1) {
+			//logger.info("Just one: " + text);
 			paraSents.add(text);	
 			return paraSents;
 		}
@@ -71,7 +90,7 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 		// offsets in input text.
 		//logger.info("In text " + text );
 		int[] sentenceOffsets  = splitter.findSentenceOffsets(text, splitterSents);
-		//logger.info("After finding " + splitterSents.size() + " offsets.");
+		// logger.debug("After finding " + splitterSents.size() + " offsets.");
 		// Loop over sentences.
 		for (int i = 0; i < splitterSents.size(); i++) {
 
@@ -84,7 +103,7 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 			int end = sentenceOffsets[i + 1];
 
 			// Get sentence text.
-			//logger.info(text.substring(start, end));
+			//logger.debug(text.substring(start, end));
 			paraSents.add(text.substring(start, end));
 			
 		}

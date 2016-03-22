@@ -1,0 +1,97 @@
+
+# Rules for segmentation of Greek sentences.
+
+!!chain;
+# With non-chained rules, each rule (regular expression) stands by
+# itself, matching a segment of text between two boundary
+# positions. When moving to the next boundary, the single rule with the
+# longest match defines the boundary position. Non-chained rule matching
+# behavior is the default for ICU break rules.  
+
+# Chaining allows boundary positions to be determined by an arbitrary
+# number of the boundary rules, applied in an arbitrary sequence. Any
+# character in the text that completes a match for one rule can function
+# as a chaining point, and simultaneously be the beginning character of
+# a match for any other rule. Matching continues in this way until the
+# longest possible match is obtained.
+
+
+# Variables
+# Ano Teleia
+$CR        = [\p{Sentence_Break = CR}];
+$LF        = [\p{Sentence_Break = LF}];
+$Extend    = [\p{Sentence_Break = Extend}];
+$Sep       = [\p{Sentence_Break = Sep}];
+$Format    = [\p{Sentence_Break = Format}];
+$Sp        = [\p{Sentence_Break = Sp}];
+$Lower     = [\p{Sentence_Break = Lower}];
+$Upper     = [\p{Sentence_Break = Upper}];
+$OLetter   = [\p{Sentence_Break = OLetter}];
+$Numeric   = [\p{Sentence_Break = Numeric}];
+$ATerm     = [\p{Sentence_Break = ATerm}];
+$SContinue = [\p{Sentence_Break = SContinue}];
+$STerm     = [\p{Sentence_Break = STerm}];
+$Close     = [\p{Sentence_Break = Close}];
+$SpEx       = $Sp      ($Extend | $Format)*;
+$LowerEx    = $Lower   ($Extend | $Format)*;
+$UpperEx    = $Upper   ($Extend | $Format)*;
+$OLetterEx  = $OLetter ($Extend | $Format)*;
+$NumericEx  = $Numeric ($Extend | $Format)*;
+$ATermEx    = $ATerm ($Extend | $Format)*;
+$SContinueEx= $SContinue ($Extend | $Format)*;
+$STermEx    = $STerm   ($Extend | $Format)*;
+$CloseEx    = $Close   ($Extend | $Format)*;
+$MixedCaseAbbrs = (Ph\.D\.?|M\.Sc\.?|μ\.Χ\.?|π\.Χ\.?);
+$InternetAddressA = ((https?|ftp|file)\:\/\/[\-a-zA-Z0-9\+\&\@\#\/\%\?\=\~\_\|\!\:\,\.\;]*[\-a-zA-Z0-9\+\&\@\#\/\%\=\~\_\|]);
+$InternetAddressB = ((www|ftp)\.[\-a-zA-Z0-9\+\&\@\#\/\%\?\=\~\_\|\!\:\,\.\;]*[\-a-zA-Z0-9\+\&\@\#\/\%\=\~\_\|]);
+# Emoticon: A run that starts with :;B8{[ and contains only one or more of the following -=/{})(
+$Emoticon = [B8\:\;\{\[][-=\/\{\}\)\(]+;
+
+#---------------------
+# Time Pattern 10:56:32
+# $Hours = [012]?[0-9];
+# $Minutes = [0-5]?[0-9];
+# $Seconds = [0-5]?[0-9];
+# $TimePattern = $Hours$Colon$Minutes($Colon$Seconds)?;
+
+!!forward;
+# Forward rules 
+# Advance (match text) starting from a boundary position and
+# continuing to the next following boundary.
+$CR $LF;
+[^$Sep $CR $LF]? ($Extend | $Format)*;
+$ATermEx $NumericEx;
+$UpperEx $ATermEx $UpperEx;
+$NotLettersEx = [^$OLetter $Upper $Lower $Sep $CR $LF $ATerm $STerm] ($Extend | $Format)*;
+$ATermEx $CloseEx* $SpEx* $NotLettersEx* $Lower;
+($STermEx | $ATermEx) $CloseEx* $SpEx* ($SContinueEx | $STermEx | $ATermEx);
+($STermEx | $ATermEx) $CloseEx* $SpEx* ($Sep | $CR | $LF)?;
+[[^$STerm $ATerm $Close $Sp $Sep $LF $CR $Format $Extend]{bof}] ($Extend | $Format | $Close | $Sp)* .;
+[[^$STerm $ATerm $Close $Sp $Sep $LF $CR $Format $Extend]{bof}] ($Extend | $Format | $Close | $Sp)* ([$Sep $LF $CR {eof}] | $CR $LF){100};
+$MixedCaseAbbrs {502};
+$InternetAddressA {503};
+$InternetAddressB {503};
+$Emoticon {504};
+# $TimePattern {504};
+
+!!reverse;
+# Reverse rules
+# Starting from a boundary, match backwards, until the preceding
+# boundary position.
+$SpEx_R       = ($Extend | $Format)* $Sp;
+$ATermEx_R    = ($Extend | $Format)* $ATerm;
+$STermEx_R    = ($Extend | $Format)* $STerm;
+$CloseEx_R    = ($Extend | $Format)* $Close;
+[{bof}] (.? | $LF $CR) [^$Sep $CR $LF]* [$Sep $CR $LF {eof}] ($SpEx_R* $CloseEx_R* ($STermEx_R | $ATermEx_R))*;
+
+# !!safe_forward;
+# Safe Forward 
+# Starting from any arbitrary position in the text, match
+# forward to a safe position, which is a position from which the normal
+# Reverse rule will work correctly.
+
+# !!safe_reverse;
+# Safe Reverse 
+# Starting from any arbitrary position in the text, move
+# backwards to a safe position, which is a position from which the
+# normal Forward rule will work correctly.

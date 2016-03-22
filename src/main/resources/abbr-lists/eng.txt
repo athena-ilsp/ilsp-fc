@@ -534,6 +534,7 @@ CE
 'cello
 'cellos
 cent
+cent.
 Cent.
 Cent. Afr. Rep.
 cert
