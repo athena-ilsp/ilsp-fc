@@ -89,7 +89,7 @@ public class TMXHandler {
 
 	private static int totalcounter=0;
 	private static int distthr=5; //FIXME add as parameter
-	
+
 	public static CompositeConfiguration getConfig() {
 		return config;
 	}
@@ -224,8 +224,7 @@ public class TMXHandler {
 			if (oxslt) 
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
-			LOGGER.info("Merged TMX at " + outTMX.getAbsolutePath());
-			LOGGER.info("Rendering merged TMX as " + outHTML.getAbsolutePath());
+			
 			if (metadata){
 				BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
 				File metadataFile = new File(baseName.getAbsolutePath()+ MetadataExt);
@@ -276,6 +275,7 @@ public class TMXHandler {
 			bilingualScoredTmxFormatter.setPrintAlignmentCategory(false);
 			bilingualScoredTmxFormatter.formatILSPAlignments(bilingualCorpusInformation.getAlignmentList());
 			writer.close();
+			LOGGER.info("Merged TMX at " + outTMX.getAbsolutePath());
 		} catch (UnsupportedEncodingException e) {
 			LOGGER.error("problem in writing (unsupported encoding) of the merged TMX file "+ outTMX.getAbsolutePath());
 			e.printStackTrace();
@@ -291,6 +291,7 @@ public class TMXHandler {
 				XSLTransformer xslTransformer = new XSLTransformer(XSL_TMX2HTML);
 				xslTransformer.setBaseDir(outTMX.getParent());
 				xslTransformer.transform(outTMX, outHTML);
+				LOGGER.info("Rendering merged TMX as " + outHTML.getAbsolutePath());
 			} catch (TransformerConfigurationException | IOException e) {
 				LOGGER.warn("problem in writing the transformed merged TMX file: "+ outHTML.getAbsolutePath());
 				e.printStackTrace();
