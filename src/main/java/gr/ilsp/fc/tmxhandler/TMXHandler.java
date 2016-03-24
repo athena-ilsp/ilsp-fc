@@ -334,10 +334,16 @@ public class TMXHandler {
 				//FIXME add constrains for length, or other "filters"
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
-				if ( normS.isEmpty() || normT.isEmpty())
+				if ( normS.isEmpty() || normT.isEmpty()){
+					LOGGER.warn("\t"+segpair.seg1);
+					LOGGER.warn("\t"+ segpair.seg2);
 					continue;
-				if (normS.equals(normT))
+				}
+				if (normS.equals(normT)){
+					LOGGER.warn("\t"+segpair.seg1);
+					LOGGER.warn("\t"+ segpair.seg2);
 					continue;
+				}
 				if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normS)))>median_word_length){
 					LOGGER.warn("Discard due to long tokens in a TUV ");
 					LOGGER.warn("\t"+segpair.seg1);
@@ -369,12 +375,12 @@ public class TMXHandler {
 					LOGGER.warn("\t"+ segpair.seg2);
 					continue;
 				}
-				if (Statistics.editDist(normS,normT)<distthr){ //FIXME add as parameter, check its influence
-					LOGGER.warn("Discard due to high similarity of TUVs ");
-					LOGGER.warn("\t"+segpair.seg1);
-					LOGGER.warn("\t"+ segpair.seg2);
-					continue;
-				}
+				//if (Statistics.editDist(normS,normT)<distthr){ //FIXME add as parameter, check its influence
+				//	LOGGER.warn("Discard due to high similarity of TUVs ");
+				//	LOGGER.warn("\t"+segpair.seg1);
+				//	LOGGER.warn("\t"+ segpair.seg2);
+				//	continue;
+				//}
 				if (keepsn){
 					String num1=segpair.seg1.replaceAll("\\D+","");
 					String num2=segpair.seg2.replaceAll("\\D+","");
@@ -403,7 +409,10 @@ public class TMXHandler {
 					//float ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
 					alignment.setLengthRatio(Float.toString(ratio));
 					alignmentList.add(alignment);
-				}
+				}//else{
+				//	LOGGER.warn("\t"+segpair.seg1);
+				//	LOGGER.warn("\t"+ segpair.seg2);
+				//}
 			}
 		}
 		LOGGER.info("NumofValid/UniqueAlignments: "+alignmentList.size()+"\t"+"totalNumofSegmentPairs: "+totalcounter);
