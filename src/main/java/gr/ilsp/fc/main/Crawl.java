@@ -625,12 +625,14 @@ public class Crawl {
 		} catch (PlannerException e) {
 			//LOGGER.debug(conf.get("hadoop.tmp.dir"));			
 			e.writeDOT("failed-flow.dot");
-			System.err.println("PlannerException: " + e.getMessage());
+			LOGGER.error("PlannerException: " + e.getMessage());
 			e.printStackTrace(System.err);
 			System.exit(-1);
 		} catch (Throwable t) {
 			//System.err.println(conf.get("hadoop.tmp.dir"));
-			System.err.println("Exception running tool: " + t.getMessage());
+			LOGGER.error("Exception running tool: " + t.getMessage());
+			LOGGER.error("Things you could check:");
+			LOGGER.error("Is the disk full?");
 			t.printStackTrace(System.err);
 			System.exit(-1);
 		}

@@ -335,11 +335,13 @@ public class TMXHandler {
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
 				if ( normS.isEmpty() || normT.isEmpty()){
+					LOGGER.warn("Discard due to an empty TUV ");
 					LOGGER.warn("\t"+segpair.seg1);
 					LOGGER.warn("\t"+ segpair.seg2);
 					continue;
 				}
 				if (normS.equals(normT)){
+					LOGGER.warn("Discard due to an equal TUVs ");
 					LOGGER.warn("\t"+segpair.seg1);
 					LOGGER.warn("\t"+ segpair.seg2);
 					continue;

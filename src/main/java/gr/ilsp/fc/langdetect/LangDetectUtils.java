@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -127,6 +128,7 @@ public class LangDetectUtils {
 			LOGGER.error("No languages have been defined.");
 			System.exit(0);
 		}
+		Collections.sort(langs);
 		for (int ii=0;ii<langs.size();ii++) {
 			targetlanguages = targetlanguages+QUEST_SEPAR+langs.get(ii);
 		}

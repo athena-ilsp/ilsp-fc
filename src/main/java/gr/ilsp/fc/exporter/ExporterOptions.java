@@ -1,5 +1,7 @@
 package gr.ilsp.fc.exporter;
 
+import gr.ilsp.fc.langdetect.LangDetectUtils;
+
 import java.io.File;
 import java.net.URL;
 
@@ -139,7 +141,8 @@ public class ExporterOptions {
 			if(line.hasOption( "httrack")) 
 				_httrack=true;
 			if(line.hasOption( "lang")) 
-				_targetlanguages = line.getOptionValue("lang").split(SEPARATOR);
+				_targetlanguages = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true).split(SEPARATOR);
+				//	_targetlanguages = line.getOptionValue("lang").split(SEPARATOR);
 			if(line.hasOption( "t")) {
 				_topic = new File(line.getOptionValue("t"));
 				_topic = new File(_topic.getAbsolutePath());
