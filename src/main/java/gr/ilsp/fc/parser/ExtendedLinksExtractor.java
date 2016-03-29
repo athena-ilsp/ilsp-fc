@@ -40,6 +40,7 @@ public class ExtendedLinksExtractor {
 		//ArrayList<String[]> rankedlinks = new ArrayList<String[]>();
 		org.jsoup.nodes.Document doc;
 		ExtendedOutlink[] rankedLinks = null;
+		String baseUrl = "";
 		try {
 			_input.reset();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(_input,metadata.get(Metadata.CONTENT_ENCODING)));
@@ -56,7 +57,7 @@ public class ExtendedLinksExtractor {
 
 			while ((line=reader.readLine())!=null) htmltext=htmltext.concat(line);
 			reader.close();
-			String baseUrl = metadata.get(Metadata.CONTENT_LOCATION);			
+			baseUrl = metadata.get(Metadata.CONTENT_LOCATION);			
 			doc = baseUrl!=null ? Jsoup.parse(htmltext,baseUrl) : Jsoup.parse(htmltext);	
 			Elements canonicalLinks = doc.select(LINK_CANONICAL);			
 			if (canonicalLinks.size()>0) {
@@ -156,8 +157,8 @@ public class ExtendedLinksExtractor {
 				//rankedlinks.add(new String[] {linktext, anchortext, wholetext});
 			}		
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("Problem in parsing "+ baseUrl);
+			//e.printStackTrace();
 		}
 		return rankedLinks;		
 	}
