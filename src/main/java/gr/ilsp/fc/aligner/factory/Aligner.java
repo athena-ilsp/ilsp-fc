@@ -165,7 +165,7 @@ public abstract class Aligner {
 					File transFile = new File(translationElement.getAttribute("trans.loc"));
 					basenameMap.put(translationElement.getAttribute("xml:lang"), FilenameUtils.getBaseName(transFile.getName()));
 				}
-				//FIXME ungly fix to keep 3-letter for everything but the language code in TMX 
+				//FIXME ugly fix to keep 3-letter for everything but the language code in TMX 
 				this.sourceLang= ISOLangCodes.get3LetterCode(this.sourceLang);
 				this.targetLang= ISOLangCodes.get3LetterCode(this.targetLang);
 				File sourceFile = new File(FilenameUtils.concat(cesAlignFile.getParent(), basenameMap.get(sourceLang) + appXMLext));
@@ -209,7 +209,10 @@ public abstract class Aligner {
 		String tempparent = cesAlignList.getParent();
 		String tempname =  FilenameUtils.getBaseName(FilenameUtils.getBaseName(cesAlignList.getName()));
 		File outputTMXList = new File(FilenameUtils.concat(tempparent, tempname)+TMXlist);
-		File outputHTMLTMXList = new File(FilenameUtils.concat(tempparent, tempname)+TMXHTMLlist);
+		File outputHTMLTMXList = null;
+		if (oxslt)
+		 outputHTMLTMXList = new File(FilenameUtils.concat(tempparent, tempname)+TMXHTMLlist);
+		
 		generateTmxListFiles(outputTMXList, outputHTMLTMXList, lines, tmxFiles,
 				htmlTmxFiles, alignmentsPerFile, alignmentsMap, sourceSentsMap,
 				targetSentsMap);
