@@ -6,8 +6,10 @@ import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -256,4 +258,15 @@ public class TMXHandlerUtils {
 		int[] res=new int[2]; res[0]=len; res[1] = words.size();
 		return res;
 	}
+	
+	/**
+	 * @param tmxFile
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	public static List<Tu> getTUs(File tmxFile) throws FileNotFoundException {
+		return TmxMarshallerUnmarshaller.getInstance().unmarshal(new InputStreamReader(new FileInputStream(tmxFile))).getBody().getTu();
+	}
+
+	
 }
