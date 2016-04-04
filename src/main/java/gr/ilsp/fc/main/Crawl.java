@@ -80,11 +80,14 @@ public class Crawl {
 	private static final Logger LOGGER = Logger.getLogger(Crawl.class);
 	protected static String filesepar = System.getProperty("file.separator");
 	private static final String UNDERSCORE_STR = "_";
-	private static final String QUESTION_SEP=";";
+	private static final String SEMICOLON_STR=";";
+	private static final String HYPHEN_STR="-";
 	//parameters for file handling
 	private static final String resultXMLDir = "xml";
 	private static final String resultPDFDir = "pdf";
 	private static final String XML_EXTENSION = ".xml";
+	private static final String TMXlist = ".tmxlist.txt";
+	
 	private static final String p_type = "p";
 	private static final String m_type = "m";
 	private static final String q_type = "q";
@@ -123,7 +126,7 @@ public class Crawl {
 	private static String dedup_method ="0";
 	//parameters for valid TMXs
 	private static String detectpair_methods ="aupdis"; //i.e. href,url,images,digits, structure
-	private static int[] thres = new int[] { 5, 5, 5, 5, 5, 5, 5, 5}; //maximum numbers of 0:1 segments in a TMX per pair detection method
+	//private static int[] thres = new int[] { 5, 5, 5, 5, 5, 5, 5, 5}; //maximum numbers of 0:1 segments in a TMX per pair detection method
 
 	/**
 	 * @param outputDirName to store the downloaded HTML, the created cesDoc or/and cesAling XML files 
@@ -333,7 +336,7 @@ public class Crawl {
 			}
 		}	
 		//targeted languages
-		String[] langs = options.getLanguage().split(QUESTION_SEP);
+		String[] langs = options.getLanguage().split(SEMICOLON_STR);
 		//outputDir
 		File outputDirName = options.getOutputDir();
 		//value for tunneling
@@ -341,17 +344,26 @@ public class Crawl {
 		//boolean for deleting files that have not been paired
 		boolean del = options.getDel();
 
-		//check if there is an available aligner (if needed) for the targeted language pairs  
-		//FIXME to support more than 2 languages
-		Aligner aligner = null; 
-		if (operation.contains(ALIGN_operation)){
-			aligner = prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), langs);
-			if (aligner==null){
-				LOGGER.error("Aligner cannot be initialized:");
-				System.exit(0);
+		String[] languages = options.getLanguage().split(SEMICOLON_STR);
+		List<String> lang_pairs = new ArrayList<String>();
+		if (languages.length>1){
+			for (int ii=0;ii<languages.length-1;ii++){
+				for (int jj=ii+1;jj<languages.length;jj++){
+					lang_pairs.add(languages[ii]+SEMICOLON_STR+languages[jj]);
+				}
 			}
 		}
-
+		//check if there is an available aligner (if needed) for the targeted language pairs  
+		Aligner aligner = null; 
+		if (operation.contains(ALIGN_operation)){
+			for (String lang_pair:lang_pairs){
+				aligner = prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), lang_pair.split(SEMICOLON_STR));
+				if (aligner==null){
+					LOGGER.error("Aligner cannot be initialized:");
+					System.exit(0);
+				}
+			}
+		}
 		if (options.getType().equals(p_type)) 
 			urls = options.getUrls();
 		if (domain!=null) 
@@ -466,7 +478,7 @@ public class Crawl {
 					LOGGER.debug(conf.getLocalDirs()[il]);
 
 				Flow flow = CrawlWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlFilter, 
-						options.getLanguage().split(QUESTION_SEP), 
+						options.getLanguage().split(SEMICOLON_STR), 
 						classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options);							
 				flow.complete();
 
@@ -502,7 +514,7 @@ public class Crawl {
 				Exporter se = new Exporter();
 				se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
 				se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
-				se.setTargetLanguages(options.getLanguage().split(QUESTION_SEP));
+				se.setTargetLanguages(options.getLanguage().split(SEMICOLON_STR));
 				se.setCrawlDirName(outputDirName);
 				se.setTopic(options.getTopic());
 				se.setRunOffLine(false);
@@ -542,22 +554,46 @@ public class Crawl {
 				}
 				//////////////////////////////////////////////////////////////////////////////////////////////	
 				if (operation.contains(PAIRDETECT_operation)){
+					if (languages.length<1){
+						LOGGER.warn("At least 2 languages are required.");
+						System.exit(0);
+					}
 					PairDetector pd = new PairDetector();
-					pd.setLanguage(options.getLanguage());
-					pd.setSourceDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
-					pd.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
-					pd.setBaseName(options.getBaseName());
-					pd.setExcludeSetFiles(null);
-					pd.setUseImagepath(options.getImpath());
-					pd.setApplyXSLT(options.isOfflineXSLT());
-					pd.setURL_REPL(options.getUrlReplaces());
-					pd.setMethods(detectpair_methods);
-					pd.setDelFiles(options.getDel());
-					pd.pairDetect();
+					for (String lang_pair:lang_pairs){
+						pd.setLanguage(lang_pair);
+						pd.setSourceDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
+						pd.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
+						pd.setBaseName(options.getBaseName());
+						pd.setExcludeSetFiles(null);
+						pd.setUseImagepath(options.getImpath());
+						pd.setApplyXSLT(options.isOfflineXSLT());
+						pd.setURL_REPL(options.getUrlReplaces());
+						pd.setMethods(detectpair_methods);
+						pd.setDelFiles(options.getDel());
+						pd.pairDetect();
+					}
 				}
-				if (aligner!=null) {
-					aligner.processCesAlignList(options.getOutputFile(), options.isOfflineXSLT(), options.useISO6393());
-				}					
+				//////////////////////////////////////////////////////////////////////////////////////////////
+				if (operation.contains(ALIGN_operation)){
+					for (String lang_pair:lang_pairs){
+						String[] temp_langs = lang_pair.split(SEMICOLON_STR);
+						aligner = prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), temp_langs);
+						if (aligner!=null){
+							String lang = languages[0]+HYPHEN_STR+languages[1];
+							lang = UNDERSCORE_STR+lang;
+							File outTextList = new File(options.getOutputFile().getAbsolutePath()+lang+TMXlist);
+							aligner.processCesAlignList(outTextList, options.isOfflineXSLT(), options.useISO6393());
+						}
+					}
+				}
+				//////////////////////////////////////////////////////////////////////////////////////////////
+				/*if (languages.length>1){
+					for (int ii=0;ii<languages.length-1;ii++){
+						for (int jj=ii+1;jj<languages.length;jj++){
+							lang_pairs.add(languages[ii]+SEMICOLON_STR+languages[jj]);
+						}
+					}
+				}		*/			
 				//////////////////////////////////////////////////////////////////////////////////////////////
 				if (operation.contains(TMXMERGE_operation)){
 					TMXHandler ha = new TMXHandler();
@@ -566,7 +602,7 @@ public class Crawl {
 					ha.setBaseName(options.getBaseName());
 					ha.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ha.setDocTypes(options.getDocTypes());
-					ha.setThres( thres);
+					//ha.setThres( thres);
 					ha.setSegTypes(options.getSegTypes());
 					ha.setLanguage(options.getLanguage());
 					ha.useISO6393(options.useISO6393());

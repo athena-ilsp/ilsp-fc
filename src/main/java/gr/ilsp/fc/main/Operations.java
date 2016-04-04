@@ -25,14 +25,14 @@ public class Operations {
 	private static final Logger LOGGER = Logger.getLogger(Operations.class);
 	private static final String XML_EXTENSION = ".xml";
 	private static final String UNDERSCORE_STR = "_";
-	private static final String QUESTION_SEP=";";
+	private static final String SEMI_SEPAR=";";
 	
 	private static String default_dedup_method="0";
 	private static int default_dedup_minTokLen=3;
 	private static int default_dedup_minParLen=3;
 	private static double default_dedup_intersection=0.7;
-	
-	private static int[] thres={ 10, 10, 10, 10, 10, 10, 10, 10};
+
+	//private static int[] thres={ 10, 10, 10, 10, 10, 10, 10, 10};
 
 	/**
 	 * detects pairs of candidate parallel documents 
@@ -42,18 +42,33 @@ public class Operations {
 
 	public static void pairdetection(CrawlOptions options, String operation) {
 		LOGGER.info("Running PairDetector");
+
+		String[] languages = options.getLanguage().split(SEMI_SEPAR);
+		List<String> lang_pairs = new ArrayList<String>();
+		if (languages.length>1){
+			for (int ii=0;ii<languages.length-1;ii++){
+				for (int jj=ii+1;jj<languages.length;jj++){
+					lang_pairs.add(languages[ii]+SEMI_SEPAR+languages[jj]);
+				}
+			}
+		}else{
+			LOGGER.warn("At least 2 languages are required.");
+			System.exit(0);
+		}
 		PairDetector pd = new PairDetector();
-		pd.setLanguage(options.getLanguage());
-		pd.setSourceDir(options.getInputDir());
-		pd.setTargetDir(options.getInputDir());
-		pd.setBaseName(options.getBaseName());
-		pd.setExcludeSetFiles(null);
-		pd.setUseImagepath(options.getImpath());
-		pd.setApplyXSLT(options.isOfflineXSLT());
-		pd.setURL_REPL(options.getUrlReplaces());
-		pd.setMethods(options.getPairMethods());
-		pd.setDelFiles(options.getDel());
-		pd.pairDetect();
+		for (String lang_pair:lang_pairs){
+			pd.setLanguage(lang_pair);
+			pd.setSourceDir(options.getInputDir());
+			pd.setTargetDir(options.getInputDir());
+			pd.setBaseName(options.getBaseName());
+			pd.setExcludeSetFiles(null);
+			pd.setUseImagepath(options.getImpath());
+			pd.setApplyXSLT(options.isOfflineXSLT());
+			pd.setURL_REPL(options.getUrlReplaces());
+			pd.setMethods(options.getPairMethods());
+			pd.setDelFiles(options.getDel());
+			pd.pairDetect();
+		}
 		if (options.getPathReplace() != null){
 			List<File> outputFiles =  new ArrayList<File>();
 			outputFiles.add(options.getOutputFile());
@@ -95,7 +110,7 @@ public class Operations {
 		Exporter se = new Exporter();
 		se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
 		se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
-		se.setTargetLanguages(options.getLanguage().split(QUESTION_SEP));
+		se.setTargetLanguages(options.getLanguage().split(SEMI_SEPAR));
 		se.setTopic(options.getTopic());
 		se.setTargetedDomain(options.getTargetedDomain());
 		se.setCrawlDirName(options.getInputDir());
@@ -115,7 +130,7 @@ public class Operations {
 	 * @param args
 	 */
 	public static void alignment(CrawlOptions options,	CompositeConfiguration config) {
-		String[] langs = options.getLanguage().split(QUESTION_SEP);
+		String[] langs = options.getLanguage().split(SEMI_SEPAR);
 		Aligner aligner = null; 
 		if (options.toAlign()!=null) {
 			aligner = Crawl.prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), langs);
@@ -191,7 +206,7 @@ public class Operations {
 		ha.setDocTypes(options.getDocTypes());
 		ha.setSegTypes(options.getSegTypes());
 		//ha.setThres( new int[] {5, 5, 5, 5, 5, 5, 5, 5});
-		ha.setThres(thres);
+		//ha.setThres(thres);
 		ha.setMinTuvLen(options.getMinTuvLen());
 		ha.setMinPerce01Align(options.getMinPerce01Align());
 		ha.setMinTuLenRatio(options.getMinTuLenRatio());

@@ -26,8 +26,9 @@ public class PairDetector {
 	private static boolean offlineXSLT=false;
 	private static String[][] urlReplaces;
 	private static Map<String, String> excludeSetFiles =null;
-	private static String QUEST_SEPAR = ";";
+	private static String SEMI_SEPAR = ";";
 	private static final String UNDERSCORE_STR = "_";
+	private static final String HYPHEN_STR = "-";
 	private static final String tempFileExt = ".xml.txt";
 	private static final String transCesExt = ".xml.html";
 	private static final String XMLlist = ".xmllist.txt";
@@ -64,13 +65,14 @@ public class PairDetector {
 			LOGGER.info("exact two languages required");
 			System.exit(0);
 		}
-		LOGGER.info("Detection of pairs of parallel documents.");
+		String lang = languages[0]+HYPHEN_STR+languages[1];
+		LOGGER.info("------------Detection of pairs of parallel documents for "+ lang+"------------");
+		lang = UNDERSCORE_STR+lang;
 		ArrayList<String[]> bitextsALL = Bitexts.findPairsUIDS(indir, methods, languages, excludeSetFiles 
 				, outdir.getAbsolutePath(), urlReplaces, offlineXSLT, useImagePath, groundTruth);
-		
-		outTextList = new File(outBaseName.getAbsolutePath()+XMLlist);
+		outTextList = new File(outBaseName.getAbsolutePath()+lang+XMLlist);
 		if (offlineXSLT)
-			outHTMLList = new File(outBaseName.getAbsolutePath()+XMLHTMLlist);
+			outHTMLList = new File(outBaseName.getAbsolutePath()+lang+XMLHTMLlist);
 		if (bitextsALL!=null){
 			LOGGER.info("Total pairs found: "+ bitextsALL.size());
 			WriteBitexts.writeOutList(outdir,outTextList,outHTMLList,bitextsALL);
@@ -82,18 +84,16 @@ public class PairDetector {
 		}
 		List<File> filelist = Arrays.asList(indir.listFiles());
 		FcFileUtils.removeFiles(filelist,tempFileExt);
-		//filelist = Arrays.asList(indir.listFiles());
-		//FcFileUtils.removeFiles(filelist,transCesExt);
 		if (delFiles)
 			BitextUtils.removeRedundantFiles(indir,bitextsALL);
 
-		FcFileUtils.moveZipDeleteFiles(indir,html, Arrays.asList(htmlExt, pdfExt), UNDERSCORE_STR, false);
-		if (!offlineXSLT)
-			FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
+		//FcFileUtils.moveZipDeleteFiles(indir,html, Arrays.asList(htmlExt, pdfExt), UNDERSCORE_STR, false);
+		//if (!offlineXSLT)
+		//	FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
 	}
 
 	public void setLanguage(String languages) {
-		PairDetector.languages = languages.split(QUEST_SEPAR);
+		PairDetector.languages = languages.split(SEMI_SEPAR);
 	}
 	public void setSourceDir(File inDir) {
 		PairDetector.indir = inDir;
