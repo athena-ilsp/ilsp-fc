@@ -76,7 +76,7 @@ public class PairDetector {
 		if (bitextsALL!=null){
 			LOGGER.info("Total pairs found: "+ bitextsALL.size());
 			WriteBitexts.writeOutList(outdir,outTextList,outHTMLList,bitextsALL);
-			LOGGER.info("Created list of cesAling files in "+ outTextList.getAbsolutePath());
+			LOGGER.info("Created list of cesAlign files in "+ outTextList.getAbsolutePath());
 			if (outHTMLList!=null)
 				LOGGER.info("Created list of rendered cesAling files in "+ outHTMLList.getAbsolutePath());
 		}else{
