@@ -69,11 +69,14 @@ public abstract class MetashareDescriptor {
 	private String creationDescription ="crawling; pair detection; segment alignments";
 	private File outFile ;
 	
+
+	
 	/**
 	 * Once all appropriate metadata fields have been set, call this method to
 	 * generate the metashare descriptors to the outFile
 	 */
 	public void run() {
+		
 		
 		ObjectFactory objectFactory = new ObjectFactory();
 		ResourceInfoType resourceInfoType = objectFactory.createResourceInfoType();
@@ -129,7 +132,7 @@ public abstract class MetashareDescriptor {
 		ActorInfoType actorInfoType = objectFactory.createActorInfoType();
 		OrganizationInfoType organization = objectFactory.createOrganizationInfoType();
 		OrganizationShortName organizationShortName = objectFactory.createOrganizationInfoTypeOrganizationShortName();
-		organizationShortName.setLang(ENG);
+		organizationShortName.setLang(this.getMetadataLang());
 		organizationShortName.setValue(getOrganizationShortName());
 		organization.getOrganizationShortName().add(organizationShortName);
 
@@ -427,5 +430,6 @@ public abstract class MetashareDescriptor {
 	public void setProjectURL(String projectURL) {
 		this.projectURL = projectURL;
 	}
+
 
 }

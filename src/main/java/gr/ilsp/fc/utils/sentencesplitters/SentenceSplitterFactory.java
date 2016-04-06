@@ -25,7 +25,7 @@ public class SentenceSplitterFactory {
 
 	public SentenceSplitter getSentenceSplitter(String lang) {
 		SentenceSplitter sentenceSplitter;
-		logger.info("Creating segmenter for " + lang);
+		logger.debug("Creating segmenter for " + lang);
 		if (lang.startsWith("zh")) {
 			sentenceSplitter = new MorphAdornerSentenceSplitter(lang);
 		} else if (lang.startsWith("zh")) { // FIXME: choose between the two

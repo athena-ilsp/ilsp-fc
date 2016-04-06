@@ -241,6 +241,11 @@ public class TMXHandler {
 				File metadataFile = new File(baseName.getAbsolutePath()+ MetadataExt);
 				LOGGER.info("Generating metadata descriptor " + metadataFile);
 				bilingualTmxMetashareDescriptor.setOutFile(metadataFile);
+				if (iso6393) {
+					bilingualTmxMetashareDescriptor.setMetadataLang("eng");
+				} else {
+					bilingualTmxMetashareDescriptor.setMetadataLang("en");
+				}
 				bilingualTmxMetashareDescriptor.run();
 			}
 		}else{

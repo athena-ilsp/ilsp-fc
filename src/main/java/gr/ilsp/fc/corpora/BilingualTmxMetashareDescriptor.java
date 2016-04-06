@@ -32,7 +32,7 @@ public class BilingualTmxMetashareDescriptor extends MetashareDescriptor {
 	
 	private String tuSize;
 	private String tuSizeUnit;		
-	
+
 	private static final String LINGUALITY = "bilingual";
 	
 	private static final Logger logger = LoggerFactory.getLogger(BilingualTmxMetashareDescriptor.class);
@@ -54,7 +54,6 @@ public class BilingualTmxMetashareDescriptor extends MetashareDescriptor {
 		this.setResourceName(bilingualCorpusInfo.getName());
 		this.setDescription(bilingualCorpusInfo.getDescription());
 		this.setCreationDescription(bilingualCorpusInfo.getCreationDescription());
-		this.setMetadataLang("en");
 
 		// L1
 		SizeInfoType l1LenInWordsInfoType = new SizeInfoType();
