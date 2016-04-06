@@ -30,13 +30,13 @@ public class PairDetector {
 	private static final String UNDERSCORE_STR = "_";
 	private static final String HYPHEN_STR = "-";
 	private static final String tempFileExt = ".xml.txt";
-	private static final String transCesExt = ".xml.html";
+	//private static final String transCesExt = ".xml.html";
 	private static final String XMLlist = ".xmllist.txt";
 	private static final String XMLHTMLlist = ".xmllist.html";
-	private static final String pdfExt=".pdf";
-	private static final String htmlExt = ".html";
-	private static final String html = "html";
-	private static final String transCes = "xml.html";
+	//private static final String pdfExt=".pdf";
+	//private static final String htmlExt = ".html";
+	//private static final String html = "html";
+	//private static final String transCes = "xml.html";
 	private static boolean delFiles = false;	
 
 	public static void main(String[] args) {
