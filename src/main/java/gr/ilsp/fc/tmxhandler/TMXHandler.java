@@ -56,10 +56,13 @@ public class TMXHandler {
 	private static final String DEFAULT_BI_CONFIG_FILE = "FBC_config.xml";
 	private static CompositeConfiguration config;
 	private static String[] languages;
-	private static int[] thres;// = { 100,100,100,100,100,100,100};
+	private static int[] thres = { 10,10,10,10,10,10,10};
 	private static boolean oxslt=false;
 	private static boolean iso6393=false;
 	private static boolean cc=false;
+	private static boolean keepem = false;
+	private static boolean keepiden = false;
+	private static boolean keepdup = false;
 	private static boolean metadata=false;
 	private static boolean keepsn=false;
 	private static int minTuvLen=0;
@@ -88,7 +91,7 @@ public class TMXHandler {
 	private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
 
 	private static int totalcounter=0;
-	private static int distthr=5; //FIXME add as parameter
+	//private static int distthr=5; //FIXME add as parameter
 
 	public static CompositeConfiguration getConfig() {
 		return config;
@@ -105,9 +108,10 @@ public class TMXHandler {
 			+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
 			+ "As a post-processing step, alignments were merged into one TMX file. "
 			+ "The following filters were applied: ";
-
-	private String filter7 = " Alignments with identical TUVs were discarded.";
-	private String filter8 = " Duplicate alignments were discarded.";
+	private String filter6 = " Alignments in which different digits appear in each TUV were kept.";
+	private String filter7 = " Alignments with identical TUVs (after normalization) were removed.";
+	private String filter8 = " Alignments with only non-letters in one at least one of their TUVs were removed";
+	private String filter9 = " Duplicate alignments were discarded.";
 
 
 	public static void main(String[] args) {
@@ -129,6 +133,9 @@ public class TMXHandler {
 		ha.setMaxTuLenRatio(options.getMaxTuLenRatio());
 		ha.KeepTuSameNum(options.keepTuSameNum());
 		ha.setCC(options.getCC());
+		ha.setKeepEmpty(options.getKeepEmpty());
+		ha.setKeepIdentical(options.getKeepIdentical());
+		ha.setKeepDuplicates(options.getKeepDuplicates());
 		ha.setMetadata(options.getMetadata());
 		ha.mergeTMXs();	
 	}
@@ -136,7 +143,7 @@ public class TMXHandler {
 	/**
 	 * Gets selected TMXs from a directory and adds selected segments of these TMXs in a new TMX file.
 	 * The selected TMXs should be extracted from document pairs which have been identified by the methods defined in DocTypes.
-	 * The selected TMXs should include less than X segment pairs of type "0:1", where X is the threshold for the specific DocType 
+	 * The selected TMXs should include less than X% segment pairs of type "0:1", where X is the threshold provided by the user (default is 15) 
 	 * The selected segments (to be added) should be of type identified in SegTypes. 
 	 * 
 	 */
@@ -151,25 +158,29 @@ public class TMXHandler {
 		String filter3=" Alignments of non-" + segtypes+ " were discarded.";
 		String filter4=" Alignments with a TUV (after normalization) that has less than "+ minTuvLen + " tokens, were discarded.";
 		String filter5=" Alignments with a TUVs' length ratio less than " + minTuLenRatio+ " or more than "+ maxTuLenRatio + ", were discarded.";
-		String filter6="";
-		if (keepsn) {
+		if (keepsn)
 			filter6=" Alignments in which different digits appear in each TUV were discarded.";
-		}
-		LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8);
-
+		if (keepiden)
+			filter7=" Alignments with identical TUVs (after normalization) were kept.";
+		if (keepem)
+			filter8=" Alignments with only non-letters in one at least one of their TUVs were kept.";
+		if (keepdup)
+			filter9=" Duplicate alignments were kept.";
+		LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
+		
+		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
+		FilenameFilter filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.endsWith(TMXEXT) & arg1.contains(languages[0]) & arg1.contains(languages[1]));
+			}
+		};
 		if (!iso6393){
 			languages[0]=ISOLangCodes.get2LetterCode(languages[0]);
 			languages[1]=ISOLangCodes.get2LetterCode(languages[1]);
 		}else{
 			languages[0]=ISOLangCodes.get3LetterCode(languages[0]);
 			languages[1]=ISOLangCodes.get3LetterCode(languages[1]);			
-		}
-		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
-		FilenameFilter filter = new FilenameFilter() {			
-			public boolean accept(File arg0, String arg1) {
-				return (arg1.endsWith(TMXEXT));
-			}
-		};
+		}		
 		String[] types = new String[doctypes.length()];
 		for (int ii=0;ii<doctypes.length();ii++){
 			types[ii] = UNDERSCORE+Character.toString(doctypes.charAt(ii))+TMXEXT;
@@ -192,7 +203,7 @@ public class TMXHandler {
 				e.printStackTrace();
 			} 
 		}
-		creationDescription = creationDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8;
+		creationDescription = creationDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
 		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
 		List<String> domainEurovocIds=getEurovocId(domains);
 		//FIXME
@@ -202,7 +213,7 @@ public class TMXHandler {
 		HashMap<String, List<File>> tmxTypeFiles =FcFileUtils.clusterfiles(tmxfiles,doctypes);
 		for (int ii=0;ii<doctypes.length();ii++){
 			String m= Character.toString(doctypes.charAt(ii));
-			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, cc);
+			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, cc);
 		}
 		if (!alignmentList.isEmpty()){
 			int[] stats1 =TMXHandlerUtils.countWordsInTMX(alignmentList,1);
@@ -224,7 +235,7 @@ public class TMXHandler {
 			if (oxslt) 
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
-			
+
 			if (metadata){
 				BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
 				File metadataFile = new File(baseName.getAbsolutePath()+ MetadataExt);
@@ -303,14 +314,27 @@ public class TMXHandler {
 	}
 
 	/**
-	 * Enriches list of Alignments (alignmentList) by examining tmxFiles of specific type (i.e. TMXs based on document pairs detected by specific method)
-	 * TUs are excluded if: are identical TUs, have identical TUVs, have an empty TUV, have alignmentType (i.e. 1:2, 2:1, etc) not in "segtypes"   
+	 * 
+	 * TUs are excluded if: are identical TUs (), have identical TUVs, have an empty TUV, have alignmentType (i.e. 1:2, 2:1, etc) not in "segtypes"   
 	 * @param tmxFiles
 	 * @param alignmentList
 	 * @param type
 	 * @return
 	 */
-	private List<ILSPAlignment> addTMXs(List<File> tmxFiles, List<ILSPAlignment> alignmentList, String type, boolean cc) {
+
+	/**
+	 * Enriches list of Alignments (alignmentList) by examining tmxFiles of specific type (i.e. TMXs based on document pairs detected by specific method)
+	 * @param tmxFiles
+	 * @param alignmentList
+	 * @param type
+	 * @param keepem
+	 * @param keepiden
+	 * @param keepdup
+	 * @param cc
+	 * @return
+	 */
+
+	private List<ILSPAlignment> addTMXs(List<File> tmxFiles, List<ILSPAlignment> alignmentList, String type, boolean keepem, boolean keepiden, boolean keepdup, boolean cc) {
 		LOGGER.info("Examining docpairs of type "+ type);
 		int thr = thres[doctypes.indexOf(type)];
 		if (tmxFiles==null)
@@ -334,13 +358,13 @@ public class TMXHandler {
 				//FIXME add constrains for length, or other "filters"
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
-				if ( normS.isEmpty() || normT.isEmpty()){
+				if (!keepem &( normS.isEmpty() || normT.isEmpty())){
 					LOGGER.warn("Discard due to an empty TUV ");
 					LOGGER.warn("\t"+segpair.seg1);
 					LOGGER.warn("\t"+ segpair.seg2);
 					continue;
 				}
-				if (normS.equals(normT)){
+				if (!keepiden & normS.equals(normT)){
 					LOGGER.warn("Discard due to an equal TUVs ");
 					LOGGER.warn("\t"+segpair.seg1);
 					LOGGER.warn("\t"+ segpair.seg2);
@@ -398,7 +422,7 @@ public class TMXHandler {
 				}
 				//FIXME should we check language?	//FIXME keep MD5 instead of string
 				String temp = normS+TAB+normT;
-				if (!segs.contains(temp)){
+				if (!keepdup & !segs.contains(temp)){
 					segs.add(temp);
 					ILSPAlignment alignment = new ILSPAlignment();
 					alignment.addSourceSegment(segpair.seg1);
@@ -411,10 +435,10 @@ public class TMXHandler {
 					//float ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
 					alignment.setLengthRatio(Float.toString(ratio));
 					alignmentList.add(alignment);
-				}//else{
-				//	LOGGER.warn("\t"+segpair.seg1);
-				//	LOGGER.warn("\t"+ segpair.seg2);
-				//}
+				}else{
+					LOGGER.warn("\t"+segpair.seg1);
+					LOGGER.warn("\t"+ segpair.seg2);
+				}
 			}
 		}
 		LOGGER.info("NumofValid/UniqueAlignments: "+alignmentList.size()+"\t"+"totalNumofSegmentPairs: "+totalcounter);
@@ -466,6 +490,18 @@ public class TMXHandler {
 
 	public void KeepTuSameNum(boolean keep){
 		TMXHandler.keepsn=keep;
+	}
+
+	public void setKeepEmpty(boolean keepem){
+		TMXHandler.keepem=keepem;
+	}
+
+	public void setKeepIdentical(boolean keepiden){
+		TMXHandler.keepiden=keepiden;
+	}
+
+	public void setKeepDuplicates(boolean keepdup){
+		TMXHandler.keepdup=keepdup;
 	}
 
 	/**

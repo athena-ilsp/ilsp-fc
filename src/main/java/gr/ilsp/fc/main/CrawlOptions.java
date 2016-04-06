@@ -92,6 +92,9 @@ public class CrawlOptions {
 	private boolean _force = false;
 	private boolean _offlineXSLT = false;
 	private boolean _cc = false;
+	private boolean _keepem = false;
+	private boolean _keepiden = false;
+	private boolean _keepdup = false;
 	private boolean _metadata = false;
 
 	private static final String XMLlist = ".xmllist.txt";
@@ -257,6 +260,15 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepTuSameNum" )
 				.withDescription( "keeps only TUs with same digits")
 				.create("ksn") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepEmpty" )
+				.withDescription( "keeps TUs, even if one of its TUV does not contain any letter")
+				.create("keepem") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepIdentical" )
+				.withDescription( "keeps TUs, even if its TUVs are identical after removing non-letters")
+				.create("keepiden") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepDuplicates" )
+				.withDescription( "keeps duplicate TUs")
+				.create("keepdup") );
 		options.addOption( OptionBuilder.withLongOpt( "minlength" )
 				.withDescription( "Minimum number of tokens in crawled documents (after boilerplate detection). Shorter documents will be discarded.")
 				.hasArg()
@@ -699,6 +711,12 @@ public class CrawlOptions {
 			_maxTULenRatio = Double.parseDouble(line.getOptionValue("maxlr"));
 		if(line.hasOption( "ksn"))
 			_keepsn = true;
+		if(line.hasOption( "keepem"))
+			_keepem = true;
+		if(line.hasOption( "keepiden"))
+			_keepiden = true;
+		if(line.hasOption( "keepdup"))
+			_keepdup = true;
 		if (line.hasOption("segtypes")){
 			String[] temp= line.getOptionValue("segtypes").split(SEMI_SEPAR); 
 			for (String str:temp){
@@ -967,6 +985,15 @@ public class CrawlOptions {
 	}
 	public boolean getCC() {
 		return _cc;
+	}
+	public boolean getKeepEmpty() {
+		return _keepem;
+	}
+	public boolean getKeepIdentical() {
+		return _keepiden;
+	}
+	public boolean getKeepDuplicates() {
+		return _keepdup;
 	}
 	public boolean getMetadata() {
 		return _metadata;

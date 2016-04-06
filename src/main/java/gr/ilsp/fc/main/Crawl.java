@@ -86,7 +86,7 @@ public class Crawl {
 	private static final String resultXMLDir = "xml";
 	private static final String resultPDFDir = "pdf";
 	private static final String XML_EXTENSION = ".xml";
-	private static final String TMXlist = ".tmxlist.txt";
+	private static final String XMLlist = ".xmllist.txt";
 	
 	private static final String p_type = "p";
 	private static final String m_type = "m";
@@ -126,7 +126,7 @@ public class Crawl {
 	private static String dedup_method ="0";
 	//parameters for valid TMXs
 	private static String detectpair_methods ="aupdis"; //i.e. href,url,images,digits, structure
-	//private static int[] thres = new int[] { 5, 5, 5, 5, 5, 5, 5, 5}; //maximum numbers of 0:1 segments in a TMX per pair detection method
+	private static int[] thres = new int[] { 10, 10, 10, 10, 10, 10, 10, 10}; //maximum numbers of 0:1 segments in a TMX per pair detection method
 
 	/**
 	 * @param outputDirName to store the downloaded HTML, the created cesDoc or/and cesAling XML files 
@@ -579,32 +579,21 @@ public class Crawl {
 						String[] temp_langs = lang_pair.split(SEMICOLON_STR);
 						aligner = prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), temp_langs);
 						if (aligner!=null){
-							String lang = languages[0]+HYPHEN_STR+languages[1];
-							lang = UNDERSCORE_STR+lang;
-							File outTextList = new File(options.getOutputFile().getAbsolutePath()+lang+TMXlist);
+							String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
+							File outTextList = new File(options.getBaseName()+lang+XMLlist);
 							aligner.processCesAlignList(outTextList, options.isOfflineXSLT(), options.useISO6393());
 						}
 					}
 				}
 				//////////////////////////////////////////////////////////////////////////////////////////////
-				/*if (languages.length>1){
-					for (int ii=0;ii<languages.length-1;ii++){
-						for (int jj=ii+1;jj<languages.length;jj++){
-							lang_pairs.add(languages[ii]+SEMICOLON_STR+languages[jj]);
-						}
-					}
-				}		*/			
-				//////////////////////////////////////////////////////////////////////////////////////////////
 				if (operation.contains(TMXMERGE_operation)){
 					TMXHandler ha = new TMXHandler();
 					ha.setTargetDir(xmldir);
 					ha.setConfig(config);
-					ha.setBaseName(options.getBaseName());
 					ha.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ha.setDocTypes(options.getDocTypes());
-					//ha.setThres( thres);
+					ha.setThres( thres);
 					ha.setSegTypes(options.getSegTypes());
-					ha.setLanguage(options.getLanguage());
 					ha.useISO6393(options.useISO6393());
 					ha.setMinTuvLen(options.getMinTuvLen());
 					ha.setMinPerce01Align(options.getMinPerce01Align());
@@ -612,8 +601,17 @@ public class Crawl {
 					ha.setMaxTuLenRatio(options.getMaxTuLenRatio());
 					ha.KeepTuSameNum(options.keepTuSameNum());
 					ha.setCC(options.getCC());
+					ha.setKeepEmpty(options.getKeepEmpty());
+					ha.setKeepIdentical(options.getKeepIdentical());
+					ha.setKeepDuplicates(options.getKeepDuplicates());
 					ha.setMetadata(options.getMetadata());
-					ha.mergeTMXs();
+					for (String lang_pair:lang_pairs){
+						ha.setLanguage(lang_pair);
+						String[] temp_langs = lang_pair.split(SEMICOLON_STR);
+						String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
+						ha.setBaseName(new File(options.getBaseName()+lang));
+						ha.mergeTMXs();
+					}
 				}
 			}
 			//crawl for comparable
@@ -645,9 +643,7 @@ public class Crawl {
 					List<File> outputFiles =  new ArrayList<File>();
 					outputFiles.add(options.getOutputFile());
 					outputFiles.add(options.getOutputFileHTML());
-
 					String topDirName = getTopNDir(options.getOutputDir(), default_depth).replace("\\","/");
-
 					if (options.getType().equals(p_type)){
 						outputFiles.add(options.getOutputFileHTMLTMX());
 						outputFiles.add(options.getOutputFileTMX());

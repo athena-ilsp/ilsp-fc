@@ -25,14 +25,15 @@ public class Operations {
 	private static final Logger LOGGER = Logger.getLogger(Operations.class);
 	private static final String XML_EXTENSION = ".xml";
 	private static final String UNDERSCORE_STR = "_";
-	private static final String SEMI_SEPAR=";";
+	private static final String SEMICOLON_STR=";";
+	private static final String HYPHEN_STR="-";
 	
 	private static String default_dedup_method="0";
 	private static int default_dedup_minTokLen=3;
 	private static int default_dedup_minParLen=3;
 	private static double default_dedup_intersection=0.7;
 
-	//private static int[] thres={ 10, 10, 10, 10, 10, 10, 10, 10};
+	private static int[] thres={ 10, 10, 10, 10, 10, 10, 10, 10};
 
 	/**
 	 * detects pairs of candidate parallel documents 
@@ -43,12 +44,12 @@ public class Operations {
 	public static void pairdetection(CrawlOptions options, String operation) {
 		LOGGER.info("Running PairDetector");
 
-		String[] languages = options.getLanguage().split(SEMI_SEPAR);
+		String[] languages = options.getLanguage().split(SEMICOLON_STR);
 		List<String> lang_pairs = new ArrayList<String>();
 		if (languages.length>1){
 			for (int ii=0;ii<languages.length-1;ii++){
 				for (int jj=ii+1;jj<languages.length;jj++){
-					lang_pairs.add(languages[ii]+SEMI_SEPAR+languages[jj]);
+					lang_pairs.add(languages[ii]+SEMICOLON_STR+languages[jj]);
 				}
 			}
 		}else{
@@ -110,7 +111,7 @@ public class Operations {
 		Exporter se = new Exporter();
 		se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
 		se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
-		se.setTargetLanguages(options.getLanguage().split(SEMI_SEPAR));
+		se.setTargetLanguages(options.getLanguage().split(SEMICOLON_STR));
 		se.setTopic(options.getTopic());
 		se.setTargetedDomain(options.getTargetedDomain());
 		se.setCrawlDirName(options.getInputDir());
@@ -130,7 +131,7 @@ public class Operations {
 	 * @param args
 	 */
 	public static void alignment(CrawlOptions options,	CompositeConfiguration config) {
-		String[] langs = options.getLanguage().split(SEMI_SEPAR);
+		String[] langs = options.getLanguage().split(SEMICOLON_STR);
 		Aligner aligner = null; 
 		if (options.toAlign()!=null) {
 			aligner = Crawl.prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), langs);
@@ -205,17 +206,34 @@ public class Operations {
 		ha.setApplyOfflineXSLT(options.isOfflineXSLT());
 		ha.setDocTypes(options.getDocTypes());
 		ha.setSegTypes(options.getSegTypes());
-		//ha.setThres( new int[] {5, 5, 5, 5, 5, 5, 5, 5});
-		//ha.setThres(thres);
+		ha.setThres(thres);
 		ha.setMinTuvLen(options.getMinTuvLen());
 		ha.setMinPerce01Align(options.getMinPerce01Align());
 		ha.setMinTuLenRatio(options.getMinTuLenRatio());
 		ha.setMaxTuLenRatio(options.getMaxTuLenRatio());
 		ha.KeepTuSameNum(options.keepTuSameNum());
 		ha.useISO6393(options.useISO6393());
-		ha.setLanguage(options.getLanguage());
 		ha.setCC(options.getCC());
+		ha.setKeepEmpty(options.getKeepEmpty());
+		ha.setKeepIdentical(options.getKeepIdentical());
+		ha.setKeepDuplicates(options.getKeepDuplicates());
 		ha.setMetadata(options.getMetadata());
-		ha.mergeTMXs();
+		String[] languages = options.getLanguage().split(SEMICOLON_STR);
+		List<String> lang_pairs = new ArrayList<String>();
+		if (languages.length>1){
+			for (int ii=0;ii<languages.length-1;ii++){
+				for (int jj=ii+1;jj<languages.length;jj++){
+					lang_pairs.add(languages[ii]+SEMICOLON_STR+languages[jj]);
+				}
+			}
+		}
+		for (String lang_pair:lang_pairs){
+			ha.setLanguage(lang_pair);
+			String[] temp_langs = lang_pair.split(SEMICOLON_STR);
+			String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
+			ha.setBaseName(new File(options.getBaseName()+lang));
+			ha.mergeTMXs();
+		}
 	}
+	
 }

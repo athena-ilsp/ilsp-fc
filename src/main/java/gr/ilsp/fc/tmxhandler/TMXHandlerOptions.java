@@ -30,6 +30,9 @@ public class TMXHandlerOptions {
 	private boolean _keepsn = false;
 	private boolean _iso6393=false;
 	private boolean _cc=false;
+	private boolean _keepem = false;
+	private boolean _keepiden = false;
+	private boolean _keepdup = false;
 	private boolean _metadata=false;
 	private List<String> _segtypes=new ArrayList<String>();
 	private int[] _thres={ 10, 10, 10, 10, 10, 10, 10, 10};
@@ -116,6 +119,15 @@ public class TMXHandlerOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepTuSameNum" )
 				.withDescription( "keeps only TUs with same digits")
 				.create("ksn") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepEmpty" )
+				.withDescription( "keeps TUs, even if one of its TUV does not contain any letter")
+				.create("keepem") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepIdentical" )
+				.withDescription( "keeps TUs, even if its TUVs are identical after removing non-letters")
+				.create("keepiden") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepDuplicates" )
+				.withDescription( "keeps duplicate TUs")
+				.create("keepdup") );
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
 				.create("h") );
@@ -148,6 +160,12 @@ public class TMXHandlerOptions {
 				_oxslt=true;
 			if (line.hasOption("cc"))
 				_cc=true;
+			if (line.hasOption("keepem"))
+				_keepem=true;
+			if (line.hasOption("keepiden"))
+				_keepiden=true;
+			if (line.hasOption("keepdup"))
+				_keepdup=true;
 			if (line.hasOption("metadata"))
 				_metadata=true;
 			if (line.hasOption("iso6393"))		
@@ -181,10 +199,10 @@ public class TMXHandlerOptions {
 					help();
 					System.exit(0);
 				}
-				_thres = new int[temp.length];
-				for (int ii=0;ii<temp.length;ii++){
-					_thres[ii]= Integer.parseInt(temp[ii]);
-				}
+				//_thres = new int[temp.length];
+				//for (int ii=0;ii<temp.length;ii++){
+				//	_thres[ii]= Integer.parseInt(temp[ii]);
+				//}
 			}
 			if(line.hasOption( "segtypes")){
 				String[] temp= line.getOptionValue("segtypes").split(QUESTION_SEP); 
@@ -224,6 +242,15 @@ public class TMXHandlerOptions {
 	}
 	public boolean keepTuSameNum() {
 		return _keepsn;
+	}
+	public boolean getKeepEmpty() {
+		return _keepem;
+	}
+	public boolean getKeepIdentical() {
+		return _keepiden;
+	}
+	public boolean getKeepDuplicates() {
+		return _keepdup;
 	}
 	public File getBaseName(){
 		return _baseName;

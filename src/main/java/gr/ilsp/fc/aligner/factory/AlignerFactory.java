@@ -17,7 +17,7 @@ public class AlignerFactory {
 
 	private String[] alignerIds = {"hunalign","maligna"};
 	private static final Logger logger = LoggerFactory.getLogger(AlignerFactory.class);
-	private static boolean xslt = true;
+	//private static boolean xslt = true;
 	
 	public Aligner getAligner(String aligner) {
 		if (aligner.equalsIgnoreCase("hunalign")) {
@@ -62,8 +62,8 @@ public class AlignerFactory {
 		String sourceLang = args[1];		
 		String targetLang = args[2];		
 
-		File tmxList = new File(args[4]);		
-		File tmxHtmlList = new File(args[5]);
+		//File tmxList = new File(args[4]);		
+		//File tmxHtmlList = new File(args[5]);
 		try {
 			AlignerFactory alignerFactory = new AlignerFactory();
 			Aligner aligner = alignerFactory.getAligner(alignerStr);

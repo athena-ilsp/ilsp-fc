@@ -66,7 +66,8 @@ public class Bitexts {
 	private static final String m_type = "m";
 	private static final String l_type = "l";
 	private static final String imdi_type = "p";
-	private static final String UNDERSCORE="_";
+	private static final String UNDERSCORE_STR="_";
+	private static final String HYPHEN_STR="-";
 	private static HashMap<String, DocVector> features = new HashMap<String, DocVector>();		//keeps features of docs 
 	private static HashMap<String, DocVector> features_paired = new HashMap<String, DocVector>(); //keeps features of docs that have been considered pairs
 	private static HashMap<String, String[]> imagesInHTML=new HashMap<String,String[]>();
@@ -102,7 +103,7 @@ public class Bitexts {
 	public static HashMap<String, DocVector> extractXML_Features(File xmldir, List<String> langs) {
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-4).equals(appXMLext) && !arg1.contains(UNDERSCORE));
+				return (arg1.substring(arg1.length()-4).equals(appXMLext) && !arg1.contains(UNDERSCORE_STR));
 			}
 		};
 		String[] files= xmldir.list(filter);
@@ -251,7 +252,7 @@ public class Bitexts {
 		if (langfiles==null)
 			return bitextsALL;
 		int minlangfiles=Collections.min(Arrays.asList((ArrayUtils.toObject(langfiles))));
-		LOGGER.info("document pairing");
+		LOGGER.info("document pairing for "+ langs[0]+HYPHEN_STR+langs[1]);
 		if (methods.contains(im_type)|| methods.contains(imdi_type)){
 			imagesInHTML=ImageExtractor.findImages(xmldir,keepimpath, minlangfiles*2);
 			LOGGER.info( imagesInHTML.size() + " files contain at least one image");

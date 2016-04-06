@@ -48,7 +48,7 @@ public class GetTargetedSites {
 			+ "-dedup "
 			+ " -o \"XXX\"  -lang \"L1;L2\"  -of "+destpath+ "output_YYY.txt\"  &>"+ destpath +"log-dedup_YYY\"";
 		
-	private static final String JAR_PAIR = "java -cp /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar gr.ilsp.fc.bitext.PairDetector -meth \"aupids\""
+	private static final String JAR_PAIR = "java -cp /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar gr.ilsp.fc.bitext.PairDetector -meth \"aupidh\""
 			+ " -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -of " + destpath + "output_YYY.txt\" &>"+destpath+"log-pairdetection_YYY\"";
 		
 	private static final String JAR_ALIGN = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar "
@@ -75,7 +75,6 @@ public class GetTargetedSites {
 		//input4Align(args);
 		//input4TmxMerge(args);
 	}
-
 	
 	private static void input4Dedup(String[] args) {
 		File indirsFile = new File(args[0]);
@@ -100,7 +99,6 @@ public class GetTargetedSites {
 		}
 		
 	}
-
 
 	private static void input4Export(String[] args) {
 		File indirsFile = new File(args[0]);
@@ -127,7 +125,6 @@ public class GetTargetedSites {
 		}
 	}
 
-
 	private static void input4TmxMerge(String[] args) {
 		File indirsFile = new File(args[0]);
 		List<String> lines=new ArrayList<String>();
@@ -153,7 +150,6 @@ public class GetTargetedSites {
 		}
 	}
 
-
 	private static void input4Align(String[] args) {
 		File indirsFile = new File(args[0]);
 		List<String> lines=new ArrayList<String>();
@@ -177,7 +173,6 @@ public class GetTargetedSites {
 		}
 	}
 
-
 	private static void input4PairDetection(String[] args) {
 		File indirsFile = new File(args[0]);
 		List<String> lines=new ArrayList<String>();
@@ -200,7 +195,6 @@ public class GetTargetedSites {
 			System.out.println(temp_command);
 		}
 	}
-
 	
 	private static void input4AllTasks(String[] args) {
 		File sitesFile =new File(args[0]);
