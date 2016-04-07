@@ -69,16 +69,17 @@ public class TMXHandler {
 	private static double minPerce01Align=1;
 	private static double minTuLenRatio = 0;
 	private static double maxTuLenRatio = 100;
-	private static double median_word_length=15;
+	private static double median_word_length=25;
 	private static String doctypes;// = "aupidhml";
 	private static List<String> segtypes;
 	private static Set<String> segs = new HashSet<String>() ;
 	static Matcher twitterHandleMatcher = Pattern.compile("(^|[^@\\w])@(\\w{1,15})\\b").matcher("");
-	private static final String UNDERSCORE = "_";
+	private static final String UNDERSCORE_STR = "_";
+	private static final String SEMICOLON_STR=";";
+	private static final String HYPHEN_STR="-";
 	//private final static String PUNCT = ".";
 	//private final static String SEP = "-";
 	//private final static String UNDERSCORE = "_";
-	private static final String SEMI_SEPAR = ";";
 	private final static String UNKNOWN_STR ="unknown";
 	private static final String HTML =".html";
 	private static final String TMXEXT = ".tmx";
@@ -123,7 +124,6 @@ public class TMXHandler {
 		ha.setDocTypes(options.getDocTypes());
 		ha.setThres(options.getThres());
 		ha.setSegTypes(options.getSegTypes());
-		ha.setBaseName(options.getBaseName());
 		ha.setApplyOfflineXSLT(options.getXSLTransform());
 		ha.setLanguage(options.getLanguage());
 		ha.useISO6393(options.useISO6393());
@@ -137,7 +137,22 @@ public class TMXHandler {
 		ha.setKeepIdentical(options.getKeepIdentical());
 		ha.setKeepDuplicates(options.getKeepDuplicates());
 		ha.setMetadata(options.getMetadata());
-		ha.mergeTMXs();	
+		String[] languages = options.getLanguage().split(SEMICOLON_STR);
+		List<String> lang_pairs = new ArrayList<String>();
+		if (languages.length>1){
+			for (int ii=0;ii<languages.length-1;ii++){
+				for (int jj=ii+1;jj<languages.length;jj++){
+					lang_pairs.add(languages[ii]+SEMICOLON_STR+languages[jj]);
+				}
+			}
+		}
+		for (String lang_pair:lang_pairs){
+			ha.setLanguage(lang_pair);
+			String[] temp_langs = lang_pair.split(SEMICOLON_STR);
+			String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
+			ha.setBaseName(new File(options.getBaseName()+lang));
+			ha.mergeTMXs();
+		}
 	}
 
 	/**
@@ -167,11 +182,11 @@ public class TMXHandler {
 		if (keepdup)
 			filter9=" Duplicate alignments were kept.";
 		LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
-		
+
 		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.endsWith(TMXEXT) & arg1.contains(languages[0]) & arg1.contains(languages[1]));
+				return (arg1.endsWith(TMXEXT) & arg1.contains(ISOLangCodes.get3LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get3LetterCode(languages[1])));
 			}
 		};
 		if (!iso6393){
@@ -183,7 +198,7 @@ public class TMXHandler {
 		}		
 		String[] types = new String[doctypes.length()];
 		for (int ii=0;ii<doctypes.length();ii++){
-			types[ii] = UNDERSCORE+Character.toString(doctypes.charAt(ii))+TMXEXT;
+			types[ii] = UNDERSCORE_STR+Character.toString(doctypes.charAt(ii))+TMXEXT;
 		}
 		List<File> tmxfiles = new ArrayList<File>();
 		if (inputFile.isDirectory()){
@@ -268,7 +283,6 @@ public class TMXHandler {
 				domainEurovocIds.add(did);
 
 		}
-
 		return domainEurovocIds;
 	}
 
@@ -426,24 +440,26 @@ public class TMXHandler {
 					}
 				}
 				//FIXME should we check language?	//FIXME keep MD5 instead of string
-				String temp = normS+TAB+normT;
-				if (!keepdup & !segs.contains(temp)){
-					segs.add(temp);
-					ILSPAlignment alignment = new ILSPAlignment();
-					alignment.addSourceSegment(segpair.seg1);
-					alignment.addTargetSegment(segpair.seg2);
-					alignment.setScore((float)segpair.score);
-					alignment.setSite(segpair.site);
-					alignment.setMethod(segpair.method);
-					alignment.setLicense(segpair.license);
-					alignment.setType(segpair.type);
-					//float ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
-					alignment.setLengthRatio(Float.toString(ratio));
-					alignmentList.add(alignment);
-				}else{
-					LOGGER.warn("\t"+segpair.seg1);
-					LOGGER.warn("\t"+ segpair.seg2);
+				if (!keepdup){
+					String temp = normS+TAB+normT;
+					if (!segs.contains(temp)){
+						segs.add(temp);
+						LOGGER.warn("Already included");
+						LOGGER.warn("\t"+segpair.seg1);
+						LOGGER.warn("\t"+ segpair.seg2);
+						continue;
+					}
 				}
+				ILSPAlignment alignment = new ILSPAlignment();
+				alignment.addSourceSegment(segpair.seg1);
+				alignment.addTargetSegment(segpair.seg2);
+				alignment.setScore((float)segpair.score);
+				alignment.setSite(segpair.site);
+				alignment.setMethod(segpair.method);
+				alignment.setLicense(segpair.license);
+				alignment.setType(segpair.type);
+				alignment.setLengthRatio(Float.toString(ratio));
+				alignmentList.add(alignment);
 			}
 		}
 		LOGGER.info("NumofValid/UniqueAlignments: "+alignmentList.size()+"\t"+"totalNumofSegmentPairs: "+totalcounter);
@@ -472,7 +488,7 @@ public class TMXHandler {
 	 * @param languages
 	 */
 	public void setLanguage(String languages) {
-		TMXHandler.languages = languages.split(SEMI_SEPAR);
+		TMXHandler.languages = languages.split(SEMICOLON_STR);
 	}
 	public void useISO6393(boolean iso6393) {
 		TMXHandler.iso6393 = iso6393;

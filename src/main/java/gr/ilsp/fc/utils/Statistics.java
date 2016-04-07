@@ -19,6 +19,8 @@ public class Statistics {
 	}
 
 	public static double getMedian(Double[] numarray){
+		if (numarray.length==0)
+			return 0;
 		Arrays.sort(numarray);
 		int middle = numarray.length/2;
 		double medianValue = 0; //declare variable 

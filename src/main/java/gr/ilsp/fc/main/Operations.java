@@ -202,7 +202,6 @@ public class Operations {
 		TMXHandler ha = new TMXHandler();
 		ha.setConfig(TMXHandler.getConfig( options.getConfig()));
 		ha.setTargetDir(options.getInputDir());
-		ha.setBaseName(options.getBaseName());
 		ha.setApplyOfflineXSLT(options.isOfflineXSLT());
 		ha.setDocTypes(options.getDocTypes());
 		ha.setSegTypes(options.getSegTypes());

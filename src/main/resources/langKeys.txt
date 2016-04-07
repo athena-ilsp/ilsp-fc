@@ -18,7 +18,7 @@ lit>lit,lt,Lithuanian,lietuvių kalba,Lietuviškai
 ron>ron,rum,ro,Romanian,romanian,limba română
 nor>nor,no,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
 nld>nld,nl,Dutch,dutch,Nederlands,Vlaams,dut
-gl>glg,gl,Galician,galician,galego
+glg>glg,gl,Galician,galician,galego
 ces>ces,cz,Czech,czech,čeština,český jazyk
 dan>dan,da,Danish,danish,dansk
 bul>bul,bg,Bulgarian,bulgarian,Български,български език
@@ -26,3 +26,5 @@ rus>rus,ru,Russian,russian,Русский
 swe>swe,sv,Swedish,swedish,(sv),[sv],svenska
 slk>slk,sk,Slovak,slovenčina,slovenský jazyk 
 est>est,et,estonian,eesti
+srp>srp,sr,Serbian,српски језик,Srpski
+hrv>hrv,hr,Croatian
