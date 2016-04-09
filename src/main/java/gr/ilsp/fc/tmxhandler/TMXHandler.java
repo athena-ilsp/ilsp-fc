@@ -442,7 +442,7 @@ public class TMXHandler {
 				//FIXME should we check language?	//FIXME keep MD5 instead of string
 				if (!keepdup){
 					String temp = normS+TAB+normT;
-					if (!segs.contains(temp)){
+					if (segs.contains(temp)){
 						segs.add(temp);
 						LOGGER.warn("Already included");
 						LOGGER.warn("\t"+segpair.seg1);
