@@ -49,10 +49,15 @@ public class HrefLangUtils {
 	public static Map<String, String> getUrl2FileMap(File fileUrlLang) throws IOException {
 		Map<String, String> url2FileMap =  new HashMap<String, String>();
 		List<String> fileUrlLangLines = FileUtils.readLines(fileUrlLang);
+		int i = 1;
 		for (String line: fileUrlLangLines) {
 			String[] fields = StringUtils.split(line);
-			logger.debug(fields[0] + " " + fields[1] + " " + fields[2]);
+			//logger.info(fields[0] + " " + fields[1] + " " + fields[2]);
 			populateUrlFileMap(url2FileMap, fields[0], fields[1]);
+			i++;
+			if (i%100000==0) {
+				logger.info("Processed " + i + " lines.");
+			}
 		}
 		return url2FileMap;
 	}
@@ -98,9 +103,9 @@ public class HrefLangUtils {
 		urlFileMap.put(StringUtils.replacePattern(url, "\\.html\\?", "\\.aspx\\?"), file);
 		urlFileMap.put(StringUtils.replacePattern(url, "\\.html", ""), file);
 		urlFileMap.put(StringUtils.replacePattern(url, "\\.html", "/"), file);
-		urlFileMap.put((url + ".html"), file);
-		urlFileMap.put((url + ".aspx"), file);
-		urlFileMap.put((url + ".php"), file);
+		if (!url.contains(".html")) {
+			urlFileMap.put((url + ".html"), file);
+		}
 	}
 
 	public static void getHrefLangs(Map<String, String> url2FileMap, Map<String, String> l12l2FileMap, File htmlFile, String baseUri) throws IOException {
@@ -163,7 +168,21 @@ public class HrefLangUtils {
 					}
 				}
 			}
-			
+		} else if (baseUri.contains("www.juratourisme.ch") && links.isEmpty() ) {
+			if (otherLang.equals("en")) {
+//				<nav class="language column small4 medium3 large3 count3">
+//                 <a href="http://www.juratourisme.ch/fr/decouvertes/visites-de-villes-guidees.3540/visite-guidee-porrentruy.1513.html">FR</a>
+//                 <a href="http://www.juratourisme.ch/de/entdeckungen/stadtfuhrungen.3540/fuhrungen-durch-porrentruy.1513.html">DE</a>
+//                 <a href="http://www.juratourisme.ch/en/discoveries/guided-city-tours.3540/guided-tour-porrentruy.1513.html" class="on">EN</a>
+//                 </nav>
+				Elements addOnLinks = doc.select("nav > a[href]");
+				for (Element link:addOnLinks) {
+					if (StringUtils.lowerCase(link.text()).equals("en") ) {
+						//logger.info(link.toString());
+						links.add(link);break;
+					}
+				}
+			}			
 		}    
 		
         for (Element link: links) {
