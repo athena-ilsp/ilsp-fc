@@ -96,7 +96,11 @@ public class HrefLangUtils {
 		urlFileMap.put(StringUtils.replacePattern(url, "\\.aspx\\?", "\\.html\\?"), file);
 		urlFileMap.put(StringUtils.replacePattern(url, "\\.html$", "\\.aspx"), file);
 		urlFileMap.put(StringUtils.replacePattern(url, "\\.html\\?", "\\.aspx\\?"), file);
-
+		urlFileMap.put(StringUtils.replacePattern(url, "\\.html", ""), file);
+		urlFileMap.put(StringUtils.replacePattern(url, "\\.html", "/"), file);
+		urlFileMap.put((url + ".html"), file);
+		urlFileMap.put((url + ".aspx"), file);
+		urlFileMap.put((url + ".php"), file);
 	}
 
 	public static void getHrefLangs(Map<String, String> url2FileMap, Map<String, String> l12l2FileMap, File htmlFile, String baseUri) throws IOException {
@@ -110,7 +114,7 @@ public class HrefLangUtils {
 	        otherLang = "en";
 		}
         
-		// Hardcoded rules
+		// Hardcoded rules. FIXME: replace with a link classifier?
 		if (baseUri.contains("www.molior.ca") && links.isEmpty())  {
 			if (doc.select("li[class=lg] > a[href]")!=null) {
 				links.add(doc.select("li[class=lg] > a[href]").first());
@@ -131,7 +135,7 @@ public class HrefLangUtils {
 				Elements addOnLinks = doc.select("a[href]");
 				for (Element link:addOnLinks) {
 					if (link.attr("href").contains("english") ) {
-						logger.debug(link.toString());
+						//logger.debug(link.toString());
 						links.add(link);break;
 					}
 				}
@@ -142,11 +146,24 @@ public class HrefLangUtils {
 				Elements addOnLinks = doc.select("a[id=content_0_topmenu_0_langsw]");
 				for (Element link:addOnLinks) {
 					if (link.attr("lang").contains("en") ) {
-						logger.debug(link.toString());
+						//logger.debug(link.toString());
 						links.add(link);break;
 					}
 				}
 			}
+		} else if (baseUri.contains("www.technip.com") && links.isEmpty() ) {
+			if (otherLang.equals("en")) {
+				//<a href="../../../en/our-business/services/process-technologies.html" class="language-link" 
+				// xml:lang="en" title="Process Technologies">English</a></li>
+				Elements addOnLinks = doc.select("a[class=language-link]");
+				for (Element link:addOnLinks) {
+					if (link.attr("xml:lang").contains("en") ) {
+						//logger.debug(link.toString());
+						links.add(link);break;
+					}
+				}
+			}
+			
 		}    
 		
         for (Element link: links) {
@@ -167,6 +184,8 @@ public class HrefLangUtils {
         		} else {
         			l12l2FileMap.put(l2FileName, l1FileName);
         		}
+//        	} else {
+//        		logger.warn(href);
         	}
         }
 	}
