@@ -102,13 +102,30 @@ public class HrefLangUtils {
 	public static void getHrefLangs(Map<String, String> url2FileMap, Map<String, String> l12l2FileMap, File htmlFile, String baseUri) throws IOException {
         Document doc = Jsoup.parse(htmlFile, "UTF-8", baseUri);
         Elements links = doc.select("link[hreflang]");
-
+        
+        String myLang = "en";
+        String otherLang = "fr";
+		if (htmlFile.getName().startsWith("fr") ) {
+	        myLang = "fr";
+	        otherLang = "en";
+		}
+        
 		if (baseUri.contains("www.molior.ca"))  {
 			if (doc.select("li[class=lg] > a[href]")!=null) {
 				links.add(doc.select("li[class=lg] > a[href]").first());
 			}
+		} else if (baseUri.contains("www.axa.com") && links.isEmpty() ) {
+			// <a href="/en/newsroom/news/philanthropy-in-action-at-AXA" target="_self" class="navigation__language-button-mobile__lang navigation__language-button-mobile__lang--active">en</a>
+            // <a href="/fr/newsroom/actualites/AXA-une-philanthropie-en-action" target="_self" class="navigation__language-button-mobile__lang ">fr</a>
+			if (doc.select("a[class=navigation__language-button-mobile__lang] ")!=null) {
+				Elements addOnLinks = doc.select("a[class=navigation__language-button-mobile__lang] ");
+				for (Element link:addOnLinks) {
+					if (link.text().startsWith(otherLang) ) {
+						links.add(link);break;
+					}
+				}
+			}
 		}
-
         
         for (Element link: links) {
 			if (link==null) {
