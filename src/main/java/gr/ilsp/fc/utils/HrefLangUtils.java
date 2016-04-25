@@ -36,10 +36,14 @@ public class HrefLangUtils {
 		File htmlDir = new File(args[1]).getAbsoluteFile();
 		File hreflangList = new File(args[2]);
 		String baseURI = "http://" + htmlDir.getName().replace(".lett/", "/").replace(".lett", "/");
-		// Σαν παραμυθάκι....
+
+		logger.info("Reading url2file map");
 		Map<String, String> url2FileMap = getUrl2FileMap(file2UrlLangFile);
+		logger.info("Creating l12l map from " + htmlDir);
 		Map<String, String> l1l2FileMap = getl1l2FileMap(htmlDir, baseURI, url2FileMap,  "en", "fr");
+		logger.info("Writing hreflang list to " + hreflangList);
 		writeL1L2FileMap2File(l1l2FileMap, hreflangList);
+		logger.info("Done");
 	}
 
 	public static Map<String, String> getUrl2FileMap(File fileUrlLang) throws IOException {
@@ -71,7 +75,6 @@ public class HrefLangUtils {
 	
 	public static Map<String, String> getl1l2FileMap(File htmlDir, String baseURI, Map<String, String> url2FileMap) throws IOException {
 		Map<String, String> l1l2FileMap =  new HashMap<String, String>();
-		logger.info("Getting html files in " + htmlDir.getAbsolutePath());
 		Collection<File> htmlFiles = FileUtils.listFiles(htmlDir, new WildcardFileFilter("*html"), null);
 		for (File htmlFile : htmlFiles) {
 			//slogger.info(htmlFile.getAbsolutePath());
@@ -89,12 +92,29 @@ public class HrefLangUtils {
 		urlFileMap.put(StringUtils.replacePattern(url, "\\.php\\?", "\\.html\\?"), file);
 		urlFileMap.put(StringUtils.replacePattern(url, "\\.html$", "\\.php"), file);
 		urlFileMap.put(StringUtils.replacePattern(url, "\\.html\\?", "\\.php\\?"), file);
+		urlFileMap.put(StringUtils.replacePattern(url, "\\.aspx$", "\\.html"), file);
+		urlFileMap.put(StringUtils.replacePattern(url, "\\.aspx\\?", "\\.html\\?"), file);
+		urlFileMap.put(StringUtils.replacePattern(url, "\\.html$", "\\.aspx"), file);
+		urlFileMap.put(StringUtils.replacePattern(url, "\\.html\\?", "\\.aspx\\?"), file);
+
 	}
 
 	public static void getHrefLangs(Map<String, String> url2FileMap, Map<String, String> l12l2FileMap, File htmlFile, String baseUri) throws IOException {
         Document doc = Jsoup.parse(htmlFile, "UTF-8", baseUri);
         Elements links = doc.select("link[hreflang]");
+
+		if (baseUri.contains("www.molior.ca"))  {
+			if (doc.select("li[class=lg] > a[href]")!=null) {
+				links.add(doc.select("li[class=lg] > a[href]").first());
+			}
+		}
+
+        
         for (Element link: links) {
+			if (link==null) {
+				continue;
+			}
+
         	String href = link.attr("abs:href");
         	//String hreflang = StringUtils.lowerCase(link.attr("hreflang"));
         	href = StringUtils.replacePattern(href, baseUri+"(\\.\\./)+", baseUri+"");
@@ -115,14 +135,12 @@ public class HrefLangUtils {
 	
 	public static void writeL1L2FileMap2File( Map<String, String> l1l2FileMap, File hreflangList) throws IOException {
 		FileUtils.write(hreflangList, (""), "UTF-8", false);
-		logger.info("Writing to hreflang list " + hreflangList.getAbsolutePath());
 		TreeSet<String> treeSet = new TreeSet<String>( l1l2FileMap.keySet());
 		for (String key : treeSet) {
 			String value = l1l2FileMap.get(key);
 			//logger.info(key + value);
 			FileUtils.write(hreflangList, (key + "\t" + value + "\n"), "UTF-8", true);
 		}
-		logger.info("Done.");
 	}
 
 }
