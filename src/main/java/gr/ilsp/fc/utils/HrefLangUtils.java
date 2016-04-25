@@ -110,7 +110,8 @@ public class HrefLangUtils {
 	        otherLang = "en";
 		}
         
-		if (baseUri.contains("www.molior.ca"))  {
+		// Hardcoded rules
+		if (baseUri.contains("www.molior.ca") && links.isEmpty())  {
 			if (doc.select("li[class=lg] > a[href]")!=null) {
 				links.add(doc.select("li[class=lg] > a[href]").first());
 			}
@@ -125,8 +126,29 @@ public class HrefLangUtils {
 					}
 				}
 			}
-		}
-        
+		} else if (baseUri.contains("histalu.org") && links.isEmpty() ) {
+			if (otherLang.equals("en")) {
+				Elements addOnLinks = doc.select("a[href]");
+				for (Element link:addOnLinks) {
+					if (link.attr("href").contains("english") ) {
+						logger.debug(link.toString());
+						links.add(link);break;
+					}
+				}
+			}
+		} else if (baseUri.contains("pc.gc.ca") && links.isEmpty() ) {
+			if (otherLang.equals("en")) {
+				//<a id="content_0_topmenu_0_langsw" title="English - English version of the Web page" xml:lang="en" href="http://www.pc.gc.ca/eng/voyage-travel/reserve.aspx" lang="en">English</a>
+				Elements addOnLinks = doc.select("a[id=content_0_topmenu_0_langsw]");
+				for (Element link:addOnLinks) {
+					if (link.attr("lang").contains("en") ) {
+						logger.debug(link.toString());
+						links.add(link);break;
+					}
+				}
+			}
+		}    
+		
         for (Element link: links) {
 			if (link==null) {
 				continue;
