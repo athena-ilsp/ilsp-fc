@@ -314,6 +314,50 @@ public class HrefLangUtils {
 					}
 				}
 			}
+		} else if (baseUri.contains("www.unv.org") && links.isEmpty() ) {
+			if (otherLang.equals("en")) {
+				Elements addOnLinks = doc.select("a[href]");
+				for (Element link:addOnLinks) {
+					if (StringUtils.lowerCase(link.text()).trim().contains("english")) {
+						logger.info(link.toString());
+						links.add(link);
+						break;
+					}
+				}
+			}
+		} else if (baseUri.contains("www.oag-bvg.gc.ca") && links.isEmpty() ) {
+			if (otherLang.equals("en")) {
+				Elements addOnLinks = doc.select("a[href]");
+				for (Element link:addOnLinks) {
+					if (StringUtils.lowerCase(link.text()).trim().contains("english")) {
+						logger.info(link.toString());
+						links.add(link);
+						Element link2 = link.clone();
+						link2.attr("href", link.attr("href").replaceFirst("/English/", "/internet/English/"));	
+						links.add(link2);
+						break;
+					}
+				}
+			}
+//		} else if (baseUri.contains("www.iisd.ca") && links.isEmpty() ) {
+//			if (otherLang.equals("en")) {
+//				Elements addOnLinks = doc.select("a[href]");
+//				for (Element link:addOnLinks) {
+//
+//					if (link.absUrl("href").contains("index.html")  || link.absUrl("href").contains("mailto")) {
+//						continue;
+//					}
+//					
+//					String linkText = StringUtils.lowerCase(link.text()).trim();
+//
+//					if ((linkText.contains("english") || linkText.matches("^enb.*") || linkText.matches("/enb.*")  || linkText.contains("version anglaise") )  ) {
+//						logger.info(link.toString());
+//						links.add(link);
+//						break;
+//					}
+//				}
+//			}
+
 		} else  {
 			logger.info("Baseuri not matched " + baseUri);
 		}
@@ -338,7 +382,7 @@ public class HrefLangUtils {
 					l12l2FileMap.put(l2FileName, l1FileName);
 				}
 			} else {
-//				logger.warn(href);
+				logger.warn(href);
 			}
 		}
 	}
