@@ -604,7 +604,7 @@ public class Crawl {
 					ha.setKeepEmpty(options.getKeepEmpty());
 					ha.setKeepIdentical(options.getKeepIdentical());
 					ha.setKeepDuplicates(options.getKeepDuplicates());
-					ha.setMetadata(options.getMetadata());
+					//ha.setMetadata(options.getMetadata());
 					for (String lang_pair:lang_pairs){
 						ha.setLanguage(lang_pair);
 						String[] temp_langs = lang_pair.split(SEMICOLON_STR);

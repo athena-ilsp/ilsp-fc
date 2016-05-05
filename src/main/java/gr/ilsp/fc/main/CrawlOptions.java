@@ -95,7 +95,7 @@ public class CrawlOptions {
 	private boolean _keepem = false;
 	private boolean _keepiden = false;
 	private boolean _keepdup = false;
-	private boolean _metadata = false;
+	//private boolean _metadata = true;
 
 	private static final String XMLlist = ".xmllist.txt";
 	private static final String XMLHTMLlist = ".xmllist.html";
@@ -321,9 +321,9 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt( "creative_commons" )
 				.withDescription( "Force the alignment process to generate a merged TMX with sentence alignments only from document pairs for which an open content license has been detected.")
 				.create("cc") );
-		options.addOption( OptionBuilder.withLongOpt( "metadata" )
-				.withDescription( "Generate a metadata description with information for a resource created with the crawler")
-				.create("metadata") );
+		//options.addOption( OptionBuilder.withLongOpt( "metadata" )
+		//		.withDescription( "Generate a metadata description with information for a resource created with the crawler")
+		//		.create("metadata") );
 		return options;
 	}
 
@@ -727,8 +727,8 @@ public class CrawlOptions {
 		}
 		if (line.hasOption("cc"))
 			_cc=true;
-		if (line.hasOption("metadata"))
-			_metadata=true;
+		//if (line.hasOption("metadata"))
+		//	_metadata=true;
 	}
 
 	/**
@@ -995,7 +995,7 @@ public class CrawlOptions {
 	public boolean getKeepDuplicates() {
 		return _keepdup;
 	}
-	public boolean getMetadata() {
-		return _metadata;
-	}
+	//public boolean getMetadata() {
+	//	return _metadata;
+	//}
 }

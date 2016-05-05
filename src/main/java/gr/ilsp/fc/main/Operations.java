@@ -216,7 +216,7 @@ public class Operations {
 		ha.setKeepEmpty(options.getKeepEmpty());
 		ha.setKeepIdentical(options.getKeepIdentical());
 		ha.setKeepDuplicates(options.getKeepDuplicates());
-		ha.setMetadata(options.getMetadata());
+		//ha.setMetadata(options.getMetadata());
 		String[] languages = options.getLanguage().split(SEMICOLON_STR);
 		List<String> lang_pairs = new ArrayList<String>();
 		if (languages.length>1){
