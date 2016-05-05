@@ -47,10 +47,10 @@ public class BitextsURLs {
 				continue;
 			if (paired.contains(id1) && paired.contains(id2)) // Do not add the other pair direction. 
 				continue;
-			if (paired.contains(id1_lang))
+			/*if (paired.contains(id1_lang))
 				System.out.println("Multiple matches :" + id1_lang);
 			if (paired.contains(id2_lang))
-				System.out.println("Multiple matches :" + id2_lang);
+				System.out.println("Multiple matches :" + id2_lang);*/
 			String temp[] = {id1_lang, id2_lang, lang1,lang2, pair_type_link, Double.toString(features.get(id1_lang).numToksnoOOI+features.get(id2_lang).numToksnoOOI)};
 			if (id1_lang.compareTo(id2_lang)>0){
 				temp[0] = id2_lang;
@@ -277,32 +277,127 @@ public class BitextsURLs {
 	 */
 	private static boolean checkUrsPatterns(String url1, String url2, String lang1, String lang2) {
 		boolean found = false;
-
-		if (url1.replace("_"+lang1, "_"+lang2).equals(url2)
+		if (url1.equals(url2))
+			return false;
+			
+		if (url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2) 
+				|| url1.replace("_"+lang1, "_"+lang2).equals(url2)
+				|| url1.replace("/"+lang1+"/", "/").equals(url2)	| url2.replace("/"+lang2+"/", "/").equals(url1)
+				|| url1.replace("-"+lang1,"-"+lang2).equals(url2) 
+				|| url1.replace("lang="+lang1, "lang="+lang2).equals(url2) 
+				|| url1.replace(lang1,lang2).equals(url2) 
+				|| (url1.substring(0, url1.length()-4).equals(url2.substring(0, url2.length()-4)) &
+						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
+			return true;
+	
+		/*if (url1.replace("_"+lang1, "_"+lang2).equals(url2)
 				| url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2)
-				| url1.replace("/"+lang1+"/", "").equals(url2) | url2.replace("/"+lang2+"/", "").equals(url1)
+				| url1.replace("/"+lang1+"/", "/").equals(url2) | url2.replace("/"+lang2+"/", "/").equals(url1)
 				| url1.replace("lang=1", "lang=2").equals(url2)
 				| url1.replace("lang,1", "lang,2").equals(url2)
 				| url1.replace("lang="+lang1, "lang="+lang2).equals(url2)
+				| url1.replace("lingua="+lang1, "lingua="+lang2).equals(url2)
 				| url1.toLowerCase().replace("langid=1", "langid=2").equals(url2.toLowerCase())
 				| url1.replace("lang,1","lang,2").equals(url2) | url1.replace("lang,2","lang,1").equals(url2)
 				| url1.replace(lang1,lang2).equals(url2)
 				| (url1.substring(0, url1.length()-4).equals(url2.substring(0, url2.length()-4)) &
 						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
-			found =true;
+			return true;*/
 
+		if (checkUrslangPatterns(url1,url2))
+			return true;
+		
 		lang1 =  ISOLangCodes.get2LetterCode(lang1);
 		lang2 =  ISOLangCodes.get2LetterCode(lang2);
-		if (url1.replace("_"+lang1, "_"+lang2).equals(url2)
+
+	/*	if (url1.replace("_"+lang1, "_"+lang2).equals(url2)
 				| url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2)
-				| url1.replace("/"+lang1+"/", "").equals(url2) | url2.replace("/"+lang2+"/", "").equals(url1)
+				| url1.replace("/"+lang1+"/", "/").equals(url2) | url2.replace("/"+lang2+"/", "/").equals(url1)
+				| url1.replace("lang=1", "lang=2").equals(url2)
+				| url1.replace("lang,1", "lang,2").equals(url2)
 				| url1.replace("lang="+lang1, "lang="+lang2).equals(url2)
+				| url1.replace("lingua="+lang1, "lingua="+lang2).equals(url2)
+				| url1.toLowerCase().replace("langid=1", "langid=2").equals(url2.toLowerCase())
+				| url1.replace("lang,1","lang,2").equals(url2) | url1.replace("lang,2","lang,1").equals(url2)
 				| url1.replace(lang1,lang2).equals(url2)
 				| (url1.substring(0, url1.length()-4).equals(url2.substring(0, url2.length()-4)) &
 						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
-			found =true;
+			return true;*/
 
+		if (url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2)  
+				|| url1.replace("_"+lang1, "_"+lang2).equals(url2)
+				|| url1.replace("/"+lang1+"/", "/").equals(url2) | url2.replace("/"+lang2+"/", "/").equals(url1)
+				|| url1.replace("-"+lang1,"-"+lang2).equals(url2) 
+				|| url1.replace("lang="+lang1, "lang="+lang2).equals(url2) 
+				|| url1.replace(lang1,lang2).equals(url2) 
+				|| (url1.substring(0, url1.length()-4).equals(url2.substring(0, url2.length()-4)) &
+						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
+			return true;
+		
+		if (checkUrslangPatterns(url1,url2))
+			return true;
+		
 		return found;
 	}
 
+	
+	private static boolean checkUrslangPatterns(String url1, String url2) {
+		boolean found=false;
+		String[] patts = {"0", "1", "2", "3", "4"};
+		if (url1.contains("?&l") && url2.contains("?&l")){
+			for (int ii=0;ii<patts.length;ii++){
+				found =false;
+				for (int jj=0;jj<patts.length;jj++){
+					if (ii!=jj){
+						if (url1.replace("?&l="+ii, "?&l="+jj).equals(url2)){
+							found=true;
+							break;
+						}
+					}
+				}
+				if (found)
+					break;
+			}
+		}
+		if (found)
+			return true;
+		if (url1.contains("lingua") && url2.contains("lingua")){
+			for (int ii=0;ii<patts.length;ii++){
+				found =false;
+				for (int jj=0;jj<patts.length;jj++){
+					if (ii!=jj){
+						if (url1.replace("lingua="+ii, "lingua="+jj).equals(url2)){
+							found=true;
+							break;
+						}
+					}
+				}
+				if (found)
+					break;
+			}
+		}
+		if (found)
+			return true;
+		
+		if (url1.contains("lang") && url2.contains("lang")){
+			for (int ii=0;ii<patts.length;ii++){
+				found =false;
+				for (int jj=0;jj<patts.length;jj++){
+					if (ii!=jj){
+						if (url1.replace("lang="+ii, "lang="+jj).equals(url2)
+								|| url1.replace("lang,"+ii, "lang,"+jj).equals(url2)
+								|| url1.replace("langid=,"+ii, "langid=,"+jj).equals(url2)
+								|| url1.replace("_,"+ii, "_"+jj).equals(url2)){
+							found=true;
+							break;
+						}
+					}
+				}
+				if (found)
+					break;
+			}
+		}
+		return found;
+	}
+	
 }
