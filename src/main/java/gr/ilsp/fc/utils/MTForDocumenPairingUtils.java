@@ -47,7 +47,7 @@ public class MTForDocumenPairingUtils {
 			File outF = new File(htmlDir.getParent(), "out_" + htmlDir.getName());
 			File listF = new File(htmlDir.getParent(), "list_" + htmlDir.getName());
 			File URLListF = new File(htmlDir.getParent(), "URLList_" + htmlDir.getName());
-			File mtTextDir = new File(htmlDir.getParentFile().getParentFile(), FilenameUtils.concat("lett.test.mt.txt" , "www.ledindon.com.lett")); 
+			File mtTextDir = new File(htmlDir.getParentFile().getParentFile(), FilenameUtils.concat("lett.test.mt.txt" , htmlDir.getName())); 
 
 			logger.info("Examining web domain dir: " + htmlDir);
 			logger.info("Out list: " + outF.getName());
@@ -70,13 +70,13 @@ public class MTForDocumenPairingUtils {
 			// Filter out all files of pairs generating from specific methods. A horror story with wolves. 
 			txtFiles = filterOutTxtFiles(txtFiles, trustMethods, pairedFilesMethodsMap, mtPrefix);
 			
-			for (File txtFile : txtFiles) {
-				logger.info("Examining " + txtFile);
+//			for (File txtFile : txtFiles) {
+//				logger.info("Examining " + txtFile);
 //				if (xmlFile.getName().startsWith("en")) {
 //					File txtFile = new File(xmlFile.getParentFile(), FilenameUtils.getBaseName(xmlFile.getAbsolutePath())+".txt"); 
 //					cesDoc2Text(xmlFile, txtFile);
 //				}
-			}
+//			}
 			
 			System.out.println();
 		}

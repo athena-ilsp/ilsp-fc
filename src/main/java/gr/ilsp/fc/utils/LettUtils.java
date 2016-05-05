@@ -64,6 +64,11 @@ public class LettUtils {
 		Base64 base64 = new Base64();
 		for (String line = null; (line = br.readLine()) != null;) {
 			String[] fields = StringUtils.split(line, TAB_SEPARATOR);
+//			if (id==733) {		
+//				logger.info(id + "\t" + fields[0] + "\t" + fields[3] );
+//				logger.info(new String(base64.decode(fields[4].getBytes())));
+//
+//			}
 			File outFileHtml = new File(FilenameUtils.concat(corpusOutDir.getAbsolutePath(), fields[0] + HYPHEN + id++ + HTML_EXTENSION));
 			String decoded = new String(base64.decode(fields[4].getBytes()));
 			FileUtils.write(outFileHtml, decoded);
@@ -79,9 +84,12 @@ public class LettUtils {
 		logger.info("Using out dir " + lettDirHtml.getAbsolutePath());
 		DirUtils.createDir(lettDirHtml);
 		Collection<File> gzLettFiles = FileUtils.listFiles(lettDir, new WildcardFileFilter("*gz"), null);
-		for (File gzLettFile : gzLettFiles) {
+		for (File gzLettFile : gzLettFiles) {		
 			File corpusOutDir = new File(FilenameUtils.concat(lettDirHtml.getAbsolutePath(),
 					FilenameUtils.getBaseName(gzLettFile.getName())));
+//			if (!gzLettFile.getAbsolutePath().contains("italiasullarete") ) {
+//				continue;
+//			}
 			logger.info("Reading " + gzLettFile);
 			logger.info("Exporting html files to " + corpusOutDir);
 			try {
