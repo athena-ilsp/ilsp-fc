@@ -61,26 +61,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MalignaAligner extends Aligner {
-	
+
 
 	private static final Logger logger = LoggerFactory.getLogger(MalignaAligner.class);
 
-//	options.addOption("c", "class", true, "Algorithm class. Valid values are: viterbi, fb, one-to-one, unify.");
-//	options.addOption("o", "one", false, "Strict one to one alignment.");
-//	options.addOption("s", "search", true, "Search method. Valid values are: exhaustive, band, iterative-band. Required by viterbi and fb algorithms.");
-//	options.addOption("r", "radius", true, "Band radius in segments. Optional for band, iterband search method, default " + BandMatrixFactory.DEFAULT_BAND_RADIUS + ".");
-//	options.addOption("e", "increment", true, "Band increment ratio in each pass. Optional for iterband search method, default " + AdaptiveBandAlgorithm.DEFAULT_BAND_INCREMENT_RATIO + ".");
-//	options.addOption("m", "margin", true, "Band minimum acceptable margin. Optional for iterband search method, default " + AdaptiveBandAlgorithm.DEFAULT_MIN_BAND_MARGIN + ".");
-//	options.addOption("a", "calculator", true, "Calculator classes separated by commas. Valid values are: normal, poisson, translation, oracle. Required by viterbi and fb algorithms.");
-//	options.addOption("n", "counter", true, "Length counter, Valid values are: char, word. Required by normal and poisson calculators.");
-//	options.addOption("l", "length-corpus", true, "Length model training corpus. Optional for poisson calculator.");
-//	options.addOption("t", "translation-corpus", true, "Translation model training corpus. Optional for translation calculator.");
-//	options.addOption("d", "oracle-corpus", true, "Oracle calculator corpus. Required by oracle calculator.");
-//	options.addOption("x", "language-models", true, "Source and target language model separated by comma. Optional for translation calculator.");
-//	options.addOption("y", "translation-model", true, "Translation model. Optional for translation calculator.");
-//	options.addOption("i", "iterations", true, "Translation model train iteration count. Optional for translation calculator, default " + TranslationModelUtil.DEFAULT_TRAIN_ITERATION_COUNT + ".");
-//	options.addOption("u", "unification-corpus", true, "Unification reference corpus. Required by unify algorithm.");
-	
+	//	options.addOption("c", "class", true, "Algorithm class. Valid values are: viterbi, fb, one-to-one, unify.");
+	//	options.addOption("o", "one", false, "Strict one to one alignment.");
+	//	options.addOption("s", "search", true, "Search method. Valid values are: exhaustive, band, iterative-band. Required by viterbi and fb algorithms.");
+	//	options.addOption("r", "radius", true, "Band radius in segments. Optional for band, iterband search method, default " + BandMatrixFactory.DEFAULT_BAND_RADIUS + ".");
+	//	options.addOption("e", "increment", true, "Band increment ratio in each pass. Optional for iterband search method, default " + AdaptiveBandAlgorithm.DEFAULT_BAND_INCREMENT_RATIO + ".");
+	//	options.addOption("m", "margin", true, "Band minimum acceptable margin. Optional for iterband search method, default " + AdaptiveBandAlgorithm.DEFAULT_MIN_BAND_MARGIN + ".");
+	//	options.addOption("a", "calculator", true, "Calculator classes separated by commas. Valid values are: normal, poisson, translation, oracle. Required by viterbi and fb algorithms.");
+	//	options.addOption("n", "counter", true, "Length counter, Valid values are: char, word. Required by normal and poisson calculators.");
+	//	options.addOption("l", "length-corpus", true, "Length model training corpus. Optional for poisson calculator.");
+	//	options.addOption("t", "translation-corpus", true, "Translation model training corpus. Optional for translation calculator.");
+	//	options.addOption("d", "oracle-corpus", true, "Oracle calculator corpus. Required by oracle calculator.");
+	//	options.addOption("x", "language-models", true, "Source and target language model separated by comma. Optional for translation calculator.");
+	//	options.addOption("y", "translation-model", true, "Translation model. Optional for translation calculator.");
+	//	options.addOption("i", "iterations", true, "Translation model train iteration count. Optional for translation calculator, default " + TranslationModelUtil.DEFAULT_TRAIN_ITERATION_COUNT + ".");
+	//	options.addOption("u", "unification-corpus", true, "Unification reference corpus. Required by unify algorithm.");
+
 	private String cls = "viterbi"; 
 	private String search = "iterative-band";
 	private String counter = "word";	
@@ -106,13 +106,14 @@ public class MalignaAligner extends Aligner {
 
 	@Override
 	public AlignmentStats process(File sourceFile, File targetFile, File tmxFile) throws Exception {
-		
+
 		List<String> sourceSentences = new ArrayList<String>();
 		List<String> targetSentences = new ArrayList<String>();
-		
-		
+
+
 		if (sentenceSplitParagraphs) {
 			for (String sourceParagraph:  getParagraphs(sourceFile, isUseBoilerplateParagraphs(), isUseOoiLang(), isPreprocessSentences() )) {
+				//"###"
 				sourceSentences.addAll(sourceLangSentenceSplitter.getSentences(sourceParagraph, 1));
 			}
 			for (String targetParagraph:  getParagraphs(targetFile, isUseBoilerplateParagraphs(), isUseOoiLang(), isPreprocessSentences())) {
@@ -125,7 +126,7 @@ public class MalignaAligner extends Aligner {
 				PreAlignmentNormalizer.mergeUpPunctutionOnlySentences(sourceSentences);
 				PreAlignmentNormalizer.mergeUpPunctutionOnlySentences(targetSentences);
 			}
-		
+
 		} else {
 			for (String sourceParagraph:  getParagraphs(sourceFile, isUseBoilerplateParagraphs(), isUseOoiLang(), false)) {
 				sourceSentences.add(sourceParagraph);
@@ -134,25 +135,25 @@ public class MalignaAligner extends Aligner {
 				targetSentences.add(targetParagraph);
 			}
 		}
-		
-		
+
+
 		Alignment alignment = new Alignment(sourceSentences, targetSentences);
 		List<Alignment> alignmentList = Collections.singletonList(alignment);
 		AlignAlgorithm alignAlgorithm = createAlgorithm(alignmentList);		
-		
+
 		// UGLY HACK to avoid 
-//		INFO  12:06:41 - Source sentences 67 target sentences 1 (MalignaAligner.java:116)
-//		ERROR 12:06:41 - Could not align files: /opt/gv-20150731/data/gv-es-20080726-2373.xml - /opt/gv-20150731/data/gv-fr-20080719-575.xml (gr.ilsp.web.scripts.GlobalVoicesDataCollector [main] GlobalVoicesDataCollector.java:238)
-//		ERROR 12:06:41 -  (gr.ilsp.web.scripts.GlobalVoicesDataCollector [main] GlobalVoicesDataCollector.java:239)
+		//		INFO  12:06:41 - Source sentences 67 target sentences 1 (MalignaAligner.java:116)
+		//		ERROR 12:06:41 - Could not align files: /opt/gv-20150731/data/gv-es-20080726-2373.xml - /opt/gv-20150731/data/gv-fr-20080719-575.xml (gr.ilsp.web.scripts.GlobalVoicesDataCollector [main] GlobalVoicesDataCollector.java:238)
+		//		ERROR 12:06:41 -  (gr.ilsp.web.scripts.GlobalVoicesDataCollector [main] GlobalVoicesDataCollector.java:239)
 		//		java.util.NoSuchElementException
-//		at net.loomchild.maligna.matrix.BandMatrixIterator.next(BandMatrixIterator.java:47)
-//		at net.loomchild.maligna.filter.aligner.align.hmm.viterbi.ViterbiAlgorithm.align(ViterbiAlgorithm.java:82)
-//		at net.loomchild.maligna.filter.aligner.align.hmm.adaptive.AdaptiveBandAlgorithm.align(AdaptiveBandAlgorithm.java:137)
-//		at net.loomchild.maligna.filter.aligner.Aligner.apply(Aligner.java:37)
-//		at gr.ilsp.fc.aligner.factory.MalignaAligner.process(MalignaAligner.java:125)
-//		at gr.ilsp.web.scripts.GlobalVoicesDataCollector.sentenceAlign(GlobalVoicesDataCollector.java:236)
-//		at gr.ilsp.web.scripts.GlobalVoicesDataCollector.main(GlobalVoicesDataCollector.java:191)
-// 		FIXME: Consult maligna developer.
+		//		at net.loomchild.maligna.matrix.BandMatrixIterator.next(BandMatrixIterator.java:47)
+		//		at net.loomchild.maligna.filter.aligner.align.hmm.viterbi.ViterbiAlgorithm.align(ViterbiAlgorithm.java:82)
+		//		at net.loomchild.maligna.filter.aligner.align.hmm.adaptive.AdaptiveBandAlgorithm.align(AdaptiveBandAlgorithm.java:137)
+		//		at net.loomchild.maligna.filter.aligner.Aligner.apply(Aligner.java:37)
+		//		at gr.ilsp.fc.aligner.factory.MalignaAligner.process(MalignaAligner.java:125)
+		//		at gr.ilsp.web.scripts.GlobalVoicesDataCollector.sentenceAlign(GlobalVoicesDataCollector.java:236)
+		//		at gr.ilsp.web.scripts.GlobalVoicesDataCollector.main(GlobalVoicesDataCollector.java:191)
+		// 		FIXME: Consult maligna developer.
 		if (Math.abs(sourceSentences.size()-targetSentences.size()) > HARD_SENTENCE_DIFF_THRESHOLD && (sourceSentences.size()==1 || targetSentences.size()==1)) {
 			logger.warn("Skipping actual aligning: " + sourceFile + " " + targetFile + " " + tmxFile + ":"  + sourceSentences.size() + " " + targetSentences.size());
 		} else {
@@ -163,7 +164,36 @@ public class MalignaAligner extends Aligner {
 		}
 		net.loomchild.maligna.filter.aligner.Aligner aligner = new net.loomchild.maligna.filter.aligner.Aligner(alignAlgorithm);
 		alignmentList = aligner.apply(alignmentList);
-		
+		//List<Alignment> newalignmentList = new ArrayList<Alignment>();
+		//List<String> newsourceSentences = new ArrayList<String>();
+		//List<String> newtargetSentences = new ArrayList<String>();
+		/*boolean found=false;
+		for (Alignment temp:alignmentList){
+			List<String> sl = temp.getSourceSegmentList();
+			List<String> tl = temp.getTargetSegmentList();
+			found = false;
+			for (String s:sl){
+				if (s.contains("###")){
+					found = true;
+					break;
+				}
+			}
+			for (String t:tl){
+				if (t.contains("###")){
+					found = true;
+					break;
+				}
+			}
+			if (!found){
+				newalignmentList.add(temp);
+				for (String s:sl){
+					newsourceSentences.add(s);
+				}
+				for (String t:tl){
+					newtargetSentences.add(t);
+				}
+			}
+		}*/
 		Writer writer = getSingleWriter(tmxFile);
 		Formatter formatter = new BilingualScoredTmxFormatter(writer, getSourceLang(), getTargetLang(), sourceFile, targetFile);
 		formatter.format(alignmentList);
@@ -187,14 +217,14 @@ public class MalignaAligner extends Aligner {
 		}
 		return writer;
 	}
-	
+
 	private AlignAlgorithm createAlgorithm(List<Alignment> alignmentList) throws Exception {
 		String cls = this.getCls();
 		AlignAlgorithm algorithm;
 		if (cls.equals("fb") || cls.equals("viterbi")) {
 			Calculator calculator = createCalculator(alignmentList);
 			Map<Category, Float> categoryMap = 
-				CategoryDefaults.BEST_CATEGORY_MAP;
+					CategoryDefaults.BEST_CATEGORY_MAP;
 			String search = this.getSearch();
 			if (search == null) {
 				throw new Exception("MissingParameter search");
@@ -240,7 +270,7 @@ public class MalignaAligner extends Aligner {
 		}
 		return algorithm;
 	}
-	
+
 	private Counter createCounter() throws Exception {
 		String ctr = this.getCounter();
 		Counter counter;
@@ -255,7 +285,7 @@ public class MalignaAligner extends Aligner {
 		}
 		return counter;
 	}
-	
+
 	private Calculator createCalculator(List<Alignment> alignmentList) throws Exception {
 		String calculatorString = this.getCalculator();
 		if (calculatorString == null) {
@@ -264,7 +294,7 @@ public class MalignaAligner extends Aligner {
 		List<String> calculatorStringList = Arrays.asList(calculatorString.split(","));
 		return createCalculator(alignmentList, calculatorStringList);
 	}
-	
+
 	private Calculator createCalculator(List<Alignment> alignmentList, List<String> calculatorStringList) throws Exception {
 
 		List<Calculator> calculatorList = new ArrayList<Calculator>();
@@ -280,7 +310,7 @@ public class MalignaAligner extends Aligner {
 				calculator = createTranslationCalculator();
 			} else if(calculatorString.equals("oracle")) {
 				List<String> remainingCalculatorStringList = 
-					new ArrayList<String>();
+						new ArrayList<String>();
 				while (calculatorStringIterator.hasNext()) {
 					remainingCalculatorStringList.add(calculatorStringIterator.next());
 				}
@@ -291,7 +321,7 @@ public class MalignaAligner extends Aligner {
 			}
 			calculatorList.add(calculator);
 		}
-		
+
 		Calculator calculator;
 		if (calculatorList.size() == 1) {
 			calculator = calculatorList.get(0);
@@ -300,8 +330,8 @@ public class MalignaAligner extends Aligner {
 		}
 		return calculator;
 	}
-	
-	
+
+
 	private Calculator createNormalCalculator() throws Exception {
 		Counter counter = createCounter();
 		if (counter == null) {
@@ -333,7 +363,7 @@ public class MalignaAligner extends Aligner {
 		String translationCorpus = this.getTranslationCorpus();
 		String languageModels = this.getLanguageModels();
 		String transModel = this.getTransModel();
-		
+
 		Vocabulary sourceVocabulary = new Vocabulary();
 		Vocabulary targetVocabulary = new Vocabulary();
 		List<List<Integer>> sourceWidList = new ArrayList<List<Integer>>();
@@ -368,9 +398,9 @@ public class MalignaAligner extends Aligner {
 		}
 
 		calculator = new TranslationCalculator(sourceVocabulary, 
-					targetVocabulary, sourceLanguageModel, targetLanguageModel,
-					translationModel, VocabularyUtil.DEFAULT_TOKENIZE_ALGORITHM);
-		
+				targetVocabulary, sourceLanguageModel, targetLanguageModel,
+				translationModel, VocabularyUtil.DEFAULT_TOKENIZE_ALGORITHM);
+
 		return calculator;
 	}
 
@@ -384,7 +414,7 @@ public class MalignaAligner extends Aligner {
 		resultCalculator = new MinimumCalculator(new OracleCalculator(oracleAlignmentList), 
 				calculator, OracleCalculator.DEFAULT_SUCCESS_SCORE);
 		return resultCalculator;
-		
+
 	}
 
 	private LanguageModel loadLanguageModel(String fileName) {
@@ -398,13 +428,13 @@ public class MalignaAligner extends Aligner {
 		return TranslationModelUtil.parse(reader, sourceVocabulary, 
 				targetVocabulary);
 	}
-	
+
 	private List<Alignment> loadAlignmentList(String fileName) {
 		Reader reader = getReader(getFileInputStream(fileName));
 		Parser parser = new AlParser(reader);
 		return parser.parse();
 	}
-	
+
 
 	/**
 	 * @return the cls
@@ -616,22 +646,22 @@ public class MalignaAligner extends Aligner {
 				+ (calculator != null ? "calculator=" + calculator + ", " : "")
 				+ (lengthCorpus != null ? "lengthCorpus=" + lengthCorpus + ", "
 						: "")
-				+ (oracleCorpus != null ? "oracleCorpus=" + oracleCorpus + ", "
-						: "")
-				+ (translationCorpus != null ? "translationCorpus="
-						+ translationCorpus + ", " : "")
-				+ (languageModels != null ? "languageModels=" + languageModels
-						+ ", " : "")
-				+ (transModel != null ? "transModel=" + transModel + ", " : "")
-				+ "iterations=" + iterations + ", radius=" + radius
-				+ ", margin=" + margin + ", increment=" + increment + ", "
-				+ (sourceLang != null ? "sourceLang=" + sourceLang + ", " : "")
-				+ (targetLang != null ? "targetLang=" + targetLang + ", " : "")
-				+ "sentenceSplitParagraphs=" + sentenceSplitParagraphs
-				+ ", useBoilerplateParagraphs=" + useBoilerplateParagraphs
-				+ ", useOoiLang=" + useOoiLang + "]";
+						+ (oracleCorpus != null ? "oracleCorpus=" + oracleCorpus + ", "
+								: "")
+								+ (translationCorpus != null ? "translationCorpus="
+										+ translationCorpus + ", " : "")
+										+ (languageModels != null ? "languageModels=" + languageModels
+												+ ", " : "")
+												+ (transModel != null ? "transModel=" + transModel + ", " : "")
+												+ "iterations=" + iterations + ", radius=" + radius
+												+ ", margin=" + margin + ", increment=" + increment + ", "
+												+ (sourceLang != null ? "sourceLang=" + sourceLang + ", " : "")
+												+ (targetLang != null ? "targetLang=" + targetLang + ", " : "")
+												+ "sentenceSplitParagraphs=" + sentenceSplitParagraphs
+												+ ", useBoilerplateParagraphs=" + useBoilerplateParagraphs
+												+ ", useOoiLang=" + useOoiLang + "]";
 	}
 
-	
-	
+
+
 }

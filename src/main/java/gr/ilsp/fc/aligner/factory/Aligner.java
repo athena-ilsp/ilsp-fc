@@ -329,7 +329,15 @@ public abstract class Aligner {
 				if (isElementToIgnore(pElement)) {
 					continue;
 				}
-
+				/*//ungly hack to mark ooi-lang paragraphs and sentences. These languages are useful during alignment but have to be removed from the result 
+				if (pElement.hasAttribute(CRAWLINFO) && pElement.getAttribute(CRAWLINFO).equals(OOI_LANG) ) {
+					//System.out.println(pElement.getTextContent().trim());
+					//pElement.setTextContent(pElement.getTextContent().trim().replaceAll("\\p{L}", "#"));
+					//System.out.println(pElement.getTextContent().trim());
+					pElement.setTextContent("###"+pElement.getTextContent().trim());
+				} */
+				
+				
 				if (pElement.hasAttribute(CRAWLINFO) && pElement.getAttribute(CRAWLINFO).equals(BOILERPLATE) ) {
 					continue;
 				} else if (useOoilang==false && pElement.hasAttribute(CRAWLINFO) && pElement.getAttribute(CRAWLINFO).equals(OOI_LANG) ) {

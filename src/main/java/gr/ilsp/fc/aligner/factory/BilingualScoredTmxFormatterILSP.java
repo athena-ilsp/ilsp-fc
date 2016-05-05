@@ -30,6 +30,7 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 	private static final String SCORE = "score";
 	private static final String TYPE = "type";
 	private static final String SITE = "site";
+	private static final String INFO = "info";
 	private static final String LICENSE = "license";
 	private static final String LENGTHRATIO = "lengthRatio";
 	private static final String AVAILABILITY = "availability";
@@ -47,22 +48,14 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 	private static final String Num_Of_Unique_Words_L2 = "# of unique words in l2";
 	
 	private static final String EMPTY_STR = "";
-
 	private static final String SPACE_STR = " ";
-
 	public static final String TMX_VERSION = "1.4b";
-
 	public static final String TMX_ADMINLANG = "en";
 	private static final Logger logger = LoggerFactory.getLogger(BilingualScoredTmxFormatterILSP.class);
-
 	public static final String TMX_CREATIONTOOL = "mALIGNa";
-
 	public static final String TMX_CREATIONTOOLVERSION = "2";
-
 	public static final String TMX_SEGTYPE = "block";
-
 	public static final String TMX_DATATYPE = "plaintext";
-	
 	public static final String TMX_OTMF = "al";
 	public static final String DISTRIBUTOR = "distributor";
 	
@@ -88,13 +81,10 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 		this.sourceLanguageCode = sourceLanguageCode;
 		this.targetLanguageCode = targetLanguageCode;
 		this.corpusinfo = bilingualCorpusInformation;
-			
-		if (sourceFile!=null) {
+		if (sourceFile!=null) 
 			this.sourceFile = sourceFile;
-		} 
-		if (targetFile!=null) {
+		if (targetFile!=null) 
 			this.targetFile = targetFile;
-		}
 	}
 		
 	public void formatILSPAlignments(List<ILSPAlignment> alignmentList) {
@@ -128,13 +118,16 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 			licenseProperty.setType(LICENSE);
 			licenseProperty.getContent().add(EMPTY_STR+alignment.getLicense());
 			tu.getNoteOrProp().add(licenseProperty);
+			Prop infoProperty = new Prop();
+			infoProperty.setType(INFO);
+			infoProperty.getContent().add(EMPTY_STR+alignment.getInfo());
+			tu.getNoteOrProp().add(infoProperty);
 						
 			List<String> sourceSegments = alignment.getSourceSegmentList();
 			List<String> targetSegments = alignment.getTargetSegmentList();
 			
-			if (skipZeroToOneAlignments && ( sourceSegments.size() == 0 || targetSegments.size() == 0 )) {
+			if (skipZeroToOneAlignments && ( sourceSegments.size() == 0 || targetSegments.size() == 0 ))
 				continue;
-			}
 			
 			if (printAlignmentCategory) {
 				Prop alignmentCategoryProperty = new Prop();
@@ -148,18 +141,15 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 				for (String sourceSegment : sourceSegments) {
 					logger.debug(sourceSegment);
 				}
-				
 				logger.debug("Target " + targetSegments.size());
 				for (String targetSegment : targetSegments) {
 					logger.debug(targetSegment);
 				}
 			}
-			
 			createTuv(tu, sourceLanguageCode, sourceSegments);
 			createTuv(tu, targetLanguageCode, targetSegments);
-			if (tu.getTuv().size() > 0) {
+			if (tu.getTuv().size() > 0)
 				body.getTu().add(tu);
-			}
 		}
 		tmx.setBody(body);
 		TmxMarshallerUnmarshaller.getInstance().marshal(tmx, writer);	
@@ -183,9 +173,8 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 			List<String> sourceSegments = alignment.getSourceSegmentList();
 			List<String> targetSegments = alignment.getTargetSegmentList();
 			
-			if (skipZeroToOneAlignments && ( sourceSegments.size() == 0 || targetSegments.size() == 0 )) {
+			if (skipZeroToOneAlignments && ( sourceSegments.size() == 0 || targetSegments.size() == 0 )) 
 				continue;
-			}
 			
 			if (printAlignmentCategory) {
 				Prop alignmentCategoryProperty = new Prop();
@@ -199,18 +188,15 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 				for (String sourceSegment : sourceSegments) {
 					logger.debug(sourceSegment);
 				}
-				
 				logger.debug("Target " + targetSegments.size());
 				for (String targetSegment : targetSegments) {
 					logger.debug(targetSegment);
 				}
 			}
-			
 			createTuv(tu, sourceLanguageCode, sourceSegments);
 			createTuv(tu, targetLanguageCode, targetSegments);
-			if (tu.getTuv().size() > 0) {
+			if (tu.getTuv().size() > 0) 
 				body.getTu().add(tu);
-			}
 		}
 		tmx.setBody(body);
 		TmxMarshallerUnmarshaller.getInstance().marshal(tmx, writer);
@@ -316,13 +302,10 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 		if (segmentList.size() > 0) {
 			Tuv tuv = new Tuv();			
 			tuv.setLang(languageCode);
-
 			Seg seg = new Seg();
 			String segment = StringUtils.join(segmentList, SPACE_STR);
-			//String segment = merge(segmentList); 
 			seg.getContent().add(segment.trim());
 			tuv.setSeg(seg);
-			
 			tu.getTuv().add(tuv);
 		}
 	}

@@ -9,7 +9,6 @@ public class ILSPAlignment extends Alignment {
 	public static final float DEFAULT_SCORE = 0.0f;
 	public static final String EMPTY_STR = "";
 	public static final String UNDER_REVIEW_STR = "Under review";
-
 	//private List<String> sourceSegmentList;
 	//private List<String> targetSegmentList;
 	//private float score;
@@ -18,6 +17,7 @@ public class ILSPAlignment extends Alignment {
 	private String method;
 	private String lengthRatio;
 	private String type;
+	private String info;
 	
 	public ILSPAlignment() {
 		//this.sourceSegmentList = new ArrayList<String>();
@@ -28,6 +28,7 @@ public class ILSPAlignment extends Alignment {
 		this.method = EMPTY_STR;
 		this.lengthRatio = EMPTY_STR;
 		this.type = EMPTY_STR;
+		this.info = EMPTY_STR;
 	}
 
 	public ILSPAlignment(List<String> sourceSegmentList, List<String> targetSegmentList) {
@@ -38,6 +39,7 @@ public class ILSPAlignment extends Alignment {
 		this.method = EMPTY_STR;
 		this.lengthRatio = EMPTY_STR;
 		this.type = EMPTY_STR;
+		this.info = EMPTY_STR;
 	}
 
 	public ILSPAlignment(String[] sourceSegmentArray, String[] targetSegmentArray) {
@@ -48,6 +50,7 @@ public class ILSPAlignment extends Alignment {
 		this.method = EMPTY_STR;
 		this.lengthRatio = EMPTY_STR;
 		this.type = EMPTY_STR;
+		this.info = EMPTY_STR;
 	}
 
 	public ILSPAlignment(List<String> sourceSegmentList, List<String> targetSegmentList, float score) {
@@ -57,6 +60,7 @@ public class ILSPAlignment extends Alignment {
 		this.method = EMPTY_STR;
 		this.lengthRatio = EMPTY_STR;
 		this.type = EMPTY_STR;
+		this.info = EMPTY_STR;
 	}
 
 	public ILSPAlignment(String[] sourceSegmentArray, String[] targetSegmentArray, float score) {
@@ -66,8 +70,17 @@ public class ILSPAlignment extends Alignment {
 		this.method = EMPTY_STR;
 		this.lengthRatio = EMPTY_STR;
 		this.type = EMPTY_STR;
+		this.info = EMPTY_STR;
 	}
 
+	public String getInfo() {
+		return info;
+	}
+
+	public void setInfo(String info) {
+		this.info = info;
+	}
+	
 	public String getSite() {
 		return site;
 	}
@@ -106,8 +119,5 @@ public class ILSPAlignment extends Alignment {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
-	
-	
-	
+
 }
