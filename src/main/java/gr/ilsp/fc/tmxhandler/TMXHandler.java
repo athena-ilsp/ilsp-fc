@@ -63,7 +63,7 @@ public class TMXHandler {
 	private static boolean keepem = false;
 	private static boolean keepiden = false;
 	private static boolean keepdup = false;
-	private static boolean metadata=false;
+	private static boolean metadata=true;
 	private static boolean keepsn=false;
 	private static int minTuvLen=0;
 	private static double minPerce01Align=1;
@@ -136,7 +136,7 @@ public class TMXHandler {
 		ha.setKeepEmpty(options.getKeepEmpty());
 		ha.setKeepIdentical(options.getKeepIdentical());
 		ha.setKeepDuplicates(options.getKeepDuplicates());
-		ha.setMetadata(options.getMetadata());
+		//ha.setMetadata(options.getMetadata());
 		String[] languages = options.getLanguage().split(SEMICOLON_STR);
 		List<String> lang_pairs = new ArrayList<String>();
 		if (languages.length>1){
@@ -251,18 +251,18 @@ public class TMXHandler {
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
 
-			if (metadata){
-				BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
-				File metadataFile = new File(baseName.getAbsolutePath()+ MetadataExt);
-				LOGGER.info("Generating metadata descriptor " + metadataFile);
-				bilingualTmxMetashareDescriptor.setOutFile(metadataFile);
-				if (iso6393) {
-					bilingualTmxMetashareDescriptor.setMetadataLang("eng");
-				} else {
-					bilingualTmxMetashareDescriptor.setMetadataLang("en");
-				}
-				bilingualTmxMetashareDescriptor.run();
+			//if (metadata){
+			BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
+			File metadataFile = new File(baseName.getAbsolutePath()+ MetadataExt);
+			LOGGER.info("Generating metadata descriptor " + metadataFile);
+			bilingualTmxMetashareDescriptor.setOutFile(metadataFile);
+			if (iso6393) {
+				bilingualTmxMetashareDescriptor.setMetadataLang("eng");
+			} else {
+				bilingualTmxMetashareDescriptor.setMetadataLang("en");
 			}
+			bilingualTmxMetashareDescriptor.run();
+			//}
 		}else{
 			LOGGER.info("No proper TUs found.");
 		}
@@ -374,82 +374,29 @@ public class TMXHandler {
 						continue;
 					}
 				}
+				String info="";
 				//FIXME add constrains for length, or other "filters"
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
-				if (!keepem &( normS.isEmpty() || normT.isEmpty())){
-					LOGGER.warn("Discard due to an empty TUV ");
-					LOGGER.warn("\t"+segpair.seg1);
-					LOGGER.warn("\t"+ segpair.seg2);
-					continue;
-				}
-				if (!keepiden & normS.equals(normT)){
-					LOGGER.warn("Discard due to an equal TUVs ");
-					LOGGER.warn("\t"+segpair.seg1);
-					LOGGER.warn("\t"+ segpair.seg2);
-					continue;
-				}
-				if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normS)))>median_word_length){
-					LOGGER.warn("Discard due to long tokens in a TUV ");
-					LOGGER.warn("\t"+segpair.seg1);
-					LOGGER.warn("\t"+ segpair.seg2);
-					continue;
-				}
-				if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normT)))>median_word_length){
-					LOGGER.warn("Discard due to long tokens in a TUV ");
-					LOGGER.warn("\t"+segpair.seg1);
-					LOGGER.warn("\t"+ segpair.seg2);
-					continue;
-				}
-				if (FCStringUtils.countTokens(normS)<minTuvLen){
-					LOGGER.warn("Discard due to length (in tokens) of a TUV ");
-					LOGGER.warn("\t"+segpair.seg1);
-					LOGGER.warn("\t"+ segpair.seg2);
-					continue;
-				}
-				if (FCStringUtils.countTokens(normT)<minTuvLen){
-					LOGGER.warn("Discard due to length (in tokens) of a TUV ");
-					LOGGER.warn("\t"+segpair.seg1);
-					LOGGER.warn("\t"+ segpair.seg2);
-					continue;
-				}
+				if ( normS.isEmpty() || normT.isEmpty())
+					info = "non-letters";
+				if (normS.equals(normT))
+					info = "equal TUVs";
+				if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normS)))>median_word_length 
+						|| Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normT)))>median_word_length)
+					info = "very long tokens, longer than "+ median_word_length;
+				if (FCStringUtils.countTokens(normS)<minTuvLen || FCStringUtils.countTokens(normT)<minTuvLen)
+					info = "very short segments, shorter than "+minTuvLen ;
 				ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
-				if (ratio>maxTuLenRatio || ratio < minTuLenRatio){
-					LOGGER.warn("Discard due to charlength ratio of TUVs ");
-					LOGGER.warn("\t"+segpair.seg1);
-					LOGGER.warn("\t"+ segpair.seg2);
-					continue;
-				}
-				//if (Statistics.editDist(normS,normT)<distthr){ //FIXME add as parameter, check its influence
-				//	LOGGER.warn("Discard due to high similarity of TUVs ");
-				//	LOGGER.warn("\t"+segpair.seg1);
-				//	LOGGER.warn("\t"+ segpair.seg2);
-				//	continue;
-				//}
-				if (keepsn){
-					String num1=segpair.seg1.replaceAll("\\D+","");
-					String num2=segpair.seg2.replaceAll("\\D+","");
-					if (!num1.equals(num2)){
-						//double temp=Statistics.editDist(num1, num2) / (double) Math.min(num1.length(),num2.length());
-						//if (temp>0.35){
-						LOGGER.warn("Discard due to different numbers in TUVs ");
-						LOGGER.warn("\t"+segpair.seg1);
-						LOGGER.warn("\t"+ segpair.seg2);
-						continue;
-						//}
-					}
-				}
-				//FIXME should we check language?	//FIXME keep MD5 instead of string
-				if (!keepdup){
-					String temp = normS+TAB+normT;
-					if (segs.contains(temp)){
-						segs.add(temp);
-						LOGGER.warn("Already included");
-						LOGGER.warn("\t"+segpair.seg1);
-						LOGGER.warn("\t"+ segpair.seg2);
-						continue;
-					}
-				}
+				if (ratio>maxTuLenRatio || ratio < minTuLenRatio)
+					info="charlength ratio of TUVs is lower than "+ minTuLenRatio +" or higher than "+ minTuLenRatio;
+				String num1=segpair.seg1.replaceAll("\\D+","");
+				String num2=segpair.seg2.replaceAll("\\D+","");
+				if (!num1.equals(num2))
+					info="different numbers in TUVs";
+				String temp = normS+TAB+normT;
+				if (segs.contains(temp))
+					info = "duplicate";
 				ILSPAlignment alignment = new ILSPAlignment();
 				alignment.addSourceSegment(segpair.seg1);
 				alignment.addTargetSegment(segpair.seg2);
@@ -459,6 +406,7 @@ public class TMXHandler {
 				alignment.setLicense(segpair.license);
 				alignment.setType(segpair.type);
 				alignment.setLengthRatio(Float.toString(ratio));
+				alignment.setInfo(info);
 				alignmentList.add(alignment);
 			}
 		}

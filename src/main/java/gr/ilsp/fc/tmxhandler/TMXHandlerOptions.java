@@ -33,7 +33,7 @@ public class TMXHandlerOptions {
 	private boolean _keepem = false;
 	private boolean _keepiden = false;
 	private boolean _keepdup = false;
-	private boolean _metadata=false;
+	//private boolean _metadata=true;
 	private List<String> _segtypes=new ArrayList<String>();
 	private int[] _thres={ 10, 10, 10, 10, 10, 10, 10, 10};
 /*	private int _minTuvLen = 5;
@@ -97,9 +97,9 @@ public class TMXHandlerOptions {
 				.withDescription( "If exist, only document pairs for which"
 						+ " a license has been detected will be selected in merged TMX.")
 				.create("cc") );
-		options.addOption( OptionBuilder.withLongOpt( "export_collection_metadata" )
-				.withDescription( "If exist, metadata of the collection (i.e. the merged TMX file), will be exported")
-				.create("metadata") );
+		//options.addOption( OptionBuilder.withLongOpt( "export_collection_metadata" )
+		//		.withDescription( "If exist, metadata of the collection (i.e. the merged TMX file), will be exported")
+		//		.create("metadata") );
 		options.addOption( OptionBuilder.withLongOpt( "Min_TUV_Length" )
 				.withDescription( "minimum length of an acceptable TUV")
 				.hasArg()
@@ -166,8 +166,8 @@ public class TMXHandlerOptions {
 				_keepiden=true;
 			if (line.hasOption("keepdup"))
 				_keepdup=true;
-			if (line.hasOption("metadata"))
-				_metadata=true;
+			//if (line.hasOption("metadata"))
+			//	_metadata=true;
 			if (line.hasOption("iso6393"))		
 				_iso6393=true;
 			if(line.hasOption( "lang")) {
@@ -199,10 +199,6 @@ public class TMXHandlerOptions {
 					help();
 					System.exit(0);
 				}
-				//_thres = new int[temp.length];
-				//for (int ii=0;ii<temp.length;ii++){
-				//	_thres[ii]= Integer.parseInt(temp[ii]);
-				//}
 			}
 			if(line.hasOption( "segtypes")){
 				String[] temp= line.getOptionValue("segtypes").split(QUESTION_SEP); 
@@ -237,9 +233,9 @@ public class TMXHandlerOptions {
 	public boolean getCC() {
 		return _cc;
 	}
-	public boolean getMetadata() {
-		return _metadata;
-	}
+	//public boolean getMetadata() {
+	//	return _metadata;
+	//}
 	public boolean keepTuSameNum() {
 		return _keepsn;
 	}
