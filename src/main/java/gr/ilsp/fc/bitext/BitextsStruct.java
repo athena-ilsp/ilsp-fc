@@ -29,6 +29,135 @@ public class BitextsStruct {
 	private static final String ConstFile = "B19_last.txt";
 	private static final int URL_LEVEL=10;
 
+	
+/*	
+	public static ArrayList<String[]> findpairsXML_SVM_NEW(File xmldir,HashMap<String, DocVector> features, String[] langs) {
+		LOGGER.info("Examining pages based on structure");
+		double[][] sv=null, b = null, w=null;
+		try {
+			sv = BitextUtils.readSVMparams(SupportVectorsFile);
+			b = BitextUtils.readSVMparams(ConstFile);
+			w = BitextUtils.readSVMparams(WeightsFile);
+		} catch (IOException e) {
+			LOGGER.error("Problem in reading parameters of  SVM"); 
+			e.printStackTrace();
+		}
+		ArrayList<String[]> pairs = new ArrayList<String[]>();
+		
+		HashMap<String, DocVector> features1 = new HashMap<String, DocVector>();
+		HashMap<String, DocVector> features2 = new HashMap<String, DocVector>();
+		
+		Set<String> files_keys = features.keySet();
+		Iterator<String> files_it1 = files_keys.iterator();
+		
+		String key1, key2, lang1, lang2;
+		int level1, level2,  counter = 0, thous=0;
+		while (files_it1.hasNext()){
+			key1 = files_it1.next();
+			if (features.get(key1)==null){
+				continue;
+			}
+			DocVector t = features.get(key1);
+			if (features.get(key1).codeLang.equals(langs[0]))
+				features1.put(key1, t);
+			else{
+				if (features.get(key1).codeLang.equals(langs[1]))
+					features2.put(key1, t);
+			}
+		}
+		Set<String> files_keys1 = features1.keySet();
+		Set<String> files_keys2 = features2.keySet();
+		files_it1 = files_keys1.iterator();
+		double dist, sl_length , p2, p1;
+		Set<String> paired=new HashSet<String>();
+		while (files_it1.hasNext()){								
+			counter++;
+			if (counter/1000>thous){
+				thous++;
+				LOGGER.info((thous*1000)+ " files have been examined");
+			}
+			key1 = files_it1.next();
+			lang1 = features1.get(key1).codeLang;
+			level1 = features1.get(key1).urlLevel;
+			int[] sl =BitextUtils.readFingerprint(FilenameUtils.concat(xmldir.getAbsolutePath(),key1+appXMLTXText));
+			if (sl==null){
+				paired.add(key1);
+				continue;
+			}
+			int sflength =0;
+			for (int mm=0;mm<sl.length;mm++){
+				if (sl[mm]>0)
+					sflength = sflength+sl[mm];
+			}
+			sl_length = Double.parseDouble(Integer.toString(sl.length));
+			p1 = features1.get(key1).numPars; //Double.parseDouble(fileprops[2]);
+			double res=0.0;
+			//paired.add(key1);
+			Iterator<String> files_it2 = files_keys2.iterator();
+			while (files_it2.hasNext()){
+				key2 = files_it2.next();
+				if (paired.contains(key2))
+					continue;
+				if (features2.get(key2)==null){
+					paired.add(key2); // even it is not paired, we do not need to examine it 
+					continue;
+				}
+				lang2 = features2.get(key2).codeLang;
+				level2 = features2.get(key2).urlLevel;
+				if (Math.abs(level1-level2)>URL_LEVEL)
+					continue;		
+				p2 = features2.get(key2).numPars; 
+				if (Math.abs(p1-p2)/Math.max(p1, p2)>=pars_thres)
+					continue;
+				//if ((Math.abs(sl_par-tl_par)/Math.max(sl_par, tl_par))<pars_thres) {
+				int[] tl =BitextUtils.readFingerprint(FilenameUtils.concat(xmldir.getAbsolutePath(),key2+appXMLTXText));
+				if (tl==null){
+					paired.add(key2);
+					continue;
+				}
+				double tl_length = Double.parseDouble(Integer.toString(tl.length));
+				if (Math.abs(sl_length-tl_length)/Math.min(sl_length,tl_length)<=length_thres
+						|| (Math.abs(sl_length-tl_length)<10)){
+					dist= Double.parseDouble(Integer.toString(Statistics.editDist(sl,tl)));
+					double f1=0.0, f2=0.0, f3=0.0;
+					if (tl_length>=sl_length){
+						f1 = sl_length/tl_length;
+						f3=dist/tl_length;
+					}else{
+						f1 = tl_length/sl_length;
+						f3=dist/tl_length;
+					}
+					if (p2>=p1){
+						f2=p1/p2;
+					}else{
+						f2=p2/p1;
+					}
+					if (f3>=0.38 || f1<=0.7 || f2<=0.7)
+						res=-1;
+					else
+						res=Statistics.SVM_test(f1,f2,f3,sv,w,b,19.0);
+					if (res>0){
+						res=Math.abs(res);
+						double inv_res=1/res;
+						int tflength =0;
+						for (int mm=0;mm<tl.length;mm++){
+							if (tl[mm]>0)
+								tflength = tflength+tl[mm];
+						}
+						String pairlength = Double.toString(features2.get(key2).numToksnoOOI+features1.get(key1).numToksnoOOI);
+						if (key1.compareTo(key2)>0){
+							pairs.add(new String[] {key2,key1,lang2,lang1,Double.toString(inv_res),pairlength});
+						}else{
+							pairs.add(new String[] {key1,key2,lang1,lang2,Double.toString(inv_res),pairlength});
+						}
+					}
+				}
+			}
+		}
+		return pairs;
+	}*/
+	
+	
 	public static ArrayList<String[]> findpairsXML_SVM_NEW(File xmldir,HashMap<String, DocVector> features) {
 		LOGGER.info("Examining pages based on structure");
 		double[][] sv=null, b = null, w=null;
@@ -196,6 +325,7 @@ public class BitextsStruct {
 				}
 			}
 		}
+		LOGGER.info("multipairs found.");
 		int[] flags=new int[counts.length];
 		double dist, dist1;
 		for (int jj=0;jj<pairs.size();jj++){
@@ -205,6 +335,7 @@ public class BitextsStruct {
 				flags[jj]=1;
 			}
 		}
+		LOGGER.info("pairs with "+ h_struct_simil+" similarity found.");
 		for (int jj=0;jj<pairs.size();jj++){
 			if (counts[jj][0]==1 & counts[jj][1]==2 & flags[jj]==0){
 				dist = Double.parseDouble(pairs.get(jj)[4]);
@@ -254,6 +385,7 @@ public class BitextsStruct {
 				}
 			}
 		}
+		LOGGER.info("pairs with "+ m_struct_simil+" similarity found.");
 		ArrayList<String[]> new_pairs=new ArrayList<String[]>();
 		for (int ii=0;ii<pairs.size();ii++){
 			if (flags[ii]==0){
@@ -267,6 +399,7 @@ public class BitextsStruct {
 			bitexts.add(new String[] {new_bitexts.get(ii)[0], 
 					new_bitexts.get(ii)[1],new_bitexts.get(ii)[2],new_bitexts.get(ii)[3],l_struct_simil,new_bitexts.get(ii)[5]});
 		}
+		LOGGER.info("pairs with "+ l_struct_simil+" similarity found.");
 		return bitexts;
 	}
 

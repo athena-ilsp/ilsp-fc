@@ -62,7 +62,7 @@ public class Bitexts {
 	private static final String d_type = "d";
 	private static final String a_type = "a";
 	private static final String im_type = "i";
-	private static final String h_type = "s";
+	private static final String h_type = "h";
 	private static final String m_type = "m";
 	private static final String l_type = "l";
 	private static final String imdi_type = "p";
@@ -377,7 +377,9 @@ public class Bitexts {
 		//Find pairs based on similar structures
 		if (methods.contains(h_type) || methods.contains(m_type) || methods.contains(l_type)){
 			if (features.size()>1){
+				//bitexts  = BitextsStruct.findpairsXML_SVM_NEW(xmldir,features, langs);
 				bitexts  = BitextsStruct.findpairsXML_SVM_NEW(xmldir,features);
+				LOGGER.info("Candidate pairs (based on structure) are : "+bitexts.size());
 				ArrayList<String[]> bitextsSTRUCT = BitextsStruct.findBestPairs_SVM_NEW(bitexts);
 				if (bitextsSTRUCT.size()>0){
 					int[] counters = BitextsStruct.getPairProps(bitextsSTRUCT);
