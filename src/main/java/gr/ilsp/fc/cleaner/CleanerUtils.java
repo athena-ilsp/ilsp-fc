@@ -187,11 +187,6 @@ public class CleanerUtils {
 	}
 
 	
-	
-	
-	
-	
-	
 /*	*//**
 	 * Returns the main content of a fetched webpage.
 	 * @param input
@@ -484,11 +479,4 @@ List<TextBlock> blocks =textDocument.getTextBlocks();
 		}
 		return pars_attrs;
 	}
-
-
-	public static Set<String> mergeSets(Set<String> ilspboilerpars,	Set<String> temp) {
-
-		return ilspboilerpars;
-	}
-
 }
