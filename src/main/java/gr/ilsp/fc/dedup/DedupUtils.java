@@ -253,4 +253,21 @@ public class DedupUtils {
 		return t;
 	}
 
+	/**
+	 * get files from input directory the files for which their name a) do not contain excludeStr and b) end with input_type   
+	 * @param input
+	 * @param excludeStr
+	 * @param input_type
+	 * @return
+	 */
+	public static List<File> getTargetFiles(File input, String excludeStr,	String input_type) {
+		File[] allfiles=input.listFiles();
+		List<File> files = new ArrayList<File>();
+		for (File file:allfiles){
+			if (file.getName().contains(excludeStr) || !file.getName().endsWith(input_type))
+				continue;
+			files.add(file);
+		}
+		return files;
+	}
 }

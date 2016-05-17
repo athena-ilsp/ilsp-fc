@@ -279,16 +279,20 @@ public class BitextsURLs {
 		boolean found = false;
 		if (url1.equals(url2))
 			return false;
+	
+		if ( url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
+				|| url1.replace(lang1,lang2).equals(url2) || url1.replace(lang2,lang1).equals(url2))  
+			return true;
 			
-		if (url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2) 
-				|| url1.replace("_"+lang1, "_"+lang2).equals(url2)
-				|| url1.replace("/"+lang1+"/", "/").equals(url2)	| url2.replace("/"+lang2+"/", "/").equals(url1)
-				|| url1.replace("-"+lang1,"-"+lang2).equals(url2) 
-				|| url1.replace("lang="+lang1, "lang="+lang2).equals(url2) 
-				|| url1.replace(lang1,lang2).equals(url2) 
+		/*if (url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2) || url1.replace("/"+lang2+"/", "/"+lang1+"/").equals(url2)
+				|| url1.replace("_"+lang1, "_"+lang2).equals(url2)	|| url1.replace("_"+lang2, "_"+lang1).equals(url2)
+				|| url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
+				|| url1.replace("-"+lang1,"-"+lang2).equals(url2)   || url1.replace("-"+lang2,"-"+lang1).equals(url2) 
+				|| url1.replace("lang="+lang1, "lang="+lang2).equals(url2) || url1.replace("lang="+lang2, "lang="+lang1).equals(url2) 
+				|| url1.replace(lang1,lang2).equals(url2) || url1.replace(lang2,lang1).equals(url2)  
 				|| (url1.substring(0, url1.length()-4).equals(url2.substring(0, url2.length()-4)) &
 						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
-			return true;
+			return true;*/
 	
 		/*if (url1.replace("_"+lang1, "_"+lang2).equals(url2)
 				| url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2)
@@ -310,28 +314,8 @@ public class BitextsURLs {
 		lang1 =  ISOLangCodes.get2LetterCode(lang1);
 		lang2 =  ISOLangCodes.get2LetterCode(lang2);
 
-	/*	if (url1.replace("_"+lang1, "_"+lang2).equals(url2)
-				| url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2)
-				| url1.replace("/"+lang1+"/", "/").equals(url2) | url2.replace("/"+lang2+"/", "/").equals(url1)
-				| url1.replace("lang=1", "lang=2").equals(url2)
-				| url1.replace("lang,1", "lang,2").equals(url2)
-				| url1.replace("lang="+lang1, "lang="+lang2).equals(url2)
-				| url1.replace("lingua="+lang1, "lingua="+lang2).equals(url2)
-				| url1.toLowerCase().replace("langid=1", "langid=2").equals(url2.toLowerCase())
-				| url1.replace("lang,1","lang,2").equals(url2) | url1.replace("lang,2","lang,1").equals(url2)
-				| url1.replace(lang1,lang2).equals(url2)
-				| (url1.substring(0, url1.length()-4).equals(url2.substring(0, url2.length()-4)) &
-						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
-			return true;*/
-
-		if (url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2)  
-				|| url1.replace("_"+lang1, "_"+lang2).equals(url2)
-				|| url1.replace("/"+lang1+"/", "/").equals(url2) | url2.replace("/"+lang2+"/", "/").equals(url1)
-				|| url1.replace("-"+lang1,"-"+lang2).equals(url2) 
-				|| url1.replace("lang="+lang1, "lang="+lang2).equals(url2) 
-				|| url1.replace(lang1,lang2).equals(url2) 
-				|| (url1.substring(0, url1.length()-4).equals(url2.substring(0, url2.length()-4)) &
-						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
+		if ( url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
+				|| url1.replace(lang1,lang2).equals(url2) || url1.replace(lang2,lang1).equals(url2))  
 			return true;
 		
 		if (checkUrslangPatterns(url1,url2))

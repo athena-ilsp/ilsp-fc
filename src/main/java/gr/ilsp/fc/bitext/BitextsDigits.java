@@ -33,7 +33,7 @@ public class BitextsDigits {
 		ArrayList<String[]> pairs = new ArrayList<String[]>();
 		String  key1, key2, digits1, digits2, lang1, lang2;
 		String ind="", det_lang="";
-		int level1, level2, digits1length, counter = 0, thous=0;
+		int level1, level2, digits1length, digits2length, counter = 0, thous=0;
 		double mindist, p1, p2, tok1, tok2, disttok, dist;
 		Set<String> paired=new HashSet<String>();
 		Set<String> files=features.keySet();
@@ -73,6 +73,7 @@ public class BitextsDigits {
 					continue;
 				}
 				digits2=features.get(key2).digitList;
+				digits2length = digits2.length();
 				if (StringUtils.isBlank(digits2)){
 					paired.add(key2); // even it is not paired, we do not need to examine it
 					continue;	
@@ -93,14 +94,14 @@ public class BitextsDigits {
 				if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
 				if (disttok <= max_tok_dif) 
 					continue;
-				double temp = Statistics.editDist(digits1, digits2) / (double) Math.min(digits1length,digits2.length());
-				if (temp>0.2 && (digits2.length()<len_thr1 || digits1.length()<len_thr1) 
-						&& (digits2.length()>len_thr || digits1.length()>len_thr))
+				double temp = Statistics.editDist(digits1, digits2) / (double) Math.min(digits1length,digits2length);
+				if (temp>0.2 && (digits2length<len_thr1 || digits1length<len_thr1) 
+						&& (digits2length>len_thr || digits1length>len_thr))
 					continue;
-				if (temp>0.1 && (digits2.length()<len_thr || digits1.length()<len_thr) 
-						&& (digits2.length()>=len_thr2 || digits1.length()>=len_thr2))
+				if (temp>0.1 && (digits2length<len_thr || digits1length<len_thr) 
+						&& (digits2length>=len_thr2 || digits1length>=len_thr2))
 					continue;
-				if (digits2.length()<len_thr2 && digits1.length()<len_thr2 && temp>0) 
+				if (digits2length<len_thr2 && digits1length<len_thr2 && temp>0) 
 					continue;
 				//if (digits2.length()<len_thr3 && digits1.length()<len_thr3 && tok1<toknum_thr && tok2<toknum_thr ) 
 				//	continue;
@@ -139,6 +140,7 @@ public class BitextsDigits {
 		return pairs;
 	}
 
+	//FIXME: which symbols to keep?
 	public static ArrayList<String[]> findpairsSym(	HashMap<String, DocVector> features) {
 		ArrayList<String[]> pairs = new ArrayList<String[]>();
 		ArrayList<String> already_selected = new ArrayList<String>();

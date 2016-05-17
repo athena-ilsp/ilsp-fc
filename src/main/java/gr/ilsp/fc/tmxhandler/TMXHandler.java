@@ -163,7 +163,7 @@ public class TMXHandler {
 	 * 
 	 */
 	public void mergeTMXs() {
-		LOGGER.info("------------Merging of generated TMXs.------------");
+		LOGGER.info("------------Merging of generated TMXs for "+languages[0]+"-"+languages[1] +" language pair.------------");
 		outTMX = new File(baseName.getAbsolutePath()+TMXEXT);
 		if (!outTMX.getParentFile().exists())
 			outTMX.getParentFile().mkdirs();

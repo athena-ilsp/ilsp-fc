@@ -2,6 +2,7 @@ package gr.ilsp.fc.bitext;
 
 import gr.ilsp.fc.bitext.Bitexts.DocVector;
 import gr.ilsp.fc.main.ReadResources;
+//import gr.ilsp.fc.utils.Statistics;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -144,7 +145,7 @@ public class BitextUtils {
 	public static void calcToksperLang(HashMap<String, DocVector> features,	ArrayList<String[]> bitexts, String method) {
 		String[] stats=new String[4];
 		if (!bitexts.isEmpty()){
-			if (method.isEmpty()){
+			if (method.isEmpty()){ //i.e. all types
 				stats[0]=bitexts.get(0)[2];				stats[1]=Integer.toString(0);
 				stats[2]=bitexts.get(0)[3];				stats[3]=Integer.toString(0);
 				String p1, p2, lang1, lang2;
@@ -355,4 +356,574 @@ public class BitextUtils {
 		return res;
 	}
 
+	
+	
+	
+	
+	
+	/**
+	 * identifies pairs based on common digits
+	 * @param features holds filename as key and its features in DocVector as value
+	 * @return
+	 *//*
+	//FIXME thresholds should be checked and selected more carefully (if we keep using thresholds)
+	public static ArrayList<String[]> findpairsDig(HashMap<String,DocVector> features, String[] langs) {
+		LOGGER.info("Examining pages based on common digits");
+		ArrayList<String[]> pairs = new ArrayList<String[]>();
+		Set<String> paired=new HashSet<String>();
+		String  key, key1, key2, digits1, digits2;//, lang1, lang2;
+		String ind="";//, det_lang="";
+		int level1, level2, digits1length, digits2length, counter = 0, thous=0;
+		double mindist, p1, p2, tok1, tok2, disttok, dist;
+		
+		HashMap<String, DocVector> features1 = new HashMap<String, DocVector>();
+		HashMap<String, DocVector> features2 = new HashMap<String, DocVector>();
+		
+		Set<String> files_keys = features.keySet();
+		Iterator<String> files_it = files_keys.iterator();
+		//Split features in two groups: langs[0] , langs[1] 
+		while (files_it.hasNext()){
+			key = files_it.next();
+			if (features.get(key)==null)
+				continue;
+			DocVector t = features.get(key);
+			if (features.get(key).codeLang.equals(langs[0]))
+				features1.put(key, t);
+			else{
+				if (features.get(key).codeLang.equals(langs[1]))
+					features2.put(key, t);
+			}
+		}
+		Set<String> files_keys1 = features1.keySet();
+		Set<String> files_keys2 = features2.keySet();
+		Iterator<String> files_it1 = files_keys1.iterator();
+		LOGGER.info(files_keys1.size()+" files in "+ langs[0]);
+		LOGGER.info(files_keys2.size()+" files in "+ langs[1]);
+		//for each file of group 1 checks all files of group 2
+		//and keep the nearest if exists
+		while (files_it1.hasNext()){								
+			counter++;
+			if (counter/1000>thous){
+				thous++;
+				LOGGER.info((thous*1000)+ " files have been examined");
+			}
+			key1 = files_it1.next();			
+			if (paired.contains(key1))
+				continue;
+			if (features1.get(key1)==null){
+				paired.add(key1); // even it is not paired, we do not need to examine it 
+				continue;
+			}
+			digits1=features1.get(key1).digitList;
+			if (StringUtils.isBlank(digits1)){
+				paired.add(key1); // even it is not paired, we do not need to examine it 
+				continue;			
+			}
+			//lang1=features1.get(key1).codeLang;
+			level1=features1.get(key1).urlLevel;
+			p1=features1.get(key1).numPars;
+			tok1=features1.get(key1).numToksnoBoil;
+			digits1length = digits1.length();
+			mindist =max_dig_dif;
+			Iterator<String> files_it2 = files_keys2.iterator();
+			ind="";
+			while (files_it2.hasNext()){
+				key2 = files_it2.next();
+				if (paired.contains(key2))
+					continue;
+				if (features2.get(key2)==null){
+					paired.add(key2); // even it is not paired, we do not need to examine it 
+					continue;
+				}
+				digits2=features2.get(key2).digitList;
+				if (StringUtils.isBlank(digits2)){
+					paired.add(key2); // even it is not paired, we do not need to examine it
+					continue;	
+				}
+				//lang2=features2.get(key2).codeLang;
+				level2=features2.get(key2).urlLevel;
+				if (Math.abs(level1-level2)>URL_LEVEL)
+					continue;
+				p2=features2.get(key2).numPars;
+				//dist=0.0;
+				if (p1>p2) dist=p2/p1; else dist=p1/p2;
+				if (dist<max_par_dif)
+					continue;
+				tok2=features2.get(key2).numToksnoBoil;
+				//disttok=0.0;
+				if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
+				if (disttok <= max_tok_dif) 
+					continue;
+				digits2length=digits2.length();
+				double temp = Statistics.editDist(digits1, digits2) / (double) Math.min(digits1length,digits2length);
+				if (temp>0.2 && (digits2length<len_thr1 || digits1length<len_thr1) 
+						&& (digits2length>len_thr || digits1length>len_thr))
+					continue;
+				if (temp>0.1 && (digits2length<len_thr || digits1length<len_thr) 
+						&& (digits2length>=len_thr2 || digits1length>=len_thr2))
+					continue;
+				if (digits2length<len_thr2 && digits1length<len_thr2 && temp>0) 
+					continue;
+				//if (digits2.length()<len_thr3 && digits1.length()<len_thr3 && tok1<toknum_thr && tok2<toknum_thr ) 
+				//	continue;
+				if (temp<mindist){
+					mindist=temp;
+					//mindisttok=disttok;
+					ind = key2;
+					//det_lang = lang2;
+				}else{
+					if (temp==mindist & !ind.isEmpty()){
+						if (disttok>mindisttok){
+									ind = key2;
+									det_lang = lang2;
+									mindisttok=disttok;
+								}else{
+									if (disttok==mindisttok){
+						ind="";
+						break;
+						//}
+						//}
+					}
+				}
+			}
+			if (ind.isEmpty())	
+				continue;
+			else{
+				LOGGER.info("Matched:\t"+ key1 +"\t"+ind);
+				if (key1.compareTo(ind)<0){
+					pairs.add(new String[] {key1,ind,langs[0],langs[1],dig_pair_method, Double.toString(features1.get(key1).numToksnoOOI+features2.get(ind).numToksnoOOI)});
+				}else{
+					pairs.add(new String[] {ind,key1,langs[1], langs[0],dig_pair_method, Double.toString(features1.get(key1).numToksnoOOI+features2.get(ind).numToksnoOOI)});
+				}
+				paired.add(key1);
+				paired.add(ind); 
+			}
+		}
+		return pairs;
+	}*/
+	
+	
+
+/*
+	*//**
+	 * Detects pairs of docs based on common filenames of images and digits. It also checks # of pars, #of toks, urlslevel 
+	 * @param imagesInHTML : key is the filename and value is an array with imagenames
+	 * @param features holds filename as key and its features in DocVector as value
+	 * @param targetedlang1 
+	 * @return
+	 * @throws IOException 
+	 *//*
+	public static ArrayList<String[]> findpairsIMDI__(HashMap<String, String[]> imagesInHTML,HashMap<String, DocVector> features,String[] langs)  {
+		LOGGER.info("Examining pages for pairing based on common images and digits");
+		ArrayList<String[]> pairsIM=new ArrayList<String[]>();
+		HashMap<String,Double> temppairs=new HashMap<String,Double>();
+		//Set<String> files=imagesInHTML.keySet();
+		String key, key1, key2, digits1, digits2, temp_pair="";
+		Set<String> paired = new HashSet<String>();
+		int counter=0, thous=0, level1, level2;
+		double cp1, cp2, distcleanpar,  p1, p2, tok1, tok2, disttok, dist;
+
+		HashMap<String, DocVector> features1 = new HashMap<String, DocVector>();
+		HashMap<String, DocVector> features2 = new HashMap<String, DocVector>();
+
+		Set<String> files_keys = features.keySet();
+		Iterator<String> files_it = files_keys.iterator();
+		//Split features in two groups: langs[0] , langs[1] 
+		while (files_it.hasNext()){
+			key = files_it.next();
+			if (features.get(key)==null)
+				continue;
+			DocVector t = features.get(key);
+			if (features.get(key).codeLang.equals(langs[0]))
+				features1.put(key, t);
+			else{
+				if (features.get(key).codeLang.equals(langs[1]))
+					features2.put(key, t);
+			}
+		}
+		Set<String> files_keys1 = features1.keySet();
+		Set<String> files_keys2 = features2.keySet();
+		LOGGER.info(files_keys1.size()+" files in "+ langs[0]);
+		LOGGER.info(files_keys2.size()+" files in "+ langs[1]);
+		//for each file of group 1 checks all files of group 2
+		//and keep the nearest if exists
+
+		Iterator<String> files_it1 = files_keys1.iterator();
+		while (files_it1.hasNext()){									
+			counter++;
+			if (counter/1000>thous){
+				thous++;
+				LOGGER.info((thous*1000)+ " files have been examined");
+			}
+			key1 = files_it1.next();
+			if (paired.contains(key1)) 
+				continue;
+			if (features1.get(key1)==null){
+				paired.add(key1); // even it is not paired, we do not need to examine it
+				continue;
+			}
+			if (imagesInHTML.get(key1)==null || imagesInHTML.get(key1).length==0){
+				paired.add(key1);//even it is not paired, we do not need to examine it 
+				continue;
+			}
+			if (imagesInHTML.get(key1).length==0){
+			paired.add(key1);//even it is not paired, we do not need to examine it 
+			continue;
+		}
+
+			digits1=features1.get(key1).digitList;
+			Set<String> mySet1 = new HashSet<String>();
+			Collections.addAll(mySet1, imagesInHTML.get(key1));
+			if (mySet1.isEmpty()){
+				paired.add(key1);//even it is not paired, we do not need to examine it 
+				continue;
+			}
+			//lang1  = features.get(key1).codeLang;
+			level1=features1.get(key1).urlLevel;
+			p1=features1.get(key1).numPars;
+			cp1 = features1.get(key1).numCleanPars;
+			tok1= (double)features1.get(key1).numToksnoBoil;
+			temp_pair = "";
+			double temp_jacdist=0.0;
+			//String temp_lang=null;
+			Iterator<String> files_it2 = files_keys2.iterator();
+			while (files_it2.hasNext()){
+				key2 = files_it2.next();
+				if (paired.contains(key2))
+					continue;
+				if (features.get(key2)==null){
+					paired.add(key2);//even it is not paired, we do not need to examine it 
+					continue;
+				}
+				level2=features2.get(key2).urlLevel;
+				if (Math.abs(level1-level2)>URL_LEVEL)
+					continue;
+				if (imagesInHTML.get(key2)==null){
+					paired.add(key2);//even it is not paired, we do not need to examine it 
+					continue;
+				}
+				if (imagesInHTML.get(key2).length==0){
+					paired.add(key2);//even it is not paired, we do not need to examine it 
+					continue;
+				}
+				digits2=features2.get(key2).digitList;
+				Set<String> mySet2 = new HashSet<String>();
+				Collections.addAll(mySet2, imagesInHTML.get(key2));
+				if (mySet2.isEmpty()){
+					paired.add(key2);//even it is not paired, we do not need to examine it 
+					continue;
+				}
+				Set intersection = new HashSet(mySet1);
+				intersection.retainAll(mySet2);
+				double t1 = Double.parseDouble(Integer.toString(intersection.size()));
+				double t2 = Double.parseDouble(Integer.toString((mySet1.size()+mySet2.size()-intersection.size())));
+				double jac = t1/t2;
+				if (jac<jac_thr)
+					continue;
+				p2 = features2.get(key2).numPars;
+				cp2 = features2.get(key2).numCleanPars;
+				tok2 = (double)features2.get(key2).numToksnoBoil;
+				dist=0.0;
+				distcleanpar=0.0;
+				disttok=0.0;
+				if (p1>p2) dist=p2/p1; else dist=p1/p2;
+				if (cp1>cp2) distcleanpar=cp2/cp1; else distcleanpar=cp1/cp2;
+				if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
+				if (disttok <= toks_thr)
+					continue;
+				double digitdist = Statistics.editDist(digits1, digits2) / (double) Math.min(digits1.length(),digits2.length());
+				if (digitdist > digitdist_thr)
+					continue;
+				if ( dist>=pars_thr || distcleanpar>=pars_thr){ 
+					double t=jac*dist*disttok*(1-digitdist); 
+					if (t>temp_jacdist){
+						temp_pair=key2;
+						temp_jacdist=t;
+						LOGGER.info("Matched:\t"+key1+"\t"+temp_pair);
+					}else{
+						if (t==temp_jacdist & !temp_pair.isEmpty()){
+							temp_pair="";
+							break;
+						}
+					}
+					//temp_lang=lang2;
+				}
+			}
+			if (!temp_pair.isEmpty()){
+				String ta= key1 +"&"+temp_pair;
+				//String ta1= temp_pair+"&"+key1 +"&"+temp_lang+"&"+lang1;
+				if (temppairs.containsKey(ta)){
+					if (temppairs.get(ta)==temp_jacdist){
+						//if (key1.compareTo(temp_pair)<0){
+						//	pairsIM.add(new String[] {key1,temp_pair,langs[0], langs[1], imdi_pair_method, Double.toString(features.get(key1).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
+						//}
+						//if (key1.compareTo(temp_pair)>0){
+						//	pairsIM.add(new String[] {temp_pair, key1, langs[1], langs[0], imdi_pair_method, Double.toString(features.get(key1).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
+						//}
+						pairsIM.add(new String[] {key1,temp_pair,langs[0], langs[1], imdi_pair_method, Double.toString(features.get(key1).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
+						paired.add(key1);
+						paired.add(temp_pair);
+						LOGGER.info("Selected:\t"+key1+"\t"+temp_pair);
+						continue;
+					}
+				}else{
+					temppairs.put(ta, temp_jacdist);
+					pairsIM.add(new String[] {key1,temp_pair,langs[0], langs[1], imdi_pair_method, Double.toString(features.get(key1).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
+					paired.add(key1);
+					paired.add(temp_pair);
+					LOGGER.info("Selected:\t"+key1+"\t"+temp_pair);
+				}
+			}
+		}
+		return pairsIM;
+	}*/
+
+/*	//fixme: Do the following and the next methods provide the same results?
+	public static ArrayList<String[]> findpairsXML_SVM_NEW__(File xmldir,HashMap<String, DocVector> features, String[] langs) {
+		LOGGER.info("Examining pages based on structure");
+		double[][] sv=null, b = null, w=null;
+		try {
+			sv = BitextUtils.readSVMparams(SupportVectorsFile);
+			b = BitextUtils.readSVMparams(ConstFile);
+			w = BitextUtils.readSVMparams(WeightsFile);
+		} catch (IOException e) {
+			LOGGER.error("Problem in reading parameters of  SVM"); 
+			e.printStackTrace();
+		}
+		ArrayList<String[]> pairs = new ArrayList<String[]>();
+
+		HashMap<String, DocVector> features1 = new HashMap<String, DocVector>();
+		HashMap<String, DocVector> features2 = new HashMap<String, DocVector>();
+
+		Set<String> files_keys = features.keySet();
+		Iterator<String> files_it1 = files_keys.iterator();
+
+		String key1, key2, lang1, lang2;
+		int level1, level2,  counter = 0, thous=0;
+		//split features into two groups: lang1 and lang2
+		while (files_it1.hasNext()){
+			key1 = files_it1.next();
+			if (features.get(key1)==null){
+				continue;
+			}
+			DocVector t = features.get(key1);
+			if (features.get(key1).codeLang.equals(langs[0]))
+				features1.put(key1, t);
+			else{
+				if (features.get(key1).codeLang.equals(langs[1]))
+					features2.put(key1, t);
+			}
+		}
+		Set<String> files_keys1 = features1.keySet();
+		Set<String> files_keys2 = features2.keySet();
+		files_it1 = files_keys1.iterator();
+		double dist, sl_length , p2, p1;
+		Set<String> paired=new HashSet<String>();
+		HashMap<String, Integer> multipairs = new HashMap<String, Integer>();
+		while (files_it1.hasNext()){								
+			counter++;
+			if (counter/1000>thous){
+				thous++;
+				LOGGER.info((thous*1000)+ " files have been examined");
+			}
+			key1 = files_it1.next();
+			lang1 = features1.get(key1).codeLang;
+			level1 = features1.get(key1).urlLevel;
+			int[] sl =BitextUtils.readFingerprint(FilenameUtils.concat(xmldir.getAbsolutePath(),key1+appXMLTXText));
+			if (sl==null){
+				paired.add(key1);
+				continue;
+			}
+			int sflength =0;
+			for (int mm=0;mm<sl.length;mm++){
+				if (sl[mm]>0)
+					sflength = sflength+sl[mm];
+			}
+			sl_length = Double.parseDouble(Integer.toString(sl.length));
+			p1 = features1.get(key1).numPars; //Double.parseDouble(fileprops[2]);
+			double res=0.0;
+			paired.add(key1);
+			Iterator<String> files_it2 = files_keys2.iterator();
+			while (files_it2.hasNext()){
+				key2 = files_it2.next();
+				if (paired.contains(key2))
+					continue;
+				if (features2.get(key2)==null){
+					paired.add(key2); // even it is not paired, we do not need to examine it 
+					continue;
+				}
+				lang2 = features2.get(key2).codeLang;
+				level2 = features2.get(key2).urlLevel;
+				if (Math.abs(level1-level2)>URL_LEVEL)
+					continue;		
+				p2 = features2.get(key2).numPars; 
+				if (Math.abs(p1-p2)/Math.max(p1, p2)>=pars_thres)
+					continue;
+				//if ((Math.abs(sl_par-tl_par)/Math.max(sl_par, tl_par))<pars_thres) {
+				int[] tl =BitextUtils.readFingerprint(FilenameUtils.concat(xmldir.getAbsolutePath(),key2+appXMLTXText));
+				if (tl==null){
+					paired.add(key2);
+					continue;
+				}
+				double tl_length = Double.parseDouble(Integer.toString(tl.length));
+				if (Math.abs(sl_length-tl_length)/Math.min(sl_length,tl_length)<=length_thres
+						|| (Math.abs(sl_length-tl_length)<10)){
+					dist= Double.parseDouble(Integer.toString(Statistics.editDist(sl,tl)));
+					double f1=0.0, f2=0.0, f3=0.0;
+					if (tl_length>=sl_length){
+						f1 = sl_length/tl_length;
+						f3=dist/tl_length;
+					}else{
+						f1 = tl_length/sl_length;
+						f3=dist/tl_length;
+					}
+					if (p2>=p1){
+						f2=p1/p2;
+					}else{
+						f2=p2/p1;
+					}
+					if (f3>=0.38 || f1<=0.7 || f2<=0.7)
+						res=-1;
+					else
+						res=Statistics.SVM_test(f1,f2,f3,sv,w,b,19.0);
+					if (res>0){
+						LOGGER.info("Matched:\t"+ key1 + "\twith\t"+ key2);
+						res=Math.abs(res);
+						double inv_res=1/res;
+						int tflength =0;
+						for (int mm=0;mm<tl.length;mm++){
+							if (tl[mm]>0)
+								tflength = tflength+tl[mm];
+						}
+						String pairlength = Double.toString(features2.get(key2).numToksnoOOI+features1.get(key1).numToksnoOOI);
+						int t1=0, t2=0;
+						if (multipairs.containsKey(key1))
+							t1 = multipairs.get(key1);
+						t1=t1+1;
+						if (t1>2)
+							continue;
+						multipairs.put(key1, t1);
+						if (multipairs.containsKey(key2))
+							t2 = multipairs.get(key2);
+						t2=t2+1;
+						if (t2>2)
+							continue;
+						multipairs.put(key2, t2);
+						if (t1>2 || t2>2) //we do not care for docs which participate in more than 2 docs
+							continue;
+						if (key1.compareTo(key2)>0){
+							pairs.add(new String[] {key2,key1,lang2,lang1,Double.toString(inv_res),pairlength});
+						}else{
+							pairs.add(new String[] {key1,key2,lang1,lang2,Double.toString(inv_res),pairlength});
+						}
+					}
+				}
+			}
+		}
+		return pairs;
+	}*/
+
+
+	/*	*//**
+	 * Detects pairs of docs based on common filenames of images. It also checks # of pars, #of toks, urlslevel 
+	 * @param imagesInHTML : key is the filename and value is an array with imagenames
+	 * @param features holds filename as key and its features in DocVector as value
+	 * @param targetedlang1 
+	 * @return
+	 *//*
+	public static ArrayList<String[]> findpairsIM(HashMap<String, String[]> imagesInHTML,HashMap<String, DocVector> features) {
+		ArrayList<String[]> pairsIM=new ArrayList<String[]>();
+		Set<String> files_im_keys=imagesInHTML.keySet();
+		Iterator<String> files_im_it = files_im_keys.iterator();
+		String key_im, key;
+		String temp_pair="";
+		ArrayList<String> paired = new ArrayList<String>();
+		int counter=0, thous=0;
+
+		while (files_im_it.hasNext()){
+			key_im = files_im_it.next();
+			if (paired.contains(key_im)){
+				continue;
+			}
+			if (features.get(key_im)==null) continue;
+			String lang1=features.get(key_im).codeLang;
+			Set<String> mySet1 = new HashSet<String>();
+			if (imagesInHTML.get(key_im)==null)
+				continue;
+			Collections.addAll(mySet1, imagesInHTML.get(key_im));
+			if (mySet1.isEmpty()) continue;
+			Set<String> all_files_keys=features.keySet();
+			Iterator<String> all_files_it = all_files_keys.iterator();
+			temp_pair="";
+			double temp_pair_score=0.0;
+			String temp_lang=null;
+			while (all_files_it.hasNext()){
+				key = all_files_it.next();
+				if (paired.contains(key)){
+					continue;
+				}
+				if (features.get(key)==null) continue;
+				String lang2=features.get(key).codeLang;
+				if (!lang1.equals(lang2)){
+					Set<String> mySet2 = new HashSet<String>();
+					if (imagesInHTML.get(key)==null)
+						continue;
+					Collections.addAll(mySet2, imagesInHTML.get(key));
+					if (mySet2.isEmpty()) continue;
+					Set intersection = new HashSet(mySet1);
+					intersection.retainAll(mySet2);
+					if (Math.abs(mySet2.size()-mySet1.size())<im_dif_thr){
+						double t1 = Double.parseDouble(Integer.toString(intersection.size()));
+						double t2 = Double.parseDouble(Integer.toString((mySet1.size()+mySet2.size()-intersection.size())));
+						double jac = t1/t2;
+						if (jac<jac_thr){
+							continue;
+						}
+						double p1 = features.get(key_im).numPars;
+						double p2 = features.get(key).numPars;
+						double cp1 = features.get(key_im).numCleanPars;
+						double cp2 = features.get(key).numCleanPars;
+						double l1 = (double)features.get(key_im).urlLevel;
+						double l2 = (double)features.get(key).urlLevel;
+						double tok1 = (double)features.get(key_im).numToksnoBoil;
+						double tok2 = (double)features.get(key).numToksnoBoil;
+						double dist=0.0;
+						double distcleanpar=0.0;
+						double disttok=0.0;
+						if (p1>p2) dist=p2/p1; else dist=p1/p2;
+						if (cp1>cp2) distcleanpar=cp2/cp1; else distcleanpar=cp1/cp2;
+
+						if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
+						//System.out.println(key_im+"\t"+key);
+						if ( (dist>=pars_thr || distcleanpar>=pars_thr) && disttok > toks_thr && Math.abs(l1-l2)<urllevel_thr){  
+							if (jac>temp_pair_score){
+								temp_pair=key;
+								temp_pair_score=jac*dist;
+							}
+							temp_lang=lang2;
+						}
+					}
+				}
+			}
+			if (!temp_pair.isEmpty()){
+				if (key_im.compareTo(temp_pair)<0){
+					pairsIM.add(new String[] {key_im,temp_pair,lang1, temp_lang, im_pair_method, Double.toString(features.get(key_im).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
+					System.out.println("\t\t"+lang1+" "+ temp_lang+" "+key_im+" "+temp_pair);
+				}	
+				if (key_im.compareTo(temp_pair)>0){
+					pairsIM.add(new String[] {temp_pair, key_im, temp_lang, lang1, im_pair_method, Double.toString(features.get(key_im).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
+					System.out.println("\t\t"+temp_lang+" "+ lang1+" "+temp_pair+" "+key_im);
+				}
+			}
+			paired.add(key_im);
+			paired.add(temp_pair);
+			counter++;
+			if ((counter/1000)>thous){
+				thous++;
+				LOGGER.info((thous*1000) + " files have been examined");
+			}
+		}
+		return pairsIM;
+	}*/
+	
 }

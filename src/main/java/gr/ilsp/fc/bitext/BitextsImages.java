@@ -17,7 +17,7 @@ public class BitextsImages {
 	private final static double jac_thr=0.6;
 	private final static double toks_thr=0.4;
 	private final static double pars_thr=0.6;
-		//private final static int im_dif_thr=3;
+	//private final static int im_dif_thr=3;
 	private final static String im_pair_method = "i";
 	private final static String imdi_pair_method = "p";
 	private final static double digitdist_thr = 0.15;
@@ -135,6 +135,7 @@ public class BitextsImages {
 					if (t>temp_jacdist){
 						temp_pair=key2;
 						temp_jacdist=t;
+						//LOGGER.info("Matched:\t"+key1+"\t"+temp_pair);
 					}else{
 						if (t==temp_jacdist & !temp_pair.isEmpty()){
 							temp_pair="";
@@ -151,9 +152,11 @@ public class BitextsImages {
 					if (temppairs.get(ta1)==temp_jacdist){
 						if (key1.compareTo(temp_pair)<0){
 							pairsIM.add(new String[] {key1,temp_pair,lang1, temp_lang, imdi_pair_method, Double.toString(features.get(key1).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
+							//LOGGER.info("Selected:\t"+key1+"\t"+temp_pair);
 						}
 						if (key1.compareTo(temp_pair)>0){
 							pairsIM.add(new String[] {temp_pair, key1, temp_lang, lang1, imdi_pair_method, Double.toString(features.get(key1).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
+							//LOGGER.info("Selected:\t"+temp_pair+"\t"+key1);
 						}
 						paired.add(key1);
 						paired.add(temp_pair);
@@ -307,111 +310,5 @@ public class BitextsImages {
 		}
 		return pairsIM;
 	}
-
-
-	/*	*//**
-	 * Detects pairs of docs based on common filenames of images. It also checks # of pars, #of toks, urlslevel 
-	 * @param imagesInHTML : key is the filename and value is an array with imagenames
-	 * @param features holds filename as key and its features in DocVector as value
-	 * @param targetedlang1 
-	 * @return
-	 *//*
-	public static ArrayList<String[]> findpairsIM(HashMap<String, String[]> imagesInHTML,HashMap<String, DocVector> features) {
-		ArrayList<String[]> pairsIM=new ArrayList<String[]>();
-		Set<String> files_im_keys=imagesInHTML.keySet();
-		Iterator<String> files_im_it = files_im_keys.iterator();
-		String key_im, key;
-		String temp_pair="";
-		ArrayList<String> paired = new ArrayList<String>();
-		int counter=0, thous=0;
-
-		while (files_im_it.hasNext()){
-			key_im = files_im_it.next();
-			if (paired.contains(key_im)){
-				continue;
-			}
-			if (features.get(key_im)==null) continue;
-			String lang1=features.get(key_im).codeLang;
-			Set<String> mySet1 = new HashSet<String>();
-			if (imagesInHTML.get(key_im)==null)
-				continue;
-			Collections.addAll(mySet1, imagesInHTML.get(key_im));
-			if (mySet1.isEmpty()) continue;
-			Set<String> all_files_keys=features.keySet();
-			Iterator<String> all_files_it = all_files_keys.iterator();
-			temp_pair="";
-			double temp_pair_score=0.0;
-			String temp_lang=null;
-			while (all_files_it.hasNext()){
-				key = all_files_it.next();
-				if (paired.contains(key)){
-					continue;
-				}
-				if (features.get(key)==null) continue;
-				String lang2=features.get(key).codeLang;
-				if (!lang1.equals(lang2)){
-					Set<String> mySet2 = new HashSet<String>();
-					if (imagesInHTML.get(key)==null)
-						continue;
-					Collections.addAll(mySet2, imagesInHTML.get(key));
-					if (mySet2.isEmpty()) continue;
-					Set intersection = new HashSet(mySet1);
-					intersection.retainAll(mySet2);
-					if (Math.abs(mySet2.size()-mySet1.size())<im_dif_thr){
-						double t1 = Double.parseDouble(Integer.toString(intersection.size()));
-						double t2 = Double.parseDouble(Integer.toString((mySet1.size()+mySet2.size()-intersection.size())));
-						double jac = t1/t2;
-						if (jac<jac_thr){
-							continue;
-						}
-						double p1 = features.get(key_im).numPars;
-						double p2 = features.get(key).numPars;
-						double cp1 = features.get(key_im).numCleanPars;
-						double cp2 = features.get(key).numCleanPars;
-						double l1 = (double)features.get(key_im).urlLevel;
-						double l2 = (double)features.get(key).urlLevel;
-						double tok1 = (double)features.get(key_im).numToksnoBoil;
-						double tok2 = (double)features.get(key).numToksnoBoil;
-						double dist=0.0;
-						double distcleanpar=0.0;
-						double disttok=0.0;
-						if (p1>p2) dist=p2/p1; else dist=p1/p2;
-						if (cp1>cp2) distcleanpar=cp2/cp1; else distcleanpar=cp1/cp2;
-
-						if (tok1>tok2) disttok=tok2/tok1; else disttok=tok1/tok2;
-						//System.out.println(key_im+"\t"+key);
-						if ( (dist>=pars_thr || distcleanpar>=pars_thr) && disttok > toks_thr && Math.abs(l1-l2)<urllevel_thr){  
-							if (jac>temp_pair_score){
-								temp_pair=key;
-								temp_pair_score=jac*dist;
-							}
-							temp_lang=lang2;
-						}
-					}
-				}
-			}
-			if (!temp_pair.isEmpty()){
-				if (key_im.compareTo(temp_pair)<0){
-					pairsIM.add(new String[] {key_im,temp_pair,lang1, temp_lang, im_pair_method, Double.toString(features.get(key_im).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
-					System.out.println("\t\t"+lang1+" "+ temp_lang+" "+key_im+" "+temp_pair);
-				}	
-				if (key_im.compareTo(temp_pair)>0){
-					pairsIM.add(new String[] {temp_pair, key_im, temp_lang, lang1, im_pair_method, Double.toString(features.get(key_im).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
-					System.out.println("\t\t"+temp_lang+" "+ lang1+" "+temp_pair+" "+key_im);
-				}
-			}
-			paired.add(key_im);
-			paired.add(temp_pair);
-			counter++;
-			if ((counter/1000)>thous){
-				thous++;
-				LOGGER.info((thous*1000) + " files have been examined");
-			}
-		}
-		return pairsIM;
-	}*/
-
-
-
 
 }

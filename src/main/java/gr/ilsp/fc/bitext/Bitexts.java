@@ -307,6 +307,7 @@ public class Bitexts {
 				bitexts=new ArrayList<String[]>();
 				if (imagesInHTML.size()>1){
 					bitexts=BitextsImages.findpairsIMDI(imagesInHTML,features);
+					//bitexts=BitextsImages.findpairsIMDI__(imagesInHTML,features, langs);
 					if (bitexts.size()>0){
 						LOGGER.info(bitexts.size()+ " pairs found (based on images and digits).");
 						WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
@@ -325,6 +326,7 @@ public class Bitexts {
 		//Find pairs based on common digits
 		if (methods.contains(d_type)){
 			if (features.size()>1){
+				//bitexts = BitextsDigits.findpairsDig__(features, langs);
 				bitexts = BitextsDigits.findpairsDig(features);
 				if (bitexts.size()>0){
 					LOGGER.info(bitexts.size()+ " pairs found (based on digits).");
@@ -344,6 +346,7 @@ public class Bitexts {
 				bitexts=new ArrayList<String[]>();
 				if (imagesInHTML.size()>1){
 					bitexts=BitextsImages.findpairsIM(imagesInHTML,features);
+					//bitexts=BitextsImages.findpairsIM__(imagesInHTML,features,langs);
 					if (bitexts.size()>0){
 						LOGGER.info(bitexts.size()+ " pairs found (based on images).");
 						WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
@@ -357,7 +360,37 @@ public class Bitexts {
 				}
 			}
 		}
-
+		//Find pairs based on similar structures
+		if (methods.contains(h_type) || methods.contains(m_type) || methods.contains(l_type)){
+			if (features.size()>1){
+				//bitexts  = BitextsStruct.findpairsXML_SVM_NEW__(xmldir,features, langs);
+				bitexts  = BitextsStruct.findpairsXML_SVM_NEW(xmldir,features);
+				LOGGER.info("Candidate multi-pairs (based on structure) are : "+bitexts.size());
+				ArrayList<String[]> bitextsSTRUCT = BitextsStruct.findBestPairs_SVM_NEW(bitexts,methods);
+				if (bitextsSTRUCT.size()>0){
+					int[] counters = BitextsStruct.getPairProps(bitextsSTRUCT);
+					WriteBitexts.writeXMLs(outputDirName,bitextsSTRUCT,offlineXSLT);
+					LOGGER.info("Pairs found (based on structure) : "+bitextsSTRUCT.size());
+					LOGGER.info("(with high similarity) : " + counters[0]);
+					if (counters[0]>0)
+						BitextUtils.calcToksperLang(features,bitextsSTRUCT,h_struct_simil);
+					if (methods.contains(m_type)){
+						LOGGER.info("(with medium similarity) : " + counters[1]);
+						if (counters[1]>0)
+							BitextUtils.calcToksperLang(features,bitextsSTRUCT,m_struct_simil);
+					}
+					if (methods.contains(l_type)){
+						LOGGER.info("(with low similarity) :  "+ counters[2]);
+						if (counters[2]>0)
+							BitextUtils.calcToksperLang(features,bitextsSTRUCT,l_struct_simil);
+					}
+					moveFilesinPairs(bitextsSTRUCT,features, features_paired,imagesInHTML);
+					for (int ii=0;ii<bitextsSTRUCT.size();ii++)
+						bitextsALL.add(bitextsSTRUCT.get(ii));
+				}else
+					LOGGER.info("No pairs found (based on structure)");
+			}
+		}
 		//Find pairs based on common symbols
 		/*if (methods.contains(s_type)){	
 				if (features.size()>1){
@@ -374,36 +407,6 @@ public class Bitexts {
 						LOGGER.info("No pairs found (based on common digits)");
 				}
 			}*/
-		//Find pairs based on similar structures
-		if (methods.contains(h_type) || methods.contains(m_type) || methods.contains(l_type)){
-			if (features.size()>1){
-				//bitexts  = BitextsStruct.findpairsXML_SVM_NEW(xmldir,features, langs);
-				bitexts  = BitextsStruct.findpairsXML_SVM_NEW(xmldir,features);
-				LOGGER.info("Candidate pairs (based on structure) are : "+bitexts.size());
-				ArrayList<String[]> bitextsSTRUCT = BitextsStruct.findBestPairs_SVM_NEW(bitexts);
-				if (bitextsSTRUCT.size()>0){
-					int[] counters = BitextsStruct.getPairProps(bitextsSTRUCT);
-					WriteBitexts.writeXMLs(outputDirName,bitextsSTRUCT,offlineXSLT);
-					LOGGER.info("Pairs found (based on structure) : "+bitextsSTRUCT.size());
-					LOGGER.info("(with high similarity) : " + counters[0]);
-					if (counters[0]>0){
-						BitextUtils.calcToksperLang(features,bitextsSTRUCT,h_struct_simil);
-					}
-					LOGGER.info("(with medium similarity) : " + counters[1]);
-					if (counters[1]>0){
-						BitextUtils.calcToksperLang(features,bitextsSTRUCT,m_struct_simil);
-					}
-					LOGGER.info("(with low similarity) :  "+ counters[2]);
-					if (counters[2]>0){
-						BitextUtils.calcToksperLang(features,bitextsSTRUCT,l_struct_simil);
-					}
-					moveFilesinPairs(bitextsSTRUCT,features, features_paired,imagesInHTML);
-					for (int ii=0;ii<bitextsSTRUCT.size();ii++)
-						bitextsALL.add(bitextsSTRUCT.get(ii));
-				}else
-					LOGGER.info("No pairs found (based on structure)");
-			}
-		}
 		//Total results on document level
 		if (bitextsALL.size()>0){
 			bitextsALL = BitextUtils.sortbyLength(bitextsALL);

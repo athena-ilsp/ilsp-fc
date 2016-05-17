@@ -125,7 +125,7 @@ public class Crawl {
 	private static int MIN_PAR_LEN = 3;
 	private static String dedup_method ="0";
 	//parameters for valid TMXs
-	private static String detectpair_methods ="aupdis"; //i.e. href,url,images,digits, structure
+	//private static String detectpair_methods ="aupdih"; //i.e. href,url,images,digits, structure
 	private static int[] thres = new int[] { 10, 10, 10, 10, 10, 10, 10, 10}; //maximum numbers of 0:1 segments in a TMX per pair detection method
 
 	/**
@@ -568,7 +568,8 @@ public class Crawl {
 						pd.setUseImagepath(options.getImpath());
 						pd.setApplyXSLT(options.isOfflineXSLT());
 						pd.setURL_REPL(options.getUrlReplaces());
-						pd.setMethods(detectpair_methods);
+						//pd.setMethods(detectpair_methods);
+						pd.setMethods(options.getPairMethods());
 						pd.setDelFiles(options.getDel());
 						pd.pairDetect();
 					}

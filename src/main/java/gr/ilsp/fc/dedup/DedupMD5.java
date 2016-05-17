@@ -4,12 +4,13 @@ import gr.ilsp.fc.dedup.DedupUtils.TextAttr;
 import gr.ilsp.fc.main.WriteResources;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
+//import java.io.FilenameFilter;
+//import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
@@ -20,6 +21,7 @@ public class DedupMD5 {
 	private static final String appHTMLext = ".html";
 	private static final String appXMLHTMLext = ".xml.html";
 	private static final String UNDERSCORE_STR = "_";
+	private static final String PUNCT = ".";
 
 	/**
 	 * Gets files ending with input_type (cesDoc files are targeted) in the indirname directory,
@@ -44,33 +46,41 @@ public class DedupMD5 {
 		}
 		out_textfile =outputfilename;
 		
-		FilenameFilter filter = new FilenameFilter() {			
-			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type) && !arg1.contains(UNDERSCORE_STR));
-			}
-		};
-		File[] files=input.listFiles(filter);
-		if (files.length<2){
+		//FilenameFilter filter = new FilenameFilter() {			
+		//	public boolean accept(File arg0, String arg1) {
+		//		return (!arg1.contains(UNDERSCORE_STR) & arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type) );
+		//	}
+		//};
+		//File[] files=input.listFiles(filter);
+		/*File[] allfiles=input.listFiles();
+		List<File> files = new ArrayList<File>();
+		for (File file:allfiles){
+			if (file.getName().contains(UNDERSCORE_STR) || !file.getName().endsWith(input_type))
+				continue;
+			files.add(file);
+		}*/
+		List<File> files = DedupUtils.getTargetFiles(input,UNDERSCORE_STR, input_type);
+		if (files.size()<2){
 			LOGGER.info("The input list contains less than 2 files.");
 			return;
 		}
 		else
-			LOGGER.info(files.length+" files will be processed.");
-
+			LOGGER.info(files.size()+" files will be processed.");
+		
 		long start = System.currentTimeMillis();
 		HashMap<String, TextAttr> freqs = new HashMap<String, TextAttr>();
 		String file_hashkey="";
 		int cents=0;
 		String file_to_delete;
-		for (int ii=0;ii<files.length;ii++){
-			TextAttr t= DedupUtils.getTextAttrs(files[ii], MIN_TOKEN_LEN, input_type); //file under examination
+		for (int ii=0;ii<files.size();ii++){
+			TextAttr t= DedupUtils.getTextAttrs(files.get(ii), MIN_TOKEN_LEN, input_type); //file under examination
 			if (t==null)
 				continue;
 			LOGGER.debug(t.filename);
 			LOGGER.debug(t.hashkeyText);
 			file_hashkey = t.hashkeyText;
 			if (filesinPairs!=null){ //files in pairs are excluded from comparison for deduplication
-				if (filesinPairs.contains(files[ii].getName())){
+				if (filesinPairs.contains(files.get(ii).getName())){
 					freqs.put(file_hashkey, t);
 					continue;
 				}
@@ -99,8 +109,8 @@ public class DedupMD5 {
 				if (!file_to_delete.isEmpty()){
 					LOGGER.debug(t.filename+ "\t\t" + freqs.get(file_hashkey).filename+ "\tDELETED "+ file_to_delete);
 					(new File(file_to_delete)).delete();
-					(new File(file_to_delete.replace("."+input_type,appHTMLext))).delete();
-					(new File(file_to_delete.replace("."+input_type,appXMLHTMLext))).delete();
+					(new File(file_to_delete.replace(PUNCT+input_type,appHTMLext))).delete();
+					(new File(file_to_delete.replace(PUNCT+input_type,appXMLHTMLext))).delete();
 				}
 			}else{
 				freqs.put(file_hashkey, t);
@@ -111,11 +121,14 @@ public class DedupMD5 {
 			}
 		}
 
-		files=input.listFiles(filter);
+		/*files=input.listFiles(filter);
 		List<File> remFiles =new ArrayList<File>(); 
 		for (File file:files){
 			remFiles.add(file); 
-		}
+		}*/
+		String[] extensions=  {input_type};
+		List<File> remFiles = (List<File>) FileUtils.listFiles(input, extensions, false);
+		
 		WriteResources.WriteTextList(remFiles, out_textfile);
 		LOGGER.info("Created list of remaining cesDoc in "+ out_textfile.getAbsolutePath());
 		if (applyOfflineXSLT){
