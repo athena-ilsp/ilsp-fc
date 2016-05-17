@@ -304,6 +304,7 @@ public class Exporter {
 				int id = 1;
 
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
+					//LOGGER.info("current rundir: " +curDirPath);
 					id = exportToXml(conf,curDirPath, id,topic,targeteddomain, urlsToIds, neg_words);
 					LOGGER.debug("Current loop path in xml export is " + curDirPath );
 					int curLoop = CrawlDirUtils.extractLoopNumber(curDirPath);
@@ -1202,7 +1203,7 @@ public class Exporter {
 				e.printStackTrace();
 			}
 			if (Exporter.xslTransformer==null) {
-				LOGGER.warn("Cannot initialize xslTransformer. Will not transorm XML files using xslt.");
+				LOGGER.warn("Cannot initialize xslTransformer. Will not transform XML files using xslt.");
 				Exporter.applyOfflineXSLT=false;
 			}
 		}
