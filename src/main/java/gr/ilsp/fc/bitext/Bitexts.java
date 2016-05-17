@@ -113,6 +113,8 @@ public class Bitexts {
 		int urllevel=0, numofpars, numofToksb, numofTokso, numofcleanpars  ;
 		int counter=1;
 		boolean skip;
+		if (files==null || files.length==0)
+			return res;
 		for (int ii=0; ii<files.length ; ii++){
 			skip=false;
 			fileFinger =  files[ii]+appTXText;

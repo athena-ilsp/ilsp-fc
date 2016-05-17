@@ -73,7 +73,7 @@ public class PairDetector {
 		outTextList = new File(outBaseName.getAbsolutePath()+lang+XMLlist);
 		if (offlineXSLT)
 			outHTMLList = new File(outBaseName.getAbsolutePath()+lang+XMLHTMLlist);
-		if (bitextsALL!=null){
+		if (bitextsALL!=null && !bitextsALL.isEmpty() ){
 			LOGGER.info("Total pairs found: "+ bitextsALL.size());
 			WriteBitexts.writeOutList(outdir,outTextList,outHTMLList,bitextsALL);
 			LOGGER.info("Created list of cesAlign files in "+ outTextList.getAbsolutePath());
@@ -82,8 +82,11 @@ public class PairDetector {
 		}else{
 			LOGGER.info("No pairs found");
 		}
-		List<File> filelist = Arrays.asList(indir.listFiles());
-		FcFileUtils.removeFiles(filelist,tempFileExt);
+		File[] f=indir.listFiles();
+		if (f!=null){
+			List<File> filelist = Arrays.asList(indir.listFiles());
+			FcFileUtils.removeFiles(filelist,tempFileExt);
+		}
 		if (delFiles)
 			BitextUtils.removeRedundantFiles(indir,bitextsALL);
 

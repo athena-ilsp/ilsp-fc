@@ -188,6 +188,13 @@ public class Statistics {
 		}
 		return res;
 	}
+
+	public static double getMax(Double[] numarray) {
+		if (numarray.length==0)
+			return 0;
+		Arrays.sort(numarray);
+		return numarray[numarray.length-1];
+	}
 	
 	
 }
