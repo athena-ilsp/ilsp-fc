@@ -622,7 +622,7 @@ public class Crawl {
 				if (operation.contains(DEDUP_operation)){
 					Deduplicator ded = new Deduplicator();
 					ded.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
-					ded.setBaseName(options.getOutputFile());
+					ded.setBaseName(options.getBaseName());
 					ded.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ded.setMIN_TOK_LEN(MIN_TOK_LEN);
 					ded.setMIN_PAR_LEN(MIN_PAR_LEN);
