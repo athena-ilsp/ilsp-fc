@@ -9,6 +9,7 @@ import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.dedup.Deduplicator;
 import gr.ilsp.fc.exporter.Exporter;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.monomerge.MonoMerger;
 import gr.ilsp.fc.parser.DomainUrlFilter;
 import gr.ilsp.fc.tmxhandler.TMXHandler;
 //import gr.ilsp.fc.tmxhandler.TMXHandlerOptions;
@@ -99,6 +100,7 @@ public class Crawl {
 	private static final String ALIGN_operation = "align";
 	private static final String CONFIG_operation = "config";
 	private static final String TMXMERGE_operation = "tmxmerge";
+	private static final String MERGE_operation = "merge";
 	//parameters for configuration files
 	private static final String DEFAULT_CONFIG_FILE= "crawler_config.xml";
 	private static final String DEFAULT_MONO_CONFIG_FILE = "FMC_config.xml";
@@ -531,9 +533,9 @@ public class Crawl {
 			}
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//File parentDir =new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)); 
-			//Detect candidate parallel documents if crawled for parallel.	
+			//Detect candidate parallel documents if crawled for parallel.
+			File xmldir = new File(FilenameUtils.concat(options.getOutputDir().getAbsolutePath(),resultXMLDir));
 			if (options.getType().equals(p_type)){	
-				File xmldir = new File(FilenameUtils.concat(options.getOutputDir().getAbsolutePath(),resultXMLDir));
 				//This info is known from crawl session. If a pair exists in hreflangIDPairs, it does not mean that we have fetched the webpages of this pair (i.e. the cycles were not enough, the content is too short.
 				Map<String, String> idPairsFromTranslationLinks = BitextsTranslationLinks.getIdPairsFromTranslationLinks(urlPairsFromTranslationLinks, urlsToIds);
 
@@ -630,9 +632,21 @@ public class Crawl {
 					ded.setMethod(dedup_method);
 					ded.setInputType(XML_EXTENSION.substring(1));
 					ded.nearDedup();
+					int total_tokens = ReadResources.countToksinDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
+					LOGGER.info("Total tokens: "+ total_tokens);
 				}
-				int total_tokens = ReadResources.countToksinDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
-				LOGGER.info("Total tokens: "+ total_tokens);
+				if (operation.contains(MERGE_operation)){
+					MonoMerger  mm = new MonoMerger();
+					mm.setTargetDir(xmldir);
+					mm.setConfig(config);
+					mm.setApplyOfflineXSLT(options.isOfflineXSLT());
+					mm.useISO6393(options.useISO6393());
+					mm.setCC(options.getCC());
+					String lang = options.getLanguage().split(SEMICOLON_STR)[0];
+					mm.setLanguage(lang);
+					mm.setBaseName(new File(options.getBaseName()+lang));
+					mm.merge();
+				}
 			}
 			/////////////////////////////////////////////////////////////////////////////////////////////////////			
 			if (operation.contains(EXPORT_operation)){

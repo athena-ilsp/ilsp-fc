@@ -322,7 +322,28 @@ public class ReadResources {
 		return domain;
 	}
 
-	
+	/**
+	 * Extracts value nodeName from cesDocs
+	 * @param tmxfiles
+	 * @param nodeName
+	 * @return
+	 */
+	public static List<String> extactValueFromCesDoc(List<File> cesDocFiles, String nodeName) {
+		List<String> domain=new ArrayList<String>();
+		for (File cesDocFile:cesDocFiles){
+			String domain1 = ReadResources.extractNodefromXML(cesDocFile.getAbsolutePath(), nodeName, false);
+			if (!domain1.isEmpty()){
+				if (!domain.contains(domain1))
+					domain.add(domain1);
+			}
+			domain1 = ReadResources.extractNodefromXML(cesDocFile.getAbsolutePath(), nodeName, false);
+			if (!domain1.isEmpty()){
+				if (!domain.contains(domain1))
+					domain.add(domain1);
+			}
+		}
+		return domain;
+	}
 	
 	
 }
