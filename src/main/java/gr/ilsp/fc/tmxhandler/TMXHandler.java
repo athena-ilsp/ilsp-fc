@@ -428,8 +428,8 @@ public class TMXHandler {
 				String temp = normS+TAB+normT;
 				if (segs.contains(temp)){
 					if (info.isEmpty()){	info =  mes7;}		else{	info =  info + " | "+mes7;}	
-				}
-				System.out.println(info);
+				}else
+					segs.add(temp);
 				ILSPAlignment alignment = new ILSPAlignment();
 				alignment.addSourceSegment(segpair.seg1);
 				alignment.addTargetSegment(segpair.seg2);
