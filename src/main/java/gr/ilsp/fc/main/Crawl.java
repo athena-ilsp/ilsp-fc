@@ -638,7 +638,6 @@ public class Crawl {
 				if (operation.contains(MERGE_operation)){
 					MonoMerger  mm = new MonoMerger();
 					mm.setTargetDir(xmldir);
-					mm.setConfig(config);
 					mm.setApplyOfflineXSLT(options.isOfflineXSLT());
 					mm.useISO6393(options.useISO6393());
 					mm.setCC(options.getCC());

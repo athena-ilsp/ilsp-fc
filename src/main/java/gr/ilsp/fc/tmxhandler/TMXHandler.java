@@ -63,13 +63,14 @@ public class TMXHandler {
 	private static boolean keepem = false;
 	private static boolean keepiden = false;
 	private static boolean keepdup = false;
-	private static boolean metadata=true;
+	//private static boolean metadata=true;
 	private static boolean keepsn=false;
 	private static int minTuvLen=0;
 	private static double minPerce01Align=1;
 	private static double minTuLenRatio = 0;
 	private static double maxTuLenRatio = 100;
-	private static double median_word_length=25;
+	private static double median_word_length=20;
+	private static double max_word_length=30;
 	private static String doctypes;// = "aupidhml";
 	private static List<String> segtypes;
 	private static Set<String> segs = new HashSet<String>() ;
@@ -90,7 +91,16 @@ public class TMXHandler {
 	private final static String UTF_8 = "UTF-8";
 	//private final static String XSL_TMX2HTML = "http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl";
 	private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
-
+	
+	private final static String mes1 = "non-letters";
+	private final static String mes2 = "equal TUVs";
+	private final static String mes3 = "very long token, longer than ";
+	private final static String mes4 = "very short segments, shorter than ";
+	private final static String mes5 = "charlength ratio of TUVs is lower than ";
+	private final static String mes5a = " or higher than ";
+	private final static String mes6 = "different numbers in TUVs";
+	private final static String mes7 = "duplicate";
+	
 	private static int totalcounter=0;
 	//private static int distthr=5; //FIXME add as parameter
 
@@ -171,16 +181,16 @@ public class TMXHandler {
 		String filter1=" TMX files generated from document pairs which have been identified by non-"+ doctypes + " methods were discarded.";
 		String filter2=" TMX files with a zeroToOne_alignments/total_alignments ratio is larger than "+ minPerce01Align + ", were discarded.";
 		String filter3=" Alignments of non-" + segtypes+ " were discarded.";
-		String filter4=" Alignments with a TUV (after normalization) that has less than "+ minTuvLen + " tokens, were discarded.";
-		String filter5=" Alignments with a TUVs' length ratio less than " + minTuLenRatio+ " or more than "+ maxTuLenRatio + ", were discarded.";
+		String filter4=" Alignments with a TUV (after normalization) that has less than "+ minTuvLen + " tokens, were discarded/annotated.";
+		String filter5=" Alignments with a TUVs' length ratio less than " + minTuLenRatio+ " or more than "+ maxTuLenRatio + ", were discarded/annotated.";
 		if (keepsn)
 			filter6=" Alignments in which different digits appear in each TUV were discarded.";
 		if (keepiden)
-			filter7=" Alignments with identical TUVs (after normalization) were kept.";
+			filter7=" Alignments with identical TUVs (after normalization) were kept and annotated.";
 		if (keepem)
-			filter8=" Alignments with only non-letters in one at least one of their TUVs were kept.";
+			filter8=" Alignments with only non-letters in one at least one of their TUVs were kept and annotated.";
 		if (keepdup)
-			filter9=" Duplicate alignments were kept.";
+			filter9=" Duplicate alignments were kept and annotated.";
 		LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
 
 		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
@@ -370,33 +380,56 @@ public class TMXHandler {
 			float ratio;
 			for (SegPair segpair:segpairs){
 				if (!segtypes.isEmpty()){
-					if (!segtypes.contains(segpair.type)){
+					if (!segtypes.contains(segpair.type))
 						continue;
-					}
 				}
-				String info="";
+				String info="", info1="";
 				//FIXME add constrains for length, or other "filters"
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
 				if ( normS.isEmpty() || normT.isEmpty())
-					info = "non-letters";
-				if (normS.equals(normT))
-					info = "equal TUVs";
-				if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normS)))>median_word_length 
-						|| Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normT)))>median_word_length)
-					info = "very long tokens, longer than "+ median_word_length;
-				if (FCStringUtils.countTokens(normS)<minTuvLen || FCStringUtils.countTokens(normT)<minTuvLen)
-					info = "very short segments, shorter than "+minTuvLen ;
+					info =  mes1;
+				if (normS.equals(normT)){
+					if (info.isEmpty()){	info =  mes2;}		else{	info =  info + " | "+mes2;}	
+				}
+				List<String> stokens = FCStringUtils.getTokens(normS);
+				List<String> ttokens = FCStringUtils.getTokens(normT);
+				Double[] stokenslen= FCStringUtils.getTokensLength(stokens);
+				Double[] ttokenslen= FCStringUtils.getTokensLength(ttokens);
+				if (Statistics.getMax(stokenslen)>max_word_length){
+					info1 = mes3+ max_word_length;
+				}else{
+					if (Statistics.getMax(ttokenslen)>max_word_length)
+						info1 =  mes3+ max_word_length;
+					else{
+						if (Statistics.getMedian(stokenslen)>median_word_length)
+							info1 = mes3+ median_word_length;
+						else{
+							if (Statistics.getMedian(ttokenslen)>median_word_length)
+								info1 = mes3+ median_word_length;
+						}
+					}
+				}
+				if (!info1.isEmpty()){
+					if (info.isEmpty()){	info = info1;}	else{	info = info + " | "+info1;}
+				}	
+				if (FCStringUtils.countTokens(normS)<minTuvLen || FCStringUtils.countTokens(normT)<minTuvLen){
+					if (info.isEmpty()){	info = mes4+minTuvLen ;}		else{	info = info + " | "+mes4+minTuvLen ;}
+				}
 				ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
-				if (ratio>maxTuLenRatio || ratio < minTuLenRatio)
-					info="charlength ratio of TUVs is lower than "+ minTuLenRatio +" or higher than "+ minTuLenRatio;
+				if (ratio>maxTuLenRatio || ratio < minTuLenRatio){
+					if (info.isEmpty()){	info = mes5+  minTuLenRatio +mes5a+ maxTuLenRatio;}		else{	info = info + " | "+mes5+  minTuLenRatio +mes5a+ maxTuLenRatio ;}
+				}
 				String num1=segpair.seg1.replaceAll("\\D+","");
 				String num2=segpair.seg2.replaceAll("\\D+","");
-				if (!num1.equals(num2))
-					info="different numbers in TUVs";
+				if (!num1.equals(num2)){
+					if (info.isEmpty()){	info =  mes6;}		else{	info =  info + " | "+mes6;}	
+				}
 				String temp = normS+TAB+normT;
-				if (segs.contains(temp))
-					info = "duplicate";
+				if (segs.contains(temp)){
+					if (info.isEmpty()){	info =  mes7;}		else{	info =  info + " | "+mes7;}	
+				}
+				System.out.println(info);
 				ILSPAlignment alignment = new ILSPAlignment();
 				alignment.addSourceSegment(segpair.seg1);
 				alignment.addTargetSegment(segpair.seg2);
@@ -453,9 +486,9 @@ public class TMXHandler {
 	public void setCC(boolean cc) {
 		TMXHandler.cc  = cc;
 	}
-	public void setMetadata(boolean metadata) {
-		TMXHandler.metadata  = metadata;
-	}
+	//public void setMetadata(boolean metadata) {
+	//	TMXHandler.metadata  = metadata;
+	//}
 
 	public void KeepTuSameNum(boolean keep){
 		TMXHandler.keepsn=keep;
