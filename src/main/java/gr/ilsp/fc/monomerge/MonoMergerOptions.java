@@ -20,15 +20,10 @@ public class MonoMergerOptions {
 	private static final Logger LOGGER = Logger.getLogger(MonoMergerOptions.class);
 	private File _targetDir = null;
 	private File _baseName=null;
-	private String _config;
 	private String _language;
-	private String _doctypes="aupdih";
 	private boolean _oxslt=false;
 	private boolean _iso6393=false;
 	private boolean _cc=false;
-	//private boolean _metadata=true;
-	
-	private static final String QUEST_SEPAR = ";";
 	
 	public MonoMergerOptions() {
 		createOptions();
@@ -37,10 +32,6 @@ public class MonoMergerOptions {
 	@SuppressWarnings("static-access")
 	private Options createOptions() {
 		options = new Options();
-		options.addOption( OptionBuilder.withLongOpt( "config" )
-				.withDescription( "XML file with configuration for the tool." )
-				.hasArg()
-				.create("cfg") );
 		options.addOption( OptionBuilder.withLongOpt( "inputDir" )
 				.withDescription( "TMX files in this directory will be examined" )
 				.isRequired()
@@ -54,20 +45,17 @@ public class MonoMergerOptions {
 		options.addOption( OptionBuilder.withLongOpt( "transform_TMX2HTML" )
 				.withDescription( "render the generated merged TMX file as HTML" )
 				.create("oxslt") );
-		options.addOption( OptionBuilder.withLongOpt( "language(s)" )
-				.withDescription( "Target languages separated by ';' i.e. en;el" )
+		options.addOption( OptionBuilder.withLongOpt( "language" )
+				.withDescription( "Target language" )
 				.hasArg()
 				.create("lang") );
 		options.addOption( OptionBuilder.withLongOpt( "lang_code" )
-				.withDescription( "if exists iso6393 language codes are used.")
+				.withDescription( "if exists iso6393 language code is used.")
 				.create("iso6393") );
-		options.addOption( OptionBuilder.withLongOpt( "licence_detected_in_document_pairs" )
-				.withDescription( "If exist, only document pairs for which"
-						+ " a license has been detected will be selected in merged TMX.")
+		options.addOption( OptionBuilder.withLongOpt( "licence_detected_in_documents" )
+				.withDescription( "If exist, only documents for which"
+						+ " a license has been detected will be selected in collection.")
 				.create("cc") );
-		//options.addOption( OptionBuilder.withLongOpt( "export_collection_metadata" )
-		//		.withDescription( "If exist, metadata of the collection (i.e. the merged TMX file), will be exported")
-		//		.create("metadata") );
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
 				.create("h") );
@@ -80,8 +68,6 @@ public class MonoMergerOptions {
 		CommandLineParser clParser = new GnuParser();
 		try {
 			CommandLine line = clParser.parse( options, args );
-			if(line.hasOption( "cfg"))
-				_config = line.getOptionValue("cfg");
 			if(line.hasOption( "i")) {
 				_targetDir = new File(line.getOptionValue("i"));
 				_targetDir = new File(_targetDir.getAbsolutePath());
@@ -100,18 +86,12 @@ public class MonoMergerOptions {
 				_oxslt=true;
 			if (line.hasOption("cc"))
 				_cc=true;
-			//if (line.hasOption("metadata"))
-			//	_metadata=true;
 			if (line.hasOption("iso6393"))		
 				_iso6393=true;
 			if(line.hasOption( "lang")) {
 				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),_iso6393);
-				if (_language.split(QUEST_SEPAR).length!=2){
-					LOGGER.error("You should provide 2 languages.");
-					help();
-				}
 			}else{
-				LOGGER.error("No languages have been defined.");
+				LOGGER.error("No language has been defined.");
 				System.exit(0);
 			}
 		}catch( ParseException exp ) {
@@ -141,19 +121,10 @@ public class MonoMergerOptions {
 	public boolean getCC() {
 		return _cc;
 	}
-	//public boolean getMetadata() {
-	//	return _metadata;
-	//}
 	public File getBaseName(){
 		return _baseName;
 	}
 	public String getLanguage() { 
 		return _language;
-	}
-	public String getDocTypes() {
-		return _doctypes;
-	}
-	public String getConfig(){
-		return _config;
 	}
 }

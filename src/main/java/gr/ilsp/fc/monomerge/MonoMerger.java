@@ -68,14 +68,6 @@ public class MonoMerger {
 	//private final static String XSL_TMX2HTML = "http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl";
 	private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
 
-	public static CompositeConfiguration getConfig() {
-		return config;
-	}
-
-	public void setConfig(CompositeConfiguration config) {
-		MonoMerger.config = config;
-	}
-
 	private String creationDescription = "The ILSP Focused Crawler was used for the acquisition "
 			+ "of monolingual data from websites, and for the normalization, cleaning, and deduplication. ";
 			
@@ -84,7 +76,6 @@ public class MonoMerger {
 		options = new MonoMergerOptions();
 		options.parseOptions(args);
 		mm.setTargetDir(options.getTargetDir());
-		mm.setConfig(getConfig( options.getConfig()));
 		mm.setApplyOfflineXSLT(options.getXSLTransform());
 		mm.setLanguage(options.getLanguage());
 		mm.useISO6393(options.useISO6393());
