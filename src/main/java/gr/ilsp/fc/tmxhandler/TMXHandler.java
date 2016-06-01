@@ -91,16 +91,17 @@ public class TMXHandler {
 	private final static String UTF_8 = "UTF-8";
 	//private final static String XSL_TMX2HTML = "http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl";
 	private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
-	
+
 	private final static String mes1 = "non-letters";
 	private final static String mes2 = "equal TUVs";
-	private final static String mes3 = "very long token, longer than ";
+	//private final static String mes3 = "very long token, longer than ";
+	//private final static String mes3a = "very long tokens, median length is longer than ";
 	private final static String mes4 = "very short segments, shorter than ";
 	private final static String mes5 = "charlength ratio of TUVs is lower than ";
 	private final static String mes5a = " or higher than ";
 	private final static String mes6 = "different numbers in TUVs";
 	private final static String mes7 = "duplicate";
-	
+
 	private static int totalcounter=0;
 	//private static int distthr=5; //FIXME add as parameter
 
@@ -119,9 +120,9 @@ public class TMXHandler {
 			+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
 			+ "As a post-processing step, alignments were merged into one TMX file. "
 			+ "The following filters were applied: ";
-	private String filter6 = " Alignments in which different digits appear in each TUV were kept.";
+	private String filter6 = " Alignments in which different digits appear in each TUV were kept and annotated.";
 	private String filter7 = " Alignments with identical TUVs (after normalization) were removed.";
-	private String filter8 = " Alignments with only non-letters in one at least one of their TUVs were removed";
+	private String filter8 = " Alignments with only non-letters in at least one of their TUVs were removed";
 	private String filter9 = " Duplicate alignments were discarded.";
 
 
@@ -146,7 +147,6 @@ public class TMXHandler {
 		ha.setKeepEmpty(options.getKeepEmpty());
 		ha.setKeepIdentical(options.getKeepIdentical());
 		ha.setKeepDuplicates(options.getKeepDuplicates());
-		//ha.setMetadata(options.getMetadata());
 		String[] languages = options.getLanguage().split(SEMICOLON_STR);
 		List<String> lang_pairs = new ArrayList<String>();
 		if (languages.length>1){
@@ -238,7 +238,7 @@ public class TMXHandler {
 		HashMap<String, List<File>> tmxTypeFiles =FcFileUtils.clusterfiles(tmxfiles,doctypes);
 		for (int ii=0;ii<doctypes.length();ii++){
 			String m= Character.toString(doctypes.charAt(ii));
-			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, cc);
+			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, keepsn, cc);
 		}
 		if (!alignmentList.isEmpty()){
 			int[] stats1 =TMXHandlerUtils.countWordsInTMX(alignmentList,1);
@@ -363,7 +363,7 @@ public class TMXHandler {
 	 * @return
 	 */
 
-	private List<ILSPAlignment> addTMXs(List<File> tmxFiles, List<ILSPAlignment> alignmentList, String type, boolean keepem, boolean keepiden, boolean keepdup, boolean cc) {
+	private List<ILSPAlignment> addTMXs(List<File> tmxFiles, List<ILSPAlignment> alignmentList, String type, boolean keepem, boolean keepiden, boolean keepdup, boolean ksn, boolean cc) {
 		LOGGER.info("Examining docpairs of type "+ type);
 		int thr = thres[doctypes.indexOf(type)];
 		if (tmxFiles==null)
@@ -383,36 +383,37 @@ public class TMXHandler {
 					if (!segtypes.contains(segpair.type))
 						continue;
 				}
-				String info="", info1="";
+				String info="";//, info1="";
 				//FIXME add constrains for length, or other "filters"
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
-				if ( normS.isEmpty() || normT.isEmpty())
+				if ( normS.isEmpty() || normT.isEmpty()){
+					if (!keepem)
+						continue;
 					info =  mes1;
+				}
 				if (normS.equals(normT)){
+					if (!keepiden)
+						continue;
 					if (info.isEmpty()){	info =  mes2;}		else{	info =  info + " | "+mes2;}	
 				}
+
 				List<String> stokens = FCStringUtils.getTokens(normS);
 				List<String> ttokens = FCStringUtils.getTokens(normT);
 				Double[] stokenslen= FCStringUtils.getTokensLength(stokens);
 				Double[] ttokenslen= FCStringUtils.getTokensLength(ttokens);
-				if (Statistics.getMax(stokenslen)>max_word_length){
-					info1 = mes3+ max_word_length;
+				if (Statistics.getMax(stokenslen)>max_word_length || Statistics.getMax(ttokenslen)>max_word_length){
+					//info1 = mes3+ max_word_length;
+					continue;
 				}else{
-					if (Statistics.getMax(ttokenslen)>max_word_length)
-						info1 =  mes3+ max_word_length;
-					else{
-						if (Statistics.getMedian(stokenslen)>median_word_length)
-							info1 = mes3+ median_word_length;
-						else{
-							if (Statistics.getMedian(ttokenslen)>median_word_length)
-								info1 = mes3+ median_word_length;
-						}
+					if (Statistics.getMedian(stokenslen)>median_word_length || Statistics.getMedian(ttokenslen)>median_word_length){
+						//info1 = mes3a+ median_word_length;
+						continue;
 					}
 				}
-				if (!info1.isEmpty()){
-					if (info.isEmpty()){	info = info1;}	else{	info = info + " | "+info1;}
-				}	
+				//if (!info1.isEmpty()){
+				//	if (info.isEmpty()){	info = info1;}	else{	info = info + " | "+info1;}
+				//}	
 				if (FCStringUtils.countTokens(normS)<minTuvLen || FCStringUtils.countTokens(normT)<minTuvLen){
 					if (info.isEmpty()){	info = mes4+minTuvLen ;}		else{	info = info + " | "+mes4+minTuvLen ;}
 				}
@@ -423,11 +424,15 @@ public class TMXHandler {
 				String num1=segpair.seg1.replaceAll("\\D+","");
 				String num2=segpair.seg2.replaceAll("\\D+","");
 				if (!num1.equals(num2)){
+					if (ksn)
+						continue;
 					if (info.isEmpty()){	info =  mes6;}		else{	info =  info + " | "+mes6;}	
 				}
 				String temp = normS+TAB+normT;
 				if (segs.contains(temp)){
-					if (info.isEmpty()){	info =  mes7;}		else{	info =  info + " | "+mes7;}	
+					if (info.isEmpty()){	info =  mes7;}		else{	info =  info + " | "+mes7;}
+					if (!keepdup)
+						continue;
 				}else
 					segs.add(temp);
 				ILSPAlignment alignment = new ILSPAlignment();
