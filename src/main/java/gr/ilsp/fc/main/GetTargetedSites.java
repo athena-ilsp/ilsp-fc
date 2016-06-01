@@ -213,6 +213,8 @@ public class GetTargetedSites {
 		String commands = "";
 		Set<String> hosts=new HashSet<String>();
 		for (String line:lines){
+			if (line.isEmpty())
+				continue;
 			URL url;
 			try {
 				url = new URL(line);

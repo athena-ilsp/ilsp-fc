@@ -274,7 +274,7 @@ public class CrawlOptions {
 				.hasArg()
 				.create("mtlen") );
 		options.addOption( OptionBuilder.withLongOpt( "type" )
-				.withDescription("Crawl type: m (monolingual) or  p (parallel) or q (comparable)" )
+				.withDescription("Crawl type: m (monolingual) or  p (parallel)" )
 				.hasArg()
 				.create("type") );
 		options.addOption( OptionBuilder.withLongOpt( "fetchfilter" )
