@@ -74,7 +74,6 @@ public class ImageExtractor {
 			String html, key;
 			for (int ii=0; ii<files.length ; ii++){
 				File htmlfile=new File(FilenameUtils.concat(xmldir.getAbsolutePath(),files[ii]));
-				//html = ReadResources.readFileAsString(htmlfile.getAbsolutePath());
 				html = FileUtils.readFileToString(htmlfile);
 				Document doc = Jsoup.parse(html);
 				List<String> images = ie.getImages(doc,keep);
