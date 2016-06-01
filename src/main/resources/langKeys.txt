@@ -22,7 +22,7 @@ glg>glg,gl,Galician,galician,galego
 ces>ces,cz,Czech,czech,čeština,český jazyk
 dan>dan,da,Danish,danish,dansk
 bul>bul,bg,Bulgarian,bulgarian,Български,български език
-rus>rus,ru,Russian,russian,Русский
+rus>rus,ru,Russian,russian,Русский,По-русски
 swe>swe,sv,Swedish,swedish,(sv),[sv],svenska
 slk>slk,sk,Slovak,slovenčina,slovenský jazyk 
 est>est,et,estonian,eesti
