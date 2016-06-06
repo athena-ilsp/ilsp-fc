@@ -16,7 +16,7 @@ public class DeduplicatorOptions {
 
 	private Options options;
 	private String APPNAME = "(Near) Deduplication";
-	private static String SEPARATOR = ";";
+	private static String QUEST_SEPAR = ";";
 	
 	private String _method="0";
 	private static double inter_thr=0.7; //intersection of common paragraphs
@@ -105,7 +105,7 @@ public class DeduplicatorOptions {
 			if(line.hasOption( "int"))
 				_inputType = line.getOptionValue("int");
 			if(line.hasOption( "exf")){ 
-				String[] temp= line.getOptionValue("exf").split(SEPARATOR);
+				String[] temp= line.getOptionValue("exf").split(QUEST_SEPAR);
 				for (int ii=0;ii<temp.length;ii++){
 					_exludefiles.add(FilenameUtils.concat(_targetDir.getAbsolutePath(), temp[ii]));
 				}

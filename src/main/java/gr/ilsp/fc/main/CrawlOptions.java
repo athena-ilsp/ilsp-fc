@@ -109,7 +109,7 @@ public class CrawlOptions {
 	private static final String type_q = "q";
 	private static final String type_m = "m";
 	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
-	private static final String SEMI_SEPAR = ";";
+	private static final String QUEST_SEPAR = ";";
 	private static final String DOUBLEQUEST_SEPAR = ";;";
 
 	private static String _selectDocs = "aupdihml";
@@ -532,7 +532,7 @@ public class CrawlOptions {
 			}
 		}
 		if (_type.equals(type_p) | _type.equals(type_q)){
-			if (!_language.contains(SEMI_SEPAR)){
+			if (!_language.contains(QUEST_SEPAR)){
 				LOGGER.error("You crawl for parallel or comparable but only 1 language has been defined.");
 				help();
 			}
@@ -543,7 +543,7 @@ public class CrawlOptions {
 				String[] aa=temp.split(DOUBLEQUEST_SEPAR);
 				String[][] urls_repls =new String[aa.length][2];  
 				for (int ii=0;ii<aa.length;ii++){
-					String[] bb = aa[ii].split(SEMI_SEPAR);
+					String[] bb = aa[ii].split(QUEST_SEPAR);
 					if (bb.length<=1){
 						LOGGER.error("the argument for URL replacements is not correct." +
 								" Use ;; to seperate pairs and ; to separate the parts of each pair." +
@@ -718,7 +718,7 @@ public class CrawlOptions {
 		if(line.hasOption( "keepdup"))
 			_keepdup = true;
 		if (line.hasOption("segtypes")){
-			String[] temp= line.getOptionValue("segtypes").split(SEMI_SEPAR); 
+			String[] temp= line.getOptionValue("segtypes").split(QUEST_SEPAR); 
 			for (String str:temp){
 				_selectSegs.add(str);
 			}
@@ -736,7 +736,7 @@ public class CrawlOptions {
 	 * @param _languages
 	 */
 	private void checkAnalyzers(String languages) {
-		String[] langs=languages.split(SEMI_SEPAR);
+		String[] langs=languages.split(QUEST_SEPAR);
 		for (int ii=0;ii<langs.length;ii++){
 			try {
 				AnalyzerFactory analyzerFactory = new AnalyzerFactory();
@@ -781,7 +781,7 @@ public class CrawlOptions {
 	 */
 	private String[] findKeys4lang(String language) {
 		ArrayList<String> langKeys=new ArrayList<String>();
-		String[] langs = _language.split(SEMI_SEPAR);
+		String[] langs = _language.split(QUEST_SEPAR);
 		try {
 			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
 			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));

@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 
 public class ExporterOptions {
 	private static final Logger LOGGER = Logger.getLogger(ExporterOptions.class);
-	private static final String SEPARATOR = ";";
+	private static final String QUEST_SEPAR = ";";
 	
 	private String APPNAME = "Export";
 	private Options options;
@@ -141,7 +141,7 @@ public class ExporterOptions {
 			if(line.hasOption( "httrack")) 
 				_httrack=true;
 			if(line.hasOption( "lang")) 
-				_targetlanguages = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true).split(SEPARATOR);
+				_targetlanguages = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true).split(QUEST_SEPAR);
 				//	_targetlanguages = line.getOptionValue("lang").split(SEPARATOR);
 			if(line.hasOption( "t")) {
 				_topic = new File(line.getOptionValue("t"));

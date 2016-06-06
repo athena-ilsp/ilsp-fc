@@ -20,7 +20,7 @@ public class TMXHandlerOptions {
 	private String APPNAME = "TMX Handler";
 	
 	private static final Logger LOGGER = Logger.getLogger(TMXHandlerOptions.class);
-	private static final String QUESTION_SEP = ";";
+	private static final String QUEST_SEPAR = ";";
 	private File _targetDir = null;
 	private File _baseName=null;
 	private String _config;
@@ -44,9 +44,6 @@ public class TMXHandlerOptions {
 	private  double _minPerce01Align = 1;
 	private  double _minTULenRatio = 0;
 	private  double _maxTULenRatio = 100;
-	
-	
-	private static final String QUEST_SEPAR = ";";
 	
 	public TMXHandlerOptions() {
 		createOptions();
@@ -193,7 +190,7 @@ public class TMXHandlerOptions {
 			if(line.hasOption( "ksn"))
 				_keepsn = true;
 			if(line.hasOption( "thres")){
-				String[] temp = line.getOptionValue("thres").split(QUESTION_SEP); 
+				String[] temp = line.getOptionValue("thres").split(QUEST_SEPAR); 
 				if (_doctypes.length()!=temp.length){
 					LOGGER.error("for each method a threshold should be defined");
 					help();
@@ -201,7 +198,7 @@ public class TMXHandlerOptions {
 				}
 			}
 			if(line.hasOption( "segtypes")){
-				String[] temp= line.getOptionValue("segtypes").split(QUESTION_SEP); 
+				String[] temp= line.getOptionValue("segtypes").split(QUEST_SEPAR); 
 				for (String str:temp){
 					_segtypes.add(str);
 				}

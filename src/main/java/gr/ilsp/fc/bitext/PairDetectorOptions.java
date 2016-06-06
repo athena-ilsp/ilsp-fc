@@ -30,7 +30,7 @@ public class PairDetectorOptions {
 	private  File _inDir;
 	private  File _outBaseName;
 	private  File _groundTruth;
-	private String _methods="auidps";
+	private String _methods="aupdih";
 	private String _language;
 	private boolean _keepimagefp=false;
 	private boolean offlineXSLT = false;
