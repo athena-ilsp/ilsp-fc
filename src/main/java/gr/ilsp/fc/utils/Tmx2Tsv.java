@@ -28,18 +28,18 @@ public class Tmx2Tsv {
 	public static void tmx2Tsv(File tmxFile, File evalFile, String l1, String l2) throws IOException  {
 		List<Tu> tus = TMXHandlerUtils.getTUs(tmxFile);
 		List<String> outLines = new ArrayList<String>();
+		int i = 1;
 		for (Tu tu : tus) {
 			String l1Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l1), SPACE_SEPARATOR);
 			String l2Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l2), SPACE_SEPARATOR);
 			List<Object> tuProps = tu.getNoteOrProp();
-			String type="";
-			String score = "";
-			String lengthratio = "";
-			String info = "";
+			String type="NULL";
+			String score = "NULL";
+			String lengthratio = "NULL";
+			String info = "NULL";
 			for (Object obProp : tuProps) {
 				Prop prop = (Prop) obProp;
 				if (prop.getType().equals(SCORE)) {
-					//meanAlignmentScore = meanAlignmentScore + Double.parseDouble(prop.getContent().get(0));
 					score = prop.getContent().get(0);
 				} else if (prop.getType().equals(SEGMENTTYPE)) {
 					type = prop.getContent().get(0);
@@ -49,10 +49,11 @@ public class Tmx2Tsv {
 					info = prop.getContent().get(0);
 				}
 			}
-			outLines.add(StringUtils.join(new String[] {l1Text, l2Text, String.valueOf(score), type, lengthratio, info }, TAB_SEPARATOR));
-			break;
+			
+			outLines.add(StringUtils.join(new String[] {String.valueOf(i), l1Text, l2Text, String.valueOf(score), lengthratio, info }, TAB_SEPARATOR));
+			i++;
 		}
-		FileUtils.write (evalFile, StringUtils.join(new String[] {l1, l2, "aligner-score", "type", "lengthratio", "info" }, TAB_SEPARATOR)+NEW_LINE, false);
+		FileUtils.write (evalFile, StringUtils.join(new String[] {"id", l1, l2, "alignerScore", "lengthRatio", "info" }, TAB_SEPARATOR)+NEW_LINE, false);
 		FileUtils.writeLines(evalFile, outLines, true);
 	}
 	
