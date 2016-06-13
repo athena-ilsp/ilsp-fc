@@ -1,24 +1,14 @@
 package gr.ilsp.fc.monomerge;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -26,11 +16,9 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-//import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import gr.ilsp.fc.corpora.MonolingualCorpusInformation;
-import gr.ilsp.fc.exporter.XSLTransformer;
 import gr.ilsp.fc.main.Crawl;
 import gr.ilsp.fc.main.ReadResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
@@ -39,23 +27,30 @@ import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitter;
+import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitterFactory;
 
 public class MonoMerger {
 	private static final Logger LOGGER = Logger.getLogger(MonoMerger.class);
 	private static MonoMergerOptions options = null;
 	private static File inputFile = null;
 	private static File baseName = null;
-	private static File outFile = null;
-	private static File outHTML = null;
+	private static File outTXTFile = null;
+	private static File outXMLFile = null;
+	private static File outHTMLFile = null;
 	private static final String DEFAULT_M_CONFIG_FILE = "FMC_config.xml";
 	private static CompositeConfiguration config;
 	private static String[] languages;
 	private static boolean oxslt=false;
 	private static boolean iso6393=false;
 	private static boolean cc=false;
-	private static boolean metadata=true;
-	static Matcher twitterHandleMatcher = Pattern.compile("(^|[^@\\w])@(\\w{1,15})\\b").matcher("");
+	private static final int len_thr=5;
+	private static double median_word_length=20;
+	private static double max_word_length=30;
+	
+	private static SentenceSplitter sentenceSplitter;
 	private static final String SEMICOLON_STR=";";
+	private static final String UNDERSCORE_STR="_";
 	//private final static String PUNCT = ".";
 	private final static String UNKNOWN_STR ="unknown";
 	private static final String HTML =".html";
@@ -65,12 +60,16 @@ public class MonoMerger {
 	private final static String domainNode = "domain";
 	private final static String FREE_STR="free";
 	private final static String UTF_8 = "UTF-8";
-	//private final static String XSL_TMX2HTML = "http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl";
-	private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
-
+	//private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
+	private static final String P_ELE = "p";
+	private static final String ooi_crawlinfo = "crawlinfo";
 	private String creationDescription = "The ILSP Focused Crawler was used for the acquisition "
-			+ "of monolingual data from websites, and for the normalization, cleaning, and deduplication. ";
-			
+			+ "of monolingual data from websites, and for the normalization, cleaning, deduplication. "
+			+ "First, paragraphs were split into sentences. "
+			+ "Sentences with length less than "+ len_thr +" characters (after removing non-letters) were discarded. "
+			+ "Duplicate sentences (after removing non-letters) were discarded.";
+	
+
 	public static void main(String[] args) {
 		MonoMerger mm = new MonoMerger();
 		options = new MonoMergerOptions();
@@ -82,27 +81,26 @@ public class MonoMerger {
 		mm.setCC(options.getCC());
 		String lang = options.getLanguage().split(SEMICOLON_STR)[0];
 		mm.setLanguage(lang);
-		mm.setBaseName(new File(options.getBaseName()+lang));
+		SentenceSplitterFactory sentenceSplitterFactory = new SentenceSplitterFactory();
+		mm.setSentenceSplitter(sentenceSplitterFactory.getSentenceSplitter(lang));
+		mm.setBaseName(new File(options.getBaseName()+UNDERSCORE_STR+lang));
 		mm.merge();
 	}
 
 	/**
-	 * Gets selected TMXs from a directory and adds selected segments of these TMXs in a new TMX file.
-	 * The selected TMXs should be extracted from document pairs which have been identified by the methods defined in DocTypes.
-	 * The selected TMXs should include less than X% segment pairs of type "0:1", where X is the threshold provided by the user (default is 15) 
-	 * The selected segments (to be added) should be of type identified in SegTypes. 
-	 * 
-	 */
+	 * Gets cesDoc XMLs from a directory and adds selected segments of these XMLs in a new XML file, and a TXT file.
+	  */
 	public void merge() {
 		LOGGER.info("------------Constructing a monolingual corpus in "+languages[0]+".------------");
 		int totalTokens = 0;
-		outFile = new File(baseName.getAbsolutePath()+TXTEXT);
-		if (!outFile.getParentFile().exists())
-			outFile.getParentFile().mkdirs();
+		outTXTFile = new File(baseName.getAbsolutePath()+TXTEXT);
+		outXMLFile = new File(baseName.getAbsolutePath()+XMLEXT);
+		if (!outTXTFile.getParentFile().exists())
+			outTXTFile.getParentFile().mkdirs();
 
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.endsWith(XMLEXT) & arg1.contains(ISOLangCodes.get3LetterCode(languages[0])));
+				return (arg1.endsWith(XMLEXT) &!arg1.contains(UNDERSCORE_STR) & arg1.contains(ISOLangCodes.get3LetterCode(languages[0])));
 			}
 		};
 		if (!iso6393)
@@ -110,17 +108,15 @@ public class MonoMerger {
 		else
 			languages[0]=ISOLangCodes.get3LetterCode(languages[0]);
 		List<File> xmlfiles = new ArrayList<File>();
-		if (inputFile.isDirectory()){
+		if (inputFile.isDirectory())
 			xmlfiles = FcFileUtils.listFiles(inputFile, filter,true);
-			totalTokens = totalTokens+ReadResources.countToksinDir(inputFile);
-		}else{ //it is considered a text file containing a list with full paths of targeted directories (a full path per line)
+		else{ //it is considered a text file containing a list with full paths of targeted directories (a full path per line)
 			List<String> targetdirs;
 			try {
 				targetdirs = FileUtils.readLines(inputFile);
 				for (String targetdir:targetdirs){
 					LOGGER.info("finding files from "+ targetdir);
 					List<File> tfs = FcFileUtils.listFiles(new File(targetdir), filter,true);
-					totalTokens = totalTokens+ReadResources.countToksinDir(new File(targetdir));
 					xmlfiles.addAll(tfs);
 				}
 			} catch (IOException e) {
@@ -128,46 +124,86 @@ public class MonoMerger {
 				e.printStackTrace();
 			} 
 		}
-		//creationDescription = creationDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
-		List<String> domains = ReadResources.extactValueFromCesDoc(xmlfiles, domainNode);
-		List<String> domainEurovocIds=getEurovocId(domains);
-		//FIXME
-		String domain = StringUtils.join(domains, ',');
-		String domainEurovocId = StringUtils.join(domainEurovocIds, ',');
-
+		List<String> paragraphs = new ArrayList<String>();
+		List<String> tempSentences = new ArrayList<String>();
+		List<String> sentences = new ArrayList<String>();
+		Set<String> cleanSentences = new HashSet<String>();
+		Set<String> words = new HashSet<String>();
+		String cleanSentence="";
 		if (!xmlfiles.isEmpty()){
+			for (File xmlfile:xmlfiles){
+				paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\t"));
+				tempSentences = pars2sents(paragraphs);
+				for (String sentence:tempSentences){
+					sentence= ContentNormalizer.normalizeText(sentence);
+					sentence = sentence.replaceAll("\t", " ");	sentence = sentence.replaceAll("\r\n", "");	sentence = sentence.replaceAll("\n", ""); sentence = sentence.trim();
+					cleanSentence = ContentNormalizer.normtext(sentence);
+					if (cleanSentence.length()<len_thr)
+						continue;
+					List<String> stokens = FCStringUtils.getTokens(cleanSentence);
+					Double[] stokenslen= FCStringUtils.getTokensLength(stokens);
+					if (Statistics.getMax(stokenslen)>max_word_length || Statistics.getMedian(stokenslen)>median_word_length)
+						continue;
+					if (!cleanSentences.contains(cleanSentence)){
+						cleanSentences.add(cleanSentence);
+						sentences.add(sentence);
+						List<String> toks = FCStringUtils.getWords(sentence); 
+						totalTokens =totalTokens +toks.size();
+						for (String tok:toks){
+							if (!words.contains(tok))
+								words.add(tok);
+						}
+					}
+				}
+			}
+			System.out.println("sentences:" + sentences.size());
+			System.out.println("words:" + totalTokens);
+			System.out.println("lexical types:" + words.size());
+			
+			try {
+				FileUtils.writeLines(outTXTFile, sentences);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			List<String> domains = ReadResources.extactValueFromCesDoc(xmlfiles, domainNode);
+			List<String> domainEurovocIds=getEurovocId(domains);
+			//FIXME
+			String domain = StringUtils.join(domains, ',');
+			String domainEurovocId = StringUtils.join(domainEurovocIds, ',');
 			String organization = config.getString("resourceCreator.organization");
 			String organizationURL = config.getString("resourceCreator.organizationURL"); 
 			String projectId= config.getString("fundingProject.projectId"); 
 			String projectURL = config.getString("fundingProject.projectURL"); 
 			MonolingualCorpusInformation monlingualCorpusInfo; 
 			if (cc) {
-				monlingualCorpusInfo = new MonolingualCorpusInformation(FilenameUtils.getBaseName(outFile.getAbsolutePath()),MonoMerger.languages[0], totalTokens,
+				monlingualCorpusInfo = new MonolingualCorpusInformation(FilenameUtils.getBaseName(outXMLFile.getAbsolutePath()),MonoMerger.languages[0], totalTokens,
 						domain, domainEurovocId, FREE_STR, creationDescription, projectId, projectURL, organization, organizationURL);
 			} else {
-				monlingualCorpusInfo = new MonolingualCorpusInformation(FilenameUtils.getBaseName(outFile.getAbsolutePath()),MonoMerger.languages[0], totalTokens,
+				monlingualCorpusInfo = new MonolingualCorpusInformation(FilenameUtils.getBaseName(outXMLFile.getAbsolutePath()),MonoMerger.languages[0], totalTokens,
 						domain, domainEurovocId, UNKNOWN_STR, creationDescription, projectId, projectURL, organization, organizationURL);
 			}
 			if (oxslt) 
-				outHTML =  new File(baseName.getAbsolutePath() + HTML);
-			//generateMergedTMX(outFile, languages, bilingualCorpusInfo, outHTML);
-
-			//if (metadata){
-			/*BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
-			File metadataFile = new File(baseName.getAbsolutePath()+ MetadataExt);
-			LOGGER.info("Generating metadata descriptor " + metadataFile);
-			bilingualTmxMetashareDescriptor.setOutFile(metadataFile);
-			if (iso6393) {
-				bilingualTmxMetashareDescriptor.setMetadataLang("eng");
-			} else {
-				bilingualTmxMetashareDescriptor.setMetadataLang("en");
-			}
-			bilingualTmxMetashareDescriptor.run();*/
-			//}
+				outHTMLFile =  new File(baseName.getAbsolutePath() + HTML);
 		}else{
 			LOGGER.info("No CesDoc found.");
 		}
 	}
+
+	private List<String> pars2sents(List<String> paragraphs) {
+		List<String> sentences = new ArrayList<String>();
+		for (String paragraph:paragraphs){
+			try {
+				sentences.addAll(sentenceSplitter.getSentences(paragraph, 1));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return sentences;
+	}
+
 
 	/**
 	 * Gets Eurovoc id for each element of domain 
@@ -188,7 +224,7 @@ public class MonoMerger {
 	}
 
 
-/*	*//**
+	/*	*//**
 	 * Generates the MergedTMX (outTMX), and its XSLT transformation (outHTML, if asked).
 	 * Alignments are in (alignmentList). 
 	 * @param outTMX
@@ -241,6 +277,12 @@ public class MonoMerger {
 		MonoMerger.baseName  = baseName;
 	}
 
+	private void setSentenceSplitter(SentenceSplitter sentenceSplitter) {
+		// TODO Auto-generated method stub
+		MonoMerger.sentenceSplitter = sentenceSplitter; 
+	}
+
+
 	/**
 	 * absolute path of the directory containing the TMXs to be merged
 	 * @param targetDir
@@ -270,9 +312,6 @@ public class MonoMerger {
 
 	public void setCC(boolean cc) {
 		MonoMerger.cc  = cc;
-	}
-	public void setMetadata(boolean metadata) {
-		MonoMerger.metadata  = metadata;
 	}
 
 	/**

@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 
 public class MonolingualCorpusInformation {
 	private int tokensSize;
-	private int documentsSize;
-	private int paragraphsSize;
+	private int lenInSentences;
+	private int lenInWords;
 	private String lang;
 	private String name;
 	private String description;
@@ -33,6 +33,8 @@ public class MonolingualCorpusInformation {
 		this.lang = l1;
 		this.domain = domain;
 		this.tokensSize = numToks;
+		this.lenInSentences = lenInSentences;
+		this.lenInWords = lenInWords;
 		this.availability = availability;
 		this.domainId = domainId;
 		this.domain = domain;
@@ -66,28 +68,16 @@ public class MonolingualCorpusInformation {
 		this.tokensSize = tokensSize;
 	}
 	/**
-	 * @return the documentsSize
+	 * @return the size in Sentences
 	 */
-	public int getDocumentsSize() {
-		return documentsSize;
+	public int getSentencesNum() {
+		return lenInSentences;
 	}
 	/**
 	 * @param documentsSize the documentsSize to set
 	 */
-	public void setDocumentsSize(int documentsSize) {
-		this.documentsSize = documentsSize;
-	}
-	/**
-	 * @return the paragraphsSize
-	 */
-	public int getParagraphsSize() {
-		return paragraphsSize;
-	}
-	/**
-	 * @param paragraphsSize the paragraphsSize to set
-	 */
-	public void setParagraphsSize(int paragraphsSize) {
-		this.paragraphsSize = paragraphsSize;
+	public void setSentencesNum(int lenInSentences) {
+		this.lenInSentences = lenInSentences;
 	}
 	/**
 	 * @return the lang
@@ -107,8 +97,7 @@ public class MonolingualCorpusInformation {
 	@Override
 	public String toString() {
 		return "MonolingualCorpusInformation [tokensSize=" + tokensSize
-				+ ", documentsSize=" + documentsSize + ", paragraphsSize="
-				+ paragraphsSize + ", " + (lang != null ? "lang=" + lang : "")
+				+ ", sentencesSize=" + lenInSentences + (lang != null ? "lang=" + lang : "")
 				+ "]";
 	}
 
@@ -161,4 +150,18 @@ public class MonolingualCorpusInformation {
 	public void setAvailability(String availability) {
 		this.availability = availability;
 	}
+	
+	/**
+	 * @return the lenInWordsL1
+	 */
+	public int getLenInWords() {
+		return lenInWords;
+	}
+	/**
+	 * @param lenInWordsL1 the lenInWordsL1 to set
+	 */
+	public void setLenInWords(int lenInWords) {
+		this.lenInWords = lenInWords;
+	}
+	
 }

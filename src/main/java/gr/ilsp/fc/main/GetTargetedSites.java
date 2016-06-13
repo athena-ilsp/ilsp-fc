@@ -18,7 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 public class GetTargetedSites {
 	private static final String curly_brackets_o="{";
 	private static final String curly_brackets_c="}";
-	private static final String KOMMA=",";
+	private static final String COMMA=",";
 	private static final String QUEST=";";
 	private static final String EQUALS="=";
 	private static final String SEEDS="seeds";
@@ -30,35 +30,35 @@ public class GetTargetedSites {
 	private static final String COMMANDS= "commands";
 	private static final String QUOTE= "\"";
 	private static final String FORW=" &> ";
-	private static String destpath="\"/var/www/html/elrc4/culture/eng-fra/";
+	private static String destpath="\"/var/www/html/elrc4/ministries/eng-fra/";
 	
 		
-	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.3-SNAPSHOT-jar-with-dependencies.jar "
+	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.3-jar-with-dependencies.jar "
 			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -f -k "
-			+ "-type p -n 100 -t 20 -len 0 -mtlen 100 -p_r \"http://nlp.ilsp.gr/elrc\" -doctypes \"aupdih\" -segtypes \"1:1\"";
+			+ "-type p -n 100 -t 20 -len 0 -mtlen 100 -p_r \"http://nlp.ilsp.gr/elrc\" -pdm \"aupdih\" -segtypes \"1:1\"";
 
-	private static final String JAR_CRAWL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar "
+	private static final String JAR_CRAWL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.3-jar-with-dependencies.jar "
 			+ "-crawl -f -k -type p -n 100 -t 20 -len 0 -mtlen 100 ";
 	
-	private static final String JAR_EXPORT = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar "
+	private static final String JAR_EXPORT = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.3-jar-with-dependencies.jar "
 			+ "-export "
 			+ " -i \"XXX\" -lang \"L1;L2\" -of "+destpath+ "output_YYY.txt\"  -dom ZZZ  &>"+ destpath +"log-export_YYY\"";
 
-	private static final String JAR_DEDUP = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar "
+	private static final String JAR_DEDUP = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.3-jar-with-dependencies.jar "
 			+ "-dedup "
 			+ " -o \"XXX\"  -lang \"L1;L2\"  -of "+destpath+ "output_YYY.txt\"  &>"+ destpath +"log-dedup_YYY\"";
 		
-	private static final String JAR_PAIR = "java -cp /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar gr.ilsp.fc.bitext.PairDetector -meth \"aupidh\""
+	private static final String JAR_PAIR = "java -cp /opt/ilsp-fc/ilsp-fc-2.2.3-jar-with-dependencies.jar gr.ilsp.fc.bitext.PairDetector -meth \"aupidh\""
 			+ " -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -of " + destpath + "output_YYY.txt\" &>"+destpath+"log-pairdetection_YYY\"";
 		
-	private static final String JAR_ALIGN = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar "
+	private static final String JAR_ALIGN = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.3-jar-with-dependencies.jar "
 			+ "-align -oxslt "
 			+ " -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -oft "+destpath+ "output_YYY.tmx.txt\" "
 			+ " -ofth "+destpath+ "output_YYY.tmx.html\" &> "+destpath+ "log-align_YYY\"";
 	
-	private static final String JAR_TMXMERGE = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.2-jar-with-dependencies.jar "
+	private static final String JAR_TMXMERGE = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.3-jar-with-dependencies.jar "
 			+ " -tmxmerge "
-			+ " -xslt -oxslt -doctypes \"ZZZ\" -segtypes \"1:1\" -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -tmx  "+destpath+ "output_YYY.tmx\" "
+			+ " -xslt -oxslt -pdm \"ZZZ\" -segtypes \"1:1\" -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -tmx  "+destpath+ "output_YYY.tmx\" "
 			+ " &> "+destpath+ "log-tmxmerge_YYY\"";
 	
 	private static String lang1="";
@@ -281,24 +281,24 @@ public class GetTargetedSites {
 	
 
 	private static Site parseLine2Site(String line, List<String> sitenames) {
-		line=line.substring(line.indexOf(KOMMA)+1);
-		String site = line.substring(0, line.indexOf(KOMMA));
+		line=line.substring(line.indexOf(COMMA)+1);
+		String site = line.substring(0, line.indexOf(COMMA));
 		if (sitenames.contains(site)){
 			return null;
 		}
-		line=line.substring(line.indexOf(KOMMA)+1);
+		line=line.substring(line.indexOf(COMMA)+1);
 		String lang = line.substring(line.indexOf(curly_brackets_o)+1, line.indexOf(curly_brackets_c));
 		if (!lang.contains(lang1) || !lang.contains(lang2)){
 			return null;
 		}
-		String[] langs = lang.split(KOMMA);
+		String[] langs = lang.split(COMMA);
 		if (langs.length<2){
 			return null;
 		}
 		String temp = line.substring(line.indexOf(lang1));
-		String l1 = temp.substring(0, temp.indexOf(KOMMA));
+		String l1 = temp.substring(0, temp.indexOf(COMMA));
 		temp = line.substring(line.indexOf(lang2));
-		String l2 = temp.substring(0, temp.indexOf(KOMMA));
+		String l2 = temp.substring(0, temp.indexOf(COMMA));
 		int ind = l1.indexOf(EQUALS);
 		double l1pages = Double.parseDouble(removeNonDigits(l1.substring(ind)));
 		l1 = l1.substring(0, ind);

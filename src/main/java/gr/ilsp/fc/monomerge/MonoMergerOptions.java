@@ -36,7 +36,7 @@ public class MonoMergerOptions {
 				.withDescription( "TMX files in this directory will be examined" )
 				.isRequired()
 				.hasArg()
-				.create("i") );
+				.create("dest") );
 		options.addOption( OptionBuilder.withLongOpt( "baseName" )
 				.withDescription( "baseName to be used for outfiles" )
 				.isRequired()
@@ -68,8 +68,8 @@ public class MonoMergerOptions {
 		CommandLineParser clParser = new GnuParser();
 		try {
 			CommandLine line = clParser.parse( options, args );
-			if(line.hasOption( "i")) {
-				_targetDir = new File(line.getOptionValue("i"));
+			if(line.hasOption( "dest")) {
+				_targetDir = new File(line.getOptionValue("dest"));
 				_targetDir = new File(_targetDir.getAbsolutePath());
 				if (!_targetDir.exists()){
 					LOGGER.error("input directory does not exist "+ _targetDir.getAbsolutePath());

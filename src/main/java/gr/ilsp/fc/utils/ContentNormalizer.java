@@ -40,6 +40,7 @@ public class ContentNormalizer {
 
 		{ 
 			put("\\uFEFF", " "); //ZERO WIDTH NO-BREAK SPACE
+			put("\\uFFFF","");
 			put("\\u00a0", " "); //NO BREAK SPACE
 			put("\\u200E"," "); //LEFT-TO-RIGHT MARK
 			put("\\u0097", "-"); //END OF GUARDED AREA

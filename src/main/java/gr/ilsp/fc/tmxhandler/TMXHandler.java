@@ -283,7 +283,7 @@ public class TMXHandler {
 	 * @param domain
 	 * @return
 	 */
-	private List<String> getEurovocId(List<String> domains) {
+	public static List<String> getEurovocId(List<String> domains) {
 		List<String> domainEurovocIds=new ArrayList<String>();
 		Eurovoc eurovoc = Eurovoc.INSTANCE;
 		String did="";
@@ -419,7 +419,8 @@ public class TMXHandler {
 				}
 				ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
 				if (ratio>maxTuLenRatio || ratio < minTuLenRatio){
-					if (info.isEmpty()){	info = mes5+  minTuLenRatio +mes5a+ maxTuLenRatio;}		else{	info = info + " | "+mes5+  minTuLenRatio +mes5a+ maxTuLenRatio ;}
+					if (info.isEmpty()){	info = mes5+  minTuLenRatio +mes5a+ maxTuLenRatio;}	
+					else{	info = info + " | "+mes5+  minTuLenRatio +mes5a+ maxTuLenRatio ;}
 				}
 				String num1=segpair.seg1.replaceAll("\\D+","");
 				String num2=segpair.seg2.replaceAll("\\D+","");
