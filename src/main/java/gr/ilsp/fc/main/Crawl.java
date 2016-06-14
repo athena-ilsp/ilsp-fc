@@ -639,7 +639,6 @@ public class Crawl {
 					MonoMerger  mm = new MonoMerger();
 					mm.setTargetDir(xmldir);
 					mm.setApplyOfflineXSLT(options.isOfflineXSLT());
-					mm.useISO6393(options.useISO6393());
 					mm.setCC(options.getCC());
 					String lang = options.getLanguage().split(SEMICOLON_STR)[0];
 					mm.setLanguage(lang);

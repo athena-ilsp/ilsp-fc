@@ -42,11 +42,11 @@ public class MonoMerger {
 	private static CompositeConfiguration config;
 	private static String[] languages;
 	private static boolean oxslt=false;
-	private static boolean iso6393=false;
 	private static boolean cc=false;
 	private static final int len_thr=5;
-	private static double median_word_length=20;
-	private static double max_word_length=30;
+	private static double max_median_word_length=15;
+	private static double min_median_word_length=3;
+	private static double max_word_length=20;
 	
 	private static SentenceSplitter sentenceSplitter;
 	private static final String SEMICOLON_STR=";";
@@ -77,7 +77,6 @@ public class MonoMerger {
 		mm.setTargetDir(options.getTargetDir());
 		mm.setApplyOfflineXSLT(options.getXSLTransform());
 		mm.setLanguage(options.getLanguage());
-		mm.useISO6393(options.useISO6393());
 		mm.setCC(options.getCC());
 		String lang = options.getLanguage().split(SEMICOLON_STR)[0];
 		mm.setLanguage(lang);
@@ -92,7 +91,7 @@ public class MonoMerger {
 	  */
 	public void merge() {
 		LOGGER.info("------------Constructing a monolingual corpus in "+languages[0]+".------------");
-		int totalTokens = 0;
+		int totalTokens = 0 ;
 		outTXTFile = new File(baseName.getAbsolutePath()+TXTEXT);
 		outXMLFile = new File(baseName.getAbsolutePath()+XMLEXT);
 		if (!outTXTFile.getParentFile().exists())
@@ -103,10 +102,7 @@ public class MonoMerger {
 				return (arg1.endsWith(XMLEXT) &!arg1.contains(UNDERSCORE_STR) & arg1.contains(ISOLangCodes.get3LetterCode(languages[0])));
 			}
 		};
-		if (!iso6393)
-			languages[0]=ISOLangCodes.get2LetterCode(languages[0]);
-		else
-			languages[0]=ISOLangCodes.get3LetterCode(languages[0]);
+		
 		List<File> xmlfiles = new ArrayList<File>();
 		if (inputFile.isDirectory())
 			xmlfiles = FcFileUtils.listFiles(inputFile, filter,true);
@@ -142,7 +138,8 @@ public class MonoMerger {
 						continue;
 					List<String> stokens = FCStringUtils.getTokens(cleanSentence);
 					Double[] stokenslen= FCStringUtils.getTokensLength(stokens);
-					if (Statistics.getMax(stokenslen)>max_word_length || Statistics.getMedian(stokenslen)>median_word_length)
+					if (Statistics.getMax(stokenslen)>max_word_length 
+							|| Statistics.getMedian(stokenslen)>max_median_word_length || Statistics.getMedian(stokenslen)<min_median_word_length)
 						continue;
 					if (!cleanSentences.contains(cleanSentence)){
 						cleanSentences.add(cleanSentence);
@@ -298,10 +295,7 @@ public class MonoMerger {
 	public void setLanguage(String languages) {
 		MonoMerger.languages = languages.split(SEMICOLON_STR);
 	}
-	public void useISO6393(boolean iso6393) {
-		MonoMerger.iso6393 = iso6393;
-	}
-
+	
 	/**
 	 * apply transformation of the generated TMX to HTML. if exists, an HTML file will be created next to the generated TMX
 	 * @param offlineXSLT

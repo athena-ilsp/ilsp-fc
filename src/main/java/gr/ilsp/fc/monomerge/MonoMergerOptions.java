@@ -22,7 +22,6 @@ public class MonoMergerOptions {
 	private File _baseName=null;
 	private String _language;
 	private boolean _oxslt=false;
-	private boolean _iso6393=false;
 	private boolean _cc=false;
 	
 	public MonoMergerOptions() {
@@ -49,9 +48,6 @@ public class MonoMergerOptions {
 				.withDescription( "Target language" )
 				.hasArg()
 				.create("lang") );
-		options.addOption( OptionBuilder.withLongOpt( "lang_code" )
-				.withDescription( "if exists iso6393 language code is used.")
-				.create("iso6393") );
 		options.addOption( OptionBuilder.withLongOpt( "licence_detected_in_documents" )
 				.withDescription( "If exist, only documents for which"
 						+ " a license has been detected will be selected in collection.")
@@ -86,10 +82,8 @@ public class MonoMergerOptions {
 				_oxslt=true;
 			if (line.hasOption("cc"))
 				_cc=true;
-			if (line.hasOption("iso6393"))		
-				_iso6393=true;
 			if(line.hasOption( "lang")) {
-				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),_iso6393);
+				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true);
 			}else{
 				LOGGER.error("No language has been defined.");
 				System.exit(0);
@@ -114,9 +108,6 @@ public class MonoMergerOptions {
 	}
 	public boolean getXSLTransform() {
 		return _oxslt;
-	}
-	public boolean useISO6393() {
-		return _iso6393;
 	}
 	public boolean getCC() {
 		return _cc;
