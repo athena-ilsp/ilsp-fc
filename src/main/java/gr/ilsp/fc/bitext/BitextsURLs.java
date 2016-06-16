@@ -134,8 +134,8 @@ public class BitextsURLs {
 				String updatedfile_url = file_url1; 
 				if (urls_repls!=null){
 					for (int ii=0;ii<urls_repls.length;ii++){
-						updatedfile_url = updatedfile_url.replace(urls_repls[ii][1],urls_repls[ii][0]);
-						if (file_url1.replace(urls_repls[ii][0],urls_repls[ii][1]).equals(file_url2)){
+						updatedfile_url = updatedfile_url.replaceAll(urls_repls[ii][1],urls_repls[ii][0]);
+						if (file_url1.replaceAll(urls_repls[ii][0],urls_repls[ii][1]).equals(file_url2)){
 							match_found=true;
 							break;
 						}

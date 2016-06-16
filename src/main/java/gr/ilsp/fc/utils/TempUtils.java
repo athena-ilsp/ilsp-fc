@@ -1,5 +1,8 @@
 package gr.ilsp.fc.utils;
 
+import gr.ilsp.fc.bitext.BitextUtils;
+import gr.ilsp.fc.bitext.Bitexts;
+import gr.ilsp.fc.bitext.Bitexts.DocVector;
 import gr.ilsp.fc.main.ReadResources;
 import gr.ilsp.fc.main.WriteResources;
 
@@ -9,7 +12,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,6 +19,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -33,65 +36,260 @@ public class TempUtils {
 	private static final String type_p ="p";
 	private static final String HTTRACK1 = "<!-- Mirrored from"; 
 	private static final String HTTRACK2 = "by HTTrack Website Copier";
+
+	public static void main(String[] args) throws IOException {
+		
+		List<String> l33 = new ArrayList<String>();
+		List<String> l22 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/culture_en-el.processed.tsv"));
+		for (String line:l22){
+			String[] temp = line.split("\t");
+			if (temp[5].equals("NULL")){
+				l33.add(line); //System.out.println(temp[0]+"\t"+temp[3]+"\t"+temp[4]);
+			}
+		}
+		l22=null;
+		List<String> l11 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/tourism_en-el.processed.tsv"));
+		for (String line:l11){
+			String[] temp = line.split("\t");
+			if (temp[5].equals("NULL")){
+				l33.add(line); //System.out.println(temp[0]+"\t"+temp[3]+"\t"+temp[4]);
+			}
+		}
+		List<String> dev1 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/devset.txt"));
+		List<String> devset =new ArrayList<String>();
+		for (String line:dev1){
+			int ind=Integer.parseInt(line);
+			devset.add(l33.get(ind));
+			
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/devset.tcv"), devset);
+		
+		List<String> test1 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/testset.txt"));
+		List<String> testset =new ArrayList<String>();
+		for (String line:test1){
+			int ind=Integer.parseInt(line);
+			testset.add(l33.get(ind));
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/testset.tcv"), testset);
+		
+		List<String> trainset = new ArrayList<String>();
+		for (String line:l33){
+			if (testset.contains(line) || devset.contains(line))
+				continue;
+			trainset.add(line);
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/trainset.tcv"), trainset);
+		
+		for (String line1:dev1){
+			String id1 = line1.split("\t")[0];
+			for (String line2:test1){
+				String id2 = line2.split("\t")[0];
+				if (id1.equals(id2)){
+					System.out.println("OOOOPS");
+				}
+			}
+		}
+		
+		
+		
+		System.exit(0);
+		
+		List<String> l1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/TILDE/archive/State_related_content_from_Latvian_Web.en-lv.en"));
+		List<String> l2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/TILDE/archive/State_related_content_from_Latvian_Web.en-lv.lv"));
+		System.out.println(l1.size()+"\t"+l2.size());
+		List<String> l1_l2 = new ArrayList<String>();
+		Set<String> segs = new HashSet<String>();
+		for (int ii=0; ii<l1.size();ii++){
+			String normS = ContentNormalizer.normtext(l1.get(ii));
+			String normT = ContentNormalizer.normtext(l2.get(ii));
+			if ( normS.isEmpty() || normT.isEmpty())
+				continue;			
+			if (normS.equals(normT))
+				continue;
+			/*if (Statistics.editDist(normS,normT)<5){ //FIXME add as parameter, check its influence
+				LOGGER.warn("Discard due to high similarity of TUVs ");
+				LOGGER.warn("\t"+ l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}*/
+			
+			if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normS)))>15){
+				LOGGER.warn("Discard due to long tokens in a TUV ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}
+			if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normT)))>15){
+				LOGGER.warn("Discard due to long tokens in a TUV ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}
+			/*if (FCStringUtils.countTokens(normS)<2){
+				LOGGER.warn("Discard due to length (in tokens) of a TUV ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}
+			if (FCStringUtils.countTokens(normT)<2){
+				LOGGER.warn("Discard due to length (in tokens) of a TUV ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}*/
+			float ratio = (float)normS.length()/(float)normT.length();
+			if (ratio>3 || ratio < 0.3){
+				LOGGER.warn("Discard due to charlength ratio of TUVs ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}
+			/*String num1=l1.get(ii).replaceAll("\\D+","");
+			String num2=l2.get(ii).replaceAll("\\D+","");
+			if (!num1.equals(num2)){
+				//double temp=Statistics.editDist(num1, num2) / (double) Math.min(num1.length(),num2.length());
+				//if (temp>0.35){
+				LOGGER.warn("Discard due to different numbers in TUVs ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+				//}
+			}*/
 	
-	public static void main(String[] args) {
-		FilenameFilter filter = new FilenameFilter() {			
+			String temp = normS+"\t"+normT;
+			if (!segs.contains(temp)){
+				segs.add(temp);
+				l1_l2.add(l1.get(ii).trim()+"\t"+l2.get(ii).trim());
+			}
+		}
+		System.out.println(segs.size());
+		System.exit(0);
+		
+		File evalfile = new File("C:/Users/vpapa/ELRC/eval_tests/eng-fra_culture_aupdih_evalset_iro");
+		File pairsfile = new File("C:/Users/vpapa/ELRC/eval_tests/eng-fra_culture_aupdih.csv");
+		File resultfile = new File("C:/Users/vpapa/ELRC/eval_tests/eng-fra_culture_aupdih_final.csv");
+		List<String> eval_lines = FileUtils.readLines(evalfile);
+		List<String> all_lines = FileUtils.readLines(pairsfile);
+		String[] id=null;
+		String evalres="id\tl1\tl2\tseg1\tseg2\ttype\tcharLengthRatio\twordLengthRatio\talignerScore\tevalscore\n";
+		for (String t:eval_lines){
+			id=t.split("\t");
+			for (String tt:all_lines){
+				if (tt.startsWith(id[0]+"\t")){
+					evalres = evalres+tt+"\t"+id[3]+"\n";
+					continue;
+				}
+			}
+		}
+		FileUtils.writeStringToFile(resultfile, evalres);
+		/*File source = new File(args[0]);
+		String[] ext = {"html", "xml"};
+		List<File>  sfiles = (List<File>) FileUtils.listFiles(source, ext, true);
+		System.out.println("total pairs "+sfiles.size());
+		String target = args[1];
+		try {
+			List<String> filenames = FileUtils.readLines(new File(args[2]));
+			System.out.println("in pairs "+filenames.size());
+			for (File file:sfiles){
+				if (filenames.contains(FilenameUtils.getBaseName(file.getName()))){
+					FileUtils.copyFile(file, new File(FilenameUtils.concat(target, file.getName())));
+				}
+			}
+		} catch (IOException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+		System.exit(0);*/
+		
+		//HashMap<String,String> truepairs = BitextUtils.getTruePairs( "C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\docpairs_true_ell-eng.txt");
+		//HashMap<String,String> foundpairs = BitextUtils.getTruePairs( "C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\docpairs_found_noURL_ell-eng.txt");
+		//HashMap<String, DocVector> features = Bitexts.extractXML_Features(new File("C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\pairs"));
+		HashMap<String,String> truepairs = BitextUtils.getTruePairs( args[0]);
+		HashMap<String,String> foundpairs = BitextUtils.getTruePairs( args[1]);
+		HashMap<String, DocVector> features = Bitexts.extractXML_Features(new File(args[2]), null);
+		Set<String> ts=truepairs.keySet();
+		Iterator<String> itt = ts.iterator();
+		while (itt.hasNext()){
+			String td1 = itt.next();
+			String td2 = truepairs.get(td1);
+			double len = features.get(td1).numToksnoOOI + features.get(td2).numToksnoOOI;
+			Set<String> fs=foundpairs.keySet();
+			Iterator<String> itf = fs.iterator();
+			boolean found = false;
+			while (itf.hasNext()){
+				String fd1 = itf.next();
+				String fd2 = foundpairs.get(fd1);
+				if ((td1.equals(fd1) && td2.equals(fd2)) || (td1.equals(fd2) && td2.equals(fd1))){
+					found =true;
+					break;
+				}
+			}
+			if (found){
+				System.out.println("1\t"+td1+"\t"+td2+"\t"+len);	
+			}else{
+				System.out.println("0\t"+td1+"\t"+td2+"\t"+len);
+			}
+		}
+		System.exit(0);
+
+		
+		/*FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.endsWith("_u.xml") );
+				return (arg1.endsWith(".xml.txt") );
 			}
 		};	
-		
-	File t = new File("C:\\Users\\vpapa\\ELRC");
-	
-	List<File> files=FcFileUtils.listFiles(t, filter, true);
-	System.out.println(files.size());
-	for (File file:files){
-		file.delete();
-	}
-	System.exit(0);
+
+		File t = new File("C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\pairs");
+
+		List<File> files=FcFileUtils.listFiles(t, filter, true);
+		System.out.println(files.size());
+		for (File file:files){
+			file.delete();
+		}
+		System.exit(0);*/
 
 		List<String> res=new ArrayList<String>();	
-	int group=4;
-	try {
-		List<String> tusinfo = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/eng-fra_culture_aupdih.csv"));
-		String[][] tus=new String[tusinfo.size()][2];
-		//String[] itus=new String[tusinfo.size()];
-		int counter=0;
-		for (String tu:tusinfo){
-			if (counter==0){
+		int group=4;
+		try {
+			List<String> tusinfo = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/eng-fra_culture_aupdih.csv"));
+			String[][] tus=new String[tusinfo.size()][2];
+			//String[] itus=new String[tusinfo.size()];
+			int counter=0;
+			for (String tu:tusinfo){
+				if (counter==0){
+					counter++;
+					continue;
+				}
+				String[] temp = tu.split("\t");
+				tus[counter][0] = temp[3];
+				tus[counter][1] = temp[4];
+				//itus[counter] = temp[6];
 				counter++;
-				continue;
 			}
-			String[] temp = tu.split("\t");
-			tus[counter][0] = temp[3];
-			tus[counter][1] = temp[4];
-			//itus[counter] = temp[6];
-			counter++;
-		}
-		//FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_charRatios.csv"), Arrays.asList(itus));
-		
-		List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture.txt"));
-		counter=0;
-		for (String line:lines){
-			if (counter==0){
-				counter++;
-				continue;
+			//FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_charRatios.csv"), Arrays.asList(itus));
+
+			List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture.txt"));
+			counter=0;
+			for (String line:lines){
+				if (counter==0){
+					counter++;
+					continue;
+				}
+				String[] temp = line.split("\t");
+				if (!temp[group].trim().isEmpty()){
+					System.out.println(temp[group]);
+					int ind = Integer.parseInt(temp[group].trim()) ;
+					res.add(temp[group].trim()+"\t"+tus[ind][0]+"\t"+tus[ind][1]);
+				}	
 			}
-			String[] temp = line.split("\t");
-			if (!temp[group].trim().isEmpty()){
-				System.out.println(temp[group]);
-				int ind = Integer.parseInt(temp[group].trim()) ;
-				res.add(temp[group].trim()+"\t"+tus[ind][0]+"\t"+tus[ind][1]);
-			}	
+			FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_g"+Integer.toString(group+1)+".csv"), res);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_g"+Integer.toString(group+1)+".csv"), res);
-	} catch (IOException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	}
-	
-	System.exit(0);
-		
+
+		System.exit(0);
+
 		String filename="C:\\Users\\vpapa\\ABU\\spidextor_output.uniq.rand.filt.txt";
 		String inputLine;
 		BufferedReader in;
@@ -765,10 +963,10 @@ public class TempUtils {
 	/*public static String convertStreamToString(InputStream is)
 			throws IOException {
 
-		* To convert the InputStream to String we use the
-		* Reader.read(char[] buffer) method. We iterate until the
-		* Reader return -1 which means there's no more data to
-				* read. We use the StringWriter class to produce the string.
+	 * To convert the InputStream to String we use the
+	 * Reader.read(char[] buffer) method. We iterate until the
+	 * Reader return -1 which means there's no more data to
+	 * read. We use the StringWriter class to produce the string.
 
 				if (is != null) {
 					Writer writer = new StringWriter();

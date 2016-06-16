@@ -405,6 +405,27 @@ public class CrawlOptions {
 					_methods = line.getOptionValue("pdm");
 				if(line.hasOption( "del")) 		
 					_del  = true;
+				String temp= line.getOptionValue("u_r");
+				if (temp!=null){
+					String[] aa=temp.split(DOUBLEQUEST_SEPAR);
+					String[][] urls_repls =new String[aa.length][2];  
+					for (int ii=0;ii<aa.length;ii++){
+						String[] bb = aa[ii].split(QUEST_SEPAR);
+						if (bb.length<1){
+							LOGGER.error("the argument for URL replacements is not correct." +
+									" Use ;; to seperate pairs and ; to separate the parts of each pair." +
+									"Check that none of the parts is empty.");
+							help();
+						}else{
+							if (bb.length==1){
+								urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = "";
+							}else{
+								urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = bb[1];
+							}
+						}
+					}
+					_urls_repls=urls_repls;
+				}
 			}
 			if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
@@ -538,23 +559,27 @@ public class CrawlOptions {
 			}
 		}
 		if (_type.equals(type_p)){
-			String temp= line.getOptionValue("u_r");
+			/*String temp= line.getOptionValue("u_r");
 			if (temp!=null){
 				String[] aa=temp.split(DOUBLEQUEST_SEPAR);
 				String[][] urls_repls =new String[aa.length][2];  
 				for (int ii=0;ii<aa.length;ii++){
 					String[] bb = aa[ii].split(QUEST_SEPAR);
-					if (bb.length<=1){
+					if (bb.length<1){
 						LOGGER.error("the argument for URL replacements is not correct." +
 								" Use ;; to seperate pairs and ; to separate the parts of each pair." +
 								"Check that none of the parts is empty.");
 						help();
 					}else{
-						urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = bb[1];
+						if (bb.length==1){
+							urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = "";
+						}else{
+							urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = bb[1];
+						}
 					}
 				}
 				_urls_repls=urls_repls;
-			}
+			}*/
 			URL url;
 			if (!line.hasOption( "filter")){
 				try {
