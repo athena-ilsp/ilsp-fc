@@ -88,8 +88,8 @@ public class Pdf2text {
 					//	System.err.println("Error: Document is encrypted with a password.");
 				} catch (CryptographyException e) {
 					System.err.println("Error: CryptographyException.");
-					return "";
 				}
+				return "";
 			}
 			PrintTextLocations printer = new PrintTextLocations();
 			List<PDPage> allPages = document.getDocumentCatalog().getAllPages();
