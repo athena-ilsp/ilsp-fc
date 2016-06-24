@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gr.ilsp</groupId>
 	<artifactId>ilsp-fc</artifactId>
-	<version>2.2.3</version>
+	<version>2.2.4-SNAPSHOT</version>
 	<name>ILSP Focused Crawler </name>
 	<description>A focused crawler using the Bixo web mining toolkit.</description>
 	<properties>
