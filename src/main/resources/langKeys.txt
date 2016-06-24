@@ -13,7 +13,7 @@ fin>fin,Fi,fi,finnish,Finnish,suomi,Suomi,suomi (fi),suomi [fi],suomeksi,Suomeks
 hun>hun,HU,hu,hungarian,Hungarian,MAGYAR,(hu),Magyar,magyar
 pol>pol,PL,polski,(pl),polska wersja,język polski,polszczyzna,pols
 lav>lv,Latviešu,Latviski,latviešu valoda,Latviešu
-slv>slv,sl,Slovene,sl,slovenski jezik,slovenščina
+slv>slv,sl,Slovene,sl,slovenski jezik,slovenščina,Slovensko
 lit>lit,lt,Lithuanian,lietuvių kalba,Lietuviškai
 ron>ron,rum,ro,Romanian,romanian,limba română
 nor>nor,no,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
