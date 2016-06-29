@@ -1,5 +1,6 @@
 package gr.ilsp.fc.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,6 +62,41 @@ public class ISOLangCodes {
 		}
 	}
 
-
+	public static List<String> get23LetterCodes(String[] languages) {
+		List<String> langslist = new ArrayList<String>();
+		for (int ii=0;ii<languages.length;ii++){
+			langslist.add(languages[ii]);
+			if (iso3Toiso2.containsKey(languages[ii])) {
+				langslist.add(iso3Toiso2.get(languages[ii]));
+			}
+			if (iso2Toiso3.containsKey(languages[ii])) {
+				langslist.add(iso2Toiso3.get(languages[ii]));
+			}
+		}
+		return langslist;
+	}
+	
+	public static List<String> get2LetterCodes(String[] languages) {
+		List<String> langslist = new ArrayList<String>();
+		for (int ii=0;ii<languages.length;ii++){
+			if (iso3Toiso2.containsKey(languages[ii])) 
+				langslist.add(iso3Toiso2.get(languages[ii]));
+			else
+				langslist.add(languages[ii]);
+		}
+		return langslist;
+	}
+	
+	public static List<String> get3LetterCodes(String[] languages) {
+		List<String> langslist = new ArrayList<String>();
+		for (int ii=0;ii<languages.length;ii++){
+			if (iso2Toiso3.containsKey(languages[ii])) 
+				langslist.add(iso2Toiso3.get(languages[ii]));
+			else
+				langslist.add(languages[ii]);
+		}
+		return langslist;
+	}
+	
 	
 }

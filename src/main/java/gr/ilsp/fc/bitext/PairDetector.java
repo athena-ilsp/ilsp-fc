@@ -111,7 +111,7 @@ public class PairDetector {
 		PairDetector.groundTruth = gt;
 	}
 	public void  setExcludeSetFiles(Map<String, String> excludeSetFiles){
-		PairDetector.excludeSetFiles = null;
+		PairDetector.excludeSetFiles = excludeSetFiles;
 	}
 	public void  setUseImagepath(boolean useImagePath){
 		PairDetector.useImagePath = useImagePath;

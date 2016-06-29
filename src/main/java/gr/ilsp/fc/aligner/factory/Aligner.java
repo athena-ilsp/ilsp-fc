@@ -61,6 +61,7 @@ public abstract class Aligner {
 	private static final String tmx_xsl= "http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl";
 	protected boolean useBoilerplateParagraphs = false;
 	protected boolean useOoiLang = true;
+	//protected boolean useOoiLang = false;
 	protected boolean sentenceSplitParagraphs = true;
 	private List<Pair<String, String>> attributeValuesToIgnore = new ArrayList<Pair<String, String>>();
 
@@ -118,11 +119,16 @@ public abstract class Aligner {
 					lines.add(file.getAbsolutePath());
 			}
 		}else{
-			try {
-				lines = FileUtils.readLines(cesAlignList);
-			} catch (IOException e) {
-				logger.error("problem in reading the file " +cesAlignList.getAbsolutePath() +" list of detected pairs");
-				e.printStackTrace();
+			if (!cesAlignList.exists()){
+				logger.info("List of detected pairs "+ cesAlignList + " does not exist. No TMX files will be generated.");
+				return;
+			}else{
+				try {
+					lines = FileUtils.readLines(cesAlignList);
+				} catch (IOException e) {
+					logger.error("problem in reading the file " +cesAlignList.getAbsolutePath() +" list of detected pairs");
+					e.printStackTrace();
+				}
 			}
 		}
 		logger.info("Aligning sentences in document pairs using "+ this.getClass().getSimpleName());
@@ -211,8 +217,8 @@ public abstract class Aligner {
 		File outputTMXList = new File(FilenameUtils.concat(tempparent, tempname)+TMXlist);
 		File outputHTMLTMXList = null;
 		if (oxslt)
-		 outputHTMLTMXList = new File(FilenameUtils.concat(tempparent, tempname)+TMXHTMLlist);
-		
+			outputHTMLTMXList = new File(FilenameUtils.concat(tempparent, tempname)+TMXHTMLlist);
+
 		generateTmxListFiles(outputTMXList, outputHTMLTMXList, lines, tmxFiles,
 				htmlTmxFiles, alignmentsPerFile, alignmentsMap, sourceSentsMap,
 				targetSentsMap);
@@ -336,8 +342,8 @@ public abstract class Aligner {
 					//System.out.println(pElement.getTextContent().trim());
 					pElement.setTextContent("###"+pElement.getTextContent().trim());
 				} */
-				
-				
+
+
 				if (pElement.hasAttribute(CRAWLINFO) && pElement.getAttribute(CRAWLINFO).equals(BOILERPLATE) ) {
 					continue;
 				} else if (useOoilang==false && pElement.hasAttribute(CRAWLINFO) && pElement.getAttribute(CRAWLINFO).equals(OOI_LANG) ) {

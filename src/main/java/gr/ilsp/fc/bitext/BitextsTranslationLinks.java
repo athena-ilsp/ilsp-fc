@@ -3,6 +3,7 @@ package gr.ilsp.fc.bitext;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.parser.ExtendedOutlink;
 import gr.ilsp.fc.utils.CrawlConfig;
+import gr.ilsp.fc.utils.ISOLangCodes;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -79,7 +80,7 @@ public class BitextsTranslationLinks {
 				ExtendedOutlink[] translationOutLinks = datum
 						.getTranslationOutlinks();
 				for (ExtendedOutlink translationOutLink : translationOutLinks) {
-					String outLinkLang = translationOutLink.getHrefLang();
+					String outLinkLang = ISOLangCodes.get3LetterCode(translationOutLink.getHrefLang());
 					if (langs.contains(outLinkLang)) {			
 						// Check for pages wrongly pointing to themselves. Seems to be an issue for certain sites .
 						if (myUrl.equals(translationOutLink.getToUrl()) || myLang.equals(outLinkLang)) {

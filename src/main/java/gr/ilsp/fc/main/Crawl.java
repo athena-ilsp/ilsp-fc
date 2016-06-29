@@ -507,7 +507,7 @@ public class Crawl {
 			////////////////////////////////////////////////////////////////////////////////////////////////////
 			Map<String, String> urlPairsFromTranslationLinks = null;
 			if (options.getType().equals(p_type)){
-				urlPairsFromTranslationLinks = BitextsTranslationLinks.getURLPairsFromTranslationLinks(conf, Arrays.asList(langs), outputDirName.getAbsolutePath());
+				urlPairsFromTranslationLinks = BitextsTranslationLinks.getURLPairsFromTranslationLinks(conf, ISOLangCodes.get3LetterCodes(langs), outputDirName.getAbsolutePath());
 			}			
 			////////////////////////////////////////////////////////////////////////////////////////////////////////
 			Map<String, String> urlsToIds = new HashMap<String, String>();
@@ -566,7 +566,7 @@ public class Crawl {
 						pd.setSourceDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
 						pd.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
 						pd.setBaseName(options.getBaseName());
-						pd.setExcludeSetFiles(null);
+						pd.setExcludeSetFiles(idPairsFromTranslationLinks);
 						pd.setUseImagepath(options.getImpath());
 						pd.setApplyXSLT(options.isOfflineXSLT());
 						pd.setURL_REPL(options.getUrlReplaces());
