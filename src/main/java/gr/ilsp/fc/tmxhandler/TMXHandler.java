@@ -69,8 +69,8 @@ public class TMXHandler {
 	private static double minPerce01Align=1;
 	private static double minTuLenRatio = 0;
 	private static double maxTuLenRatio = 100;
-	private static double median_word_length=20;
-	private static double max_word_length=30;
+	private static double median_word_length=15;
+	private static double max_word_length=20;
 	private static String doctypes;// = "aupidhml";
 	private static List<String> segtypes;
 	private static Set<String> segs = new HashSet<String>() ;
@@ -188,7 +188,7 @@ public class TMXHandler {
 		if (keepiden)
 			filter7=" Alignments with identical TUVs (after normalization) were kept and annotated.";
 		if (keepem)
-			filter8=" Alignments with only non-letters in one at least one of their TUVs were kept and annotated.";
+			filter8=" Alignments with only non-letters in at least one of their TUVs were kept and annotated.";
 		if (keepdup)
 			filter9=" Duplicate alignments were kept and annotated.";
 		LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
@@ -400,14 +400,16 @@ public class TMXHandler {
 
 				List<String> stokens = FCStringUtils.getTokens(normS);
 				List<String> ttokens = FCStringUtils.getTokens(normT);
-				Double[] stokenslen= FCStringUtils.getTokensLength(stokens);
-				Double[] ttokenslen= FCStringUtils.getTokensLength(ttokens);
+				Double[] stokenslen = FCStringUtils.getTokensLength(stokens);
+				Double[] ttokenslen = FCStringUtils.getTokensLength(ttokens);
 				if (Statistics.getMax(stokenslen)>max_word_length || Statistics.getMax(ttokenslen)>max_word_length){
-					//info1 = mes3+ max_word_length;
+					LOGGER.info("discarded TU, very large word (due to bad text extraction from pdf):"+ segpair.seg1 +"\t"+ segpair.seg2);
+					 //String info1 = "a: "+ max_word_length;
 					continue;
 				}else{
-					if (Statistics.getMedian(stokenslen)>median_word_length || Statistics.getMedian(ttokenslen)>median_word_length){
-						//info1 = mes3a+ median_word_length;
+					if (Statistics.getMedian(stokenslen)>=median_word_length || Statistics.getMedian(ttokenslen)>=median_word_length){
+						LOGGER.info("discarded TU, very large words (due to bad text extraction from pdf):"+ segpair.seg1 +"\t"+ segpair.seg2);
+					 //	String info1 = "a: "+ median_word_length;
 						continue;
 					}
 				}
