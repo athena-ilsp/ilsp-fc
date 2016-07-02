@@ -638,12 +638,14 @@ public class Crawl {
 				if (operation.contains(MERGE_operation)){
 					MonoMerger  mm = new MonoMerger();
 					mm.setTargetDir(xmldir);
-					mm.setApplyOfflineXSLT(options.isOfflineXSLT());
 					mm.setCC(options.getCC());
-					String lang = options.getLanguage().split(SEMICOLON_STR)[0];
-					mm.setLanguage(lang);
-					mm.setBaseName(new File(options.getBaseName()+lang));
-					mm.merge();
+					//mm.setApplyOfflineXSLT(options.isOfflineXSLT());
+					String[] tlangs = options.getLanguage().split(SEMICOLON_STR);
+					for (String lang:tlangs){
+						mm.setLanguage(lang);
+						mm.setBaseName(new File(options.getBaseName()+lang));
+						mm.merge();
+					}
 				}
 			}
 			/////////////////////////////////////////////////////////////////////////////////////////////////////			
