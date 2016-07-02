@@ -21,7 +21,7 @@ public class MonoMergerOptions {
 	private File _targetDir = null;
 	private File _baseName=null;
 	private String _language;
-	private boolean _oxslt=false;
+	//private boolean _oxslt=false;
 	private boolean _cc=false;
 	
 	public MonoMergerOptions() {
@@ -32,7 +32,7 @@ public class MonoMergerOptions {
 	private Options createOptions() {
 		options = new Options();
 		options.addOption( OptionBuilder.withLongOpt( "inputDir" )
-				.withDescription( "TMX files in this directory will be examined" )
+				.withDescription( "XML files in this directory will be examined" )
 				.isRequired()
 				.hasArg()
 				.create("dest") );
@@ -41,9 +41,9 @@ public class MonoMergerOptions {
 				.isRequired()
 				.hasArg()
 				.create("bs") );
-		options.addOption( OptionBuilder.withLongOpt( "transform_TMX2HTML" )
+		/*options.addOption( OptionBuilder.withLongOpt( "transform_TMX2HTML" )
 				.withDescription( "render the generated merged TMX file as HTML" )
-				.create("oxslt") );
+				.create("oxslt") );*/
 		options.addOption( OptionBuilder.withLongOpt( "language" )
 				.withDescription( "Target language" )
 				.hasArg()
@@ -78,8 +78,8 @@ public class MonoMergerOptions {
 			}else{
 				LOGGER.error("You should provide a baseName to be used for outfiles.");
 			}
-			if (line.hasOption("oxslt"))
-				_oxslt=true;
+			//if (line.hasOption("oxslt"))
+			//	_oxslt=true;
 			if (line.hasOption("cc"))
 				_cc=true;
 			if(line.hasOption( "lang")) {
@@ -106,9 +106,9 @@ public class MonoMergerOptions {
 	public File getTargetDir() {
 		return _targetDir;
 	}
-	public boolean getXSLTransform() {
-		return _oxslt;
-	}
+//	public boolean getXSLTransform() {
+//		return _oxslt;
+//	}
 	public boolean getCC() {
 		return _cc;
 	}

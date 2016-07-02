@@ -37,11 +37,11 @@ public class MonoMerger {
 	private static File baseName = null;
 	private static File outTXTFile = null;
 	private static File outXMLFile = null;
-	private static File outHTMLFile = null;
+	//private static File outHTMLFile = null;
 	private static final String DEFAULT_M_CONFIG_FILE = "FMC_config.xml";
 	private static CompositeConfiguration config;
 	private static String[] languages;
-	private static boolean oxslt=false;
+	//private static boolean oxslt=false;
 	private static boolean cc=false;
 	private static final int len_thr=5;
 	private static double max_median_word_length=15;
@@ -53,13 +53,13 @@ public class MonoMerger {
 	private static final String UNDERSCORE_STR="_";
 	//private final static String PUNCT = ".";
 	private final static String UNKNOWN_STR ="unknown";
-	private static final String HTML =".html";
+	//private static final String HTML =".html";
 	private static final String XMLEXT = ".xml";
 	private static final String TXTEXT = ".txt";
 	private final static String MetadataExt = ".md.xml";
 	private final static String domainNode = "domain";
 	private final static String FREE_STR="free";
-	private final static String UTF_8 = "UTF-8";
+	//private final static String UTF_8 = "UTF-8";
 	//private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
 	private static final String P_ELE = "p";
 	private static final String ooi_crawlinfo = "crawlinfo";
@@ -75,7 +75,7 @@ public class MonoMerger {
 		options = new MonoMergerOptions();
 		options.parseOptions(args);
 		mm.setTargetDir(options.getTargetDir());
-		mm.setApplyOfflineXSLT(options.getXSLTransform());
+		//mm.setApplyOfflineXSLT(options.getXSLTransform());
 		mm.setLanguage(options.getLanguage());
 		mm.setCC(options.getCC());
 		String lang = options.getLanguage().split(SEMICOLON_STR)[0];
@@ -181,8 +181,8 @@ public class MonoMerger {
 				monlingualCorpusInfo = new MonolingualCorpusInformation(FilenameUtils.getBaseName(outXMLFile.getAbsolutePath()),MonoMerger.languages[0], totalTokens,
 						domain, domainEurovocId, UNKNOWN_STR, creationDescription, projectId, projectURL, organization, organizationURL);
 			}
-			if (oxslt) 
-				outHTMLFile =  new File(baseName.getAbsolutePath() + HTML);
+			//if (oxslt) 
+			//	outHTMLFile =  new File(baseName.getAbsolutePath() + HTML);
 		}else{
 			LOGGER.info("No CesDoc found.");
 		}
@@ -299,10 +299,10 @@ public class MonoMerger {
 	/**
 	 * apply transformation of the generated TMX to HTML. if exists, an HTML file will be created next to the generated TMX
 	 * @param offlineXSLT
-	 */
+	 *//*
 	public void setApplyOfflineXSLT(boolean offlineXSLT) {
 		MonoMerger.oxslt  = offlineXSLT;
-	}
+	}*/
 
 	public void setCC(boolean cc) {
 		MonoMerger.cc  = cc;
