@@ -11,7 +11,7 @@ jpn>jpn,JA,ja,JP,jp,Japanese,ja,日本語 (にほんご),Japonic
 gle>gle,GA,ga,Irish,Gaelic,Gaeilge
 fin>fin,Fi,fi,finnish,Finnish,suomi,Suomi,suomi (fi),suomi [fi],suomeksi,Suomeksi,suomen kieli
 hun>hun,HU,hu,hungarian,Hungarian,MAGYAR,(hu),Magyar,magyar
-pol>pol,PL,polski,(pl),polska wersja,język polski,polszczyzna,pols
+pol>pol,PL,polski,(pl),polska wersja,język polski,polszczyzna,pols,Polsku
 lav>lv,Latviešu,Latviski,latviešu valoda,Latviešu
 slv>slv,sl,Slovene,sl,slovenski jezik,slovenščina,Slovensko
 lit>lit,lt,Lithuanian,lietuvių kalba,Lietuviškai
@@ -24,7 +24,7 @@ dan>dan,da,Danish,danish,dansk
 bul>bul,bg,Bulgarian,bulgarian,Български,български език
 rus>rus,ru,Russian,russian,Русский,По-русски
 swe>swe,sv,Swedish,swedish,(sv),[sv],svenska
-slk>slk,sk,Slovak,slovenčina,slovenský jazyk 
+slk>slk,sk,Slovak,slovenčina,slovenský jazyk,Slovensky,slo 
 est>est,et,estonian,eesti
 srp>srp,sr,Serbian,српски језик,Srpski
 hrv>hrv,hr,Croatian

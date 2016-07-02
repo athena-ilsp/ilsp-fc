@@ -131,7 +131,7 @@ public class TMXHandlerUtils {
 			webpage2 = webpage2.substring(0, webpage2.indexOf("/"));
 			LOGGER.warn("no protocol "+ webpage2);
 		}
-		
+
 		if (!webpage1.equals(webpage2)){
 			if (webpage1.contains(webpage2))
 				site = webpage1;
@@ -231,14 +231,17 @@ public class TMXHandlerUtils {
 		}
 	}
 	/**
-	 * counts words of i-th TUV of each TU in  the alignmentList
+	 * counts tokens and unique words of i-th TUV of each TU in the alignmentList.
+	 * If clean is true, it also counts tokens and words of TUs with no annotation  
 	 * @param alignmentList
 	 * @param i
+	 * @param clean
 	 * @return
 	 */
-	public static int[] countWordsInTMX(List<ILSPAlignment> alignmentList, int i) {
-		int len=0;
-		Set<String> words = new HashSet<String>();
+	public static int[] countWordsInTMX(List<ILSPAlignment> alignmentList, int i, boolean clean) {
+		int totallen=0, cleanlen=0, cleanpairslen=0;
+		Set<String> allwords = new HashSet<String>();
+		Set<String> cleanwords = new HashSet<String>();
 		for (ILSPAlignment align:alignmentList){
 			List<String> temp=new ArrayList<String>();
 			if (i==1)
@@ -247,18 +250,27 @@ public class TMXHandlerUtils {
 				temp =align.getTargetSegmentList();
 			for (String str:temp){
 				List<String> toks = FCStringUtils.getWords(str); 
-				len =len +toks.size();
+				totallen =totallen +toks.size();
 				for (String tok:toks){
-					if (!words.contains(tok)){
-						words.add(tok);
+					if (!allwords.contains(tok))
+						allwords.add(tok);
+				}
+				if (clean){
+					if (!align.getInfo().isEmpty())
+						continue;
+					cleanpairslen++;
+					cleanlen =cleanlen +toks.size();
+					for (String tok:toks){
+						if (!cleanwords.contains(tok))
+							cleanwords.add(tok);
 					}
 				}
 			}
 		}
-		int[] res=new int[2]; res[0]=len; res[1] = words.size();
+		int[] res=new int[6]; res[0]=totallen; res[1] = allwords.size(); res[2]=cleanlen; res[3] = cleanwords.size();res[4]=alignmentList.size(); res[5] = cleanpairslen ;
 		return res;
 	}
-	
+
 	/**
 	 * @param tmxFile
 	 * @return
@@ -268,5 +280,5 @@ public class TMXHandlerUtils {
 		return TmxMarshallerUnmarshaller.getInstance().unmarshal(new InputStreamReader(new FileInputStream(tmxFile))).getBody().getTu();
 	}
 
-	
+
 }

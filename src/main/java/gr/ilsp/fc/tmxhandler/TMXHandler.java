@@ -116,7 +116,7 @@ public class TMXHandler {
 	private String alignerStr = "Maligna";
 
 	private String creationDescription = "The ILSP Focused Crawler was used for the acquisition "
-			+ "of bilingual data from multilingual websites, and for the normalization, cleaning, deduplication and identification of parallel documents. "
+			+ "of bilingual data from multilingual websites, and for the normalization, cleaning, (near) de-duplication and identification of parallel documents. "
 			+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
 			+ "As a post-processing step, alignments were merged into one TMX file. "
 			+ "The following filters were applied: ";
@@ -241,24 +241,30 @@ public class TMXHandler {
 			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, keepsn, cc);
 		}
 		if (!alignmentList.isEmpty()){
-			int[] stats1 =TMXHandlerUtils.countWordsInTMX(alignmentList,1);
-			int[] stats2 =TMXHandlerUtils.countWordsInTMX(alignmentList,2);
+			int[] stats1 = TMXHandlerUtils.countWordsInTMX(alignmentList, 1, true);
+			int[] stats2 = TMXHandlerUtils.countWordsInTMX(alignmentList, 2, true);
 			String organization = config.getString("resourceCreator.organization");
 			String organizationURL = config.getString("resourceCreator.organizationURL"); 
-			String projectId= config.getString("fundingProject.projectId"); 
+			String projectId = config.getString("fundingProject.projectId"); 
 			String projectURL = config.getString("fundingProject.projectURL"); 
+			
+			creationDescription = creationDescription + " There are "+ stats1[5] +" TUs with no annotation,"+
+					" containing "+ stats1[2] +" words and "+ stats1[3] +" lexical types in "+ TMXHandler.languages[0] + 
+					" and "+ stats2[2] +" words and "+ stats2[3]+" lexical types in "+ TMXHandler.languages[1];
+			
 			BilingualCorpusInformation bilingualCorpusInfo;
 			if (cc) {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), TMXHandler.languages[0], TMXHandler.languages[1], 
-						alignmentList, alignmentList.size(), stats1[0], stats2[0],stats1[1], stats2[1], domain, domainEurovocId, FREE_STR, creationDescription,
+						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0], stats1[1], stats2[1], stats1[2], stats2[2], stats1[3], stats2[3], domain, domainEurovocId, FREE_STR, creationDescription,
 						projectId, projectURL, organization, organizationURL);
 			} else {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), TMXHandler.languages[0], TMXHandler.languages[1], 
-						alignmentList, alignmentList.size(), stats1[0], stats2[0],stats1[1], stats2[1], domain, domainEurovocId, UNKNOWN_STR, creationDescription,
+						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0], stats1[1], stats2[1], stats1[2], stats2[2], stats1[3], stats2[3], domain, domainEurovocId, UNKNOWN_STR, creationDescription,
 						projectId, projectURL, organization, organizationURL);
 			}
 			if (oxslt) 
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
+			
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
 
 			//if (metadata){

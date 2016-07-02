@@ -16,8 +16,8 @@ public class BilingualCorpusInformation {
 	private int zeroToOneAlignmentsSize;
 	private int l1SegmentsSize;
 	private int l2SegmentsSize;
-	private int l1TokensSize;
-	private int l2TokensSize;
+	private int l1TokensSize, cleanl1TokensSize;
+	private int l2TokensSize, cleanl2TokensSize;
 	private List<File> tmxFiles;
 	
 	private List<ILSPAlignment> alignmentList;
@@ -26,11 +26,11 @@ public class BilingualCorpusInformation {
 	private String l1;
 	private String l2;
 
-	private int lenInTUs;
-	private int lenInWordsL1;
-	private int lenInWordsL2;
-	private int vocSizeInL1;
-	private int vocSizeInL2;
+	private int lenInTUs, cleanlenInTUs;
+	private int lenInWordsL1, lenInWordsL2;
+	private int vocSizeInL1, vocSizeInL2;
+	private int cleanlenInWordsL1, cleanlenInWordsL2;
+	private int cleanvocSizeInL1, cleanvocSizeInL2;
 	private String availability;
 	private List<String> crawledSites;
 
@@ -50,9 +50,10 @@ public class BilingualCorpusInformation {
 	private String organizationURL = "http://www.ilsp.gr/"; 
 	
 	public BilingualCorpusInformation(String name, String l1, String l2, 
-			List<ILSPAlignment> alignmentList, int lenInTUs,
-			int lenInWordsL1, int lenInWordsL2, int vocSizeInL1,
-			int vocSizeInL2, String domain, String domainId,
+			List<ILSPAlignment> alignmentList, int lenInTUs, int cleanlenInTUs,
+			int lenInWordsL1, int lenInWordsL2, int vocSizeInL1, int vocSizeInL2,
+			int cleanlenInWordsL1, int cleanlenInWordsL2, int cleanvocSizeInL1, int cleanvocSizeInL2,
+			String domain, String domainId,
 			String availability, String creationDescription,
 			String projectId, String projectURL,
 			String organization, String organizationURL) {
@@ -64,10 +65,15 @@ public class BilingualCorpusInformation {
 		this.alignmentList = alignmentList;
 		this.domain = domain;
 		this.lenInTUs = lenInTUs;
+		this.cleanlenInTUs = cleanlenInTUs;
 		this.lenInWordsL1 = lenInWordsL1;
 		this.lenInWordsL2 = lenInWordsL2;
+		this.cleanlenInWordsL1 = cleanlenInWordsL1;
+		this.cleanlenInWordsL2 = cleanlenInWordsL2;
 		this.vocSizeInL1 = vocSizeInL1;
 		this.vocSizeInL2 = vocSizeInL2;
+		this.cleanvocSizeInL1 = cleanvocSizeInL1;
+		this.cleanvocSizeInL2 = cleanvocSizeInL2;
 		this.availability = availability;
 		this.domainId = domainId;
 		this.domain = domain;
@@ -76,10 +82,9 @@ public class BilingualCorpusInformation {
 		this.projectURL = 	projectURL;
 		this.organization = organization;
 		this.organizationURL = organizationURL;
-		this.description = "Parallel (" + l1 + "-" + l2 + ") " + "corpus of " +lenInTUs  + " translation units in the " + domain + " domain.";
-		if (StringUtils.isBlank(domain)) {
-			this.description = "Parallel (" + l1 + "-" + l2 + ") " + "corpus of " +lenInTUs  + " translation units.";
-		}
+		this.description = "Parallel (" + l1 + "-" + l2 + ") " + "corpus of " +lenInTUs  + " translation units in the " + domain + " domain. ";
+		if (StringUtils.isBlank(domain)) 
+			this.description = "Parallel (" + l1 + "-" + l2 + ") " + "corpus of " + lenInTUs  + " translation units.";
 		this.name = name;
 	}
 	
@@ -136,6 +141,18 @@ public class BilingualCorpusInformation {
 		this.l1TokensSize = l1TokensSize;
 	}
 	/**
+	 * @return the cleanl1TokensSize
+	 */
+	public int getCleanL1TokensSize() {
+		return cleanl1TokensSize;
+	}
+	/**
+	 * @param cleanl1TokensSize the cleanl1TokensSize to set
+	 */
+	public void setCleanL1TokensSize(int cleanl1TokensSize) {
+		this.cleanl1TokensSize = cleanl1TokensSize;
+	}
+	/**
 	 * @return the l2TokensSize
 	 */
 	public int getL2TokensSize() {
@@ -146,6 +163,18 @@ public class BilingualCorpusInformation {
 	 */
 	public void setL2TokensSize(int l2TokensSize) {
 		this.l2TokensSize = l2TokensSize;
+	}
+	/**
+	 * @return the cleanl2TokensSize
+	 */
+	public int getCleanL2TokensSize() {
+		return cleanl2TokensSize;
+	}
+	/**
+	 * @param cleanl2TokensSize the cleanl2TokensSize to set
+	 */
+	public void setCleanL2TokensSize(int cleanl2TokensSize) {
+		this.cleanl2TokensSize = cleanl2TokensSize;
 	}
 	/**
 	 * @return the tmxFiles
@@ -258,6 +287,19 @@ public class BilingualCorpusInformation {
 	public void setLenInTUs(int lenInTUs) {
 		this.lenInTUs = lenInTUs;
 	}
+	
+	/**
+	 * @return the cleanlenInTUs
+	 */
+	public int getCleanLenInTUs() {
+		return cleanlenInTUs;
+	}
+	/**
+	 * @param cleanlenInTUs the cleanlenInTUs to set
+	 */
+	public void setCleanLenInTUs(int cleanlenInTUs) {
+		this.cleanlenInTUs = cleanlenInTUs;
+	}
 	/**
 	 * @return the lenInWordsL1
 	 */
@@ -271,6 +313,18 @@ public class BilingualCorpusInformation {
 		this.lenInWordsL1 = lenInWordsL1;
 	}
 	/**
+	 * @return the cleanlenInWordsL1
+	 */
+	public int getCleanLenInWordsL1() {
+		return cleanlenInWordsL1;
+	}
+	/**
+	 * @param cleanlenInWordsL1 the cleanlenInWordsL1 to set
+	 */
+	public void setCleanLenInWordsL1(int cleanlenInWordsL1) {
+		this.cleanlenInWordsL1 = cleanlenInWordsL1;
+	}
+	/**
 	 * @return the lenInWordsL2
 	 */
 	public int getLenInWordsL2() {
@@ -281,6 +335,31 @@ public class BilingualCorpusInformation {
 	 */
 	public void setLenInWordsL2(int lenInWordsL2) {
 		this.lenInWordsL2 = lenInWordsL2;
+	}
+	
+	/**
+	 * @return the cleanlenInWordsL2
+	 */
+	public int getCleanLenInWordsL2() {
+		return cleanlenInWordsL2;
+	}
+	/**
+	 * @param cleanlenInWordsL2 the cleanlenInWordsL2 to set
+	 */
+	public void setCleanLenInWordsL2(int cleanlenInWordsL2) {
+		this.cleanlenInWordsL2 = cleanlenInWordsL2;
+	}
+	/**
+	 * @return the cleanvocSizeInL1
+	 */
+	public int getCleanVocSizeInL1() {
+		return cleanvocSizeInL1;
+	}
+	/**
+	 * @param cleanvocSizeInL1 the cleanvocSizeInL1 to set
+	 */
+	public void setCleanVocSizeInL1(int cleanvocSizeInL1) {
+		this.cleanvocSizeInL1 = cleanvocSizeInL1;
 	}
 	/**
 	 * @return the vocSizeInL1
@@ -306,6 +385,19 @@ public class BilingualCorpusInformation {
 	public void setVocSizeInL2(int vocSizeInL2) {
 		this.vocSizeInL2 = vocSizeInL2;
 	}
+	/**
+	 * @return the cleanvocSizeInL2
+	 */
+	public int getCleanVocSizeInL2() {
+		return cleanvocSizeInL2;
+	}
+	/**
+	 * @param cleanvocSizeInL2 the cleanvocSizeInL2 to set
+	 */
+	public void setCleanVocSizeInL2(int cleanvocSizeInL2) {
+		this.cleanvocSizeInL2 = cleanvocSizeInL2;
+	}
+		
 	/**
 	 * @return the availability
 	 */
@@ -375,14 +467,12 @@ public class BilingualCorpusInformation {
 		return name;
 	}
 
-
 	/**
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
-
 
 	/**
 	 * @return the projectId
@@ -391,14 +481,12 @@ public class BilingualCorpusInformation {
 		return projectId;
 	}
 
-
 	/**
 	 * @param projectId the projectId to set
 	 */
 	public void setProjectId(String projectId) {
 		this.projectId = projectId;
 	}
-
 
 	/**
 	 * @return the projectURL
@@ -407,14 +495,12 @@ public class BilingualCorpusInformation {
 		return projectURL;
 	}
 
-
 	/**
 	 * @param projectURL the projectURL to set
 	 */
 	public void setProjectURL(String projectURL) {
 		this.projectURL = projectURL;
 	}
-
 
 	/**
 	 * @return the organization
@@ -423,14 +509,12 @@ public class BilingualCorpusInformation {
 		return organization;
 	}
 
-
 	/**
 	 * @param organization the organization to set
 	 */
 	public void setOrganization(String organization) {
 		this.organization = organization;
 	}
-
 
 	/**
 	 * @return the organizationURL
@@ -439,13 +523,11 @@ public class BilingualCorpusInformation {
 		return organizationURL;
 	}
 
-
 	/**
 	 * @param organizationURL the organizationURL to set
 	 */
 	public void setOrganizationURL(String organizationURL) {
 		this.organizationURL = organizationURL;
 	}
-
 
 }

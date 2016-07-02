@@ -32,11 +32,9 @@ import gr.ilsp.metashare.TextFormatInfoType;
 
 /**
  * Abstract class for metashare descriptors
- * 
- * 
  * @author prokopis
- *
  */
+
 public abstract class MetashareDescriptor {
 
 	private static final String UTF_8 = "UTF-8";
@@ -69,18 +67,14 @@ public abstract class MetashareDescriptor {
 	private String creationDescription ="crawling; pair detection; segment alignments";
 	private File outFile ;
 	
-
-	
 	/**
 	 * Once all appropriate metadata fields have been set, call this method to
 	 * generate the metashare descriptors to the outFile
 	 */
 	public void run() {
 		
-		
 		ObjectFactory objectFactory = new ObjectFactory();
 		ResourceInfoType resourceInfoType = objectFactory.createResourceInfoType();
-		
 		
 		//
 		IdentificationInfoType identificationInfoType = objectFactory.createIdentificationInfoType();
@@ -92,8 +86,7 @@ public abstract class MetashareDescriptor {
 		description.setLang(getMetadataLang());
 		description.setValue(getDescription());
 		identificationInfoType.getDescription().add(description);
-
-		
+	
 		// 
 		DistributionInfo distributionInfo = objectFactory.createDistributionInfo();
 		LicenceInfo licenseInfo = objectFactory.createLicenceInfo();
@@ -121,7 +114,6 @@ public abstract class MetashareDescriptor {
 
 		createDomainInfo(objectFactory, corpusTextInfo);
 
-		
 		// 
 		ResourceCreationInfoType resourceCreationInfoType = objectFactory.createResourceCreationInfoType();
 		ProjectInfoType projectInfoType = objectFactory.createProjectInfoType();
@@ -142,7 +134,6 @@ public abstract class MetashareDescriptor {
 		actorInfoType.setOrganizationInfo(organization);
 
 		resourceCreationInfoType.getResourceCreator().add(actorInfoType);
-
 		
 		try {
 			resourceCreationInfoType.setCreationEndDate(CalendarUtils.getXMLGregorianCalendarNow());
@@ -175,8 +166,6 @@ public abstract class MetashareDescriptor {
 		resourceInfoType.setIdentificationInfo(identificationInfoType);
 		resourceInfoType.setDistributionInfo(distributionInfo);
 		
-		
-		
 		logger.debug("Starting creating metashare descriptor ");
 
 		try {
@@ -197,9 +186,7 @@ public abstract class MetashareDescriptor {
 
 	public abstract void createCorpusSizeInfo(ObjectFactory objectFactory, CorpusTextInfo corpusTextInfo) ;
 
-
 	protected abstract void createLingualityInfo(ObjectFactory objectFactory, CorpusTextInfo corpusTextInfo) ;
-
 
 	/**
 	 * @return the resourceName
@@ -228,7 +215,6 @@ public abstract class MetashareDescriptor {
 	public void setLicense(String license) {
 		this.license = license;
 	}
-
 
 	/**
 	 * @return the domain
@@ -349,14 +335,12 @@ public abstract class MetashareDescriptor {
 		this.organizationUrl = organizationUrl;
 	}
 
-
 	/**
 	 * @return the outFile
 	 */
 	public File getOutFile() {
 		return outFile;
 	}
-
 
 	/**
 	 * @param outFile the outFile to set
@@ -365,14 +349,12 @@ public abstract class MetashareDescriptor {
 		this.outFile = outFile;
 	}
 
-
 	/**
 	 * @return the metadataLang
 	 */
 	public String getMetadataLang() {
 		return metadataLang;
 	}
-
 
 	/**
 	 * @param metadataLang the metadataLang to set
@@ -381,14 +363,12 @@ public abstract class MetashareDescriptor {
 		this.metadataLang = metadataLang;
 	}
 
-
 	/**
 	 * @return the creationDescription
 	 */
 	public String getCreationDescription() {
 		return creationDescription;
 	}
-
 
 	/**
 	 * @param creationDescription the creationDescription to set
@@ -397,14 +377,12 @@ public abstract class MetashareDescriptor {
 		this.creationDescription = creationDescription;
 	}
 
-
 	/**
 	 * @return the description
 	 */
 	public String getDescription() {
 		return description;
 	}
-
 
 	/**
 	 * @param description the description to set
@@ -413,8 +391,6 @@ public abstract class MetashareDescriptor {
 		this.description = description;
 	}
 
-
-
 	/**
 	 * @return the projectURL
 	 */
@@ -422,14 +398,11 @@ public abstract class MetashareDescriptor {
 		return projectURL;
 	}
 
-
-
 	/**
 	 * @param projectURL the projectURL to set
 	 */
 	public void setProjectURL(String projectURL) {
 		this.projectURL = projectURL;
 	}
-
 
 }
