@@ -640,6 +640,7 @@ public class Crawl {
 					mm.setTargetDir(xmldir);
 					mm.setCC(options.getCC());
 					//mm.setApplyOfflineXSLT(options.isOfflineXSLT());
+					mm.setdomain(options.getDomain());
 					String[] tlangs = options.getLanguage().split(SEMICOLON_STR);
 					for (String lang:tlangs){
 						mm.setLanguage(lang);

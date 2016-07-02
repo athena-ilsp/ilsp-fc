@@ -20,7 +20,7 @@ public class MonoMergerOptions {
 	private static final Logger LOGGER = Logger.getLogger(MonoMergerOptions.class);
 	private File _targetDir = null;
 	private File _baseName=null;
-	private String _language;
+	private String _language, _domain;
 	//private boolean _oxslt=false;
 	private boolean _cc=false;
 	
@@ -117,5 +117,9 @@ public class MonoMergerOptions {
 	}
 	public String getLanguage() { 
 		return _language;
+	}
+
+	public String getDomain() {
+		return _domain;
 	}
 }

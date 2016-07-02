@@ -41,6 +41,7 @@ public class MonoMerger {
 	private static final String DEFAULT_M_CONFIG_FILE = "FMC_config.xml";
 	private static CompositeConfiguration config;
 	private static String[] languages;
+	private static String domain;
 	//private static boolean oxslt=false;
 	private static boolean cc=false;
 	private static final int len_thr=5;
@@ -78,6 +79,7 @@ public class MonoMerger {
 		//mm.setApplyOfflineXSLT(options.getXSLTransform());
 		mm.setLanguage(options.getLanguage());
 		mm.setCC(options.getCC());
+		mm.setdomain(options.getDomain());
 		String lang = options.getLanguage().split(SEMICOLON_STR)[0];
 		mm.setLanguage(lang);
 		SentenceSplitterFactory sentenceSplitterFactory = new SentenceSplitterFactory();
@@ -308,6 +310,10 @@ public class MonoMerger {
 		MonoMerger.cc  = cc;
 	}
 
+	public void setdomain(String domain) {
+		MonoMerger.domain  = domain;
+	}
+	
 	/**
 	 * Loads the default configuration file and checks if user supplied a custom one.
 	 * @param type
@@ -335,4 +341,6 @@ public class MonoMerger {
 		}
 		return config;
 	}
+
+	
 }
