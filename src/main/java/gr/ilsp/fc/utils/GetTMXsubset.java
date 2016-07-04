@@ -115,7 +115,7 @@ public class GetTMXsubset {
 		if (keepiden)
 			filter7=" Alignments with identical TUVs (after normalization) were kept and annotated.";
 		if (keepem)
-			filter8=" Alignments with only non-letters in one at least one of their TUVs were kept and annotated.";
+			filter8=" Alignments with only non-letters in at least one of their TUVs were kept and annotated.";
 		if (keepdup)
 			filter9=" Duplicate alignments were kept and annotated.";
 		logger.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
@@ -133,8 +133,8 @@ public class GetTMXsubset {
 		alignmentList = getSegs(segpairs,alignmentList, keepem, keepiden, keepdup, keepsn, cc);
 
 		if (!alignmentList.isEmpty()){
-			int[] stats1 =TMXHandlerUtils.countWordsInTMX(alignmentList,1);
-			int[] stats2 =TMXHandlerUtils.countWordsInTMX(alignmentList,2);
+			int[] stats1 =TMXHandlerUtils.countWordsInTMX(alignmentList, 1, true);
+			int[] stats2 =TMXHandlerUtils.countWordsInTMX(alignmentList, 2, true);
 
 			String organization = "ILSP";
 			String organizationURL = "http://www.ilsp.gr"; 
@@ -146,11 +146,13 @@ public class GetTMXsubset {
 			BilingualCorpusInformation bilingualCorpusInfo;
 			if (cc) {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), l1, l2, 
-						alignmentList, alignmentList.size(), stats1[0], stats2[0],stats1[1], stats2[1], domain, domainEurovocId, FREE_STR, creationDescription,
+						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0],stats1[1], stats2[1], stats1[2], stats2[2],stats1[3], stats2[3],
+						domain, domainEurovocId, FREE_STR, creationDescription,
 						projectId, projectURL, organization, organizationURL);
 			} else {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), l1, l2, 
-						alignmentList, alignmentList.size(), stats1[0], stats2[0],stats1[1], stats2[1], domain, domainEurovocId, UNKNOWN_STR, creationDescription,
+						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0],stats1[1], stats2[1], stats1[2], stats2[2],stats1[3], stats2[3], 
+						domain, domainEurovocId, UNKNOWN_STR, creationDescription,
 						projectId, projectURL, organization, organizationURL);
 			}
 			if (oxslt) 
