@@ -178,19 +178,19 @@ public class TMXHandler {
 		if (!outTMX.getParentFile().exists())
 			outTMX.getParentFile().mkdirs();
 
-		String filter1=" TMX files generated from document pairs which have been identified by non-"+ doctypes + " methods were discarded.";
-		String filter2=" TMX files with a zeroToOne_alignments/total_alignments ratio is larger than "+ minPerce01Align + ", were discarded.";
-		String filter3=" Alignments of non-" + segtypes+ " were discarded.";
-		String filter4=" Alignments with a TUV (after normalization) that has less than "+ minTuvLen + " tokens, were discarded/annotated.";
-		String filter5=" Alignments with a TUVs' length ratio less than " + minTuLenRatio+ " or more than "+ maxTuLenRatio + ", were discarded/annotated.";
+		String filter1=" TMX files generated from document pairs which have been identified by non-"+ doctypes + " methods were discarded";
+		String filter2=" TMX files with a zeroToOne_alignments/total_alignments ratio larger than "+ minPerce01Align + ", were discarded";
+		String filter3=" Alignments of non-" + segtypes+ " type(s) were discarded.";
+		String filter4=" Alignments with a TUV (after normalization) that has less than "+ minTuvLen + " tokens, were discarded/annotated";
+		String filter5=" Alignments with a l1/l2 TUV length ratio smaller than " + minTuLenRatio+ " or larger than "+ maxTuLenRatio + ", were discarded/annotated";
 		if (keepsn)
-			filter6=" Alignments in which different digits appear in each TUV were discarded.";
+			filter6=" Alignments in which different digits appear in each TUV were discarded/annotated";
 		if (keepiden)
-			filter7=" Alignments with identical TUVs (after normalization) were kept and annotated.";
+			filter7=" Alignments with identical TUVs (after normalization) were discarded/annotated";
 		if (keepem)
-			filter8=" Alignments with only non-letters in at least one of their TUVs were kept and annotated.";
+			filter8=" Alignments with only non-letters in at least one of their TUVs were discarded/annotated";
 		if (keepdup)
-			filter9=" Duplicate alignments were kept and annotated.";
+			filter9=" Duplicate alignments were kept and were discarded/annotated";
 		LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
 
 		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
