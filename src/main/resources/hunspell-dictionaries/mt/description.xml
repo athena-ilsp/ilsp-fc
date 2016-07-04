@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description xmlns="http://openoffice.org/extensions/description/2006" xmlns:d="http://openoffice.org/extensions/description/2006"  xmlns:xlink="http://www.w3.org/1999/xlink">
+	<identifier value="mt.org.linux.spellcheck.mt-dict" />
+	<version value="0.4.1" />
+   	<platform value="all" />
+
+    <registration>
+		<simple-license accept-by="admin" suppress-on-update="true" >
+			<license-text xlink:href="licence.txt" lang="en" />
+		</simple-license>
+	</registration>
+    
+    <dependencies>
+		<OpenOffice.org-minimal-version value="3.1" d:name="OpenOffice.org 3.1" />
+	</dependencies>
+
+<!--
+    <update-information>
+      <src xlink:href="http://www.linux.org.mt/spelling/dict-mt.update.xml" />
+    </update-information>
+    see http://wiki.services.openoffice.org/wiki/Documentation/DevGuide/Extensions/Description_of_the_Update_Information
+-->
+	
+    <publisher>
+        <name xlink:href="http://www.linux.org.mt/" lang="en">Malta Linux User Group</name>
+    </publisher>
+    
+    <release-notes>
+            <src xlink:href="README_en.txt" lang="en" />
+    </release-notes>
+    
+	<display-name>
+		<name lang="en">Maltese spell check dictionary</name>
+		<name lang="mt">Dizzjunarju tal-Malti</name>
+	</display-name>
+
+    <extension-description>
+        <src xlink:href="description_en.txt" lang="en" />
+        <src xlink:href="description_mt.txt" lang="mt" />
+    </extension-description>
+    
+    <icon>
+        <default xlink:href="icon.png" />
+    </icon>
+
+</description>

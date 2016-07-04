@@ -1,0 +1,2 @@
+The Maltese dictionary contained in this extension are based on the aspell Maltese dictionary at http://linux.org.mt
+by Ramon Casha and the Malta Linux User Group
