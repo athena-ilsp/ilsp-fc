@@ -38,7 +38,7 @@ public class Classifier implements Serializable{
 	private int _minTokensNumber;
 	private static String[] _classes;
 	private String[] _targetlangKeys;
-
+	private static String CHINESE="zho";
 	private static ArrayList<String[]> _topic;
 
 	private static double _absthres;
@@ -88,16 +88,37 @@ public class Classifier implements Serializable{
 		if (content.equals(PDFcontent)){
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,0);
 		}
+		//LOGGER.info(content);
 		if (_keepBoiler)
 			content = ContentNormalizer.cleanContent(content);
-		int length_in_tok=FCStringUtils.countTokens(content);
+		
+		//System.out.println("-----Main Content-------------------------");
+		//LOGGER.info(content);
+		//System.out.println("----End of Main Content--------------------------");
+		
+		//LOGGER.info("Recognised Language: "+parsedDatum.getLanguage());
+		String identifiedlanguage = parsedDatum.getLanguage();
+		if (!LangDetectUtils.istargetedlang(identifiedlanguage,_targetLanguages))
+			return null;
+				
+		int length_in_tok= 0;
+		
+		if (identifiedlanguage.equals(CHINESE)){
+			try {
+				length_in_tok =  TopicTools.getStems(content, identifiedlanguage).size();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else
+			length_in_tok = FCStringUtils.countTokens(content);
+		
+		LOGGER.info("Number of tokens: "+length_in_tok);
 		if (length_in_tok<_minTokensNumber){
 			LOGGER.debug(parsedDatum.getUrl()+"\nCUT due to its small clean content length:"+length_in_tok+ "/"+_minTokensNumber);
 			return null;
 		}
-		String identifiedlanguage = parsedDatum.getLanguage();
-		if (!LangDetectUtils.istargetedlang(identifiedlanguage,_targetLanguages))
-			return null;
+		
 		String title = parsedDatum.getTitle();
 		String keywords = "", meta= "";
 		//if (url.contains("wikipedia"))
@@ -116,6 +137,7 @@ public class Classifier implements Serializable{
 			if (s.getKey().equals(description_loc))
 				meta = s.getValue();			
 		}
+		//LOGGER.info(identifiedlanguage+"\t"+url);
 		if (_topic==null){	
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,length_in_tok);
 		}		

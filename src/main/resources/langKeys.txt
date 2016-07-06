@@ -8,6 +8,7 @@ spa>spa,ES,es,Spanish,español,(es),Español [es],[es],Español,Spain,España (E
 por>por,PT,pt,Portuguese,Português,português,português [pt],português (pt)
 hrv>HR,hrv,hrvatski,Cro,Croatian,hrvatski jezik
 jpn>jpn,JA,ja,JP,jp,Japanese,ja,日本語 (にほんご),Japonic
+zho>zh,zhs,chi,zh-cn,zh-tw,ZH,zh,zho,chi,Chinese,中文 (Zhōngwén), 汉语, 漢語, Sino-Tibetan,zhs,zhhans
 gle>gle,GA,ga,Irish,Gaelic,Gaeilge
 fin>fin,Fi,fi,finnish,Finnish,suomi,Suomi,suomi (fi),suomi [fi],suomeksi,Suomeksi,suomen kieli
 hun>hun,HU,hu,hungarian,Hungarian,MAGYAR,(hu),Magyar,magyar

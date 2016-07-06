@@ -39,7 +39,7 @@ public class AnalyzerFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(AnalyzerFactory.class);
 	
-	static String[] langs = { "deu", "ell", "eng", "spa", "fra", "ita", "por", "lav", "lit", "hrv", "hun", "jpn", 
+	static String[] langs = { "deu", "ell", "eng", "spa", "fra", "ita", "por", "lav", "lit", "hrv", "hun", "jpn","zho",
 			"gle", "fin", "grc", "pol", "ron", "nor", "nld", "glg", "ces", "dan", "euq", "bul", "rus", "swe", "slv", "cat", "est", "slk" };
 	List<String> langsList = Arrays.asList(langs);
 	
@@ -73,7 +73,7 @@ public class AnalyzerFactory {
 			return new CroatianAnalyzer();
 		} else if (lang3.equals("hun")) {
 			return new HungarianAnalyzer();
-		} else if (lang3.equals("jpn")) {
+		} else if (lang3.equals("jpn") || lang3.equals("zho")) {
 			return new CJKAnalyzer();
 		} else if (lang3.equals("gle")) {
 			return new IrishAnalyzer();

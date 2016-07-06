@@ -1,5 +1,8 @@
 package gr.ilsp.fc.main;
 
+import gr.ilsp.fc.utils.FCStringUtils;
+import gr.ilsp.fc.utils.TopicTools;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -8,7 +11,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,10 +28,13 @@ import org.xml.sax.SAXException;
 public class ReadResources {
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	private static final String P_ELE = "p";
+	private static final String L_ELE = "language";
+	private static final String L_ATTR = "iso639";
 	private static final String appXMLext = ".xml";
 	private static final String ooi_crawlinfo = "crawlinfo";
 	private static final String UNDERSCORE = "_";
 	private static final String XML_EXTENSION = ".xml";
+	private static final String CHINESE="zho";
 	
 	public static String extractNodefromXML(String inputString, String ele_name) {
 		String result="";
@@ -142,7 +147,7 @@ public class ReadResources {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return result;
+		return result.trim();
 	}
 
 
@@ -213,12 +218,21 @@ public class ReadResources {
 			}
 		};
 		File[] files=targetDir.listFiles(filter);
-		String text="";
-
+		String text="", lang;
+		int length_in_tok=0;
 		for (int ii=0;ii<files.length;ii++){
 			text = ReadResources.extractTextfromXML_clean(files[ii].getAbsolutePath(),P_ELE,ooi_crawlinfo, false);
-			StringTokenizer tkzr = new StringTokenizer(text);
-			int length_in_tok=tkzr.countTokens();
+			lang = ReadResources.extractAttrfromXML(files[ii].getAbsolutePath(), L_ELE, L_ATTR,true,false);
+			if (lang.equals(CHINESE)){
+				try {
+					length_in_tok =  TopicTools.getStems(text, lang).size();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}else{
+				length_in_tok = FCStringUtils.countTokens(text);
+			}
 			total_tokens=total_tokens+length_in_tok;
 		}
 		return total_tokens;
