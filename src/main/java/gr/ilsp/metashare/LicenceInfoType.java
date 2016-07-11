@@ -59,7 +59,7 @@ import javax.xml.bind.annotation.XmlType;
  *               &lt;enumeration value="OGL_UK"/>
  *               &lt;enumeration value="NCGL_UK"/>
  *               &lt;enumeration value="non-standard/Other_Licence/Terms"/>
- *               &lt;enumeration value="underNegotiation"/>
+ *               &lt;enumeration value="underReview"/>
  *             &lt;/restriction>
  *           &lt;/simpleType>
  *         &lt;/element>

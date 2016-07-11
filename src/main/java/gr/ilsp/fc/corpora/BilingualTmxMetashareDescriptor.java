@@ -41,7 +41,7 @@ public class BilingualTmxMetashareDescriptor extends MetashareDescriptor {
 		logger.debug("Initializing from bilingualCorpusInfo");
 		
 		if (bilingualCorpusInfo.getAvailability().equalsIgnoreCase("unknown")) {
-			this.setLicense("underNegotiation");
+			this.setLicense("underReview");
 		}
 		
 		this.setOrganizationShortName(bilingualCorpusInfo.getOrganization());

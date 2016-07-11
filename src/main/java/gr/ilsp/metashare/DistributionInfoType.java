@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlType;
  *             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
  *               &lt;maxLength value="40"/>
  *               &lt;enumeration value="available"/>
- *               &lt;enumeration value="underNegotiation"/>
+ *               &lt;enumeration value="underReview"/>
  *             &lt;/restriction>
  *           &lt;/simpleType>
  *         &lt;/element>
