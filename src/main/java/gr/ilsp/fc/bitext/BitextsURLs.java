@@ -283,7 +283,9 @@ public class BitextsURLs {
 		if ( url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
 				|| url1.replace(lang1,lang2).equals(url2) || url1.replace(lang2,lang1).equals(url2))  
 			return true;
-			
+		if ( url1.replace("."+lang1+".", "."+lang2+".").equals(url2) || url2.replace("."+lang2+".", "."+lang1+".").equals(url1))
+			return true;
+		
 		/*if (url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2) || url1.replace("/"+lang2+"/", "/"+lang1+"/").equals(url2)
 				|| url1.replace("_"+lang1, "_"+lang2).equals(url2)	|| url1.replace("_"+lang2, "_"+lang1).equals(url2)
 				|| url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
@@ -316,6 +318,8 @@ public class BitextsURLs {
 
 		if ( url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
 				|| url1.replace(lang1,lang2).equals(url2) || url1.replace(lang2,lang1).equals(url2))  
+			return true;
+		if ( url1.replace("."+lang1+".", "."+lang2+".").equals(url2) || url2.replace("."+lang2+".", "."+lang1+".").equals(url1))
 			return true;
 		
 		if (checkUrslangPatterns(url1,url2))

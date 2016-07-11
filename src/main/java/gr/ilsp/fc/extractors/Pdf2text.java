@@ -47,7 +47,7 @@ public class Pdf2text {
 
 	public static void main( String[] args ) throws IOException	{
 		String path=args[0];
-		//String path="C:/Users/vpapa/ELRC/EN-EL/theacropolismuseum_fr-de_20151209_145148/ececf44d-bee8-4788-bd96-69b49e10f8d3/xml/TEST_PDF_abbyy";
+		//String path="C:/Users/vpapa/test";
 		String files;
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles();
@@ -980,14 +980,12 @@ public class Pdf2text {
 	private static void represent_textline_heights() {
 		String temp="";
 		float xst = -1, yst = 1000000000, fsst = 0, xsst = 0,  sst = 0, yen=0;//,width=0; hst = 0,
-		//ArrayList<LineAttr> linedata_temp =new ArrayList<LineAttr>();
 		ArrayList<Float> fsstList=new ArrayList<Float>();
 
 		for (int ii=1;ii<chardata.size();ii++){
-			if (chardata.get(ii).character.length()>1){
-				if ( !chardata.get(ii).character.contains("f")){
+			if (chardata.get(ii).character.length()>1 && !chardata.get(ii).character.contains(" ")){
+				if ( !chardata.get(ii).character.contains("f"))
 					chardata.get(ii).character=" ";
-				}
 			}
 			if (chardata.get(ii).p!=chardata.get(ii-1).p | ii==chardata.size()-1  ){	
 				temp=temp+chardata.get(ii-1).character;
@@ -1081,7 +1079,8 @@ public class Pdf2text {
 			}else
 				LOGGER.debug("Discard:"+ chardata.get(ii).character);
 		}
-
+		if (ycoord.isEmpty())
+			return 0;
 		float[] ycoord_a = new float[ycoord.size()];
 		for (int i = 0; i < ycoord_a.length; i++)
 			ycoord_a[i] =ycoord.get(i);
@@ -1099,7 +1098,7 @@ public class Pdf2text {
 		float previous_line_vertical_end=-10000000;
 		for (int ii=1;ii<chardata.size();ii++){
 			character = chardata.get(ii).character;
-			character = ContentNormalizer.normalizeText(character);
+			character = ContentNormalizer.normalizeText1(character);
 			boolean found=false;
 			if (character.equals(" ") 
 					& (chardata.get(ii-1).character.equals("fi")
@@ -1173,9 +1172,11 @@ public class Pdf2text {
 			}else{
 				if (y2<y1)
 					previous_line_vertical_end=-1000000;
-				else
+				else{
 					previous_line_vertical_end=y1+h1;
-				//System.out.println(temp);
+					chardata.get(ii).p=chardata.get(ii-1).p;
+					//temp=temp+chardata.get(ii-1).character;
+				}//System.out.println(temp);
 				//temp="";
 				linecounter++;
 				chardata.get(ii).p=linecounter; //chardata.get(ii-1).p+1;

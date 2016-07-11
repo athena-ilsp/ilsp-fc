@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class Utils {
 
-	public static double minimum_space_width = 1;
+	public static double minimum_space_width = 2;
 	
 	private static final HashMap<String,String> invalidChars = new HashMap<String,String>(){
 		/**

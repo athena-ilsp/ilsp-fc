@@ -218,6 +218,28 @@ public class ContentNormalizer {
 	}
 
 
+public static String normalizeText1(String text){
+		
+		 text = surrogatesMatcher.reset(text).replaceAll("");
+		
+		for (String s:invalidChars.keySet()){
+			text = text.replaceAll(s, invalidChars.get(s));
+		}
+		text = text.replaceAll("\t", " ");
+		text = text.replaceAll("(\\s){2,}", " ");
+		text = text.replaceAll("<text> ", "<text>");
+		text = text.replaceAll("<boiler> ", "<boiler>");
+		text = text.replaceAll(" </text>", "</text>");
+		text = text.replaceAll(" </boiler> ", "</boiler>");
+		text = text.replaceAll("<text></text>", "");
+		text = text.replaceAll("<boiler></boiler>", "");
+		text = text.replaceAll("( \n)", "\n");
+		text = text.replaceAll("(\n){2,}","\n");
+		return text;
+	}
+
+	
+	
 	private static final String XML10PATTERN = "[^"
 			+ "\u0009\r\n"
 			+ "\u0020-\uD7FF"
