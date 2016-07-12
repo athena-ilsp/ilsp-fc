@@ -3,6 +3,7 @@ package gr.ilsp.fc.extractors;
 
 import gr.ilsp.fc.main.WriteResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
+import gr.ilsp.fc.utils.Statistics;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +47,8 @@ public class Pdf2text {
 	//private static ArrayList<String> lastchars=new ArrayList<String>(Arrays.asList(".", "!", "?", ";")); 
 
 	public static void main( String[] args ) throws IOException	{
-		String path=args[0];
-		//String path="C:/Users/vpapa/test";
+		//String path=args[0];
+		String path="C:/Users/vpapa/ELRC/public_admin/ENG-BUL/mc-government";
 		String files;
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles();
@@ -1325,7 +1326,8 @@ public class Pdf2text {
 		linecounter=0;
 		//System.out.println("LINE:"+linecounter);
 		ArrayList<Double> candidate_spaces=new ArrayList<Double>();
-		String temp="";
+		ArrayList<Double> char_widths=new ArrayList<Double>();
+		//String temp="";
 		for (int ii=1;ii<chardata.size();ii++){
 			x1=chardata.get(ii-1).x;  
 			x2=chardata.get(ii).x;   
@@ -1339,22 +1341,25 @@ public class Pdf2text {
 				//if (chardata.get(ii).p==16){
 				//	System.out.print(chardata.get(ii-1).character+chardata.get(ii).character);
 				//}
-				temp=temp+chardata.get(ii-1).character;
+				//temp=temp+chardata.get(ii-1).character;
+				char_widths.add((double)chardata.get(ii-1).w);
 				if((x2-x1-w1)>0){//if there is a gap between them 
 					//candidate_spaces.add(Math.l.log(x2-x1-w1));
 					candidate_spaces.add((double) (x2-x1-w1)); //consider this gap as a candidate place for whitespace
 				}
 			}else{//estimate a threshold that separates candidate spaces to real and not real.
 				//System.out.println();
+				//System.out.println(temp);
 				if (usefonts)
-					thr_spaces_per_line[linecounter]=(float) Math.min((float) Utils.otsu(candidate_spaces),
+					thr_spaces_per_line[linecounter]=(float) Math.min((float) Utils.otsu(candidate_spaces,0),
 							chardata.get(ii-1).fs/5);
-				else
-					thr_spaces_per_line[linecounter]=(float) Utils.otsu(candidate_spaces);	
+				else{
+					thr_spaces_per_line[linecounter]=(float) Utils.otsu(candidate_spaces,0.4*Statistics.getMean(char_widths.toArray(new Double[char_widths.size()])));	
+				}
 				linecounter++;
-				//System.out.println("LINE:"+linecounter);
 				candidate_spaces.clear();
-				temp="";
+				char_widths.clear();
+				//temp="";
 			}
 		}
 		//based on the estimated threshold per text-line, required white spaces are added.

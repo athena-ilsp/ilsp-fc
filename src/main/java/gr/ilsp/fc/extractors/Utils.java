@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class Utils {
 
-	public static double minimum_space_width = 2;
+	public static double minimum_space_width = 1;
 	
 	private static final HashMap<String,String> invalidChars = new HashMap<String,String>(){
 		/**
@@ -122,7 +122,7 @@ public class Utils {
 		return thr;
 	}
 	
-	public static double otsu(ArrayList<Double> candidate_spaces) {
+	public static double otsu(ArrayList<Double> candidate_spaces, double mean_char_width) {
 		//FIXME implementation should be improved to avoid redundant loops 
 		double thr=0, var1, var2, min_var;
 
@@ -132,7 +132,8 @@ public class Utils {
 		//if all candidates are higher (lower) than a typical value, all candidates are real (not real).
 		if (temp[temp.length-1]<minimum_space_width)   
 			return 1000000;
-		if (temp[0]>minimum_space_width) 
+		//if (temp[0]>Math.max(minimum_space_width,)) 
+		if (temp[0]>Math.max(minimum_space_width,mean_char_width))	
 			return temp[0];
 
 		double bins=50;
