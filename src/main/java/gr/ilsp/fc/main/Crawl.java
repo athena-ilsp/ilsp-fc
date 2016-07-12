@@ -10,6 +10,7 @@ import gr.ilsp.fc.dedup.Deduplicator;
 import gr.ilsp.fc.exporter.Exporter;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.monomerge.MonoMerger;
+import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.parser.DomainUrlFilter;
 import gr.ilsp.fc.tmxhandler.TMXHandler;
 //import gr.ilsp.fc.tmxhandler.TMXHandlerOptions;
@@ -163,7 +164,8 @@ public class Crawl {
 		try {
 			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
 			TupleEntryCollector writer = urlSink.openForWrite(conf);			
-			SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
+			//SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
+			ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
 			CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize("http://" + targetDomain), 0, 0, UrlStatus.UNFETCHED, 0,0.0);
 
 			writer.add(datum.getTuple());
@@ -182,7 +184,8 @@ public class Crawl {
 		try {
 			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
 			TupleEntryCollector writer = urlSink.openForWrite(conf);
-			SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();            
+			//SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
+			ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
 			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
 			String line = "";
 			List<String> seedUrls = new ArrayList<String>();
@@ -227,7 +230,8 @@ public class Crawl {
 		try {
 			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
 			TupleEntryCollector writer = urlSink.openForWrite(conf);			
-			SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
+			//SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
+			ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
 			//CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize("http://" + targetDomain), 0, 0, UrlStatus.UNFETCHED, 0,0.0);
 			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
 			String line = "";

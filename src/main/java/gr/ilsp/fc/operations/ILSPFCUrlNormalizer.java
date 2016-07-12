@@ -52,7 +52,8 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
     private static final Pattern RELATIVE_PATH_PATTERN = Pattern.compile("(/[^/]*[^/.]{1}[^/]*/\\.\\./|^(/\\.\\./)+)");
     
     // Match against default pages such as /index.html, etc. 
-    private static final Pattern DEFAULT_PAGE_PATTERN = Pattern.compile("/((?i)index|default)\\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?htm[l]?|php[3456]?)(\\?|&|#|$)");
+    //private static final Pattern DEFAULT_PAGE_PATTERN = Pattern.compile("/((?i)index|default)\\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?htm[l]?|php[3456]?)(\\?|&|#|$)");
+    private static final Pattern DEFAULT_PAGE_PATTERN = Pattern.compile("/((?i)default)\\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?htm[l]?|php[3456]?)(\\?|&|#|$)");
     
     // Remove things that look like the (invalid) jsession ids prefixing or suffixing the query portion of a URL.
     private static final Pattern JSESSION_ID_PATTERN = Pattern.compile("(?:;jsessionid=.*?)(\\?|&|#|$)");
@@ -181,7 +182,7 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
         // Next, get rid of any default page.
         matcher = DEFAULT_PAGE_PATTERN.matcher(path);
         if (matcher.find()) {
-            path = path.substring(0, matcher.start()) + "/" + matcher.group(3) + path.substring(matcher.end());
+          path = path.substring(0, matcher.start()) + "/" + matcher.group(3) + path.substring(matcher.end());
         }
         
         String[] pathParts = path.split("/");
