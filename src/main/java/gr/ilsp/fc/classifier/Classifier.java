@@ -77,6 +77,7 @@ public class Classifier implements Serializable{
 	 */
 	public ClassifierDatum classify(ExtendedParsedDatum parsedDatum) {
 		String url = parsedDatum.getUrl();
+		//LOGGER.info(url);
 		if (_storeFilter!=null){
 			if (!url.matches(_storeFilter)){
 				return null;
