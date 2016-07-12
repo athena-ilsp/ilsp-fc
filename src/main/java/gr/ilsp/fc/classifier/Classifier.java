@@ -113,7 +113,7 @@ public class Classifier implements Serializable{
 		}else
 			length_in_tok = FCStringUtils.countTokens(content);
 		
-		LOGGER.info("Number of tokens: "+length_in_tok);
+		//LOGGER.info("Number of tokens: "+length_in_tok);
 		if (length_in_tok<_minTokensNumber){
 			LOGGER.debug(parsedDatum.getUrl()+"\nCUT due to its small clean content length:"+length_in_tok+ "/"+_minTokensNumber);
 			return null;
