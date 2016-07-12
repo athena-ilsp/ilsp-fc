@@ -60,7 +60,6 @@ import bixo.config.FetcherPolicy.RedirectMode;
 import bixo.config.UserAgent;
 import bixo.datum.UrlStatus;
 import bixo.urls.BaseUrlFilter;
-import bixo.urls.SimpleUrlNormalizer;
 import bixo.utils.CrawlDirUtils;
 import cascading.flow.Flow;
 import cascading.flow.PlannerException;
