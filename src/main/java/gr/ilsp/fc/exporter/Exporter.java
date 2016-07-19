@@ -412,7 +412,7 @@ public class Exporter {
 	private static boolean getPDFInfo(int id, ArrayList<String[]> topic ) {
 		boolean done=true;
 		pdfname = meta.get("comment");
-		pdfname = pdfname.replaceAll("/var/www/html/elrc4/ministries/eng-bul", "C:/Users/vpapa/ELRC/public_admin/ENG-BUL");
+		//pdfname = pdfname.replaceAll("/var/www/html/elrc4/ministries/eng-bul", "C:/Users/vpapa/ELRC/public_admin/ENG-BUL");
 		if (!new File(pdfname).exists())
 			return false;
 		LOGGER.info(pdfname);
