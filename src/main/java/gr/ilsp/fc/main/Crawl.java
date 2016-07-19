@@ -644,6 +644,7 @@ public class Crawl {
 					mm.setCC(options.getCC());
 					//mm.setApplyOfflineXSLT(options.isOfflineXSLT());
 					mm.setdomain(options.getDomain());
+					mm.setCorpusLevel("doc");
 					String[] tlangs = options.getLanguage().split(SEMICOLON_STR);
 					for (String lang:tlangs){
 						mm.setLanguage(lang);

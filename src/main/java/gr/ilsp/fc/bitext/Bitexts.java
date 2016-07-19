@@ -103,7 +103,7 @@ public class Bitexts {
 	public static HashMap<String, DocVector> extractXML_Features(File xmldir, List<String> langs) {
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-4).equals(appXMLext) && !arg1.contains(UNDERSCORE_STR));
+				return (arg1.length()>4 && !arg1.contains(UNDERSCORE_STR) && arg1.substring(arg1.length()-4).equals(appXMLext));
 			}
 		};
 		String[] files= xmldir.list(filter);

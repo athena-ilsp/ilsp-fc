@@ -20,9 +20,11 @@ public class MonoMergerOptions {
 	private static final Logger LOGGER = Logger.getLogger(MonoMergerOptions.class);
 	private File _targetDir = null;
 	private File _baseName=null;
+	private String _config;
 	private String _language, _domain;
 	//private boolean _oxslt=false;
 	private boolean _cc=false;
+	private String _corpuslevel;
 	
 	public MonoMergerOptions() {
 		createOptions();
@@ -52,6 +54,11 @@ public class MonoMergerOptions {
 				.withDescription( "If exist, only documents for which"
 						+ " a license has been detected will be selected in collection.")
 				.create("cc") );
+		options.addOption( OptionBuilder.withLongOpt( "level of coprus' item" )
+				.withDescription( "copus consists of txt documents, or paragraphs, or sentences")
+				.hasArg()
+				.create("level") );
+		
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
 				.create("h") );
@@ -82,6 +89,13 @@ public class MonoMergerOptions {
 			//	_oxslt=true;
 			if (line.hasOption("cc"))
 				_cc=true;
+			if (line.hasOption("level")){
+				_corpuslevel=line.getOptionValue("level");
+				if (!(_corpuslevel.equals("doc") || _corpuslevel.equals("par") || _corpuslevel.equals("sen"))){
+					LOGGER.error("Value should be \"doc\" or \"par\" or \"sen\".");
+					System.exit(0);
+				}
+			}	
 			if(line.hasOption( "lang")) {
 				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true);
 			}else{
@@ -118,8 +132,13 @@ public class MonoMergerOptions {
 	public String getLanguage() { 
 		return _language;
 	}
-
 	public String getDomain() {
 		return _domain;
+	}
+	public String getCorpusLevel() {
+		return _corpuslevel;
+	}
+	public String getConfig(){
+		return _config;
 	}
 }

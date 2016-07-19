@@ -258,6 +258,14 @@ public class Exporter {
 		if (topicFile!=null)
 			topic=TopicTools.analyzeTopic(topicFile,targetlanguages); 
 		String[] ext = {xml_type}; 
+	
+		if (!new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).exists())
+			LOGGER.info("No pdf files fetched");
+		else{
+			File[] pdffiles = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).listFiles();
+			LOGGER.info(pdffiles.length + " pdf files fetched");
+		}
+		
 		if (offline){
 			String[] temp = {html_type};
 			if (!crawlDirName.exists()){
@@ -302,9 +310,8 @@ public class Exporter {
 				int prevLoop = -1;
 				Path curDirPath = null;
 				int id = 1;
-
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
-					//LOGGER.info("current rundir: " +curDirPath);
+					LOGGER.info("current rundir: " +curDirPath);
 					id = exportToXml(conf,curDirPath, id,topic,targeteddomain, urlsToIds, neg_words);
 					LOGGER.debug("Current loop path in xml export is " + curDirPath );
 					int curLoop = CrawlDirUtils.extractLoopNumber(curDirPath);
@@ -405,6 +412,7 @@ public class Exporter {
 	private static boolean getPDFInfo(int id, ArrayList<String[]> topic ) {
 		boolean done=true;
 		pdfname = meta.get("comment");
+		pdfname = pdfname.replaceAll("/var/www/html/elrc4/ministries/eng-bul", "C:/Users/vpapa/ELRC/public_admin/ENG-BUL");
 		if (!new File(pdfname).exists())
 			return false;
 		LOGGER.info(pdfname);
@@ -552,8 +560,8 @@ public class Exporter {
 		if (format.contains("application/pdf")){
 			try {
 				FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appPDFext));
-				File storedpdf = new File(pdfname); 
-				storedpdf.delete();
+				//File storedpdf = new File(pdfname); 
+				//storedpdf.delete();
 			} catch (IOException e) {
 				LOGGER.info("source PDF file is not stored.");
 				e.printStackTrace();

@@ -48,7 +48,7 @@ public class Pdf2text {
 
 	public static void main( String[] args ) throws IOException	{
 		//String path=args[0];
-		String path="C:/Users/vpapa/ELRC/public_admin/ENG-BUL/mc-government";
+		String path="C:/Users/vpapa/test/1";
 		String files;
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles();
@@ -115,7 +115,12 @@ public class Pdf2text {
 				if (contents != null) {
 					printer.processStream(page, page.findResources(), page.getContents().getStream());
 					chardata=printer.getchardata();
-					if (chardata.size()<1){
+					//System.out.println(chardata.size());
+					if (chardata.size()<1 ){
+						docprops.put("page"+i, current_linedata);
+						continue;
+					}
+					if (chardata.size()>20000){
 						docprops.put("page"+i, current_linedata);
 						continue;
 					}
@@ -132,12 +137,16 @@ public class Pdf2text {
 				content = content+getAllText(docprops);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (e.getMessage().contains(" End-of-File, expected line")){
+				LOGGER.error("problem if reading header");
+			}else{
+				e.printStackTrace();
+			}
 		} finally {
 			if (document != null) {
 				try {
 					document.close();
+					return content;
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

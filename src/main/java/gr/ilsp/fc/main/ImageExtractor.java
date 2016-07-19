@@ -64,7 +64,7 @@ public class ImageExtractor {
 		ImageExtractor ie = new ImageExtractor();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.substring(arg1.length()-5).equals(htmlext) & !arg1.contains(xmlext));
+				return (arg1.length()>5 && arg1.substring(arg1.length()-5).equals(htmlext) & !arg1.contains(xmlext));
 			}
 		};
 		String[] files= xmldir.list(filter);

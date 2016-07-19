@@ -25,7 +25,7 @@ public class MonolingualCorpusInformation {
 	private static final Logger logger = LoggerFactory.getLogger(MonolingualCorpusInformation.class);
 	
 	public MonolingualCorpusInformation(String name, String l1, 
-			int numToks, String domain, String domainId, String availability, String creationDescription,
+			int numToks, int lenInWords, String domain, String domainId, String availability, String creationDescription,
 			String projectId, String projectURL,String organization, String organizationURL) {
 		
 		logger.debug(domain);
@@ -33,7 +33,7 @@ public class MonolingualCorpusInformation {
 		this.lang = l1;
 		this.domain = domain;
 		this.tokensSize = numToks;
-		this.lenInSentences = lenInSentences;
+		//this.lenInSentences = lenInSentences;
 		this.lenInWords = lenInWords;
 		this.availability = availability;
 		this.domainId = domainId;
@@ -43,9 +43,9 @@ public class MonolingualCorpusInformation {
 		this.projectURL = 	projectURL;
 		this.organization = organization;
 		this.organizationURL = organizationURL;
-		this.description = "Monolingual (" + l1 + ") " + "corpus of " +numToks  + " tokenss in the " + domain + " domain.";
+		this.description = "Monolingual (" + l1 + ") " + "corpus, containing " +numToks  + " tokens and "+ lenInWords + " lexical types in the " + domain + " domain.";
 		if (StringUtils.isBlank(domain)) {
-			this.description = "Monolingual (" + l1 + ") " + "corpus of " +numToks  + " tokenss in the " + domain + " domain.";
+			this.description = "Monolingual (" + l1 + ") " + "corpus, containing " +numToks  + " tokens and "+ lenInWords +" lexical types in the " + domain + " domain.";
 		}
 		this.name = name;
 	}
