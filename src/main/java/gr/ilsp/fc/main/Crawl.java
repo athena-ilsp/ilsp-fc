@@ -412,9 +412,11 @@ public class Crawl {
 			//Start and end loop numbers are calculated (if the crawl is running on a fixed number of loops)
 			int startLoop = CrawlDirUtils.extractLoopNumber(inputPath);
 			int endLoop = startLoop + options.getNumLoops();
+			boolean hasNumLoops = false;
+			if (endLoop>1)
+				hasNumLoops =true;
 
 			UserAgent userAgent = new UserAgent(options.getAgentName(), config.getString("agent.email"), config.getString("agent.web_address"));
-
 			//Fetch policy configuration
 			FetcherPolicy defaultPolicy = new FetcherPolicy();
 			defaultPolicy.setCrawlDelay(config.getLong("fetcher.crawl_delay.value"));
@@ -448,6 +450,7 @@ public class Crawl {
 			//or until the specified duration is reached
 			long startTime = System.currentTimeMillis();
 			ArrayList<int[]> stor_vis = new ArrayList<int[]>();
+			
 			for (int curLoop = startLoop + 1; curLoop <= endLoop; curLoop++) {
 				// Checking if duration is expired. If so, crawling is terminated.
 				if (hasEndTime) {
@@ -457,7 +460,8 @@ public class Crawl {
 						crawlCycleInfo(curLoop, startLoop, startTime);
 						break;
 					}
-					endLoop = curLoop + 1; //If duration is not reached, endLoop is increased to run the next loop
+					if (!hasNumLoops)
+						endLoop = curLoop + 1; //If duration is not reached, endLoop is increased to run the next loop
 				}
 				//checking if nums of stored/visited have changed. If not, crawling is terminated.
 				if (check_evol(stor_vis)){
