@@ -26,7 +26,7 @@ public class ExtendedLinksExtractorTest {
 	private ParseContext context;  
 	private Parser parser;  
 	private ContentHandler contentHandler;
-
+	
 	@Before
 	public void setup() {
 		context = new ParseContext();  
@@ -44,7 +44,7 @@ public class ExtendedLinksExtractorTest {
 			metadata.add(Metadata.CONTENT_LOCATION, url.toExternalForm()); 
 			// Hardcoded to avoid calling bixo fetchedDatum.getHeaders().getFirst(HttpHeaderNames.CONTENT_LOCATION);
 			input.mark(0);
-			ExtendedOutlink[] rankedLinks =  ExtendedLinksExtractor.getLinks(input, metadata);
+			ExtendedOutlink[] rankedLinks =  ExtendedLinksExtractor.getLinks(input, metadata, null);
 			input.close();
 			boolean found = false;
 			for (int i = 0; i < rankedLinks.length; i++) {

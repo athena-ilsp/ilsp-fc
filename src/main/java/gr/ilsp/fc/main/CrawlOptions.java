@@ -9,7 +9,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+//import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -49,6 +51,9 @@ public class CrawlOptions {
 	private String _agentName;
 	private String _language;
 	private String[] _langKeys;
+	private String[] _targetedLangs;
+	private HashMap<String, String> _mapLangs;
+	private List<String> _langPairs;
 	private String _urls;
 	private String _aligner=null;
 	private String _dict=null;
@@ -74,7 +79,7 @@ public class CrawlOptions {
 	private File _topic=null;
 
 	private  int _threads = 10;
-	private  int _numLoops = 1;
+	private  int _numLoops = 0;
 	private  int _crawlDuration = 10;	
 	private  int _minTokensNumber = 100;
 	private  int _length = 3;
@@ -82,7 +87,7 @@ public class CrawlOptions {
 	private  double _minPerce01Align = 1;
 	private  double _minTULenRatio = 0;
 	private  double _maxTULenRatio = 100;
-	
+
 	private boolean _debug = false;
 	private boolean _del=false;
 	private boolean _keepBoiler = true;
@@ -111,7 +116,7 @@ public class CrawlOptions {
 	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
 	private static final String QUEST_SEPAR = ";";
 	private static final String DOUBLEQUEST_SEPAR = ";;";
-
+	
 	private static String _selectDocs = "aupdihml";
 	private static List<String> _selectSegs = new ArrayList<String>();
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
@@ -350,7 +355,10 @@ public class CrawlOptions {
 			//get parameters concerning languages
 			if(line.hasOption( "lang")) {
 				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true);
+				_targetedLangs =_language.split(QUEST_SEPAR);
 				_langKeys = findKeys4lang(_language);
+				_mapLangs = mapLangs(_language);
+				_langPairs = findLangPairs(_language);
 				checkAnalyzers(_language);
 			}else{
 				if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation) || _operation.contains(PAIRDETECT_operation) 
@@ -440,6 +448,18 @@ public class CrawlOptions {
 			System.err.println( "Parsing options failed.  Reason: " + exp.getMessage() );			
 			System.exit(64);
 		}
+	}
+	private List<String> findLangPairs(String language) {
+		String[] langs = language.split(QUEST_SEPAR); 
+		List<String> lang_pairs = new ArrayList<String>();
+		if (langs.length>1){
+			for (int ii=0;ii<langs.length-1;ii++){
+				for (int jj=ii+1;jj<langs.length;jj++){
+					lang_pairs.add(langs[ii]+QUEST_SEPAR+langs[jj]);
+				}
+			}
+		}
+		return lang_pairs;
 	}
 	/**
 	 * parses commandLine and gets _keepBoiler, _del, _length, _minTokensNumber
@@ -836,6 +856,37 @@ public class CrawlOptions {
 		return result;
 	}
 
+	/**
+	 * parses the predefined project resource LANG_KEYS_RESOURCE and for each targeted language
+	 * returns the array with alternative patterns each targeted languages  
+	 * @param language
+	 * @return
+	 */
+	private HashMap<String,String> mapLangs(String language) {
+		ArrayList<String> langKeys=new ArrayList<String>();
+		String[] langs = _language.split(QUEST_SEPAR);
+		HashMap<String,String> result= new HashMap<String,String>();
+		try {
+			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
+			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
+			String str, b;
+			while ((str = in.readLine()) != null) {
+				b=str.subSequence(0, str.indexOf(">")).toString();
+				for (String lang:langs){
+					if (b.equals(lang))
+						result.put(b, str.subSequence(str.indexOf(">")+1, str.length()).toString());
+				}
+				if (langKeys.size()==langs.length)
+					break;
+			}
+			in.close();
+		} catch (IOException e) {
+			LOGGER.error("Problem in reading the file for langKeys.");
+		}
+		return result;
+	}
+
+
 
 	public  void help(){
 		printHelp( APPNAME , options );
@@ -850,9 +901,19 @@ public class CrawlOptions {
 	public String getLanguage() { 
 		return _language;
 	}
+	public String[] getTargetedLangs() {
+		return _targetedLangs;
+	}
 	public String[] getLangKeys() {
 		return _langKeys;
 	}
+	public HashMap<String,String> getMapLangs() {
+		return _mapLangs;
+	}
+	public List<String> getLangPairs() {
+		return _langPairs;
+	}
+
 	public File getTopic() {
 		return _topic;
 	}

@@ -65,13 +65,14 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	private boolean _extractLanguage;
 	private boolean _keepBoiler = false;
 	private String[] _targeted_langs;
+	private HashMap<String,String> _maplangs;
 
-	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata, String[] targeted_langs) {
-		this(parser, contentExtractor, input, metadata, true, targeted_langs, false);
+	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata, HashMap<String,String> maplangs, String[] targeted_langs) {
+		this(parser, contentExtractor, input, metadata, true, maplangs, targeted_langs, false);
 	}
 
 	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, 
-			InputStream input, Metadata metadata, boolean extractLanguage, String[] targeted_langs, boolean keepBoiler) {
+			InputStream input, Metadata metadata, boolean extractLanguage, HashMap<String,String> maplangs, String[] targeted_langs, boolean keepBoiler) {
 		_parser = parser;
 		_contentExtractor = contentExtractor;
 		_input = input;
@@ -79,6 +80,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 		_extractLanguage = extractLanguage;
 		_targeted_langs = targeted_langs;
 		_keepBoiler = keepBoiler;
+		_maplangs = maplangs;
 	}
 
 	@Override
@@ -135,7 +137,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			String content = CleanerUtils.getContent(_input, _metadata, _keepBoiler);  
 			String lang = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
 
-			ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
+			ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata,_maplangs);
 			if (outlinks.length==1 && outlinks[0].getAnchor().equals(LINK_CANONICAL)) {
 				return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, "", lang,
 						_metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));

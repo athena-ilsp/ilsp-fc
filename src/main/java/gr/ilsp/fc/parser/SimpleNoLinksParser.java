@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +48,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 
 	private boolean _keepBoiler = false;
 	private String[] _targeted_langs;
+	private HashMap<String,String> _maplangs;
 	private String _storedir_path;
 
 	public SimpleNoLinksParser(FetchedDatum datum) {
@@ -56,11 +58,12 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 	public SimpleNoLinksParser() {
 		this(new ParserPolicy());
 	}
-	public SimpleNoLinksParser(boolean keepBoiler, String storedir_path, String[] targeted_langs) {    	
+	public SimpleNoLinksParser(boolean keepBoiler, String storedir_path, HashMap<String,String> maplangs, String[] targeted_langs) {    	
 		this(new ParserPolicy());
 		_keepBoiler  = keepBoiler;
 		_storedir_path = storedir_path;
 		_targeted_langs = targeted_langs;
+		_maplangs = maplangs;
 	}
 	public SimpleNoLinksParser(ParserPolicy parserPolicy) {
 		this(new SimpleContentExtractor(),  parserPolicy);
@@ -138,7 +141,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 				callable = new PdfboxCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler, _storedir_path);
 			}else{
 				//Callable<ExtendedParsedDatum>
-				callable = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _targeted_langs, _keepBoiler);
+				callable = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _maplangs, _targeted_langs, _keepBoiler);
 			}
 			//Callable<ExtendedParsedDatum> c = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler);
 			FutureTask<ExtendedParsedDatum> task = new FutureTask<ExtendedParsedDatum>(callable);

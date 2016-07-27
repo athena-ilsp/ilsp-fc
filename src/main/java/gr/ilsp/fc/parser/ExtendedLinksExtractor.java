@@ -1,5 +1,6 @@
 package gr.ilsp.fc.parser;
 
+import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.utils.FCStringUtils;
 
@@ -7,10 +8,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.tika.metadata.Metadata;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,9 @@ public class ExtendedLinksExtractor {
 
 	private static final String ABS_HREF_ATTR = "abs:href";
 	private static final String HREFLANG_ATTR = "hreflang";
+	private static final String CLASS_ATTR = "class";
+	//private static final String LANGUAGELINK_VALUE ="language-link";
+	private static final String TRANSLATIONLINK_VALUE ="translation-link";
 	//private static final String REL_ATTR = "rel";
 
 	private static final String SPACE_STR = " ";
@@ -36,7 +42,7 @@ public class ExtendedLinksExtractor {
 
 	private static final int context_thresh=40;
 
-	public static ExtendedOutlink[] getLinks(InputStream _input, Metadata metadata) {
+	public static ExtendedOutlink[] getLinks(InputStream _input, Metadata metadata, HashMap<String, String> _maplangs) {
 		//ArrayList<String[]> rankedlinks = new ArrayList<String[]>();
 		org.jsoup.nodes.Document doc;
 		ExtendedOutlink[] rankedLinks = null;
@@ -133,16 +139,13 @@ public class ExtendedLinksExtractor {
 				preWORDS  = pre_extendedtext.split(SPACE_STR);
 				postWORDS = post_extendedtext.split(SPACE_STR);
 				for (int bb=preWORDS.length-prelimit-1;bb<preWORDS.length;bb++){
-					if (bb>=0){
+					if (bb>=0)
 						wholetext = wholetext.concat(SPACE_STR+ preWORDS[bb]);
-					}
 				}
-				for (int bb=0;bb<postlimit;bb++){
+				for (int bb=0;bb<postlimit;bb++)
 					wholetext += SPACE_STR+ postWORDS[bb];
-				}
 
 				ExtendedOutlink extendedOutLink = new ExtendedOutlink(linktext,anchortext,wholetext);
-
 				// A check for links with hreflang () attributes.
 				if (link.hasAttr(HREFLANG_ATTR)   ) {// && link.hasAttr(REL_ATTR)) {
 					//if (!linktext.contains("http://www.bundesregierung.de/Webs/Breg/")) {
@@ -151,7 +154,21 @@ public class ExtendedLinksExtractor {
 					logger.debug("Found hreflang link (" + extendedOutLink.getHrefLang() + "): " + extendedOutLink.getToUrl());
 					//}
 				}		
-
+				
+				if (link.hasAttr(CLASS_ATTR)){
+					if (link.attr(CLASS_ATTR).equals(TRANSLATIONLINK_VALUE)){
+						//System.out.println(link);
+						for (Node nd:link.childNodes()){
+							String langcode = LangDetectUtils.getlangCodeFromLangkeys(_maplangs, nd.toString());
+							if (!langcode.isEmpty()){
+								extendedOutLink.setToUrl(normalizer.normalize(extendedOutLink.getToUrl()));
+								extendedOutLink.setHrefLang(langcode);
+								logger.debug("Found translation-link (" + extendedOutLink.getHrefLang() + "): " + extendedOutLink.getToUrl());
+								break;	
+							}
+						}
+					}
+				}
 				rankedLinks[linksIndex] = extendedOutLink;
 				linksIndex++;
 				//rankedlinks.add(new String[] {linktext, anchortext, wholetext});

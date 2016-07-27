@@ -88,7 +88,7 @@ public class Crawl {
 	private static final String resultPDFDir = "pdf";
 	private static final String XML_EXTENSION = ".xml";
 	private static final String XMLlist = ".xmllist.txt";
-	
+
 	private static final String p_type = "p";
 	private static final String m_type = "m";
 	private static final String q_type = "q";
@@ -316,7 +316,6 @@ public class Crawl {
 	private static void crawl(CrawlOptions options) throws IOException {
 		String operation = options.getOperation();
 		FileSystem fs;
-		//if domain is supplied, it is checked for errors
 		String domain = options.getDomain();
 		String urls = null;
 		boolean isDomainFile = true;
@@ -340,28 +339,12 @@ public class Crawl {
 				e.printStackTrace();
 			}
 		}	
-		//targeted languages
-		String[] langs = options.getLanguage().split(SEMICOLON_STR);
-		//outputDir
-		File outputDirName = options.getOutputDir();
-		//value for tunneling
-		int max_depth = Crawl.config.getInt("classifier.max_depth.value");
-		//boolean for deleting files that have not been paired
-		boolean del = options.getDel();
-
-		String[] languages = options.getLanguage().split(SEMICOLON_STR);
-		List<String> lang_pairs = new ArrayList<String>();
-		if (languages.length>1){
-			for (int ii=0;ii<languages.length-1;ii++){
-				for (int jj=ii+1;jj<languages.length;jj++){
-					lang_pairs.add(languages[ii]+SEMICOLON_STR+languages[jj]);
-				}
-			}
-		}
+		
+		LangDetectUtils.loadCybozuLangIdentifier();
 		//check if there is an available aligner (if needed) for the targeted language pairs  
 		Aligner aligner = null; 
 		if (operation.contains(ALIGN_operation)){
-			for (String lang_pair:lang_pairs){
+			for (String lang_pair:options.getLangPairs()){
 				aligner = prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), lang_pair.split(SEMICOLON_STR));
 				if (aligner==null){
 					LOGGER.error("Aligner cannot be initialized:");
@@ -369,14 +352,20 @@ public class Crawl {
 				}
 			}
 		}
+
+		//outputDir
+		File outputDirName = options.getOutputDir();
+		//value for tunneling
+		int max_depth = Crawl.config.getInt("classifier.max_depth.value");
+		//boolean for deleting files that have not been paired
+		boolean del = options.getDel();
+
 		if (options.getType().equals(p_type)) 
 			urls = options.getUrls();
 		if (domain!=null) 
 			urls = options.getUrls();
 
-		LangDetectUtils.loadCybozuLangIdentifier();
-
-		parseTopicDefinition(options.getTopic(), langs);
+		parseTopicDefinition(options.getTopic(), options.getTargetedLangs());
 
 		if (options.isDebug()) 
 			System.setProperty("fc.root.level", "DEBUG");            
@@ -413,7 +402,7 @@ public class Crawl {
 			int startLoop = CrawlDirUtils.extractLoopNumber(inputPath);
 			int endLoop = startLoop + options.getNumLoops();
 			boolean hasNumLoops = false;
-			if (endLoop>1)
+			if (endLoop>0)
 				hasNumLoops =true;
 
 			UserAgent userAgent = new UserAgent(options.getAgentName(), config.getString("agent.email"), config.getString("agent.web_address"));
@@ -450,7 +439,7 @@ public class Crawl {
 			//or until the specified duration is reached
 			long startTime = System.currentTimeMillis();
 			ArrayList<int[]> stor_vis = new ArrayList<int[]>();
-			
+
 			for (int curLoop = startLoop + 1; curLoop <= endLoop; curLoop++) {
 				// Checking if duration is expired. If so, crawling is terminated.
 				if (hasEndTime) {
@@ -486,9 +475,8 @@ public class Crawl {
 				for(int il =0; il<conf.getLocalDirs().length;il++) 
 					LOGGER.debug(conf.getLocalDirs()[il]);
 
-				Flow flow = CrawlWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlFilter, 
-						options.getLanguage().split(SEMICOLON_STR), 
-						classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options);							
+				Flow flow = CrawlWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlFilter, options.getMapLangs(),
+						options.getTargetedLangs(), classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options);							
 				flow.complete();
 
 				//Reseting counters of parent class. We do it here so that SplitFetchedUnfetchedCrawlDatums
@@ -513,9 +501,8 @@ public class Crawl {
 
 			////////////////////////////////////////////////////////////////////////////////////////////////////
 			Map<String, String> urlPairsFromTranslationLinks = null;
-			if (options.getType().equals(p_type)){
-				urlPairsFromTranslationLinks = BitextsTranslationLinks.getURLPairsFromTranslationLinks(conf, ISOLangCodes.get3LetterCodes(langs), outputDirName.getAbsolutePath());
-			}			
+			if (options.getType().equals(p_type))
+				urlPairsFromTranslationLinks = BitextsTranslationLinks.getURLPairsFromTranslationLinks(conf, ISOLangCodes.get3LetterCodes(options.getTargetedLangs()), outputDirName.getAbsolutePath());
 			////////////////////////////////////////////////////////////////////////////////////////////////////////
 			Map<String, String> urlsToIds = new HashMap<String, String>();
 			// Finished crawling. Now export if needed.
@@ -523,7 +510,7 @@ public class Crawl {
 				Exporter se = new Exporter();
 				se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
 				se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
-				se.setTargetLanguages(options.getLanguage().split(SEMICOLON_STR));
+				se.setTargetLanguages(options.getTargetedLangs());
 				se.setCrawlDirName(outputDirName);
 				se.setTopic(options.getTopic());
 				se.setRunOffLine(false);
@@ -563,12 +550,12 @@ public class Crawl {
 				}
 				//////////////////////////////////////////////////////////////////////////////////////////////	
 				if (operation.contains(PAIRDETECT_operation)){
-					if (languages.length<1){
+					if (options.getTargetedLangs().length<1){
 						LOGGER.warn("At least 2 languages are required.");
 						System.exit(0);
 					}
 					PairDetector pd = new PairDetector();
-					for (String lang_pair:lang_pairs){
+					for (String lang_pair:options.getLangPairs()){
 						pd.setLanguage(lang_pair);
 						pd.setSourceDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
 						pd.setTargetDir(new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)));
@@ -585,7 +572,7 @@ public class Crawl {
 				}
 				//////////////////////////////////////////////////////////////////////////////////////////////
 				if (operation.contains(ALIGN_operation)){
-					for (String lang_pair:lang_pairs){
+					for (String lang_pair:options.getLangPairs()){
 						String[] temp_langs = lang_pair.split(SEMICOLON_STR);
 						aligner = prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), temp_langs);
 						if (aligner!=null){
@@ -615,7 +602,7 @@ public class Crawl {
 					ha.setKeepIdentical(options.getKeepIdentical());
 					ha.setKeepDuplicates(options.getKeepDuplicates());
 					//ha.setMetadata(options.getMetadata());
-					for (String lang_pair:lang_pairs){
+					for (String lang_pair:options.getLangPairs()){
 						ha.setLanguage(lang_pair);
 						String[] temp_langs = lang_pair.split(SEMICOLON_STR);
 						String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
@@ -649,8 +636,7 @@ public class Crawl {
 					//mm.setApplyOfflineXSLT(options.isOfflineXSLT());
 					mm.setdomain(options.getDomain());
 					mm.setCorpusLevel("doc");
-					String[] tlangs = options.getLanguage().split(SEMICOLON_STR);
-					for (String lang:tlangs){
+					for (String lang:options.getTargetedLangs()){
 						mm.setLanguage(lang);
 						mm.setBaseName(new File(options.getBaseName()+lang));
 						mm.merge();

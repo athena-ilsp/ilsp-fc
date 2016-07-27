@@ -119,10 +119,9 @@ public class BitextsTranslationLinks {
 			Map<String, String> urlPairsFromTranslationLinks,
 			Map<String, String> urlsToIds) {
 
-	//	for (Map.Entry<String, String> entry : urlsToIds.entrySet()) {
-	//		LOGGER.info(entry.getKey()+"\t"+entry.getValue());
-	//	}
-		
+		urlPairsFromTranslationLinks = normalizeUrlPairs(urlPairsFromTranslationLinks);
+		urlsToIds = normalizeUrlPairs(urlsToIds);
+			
 		Map<String, String> idPairsFromTranslationLinks = new HashMap<>();
 		Set<String> paired = new HashSet<>();
 
@@ -135,14 +134,11 @@ public class BitextsTranslationLinks {
 			int p2 = url2_lang.lastIndexOf(UNDERSCORE_STR);
 			String urlVal = url2_lang.substring(0, p2);
 			//String lang2 = url2_lang.substring(p2 + 1);
-//LOGGER.info(url1_lang+"\t"+url2_lang+"\t");
-
+			//LOGGER.info(url1_lang+"\t"+url2_lang+"\t");
 
 			// Do not add  any  other  pairs.
-			if (paired.contains(url1_lang) || paired.contains(url2_lang)) { 
+			if (paired.contains(url1_lang) || paired.contains(url2_lang)) 
 				continue;
-			}
-			
 			if (urlsToIds.containsKey(url1) && urlsToIds.containsKey(urlVal) && !urlsToIds.get(url1).equals(urlsToIds.get(urlVal))) { 
 				//idPairsFromTranslationLinks.put( urlsToIds.get(url1) + UNDERSCORE_STR + lang1, urlsToIds.get(urlVal) + UNDERSCORE_STR + lang2);
 				idPairsFromTranslationLinks.put( urlsToIds.get(url1) , urlsToIds.get(urlVal));
@@ -154,14 +150,24 @@ public class BitextsTranslationLinks {
 						+ urlsToIds.get(urlVal)
 						+ " are not in the list of files.");
 			}
-			if (urlsToIds.containsKey(url1)) {
+			if (urlsToIds.containsKey(url1)) 
 				paired.add(url1_lang);
-			}
-			if (urlsToIds.containsKey(urlVal)) {
+			if (urlsToIds.containsKey(urlVal)) 
 				paired.add(url2_lang);
-			}
 		}
 		return idPairsFromTranslationLinks;
+	}
+
+	private static Map<String, String> normalizeUrlPairs(	Map<String, String> urlPairsFromTranslationLinks) {
+		Map<String, String> res = new HashMap<>();
+		for (Map.Entry<String, String> entry : urlPairsFromTranslationLinks.entrySet()) {
+			String left = entry.getKey().replaceAll("http://", "");
+			left = left.replaceAll("https://", "");
+			String right = entry.getValue().replaceAll("http://", "");
+			right = right.replaceAll("https://", "");
+			res.put(left, right);
+		}
+		return res;
 	}
 
 }

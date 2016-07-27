@@ -275,18 +275,18 @@ public class CrawlWorkflow {
 	
 	
 	public static Flow createFlow(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
-			BaseUrlFilter urlFilter, String[] targeted_langs, String[] classes, ArrayList<String[]> topic, 
+			BaseUrlFilter urlFilter, HashMap<String, String> maplangs, String[] targeted_langs, String[] classes, ArrayList<String[]> topic, 
 			double abs_thres, double rel_thres, int min_uniq_terms,int max_depth,
 			CrawlOptions options) throws Throwable {
 
 		return createFlow071(curWorkingDirPath, crawlDbPath, userAgent, fetcherPolicy,
-				urlFilter, targeted_langs, classes, topic, abs_thres, rel_thres, min_uniq_terms, max_depth, options);				
+				urlFilter, maplangs, targeted_langs, classes, topic, abs_thres, rel_thres, min_uniq_terms, max_depth, options);				
 
 	}
 
 
 	public static Flow createFlow071(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
-			BaseUrlFilter urlFilter, String[] targeted_langs, String[] classes, ArrayList<String[]> topic, double abs_thres,
+			BaseUrlFilter urlFilter, HashMap<String, String> maplangs, String[] targeted_langs, String[] classes, ArrayList<String[]> topic, double abs_thres,
 			double rel_thres, int min_uniq_terms,int max_depth, CrawlOptions options) throws Throwable {
 		int maxThreads = options.getThreads();
 		boolean debug = options.isDebug();
@@ -374,7 +374,7 @@ public class CrawlWorkflow {
 
 		//contentPipe is parsed. Metadata, content and links are extracted. Content is
 		//cleaned using Boilerpipe.
-		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler, curWorkingDirPath.getParent().toString(), targeted_langs));
+		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler, curWorkingDirPath.getParent().toString(), maplangs, targeted_langs));
 		//The results from the parser are forwarded to the classifier. The classifier
 		//will score the content of each fetched page. It will also score all links
 		//based on the score of the page they came from, the anchor text and the surrounding

@@ -12,7 +12,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -134,6 +137,19 @@ public class LangDetectUtils {
 		}
 		targetlanguages=targetlanguages.substring(1);
 		return targetlanguages;
+	}
+
+	public static String getlangCodeFromLangkeys(	HashMap<String, String> _maplangs, String langkey) {
+		String langcode = "", key;
+		Set<String> langcodes = _maplangs.keySet();
+		Iterator<String> langcodes_it = langcodes.iterator();
+		while (langcodes_it.hasNext()){									
+			key = langcodes_it.next();
+			if (_maplangs.get(key).contains(langkey)){
+				return key;
+			}
+		}
+		return langcode;
 	}
 
 	/*//LanguageIdentifier initialization	

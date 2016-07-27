@@ -44,18 +44,7 @@ public class Operations {
 	public static void pairdetection(CrawlOptions options, String operation) {
 		LOGGER.info("Running PairDetector");
 
-		String[] languages = options.getLanguage().split(SEMICOLON_STR);
-		List<String> lang_pairs = new ArrayList<String>();
-		if (languages.length>1){
-			for (int ii=0;ii<languages.length-1;ii++){
-				for (int jj=ii+1;jj<languages.length;jj++){
-					lang_pairs.add(languages[ii]+SEMICOLON_STR+languages[jj]);
-				}
-			}
-		}else{
-			LOGGER.warn("At least 2 languages are required.");
-			System.exit(0);
-		}
+		List<String> lang_pairs = options.getLangPairs();
 		PairDetector pd = new PairDetector();
 		for (String lang_pair:lang_pairs){
 			pd.setLanguage(lang_pair);
@@ -111,7 +100,7 @@ public class Operations {
 		Exporter se = new Exporter();
 		se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
 		se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
-		se.setTargetLanguages(options.getLanguage().split(SEMICOLON_STR));
+		se.setTargetLanguages(options.getTargetedLangs());
 		se.setTopic(options.getTopic());
 		se.setTargetedDomain(options.getTargetedDomain());
 		se.setCrawlDirName(options.getInputDir());
@@ -131,10 +120,10 @@ public class Operations {
 	 * @param args
 	 */
 	public static void alignment(CrawlOptions options,	CompositeConfiguration config) {
-		String[] langs = options.getLanguage().split(SEMICOLON_STR);
+		//String[] langs = options.getLanguage().split(SEMICOLON_STR);
 		Aligner aligner = null; 
 		if (options.toAlign()!=null) {
-			aligner = Crawl.prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), langs);
+			aligner = Crawl.prepareAligner(options.toAlign(), options.useDict(), options.pathDict(), options.getTargetedLangs());
 			if (aligner==null){
 				LOGGER.error("Aligner cannot be initialized:");
 				System.exit(0);
@@ -217,16 +206,7 @@ public class Operations {
 		ha.setKeepIdentical(options.getKeepIdentical());
 		ha.setKeepDuplicates(options.getKeepDuplicates());
 		//ha.setMetadata(options.getMetadata());
-		String[] languages = options.getLanguage().split(SEMICOLON_STR);
-		List<String> lang_pairs = new ArrayList<String>();
-		if (languages.length>1){
-			for (int ii=0;ii<languages.length-1;ii++){
-				for (int jj=ii+1;jj<languages.length;jj++){
-					lang_pairs.add(languages[ii]+SEMICOLON_STR+languages[jj]);
-				}
-			}
-		}
-		for (String lang_pair:lang_pairs){
+		for (String lang_pair:options.getLangPairs()){
 			ha.setLanguage(lang_pair);
 			String[] temp_langs = lang_pair.split(SEMICOLON_STR);
 			String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];

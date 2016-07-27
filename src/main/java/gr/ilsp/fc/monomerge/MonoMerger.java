@@ -101,12 +101,12 @@ public class MonoMerger {
 		LOGGER.info("------------Constructing a monolingual corpus in "+languages[0]+".------------");
 		outTXTFile = new File(baseName.getAbsolutePath()+TXTEXT);
 		outXMLFile = new File(baseName.getAbsolutePath()+XMLEXT);
-		File coprusdoc = new File(baseName.getAbsolutePath()+"-coprus");
+		File corpusdoc = new File(baseName.getAbsolutePath()+"-coprus");
 		LOGGER.info("Type of corpus:\tMonolingual");
 		LOGGER.info("level of corpus:\t"+copruslevel);
-		LOGGER.info("filename of corpus:\t"+coprusdoc.getName());
+		LOGGER.info("filename of corpus:\t"+corpusdoc.getName());
 		if (copruslevel.equals("doc")){
-			coprusdoc.mkdirs();
+			corpusdoc.mkdirs();
 		}
 		if (!outTXTFile.getParentFile().exists())
 			outTXTFile.getParentFile().mkdirs();
@@ -134,22 +134,17 @@ public class MonoMerger {
 				e.printStackTrace();
 			} 
 		}
-		List<String> paragraphs = new ArrayList<String>();
+		//List<String> paragraphs = new ArrayList<String>();
 		List<String> sentences = new ArrayList<String>();
 		int[] sizes = new int[5]; //docs, pars, sents, tokens, words
 		if (!xmlfiles.isEmpty()){
-			if (copruslevel.equals("doc")){
-				sizes = generateDocLevelMonoCorpus(xmlfiles, coprusdoc);
-			}
-			if (copruslevel.equals("par")){
-				generateParLevelMonoCorpus(xmlfiles, coprusdoc);
-			}
+			if (copruslevel.equals("doc"))
+				sizes = generateDocLevelMonoCorpus(xmlfiles, corpusdoc);
+			if (copruslevel.equals("par"))
+				generateParLevelMonoCorpus(xmlfiles, corpusdoc);
 			if (copruslevel.equals("sen")){
-				generateSenLevelMonoCorpus(xmlfiles, coprusdoc);
-			}
-			
-			if (copruslevel.equals("sen")){
-				System.out.println("sentences:" + sentences.size());
+				//sentences = generateSenLevelMonoCorpus(xmlfiles, corpusdoc);
+				sizes =  generateSenLevelMonoCorpus(xmlfiles, corpusdoc);
 				try {
 					FileUtils.writeLines(outTXTFile, sentences);
 				} catch (IOException e) {
@@ -157,11 +152,7 @@ public class MonoMerger {
 					e.printStackTrace();
 				}
 			}
-			if (copruslevel.equals("sen")){
-				System.out.println("paragraphs:" + paragraphs.size());
-			}
-		
-
+			
 			List<String> domains = ReadResources.extactValueFromCesDoc(xmlfiles, domainNode);
 			List<String> domainEurovocIds=getEurovocId(domains);
 			//FIXME
@@ -180,7 +171,7 @@ public class MonoMerger {
 						domain, domainEurovocId, UNKNOWN_STR, creationDescription, projectId, projectURL, organization, organizationURL);
 			}
 			List<String> corpusmetadata= new ArrayList<String>();
-			
+
 			LOGGER.info("size of corpus in documents:\t"+sizes[0]);
 			LOGGER.info("size of corpus in tokens:\t"+monlingualCorpusInfo.getTokensSize());
 			LOGGER.info("size of corpus in lexical types:\t"+monlingualCorpusInfo.getLenInWords());
@@ -211,8 +202,8 @@ public class MonoMerger {
 		}
 	}
 
-	private void generateSenLevelMonoCorpus(List<File> xmlfiles, File coprusdoc) {
-		int totalTokens=0;
+	private int[] generateSenLevelMonoCorpus(List<File> xmlfiles, File coprusdoc) {
+		int totalTokens=0, parsnum=0;
 		List<String> paragraphs = new ArrayList<String>();
 		List<String> tempSentences = new ArrayList<String>();
 		List<String> sentences = new ArrayList<String>();
@@ -220,41 +211,55 @@ public class MonoMerger {
 		Set<String> words = new HashSet<String>();
 		String cleanSentence="";
 		List<String> stokens = new ArrayList<String>();
+		int[] sizes = new int[5]; //docs, paragraphs, sentences, tokens, words
 		for (File xmlfile:xmlfiles){
 			paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\t"));
-			
-			if (copruslevel.equals("sen")){
-				tempSentences = pars2sents(paragraphs);
-				for (String sentence:tempSentences){
-					sentence= ContentNormalizer.normalizeText(sentence);
-					sentence = sentence.replaceAll("\t", " ");	sentence = sentence.replaceAll("\r\n", "");	sentence = sentence.replaceAll("\n", ""); sentence = sentence.trim();
-					cleanSentence = ContentNormalizer.normtext(sentence);
-					if (cleanSentence.length()<len_thr)
-						continue;
-					stokens = FCStringUtils.getTokens(cleanSentence);
-					Double[] stokenslen= FCStringUtils.getTokensLength(stokens);
-					if (Statistics.getMax(stokenslen)>max_word_length 
-							|| Statistics.getMedian(stokenslen)>max_median_word_length || Statistics.getMedian(stokenslen)<min_median_word_length)
-						continue;
-					if (!cleanSentences.contains(cleanSentence)){
-						cleanSentences.add(cleanSentence);
-						sentences.add(sentence);
-						List<String> toks = FCStringUtils.getWords(sentence); 
-						totalTokens =totalTokens +toks.size();
-						for (String tok:toks){
-							if (!words.contains(tok))
-								words.add(tok);
-						}
+			parsnum = parsnum+paragraphs.size();
+			tempSentences = pars2sents(paragraphs);
+			for (String sentence:tempSentences){
+				sentence= ContentNormalizer.normalizeText(sentence);
+				sentence = sentence.replaceAll("\t", " ");	sentence = sentence.replaceAll("\r\n", "");	sentence = sentence.replaceAll("\n", ""); sentence = sentence.trim();
+				cleanSentence = ContentNormalizer.normtext(sentence);
+				if (cleanSentence.length()<len_thr)
+					continue;
+				stokens = FCStringUtils.getTokens(cleanSentence);
+				Double[] stokenslen= FCStringUtils.getTokensLength(stokens);
+				if (Statistics.getMax(stokenslen)>max_word_length 
+						|| Statistics.getMedian(stokenslen)>max_median_word_length || Statistics.getMedian(stokenslen)<min_median_word_length)
+					continue;
+				if (!cleanSentences.contains(cleanSentence)){
+					cleanSentences.add(cleanSentence);
+					sentences.add(sentence);
+					List<String> toks = FCStringUtils.getWords(sentence); 
+					totalTokens =totalTokens +toks.size();
+					for (String tok:toks){
+						if (!words.contains(tok))
+							words.add(tok);
 					}
 				}
 			}
 		}
-		
+		LOGGER.info("Sentences:\t"+sentences.size());
+		LOGGER.info("Words:\t"+words.size());
+		LOGGER.info("Tokens:\t"+totalTokens);
+		//docs, paragraphs, sentences, tokens, words
+		sizes[0] = xmlfiles.size();
+		sizes[1] = parsnum;
+		sizes[2] = sentences.size();
+		sizes[3] = totalTokens;
+		sizes[4] = words.size();
+		try {
+			FileUtils.writeLines(outTXTFile, sentences);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return sizes;
 	}
 
 	private void generateParLevelMonoCorpus(List<File> xmlfiles, File coprusdoc) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private int[] generateDocLevelMonoCorpus(List<File> xmlfiles, File coprusdoc) {
@@ -447,7 +452,7 @@ public class MonoMerger {
 		return config;
 	}
 
-	
+
 	public void setConfig(CompositeConfiguration config) {
 		MonoMerger.config = config;
 	}
