@@ -86,6 +86,10 @@ public class CleanerUtils {
 			reader = new BufferedReader(new InputStreamReader(input,metadata.get(Metadata.CONTENT_ENCODING)));
 			String[] content2 = arcExtr.getText(reader, false).split("\n");
 			content = combineNumArt(content1, content2);
+			/*for (int jj=0;jj<content1.length;jj++){
+				content=content+content1[jj]+"\n";
+			}
+			content=content.substring(0, content.length()-1);*/
 			if (!keepBoiler) {
 				content = ContentNormalizer.removeBoilerPars(content);
 			}
@@ -166,10 +170,10 @@ public class CleanerUtils {
 				a=a+1;
 			if (b<=0) 
 				b=articExtr_text[ii].length();
-			if (b<a){
+			if (b<a)
 				a=0;
-			}
 			temp = articExtr_text[ii].substring(a, b);
+			//temp = articExtr_text[ii];
 			for (int jj=lim;jj<numExtr_text.length;jj++){
 				if (numExtr_text[jj].contains(morethan+temp+lessthan)){
 					numExtr_text[jj] = numExtr_text[jj].replaceAll(boiler_st, text_st);
