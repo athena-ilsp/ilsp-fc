@@ -46,6 +46,8 @@ public class GetTMXsubset {
 	private static final String SPACE_SEPARATOR = " ";
 	private final static String SCORE = "score";
 	private final static String SEGMENTTYPE = "type"; 
+	private final static String L1URL = "l1-ulr";
+	private final static String L2URL = "l2-url";
 	private static boolean iso6393=false;
 	private static boolean oxslt=false;
 	private static boolean cc=true;
@@ -194,10 +196,7 @@ public class GetTMXsubset {
 			for (Tu tu: tus) {
 				alignments = alignments+1;
 				List<Object> tuProps = tu.getNoteOrProp();
-				String type="";
-				String site="";
-				String license="";
-				String other = "";
+				String type="", site="", license="", other = "", l1url="", l2url="";
 				double score = 0;
 				for (Object obProp : tuProps) {
 					Prop prop = (Prop) obProp;
@@ -219,11 +218,15 @@ public class GetTMXsubset {
 							license="";
 						else
 							license  = prop.getContent().get(0);
+					}else if(prop.getType().equals(L1URL)){
+						l1url = prop.getContent().get(0);
+					}else if(prop.getType().equals(L2URL)){
+						l2url = prop.getContent().get(0);
 					}
 				}
 				segpairs.add(new SegPair(StringUtils.join(TMXHandlerUtils.createSegmentList(tu, lang1), SPACE_SEPARATOR), 
 						StringUtils.join(TMXHandlerUtils.createSegmentList(tu, lang2), SPACE_SEPARATOR),
-						score, type, "", site, license, other));
+						score, type, "",l1url, l2url, license, other));
 			}
 			logger.debug("Examining " + tmxFile.getAbsolutePath() + SPACE_SEPARATOR + tus.size());
 		} catch (FileNotFoundException e) {
