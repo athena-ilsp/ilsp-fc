@@ -10,8 +10,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
+//import java.net.MalformedURLException;
+//import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +35,7 @@ public class TMXHandlerUtils {
 	private static final Logger LOGGER = Logger.getLogger(TMXHandlerUtils.class);
 
 	private static final String SPACE_SEPARATOR = " ";
-	private static final String SEMI_SEPAR = ";";
+//	private static final String SEMI_SEPAR = ";";
 	private final static String PUNCT = ".";
 	private static final String UNDERSCORE = "_";
 	private static final String XML_EXTENSION = ".xml";
@@ -43,6 +43,8 @@ public class TMXHandlerUtils {
 	private final static String licenseNode = "license";
 	private final static String TARGET_STR = "target";
 	private final static String SCORE = "score";
+	//private final static String L1URL = "l1-ulr";
+	//private final static String L2URL = "l2-url";
 	private final static String SEGMENTTYPE = "segmentType";
 	private static boolean doNotCountZeroToOneAlignments = true;
 	static Matcher twitterHandleMatcher = Pattern.compile("(^|[^@\\w])@(\\w{1,15})\\b").matcher("");
@@ -91,7 +93,7 @@ public class TMXHandlerUtils {
 				}
 				segpairs.add(new SegPair(StringUtils.join(createSegmentList(tu, lang1), SPACE_SEPARATOR), 
 						StringUtils.join(createSegmentList(tu, lang2), SPACE_SEPARATOR),
-						score, type, tmxinfo.method, tmxinfo.site, tmxinfo.license, tmxinfo.other));
+						score, type, tmxinfo.method, tmxinfo.l1url, tmxinfo.l2url, tmxinfo.license, tmxinfo.other));
 			}
 			LOGGER.debug("Examining " + tmxFile.getAbsolutePath() + SPACE_SEPARATOR + tus.size());
 			double percent = (double)zeroToOneAlignments / (double)tus.size();
@@ -113,11 +115,11 @@ public class TMXHandlerUtils {
 		String method = tmxFile.getName().substring(tmxFile.getName().lastIndexOf(UNDERSCORE)+1, tmxFile.getName().lastIndexOf(PUNCT));
 		File f1 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[0])+XML_EXTENSION);
 		File f2 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[1])+XML_EXTENSION);
-		String site="", license="";
-		URL url = null;
+		String  license=""; //site="",
+		//URL url = null;
 		String webpage1=ReadResources.extractNodefromXML(f1.getAbsolutePath(), eAddressNode, false);
 		String webpage2=ReadResources.extractNodefromXML(f2.getAbsolutePath(), eAddressNode, false);
-		try {
+		/*try {
 			url = new URL(webpage1);
 			webpage1 = url.getProtocol()+"://"+ url.getHost();
 		} catch (MalformedURLException e) {
@@ -140,7 +142,7 @@ public class TMXHandlerUtils {
 			else
 				site = webpage1+SEMI_SEPAR+webpage2;
 		}else
-			site = webpage1;
+			site = webpage1;*/
 
 		String license1 = ReadResources.extractAttrfromXML(f1.getAbsolutePath(), licenseNode, TARGET_STR,true, true);
 		String license2 = ReadResources.extractAttrfromXML(f2.getAbsolutePath(), licenseNode, TARGET_STR,true, true);
@@ -153,7 +155,7 @@ public class TMXHandlerUtils {
 				license="";
 		}
 
-		return new TmxInfo(method, site, license, "");
+		return new TmxInfo(method, webpage1, webpage2, license, "");
 	}
 
 	public static List<String> createSegmentList(Tu tu, String languageCode) {
@@ -197,16 +199,19 @@ public class TMXHandlerUtils {
 		public String type;
 		public String method;
 		public String site;
+		public String l1url;
+		public String l2url;
 		public String license;
 		public String other;
 
-		public SegPair(String seg1, String seg2, double score, String type, String method, String site, String license, String other) {
+		public SegPair(String seg1, String seg2, double score, String type, String method, String l1url, String l2url, String license, String other) {
 			this.seg1 = seg1;
 			this.seg2 = seg2;
 			this.type = type;
 			this.score = score;
 			this.method = method;
-			this.site = site;
+			this.l1url = l1url;
+			this.l2url = l2url;
 			this.license = license;
 			this.other = other;
 		}
@@ -219,13 +224,15 @@ public class TMXHandlerUtils {
 	 */
 	public static class TmxInfo {
 		public String method;
-		public String site;
+		public String l1url;
+		public String l2url;
 		public String license;
 		public String other;
 
-		public TmxInfo(String method, String site, String license, String other) {
+		public TmxInfo(String method, String l1url, String l2url, String license, String other) {
 			this.method = method;
-			this.site = site;
+			this.l1url = l1url;
+			this.l2url = l2url;
 			this.license = license;
 			this.other = other;
 		}

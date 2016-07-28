@@ -448,7 +448,10 @@ public class TMXHandler {
 				alignment.addSourceSegment(segpair.seg1);
 				alignment.addTargetSegment(segpair.seg2);
 				alignment.setScore((float)segpair.score);
-				alignment.setSite(segpair.site);
+				alignment.setL1url(segpair.l1url);
+				alignment.setL2url(segpair.l2url);
+				
+				//alignment.setSite(segpair.site);
 				alignment.setMethod(segpair.method);
 				alignment.setLicense(segpair.license);
 				alignment.setType(segpair.type);

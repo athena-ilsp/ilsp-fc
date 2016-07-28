@@ -13,6 +13,8 @@ public class ILSPAlignment extends Alignment {
 	//private List<String> targetSegmentList;
 	//private float score;
 	private String site;
+	private String l1url;
+	private String l2url;
 	private String license;
 	private String method;
 	private String lengthRatio;
@@ -24,6 +26,8 @@ public class ILSPAlignment extends Alignment {
 		//this.targetSegmentList = new ArrayList<String>();
 		//this.score = DEFAULT_SCORE;
 		this.site = EMPTY_STR;
+		this.l1url = EMPTY_STR;
+		this.l2url = EMPTY_STR;
 		this.license = UNDER_REVIEW_STR;
 		this.method = EMPTY_STR;
 		this.lengthRatio = EMPTY_STR;
@@ -35,6 +39,8 @@ public class ILSPAlignment extends Alignment {
 		super(sourceSegmentList, targetSegmentList);
 		// TODO Auto-generated constructor stub
 		this.site = EMPTY_STR;
+		this.l1url = EMPTY_STR;
+		this.l2url = EMPTY_STR;
 		this.license = UNDER_REVIEW_STR;
 		this.method = EMPTY_STR;
 		this.lengthRatio = EMPTY_STR;
@@ -46,6 +52,8 @@ public class ILSPAlignment extends Alignment {
 		super(sourceSegmentArray, targetSegmentArray);
 		// TODO Auto-generated constructor stub
 		this.site = EMPTY_STR;
+		this.l1url = EMPTY_STR;
+		this.l2url = EMPTY_STR;
 		this.license = UNDER_REVIEW_STR;
 		this.method = EMPTY_STR;
 		this.lengthRatio = EMPTY_STR;
@@ -56,6 +64,8 @@ public class ILSPAlignment extends Alignment {
 	public ILSPAlignment(List<String> sourceSegmentList, List<String> targetSegmentList, float score) {
 		super(sourceSegmentList, targetSegmentList, score);
 		this.site = EMPTY_STR;
+		this.l1url = EMPTY_STR;
+		this.l2url = EMPTY_STR;
 		this.license = UNDER_REVIEW_STR;
 		this.method = EMPTY_STR;
 		this.lengthRatio = EMPTY_STR;
@@ -66,6 +76,8 @@ public class ILSPAlignment extends Alignment {
 	public ILSPAlignment(String[] sourceSegmentArray, String[] targetSegmentArray, float score) {
 		super(sourceSegmentArray, targetSegmentArray, score);
 		this.site = EMPTY_STR;
+		this.l1url = EMPTY_STR;
+		this.l2url = EMPTY_STR;
 		this.license = UNDER_REVIEW_STR;
 		this.method = EMPTY_STR;
 		this.lengthRatio = EMPTY_STR;
@@ -118,6 +130,22 @@ public class ILSPAlignment extends Alignment {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public void setL1url(String l1url) {
+		this.l1url = l1url;
+	}
+	
+	public String getL1url() {
+		return l1url;
+	}
+	
+	public void setL2url(String l2url) {
+		this.l2url = l2url;
+	}
+	
+	public String getL2url() {
+		return l2url;
 	}
 
 }

@@ -29,7 +29,9 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 
 	private static final String SCORE = "score";
 	private static final String TYPE = "type";
-	private static final String SITE = "site";
+	//private static final String SITE = "site";
+	private static final String L1URL = "l1-url";
+	private static final String L2URL = "l2-url";
 	private static final String INFO = "info";
 	private static final String LICENSE = "license";
 	private static final String LENGTHRATIO = "lengthRatio";
@@ -110,10 +112,22 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 			lengthRatio.setType(LENGTHRATIO);
 			lengthRatio.getContent().add(EMPTY_STR+alignment.getLengthRatio());
 			tu.getNoteOrProp().add(lengthRatio);
-			Prop siteProperty = new Prop();
+			
+			/*Prop siteProperty = new Prop();
 			siteProperty.setType(SITE);
 			siteProperty.getContent().add(EMPTY_STR+alignment.getSite());
-			tu.getNoteOrProp().add(siteProperty);
+			tu.getNoteOrProp().add(siteProperty);*/
+						
+			Prop l1urlProperty = new Prop();
+			l1urlProperty.setType(L1URL);
+			l1urlProperty.getContent().add(EMPTY_STR+alignment.getL1url());
+			tu.getNoteOrProp().add(l1urlProperty);
+			
+			Prop l2urlProperty = new Prop();
+			l2urlProperty.setType(L2URL);
+			l2urlProperty.getContent().add(EMPTY_STR+alignment.getL2url());
+			tu.getNoteOrProp().add(l2urlProperty);
+						
 			Prop licenseProperty = new Prop();
 			licenseProperty.setType(LICENSE);
 			licenseProperty.getContent().add(EMPTY_STR+alignment.getLicense());
