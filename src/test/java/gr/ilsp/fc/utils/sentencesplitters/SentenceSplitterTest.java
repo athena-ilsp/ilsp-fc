@@ -27,6 +27,9 @@ public class SentenceSplitterTest {
 				logger.info( sentences.size() + " != (expected) " + numOfSents);
 				logger.info(input);
 				logger.info(sentences.toString());
+				for (String sentence: sentences) {
+					System.out.println(sentence);
+				}
 			}
 			Assert.assertEquals(testName + ": ", numOfSents, sentences.size());
 		} catch (Exception e) {
@@ -124,6 +127,12 @@ public class SentenceSplitterTest {
 		logger.info("Testing ell sentence splitter");
 		
 		SentenceSplitter sentenceSplitter = sentenceSplitterFactory.getSentenceSplitter("ell");
+		
+		testSentenceSplitter(sentenceSplitter, 
+				"Η περίπτωση β' της παρ. 3 του άρθρου 9 του ν. 3213/2003 αντικαθίσταται ως ακολούθως: «β. Τα περιουσιακά στοιχεία που δεν δηλώθηκαν στην περίπτωση κάποιου από τα αδικήματα των παραγράφων 1 και 2 του άρθρου 6, και εφόσον δεν έχει προηγηθεί εφαρμογή της παρ. 5 του άρθρου 2, δημεύονται με την καταδικαστική απόφαση, εκτός αν ο υπαίτιος αποδεικνύει τη νόμιμη προέλευσή τους και ότι η μη υποβολή ή η υποβολή ανακριβούς ή ελλιπούς δήλωσης δεν οφείλεται σε δόλο.»", 
+				1,
+				"ell sentence splitter");
+		
 		testSentenceSplitter(sentenceSplitter, 
 				"Μπορούν να επιλύουν τις απορίες τους καθημερινά από τις 9 π.μ. έως τις 5 μ.μ.", 
 						1,

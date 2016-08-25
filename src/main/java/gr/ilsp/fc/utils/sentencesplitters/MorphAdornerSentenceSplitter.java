@@ -31,7 +31,8 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 	private String lang;
 	private Set<String> noLatinPunctuationLangs = new HashSet<String>();
 	Matcher startsWithClosePunctMatcher = Pattern.compile("[”›』›»\\p{Pe}].*").matcher(""); //\p{Pe} or \p{Close_Punctuation}: any kind of closing bracket. 
-	Matcher isPossibleEnumMatcher = Pattern.compile("\\s*([0-9]+)[\\.\\)]\\s*").matcher(""); 
+	Matcher endsWithPossibleEnumΑ = Pattern.compile("\\s*([0-9]{1,2}||[\\p{L}]{1,2})[\\.\\)]\\s*").matcher(""); 
+	Matcher endsWithPossibleEnumB = Pattern.compile(".*\\s*[‹«]([0-9]{1,2}||[\\p{L}]{1,2})[\\.\\)]\\s*").matcher("");
 	
 	edu.northwestern.at.morphadorner.corpuslinguistics.sentencesplitter.SentenceSplitter splitter;
 	PreTokenizer preTokenizer;
@@ -126,7 +127,9 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 //				logger.info(sent);
 				if (startsWithClosePunctMatcher.reset(sent).matches()) {
 					paraSents.set(paraSents.size()-1, prevSent+sent);
-				} else if (isPossibleEnumMatcher.reset(prevSent).matches()) {
+				} else if (endsWithPossibleEnumΑ.reset(prevSent).matches()) {
+					paraSents.set(paraSents.size()-1, prevSent+sent);
+				} else if (endsWithPossibleEnumB.reset(prevSent).matches()) {
 					paraSents.set(paraSents.size()-1, prevSent+sent);
 				} else {
 					paraSents.add(text.substring(start, end));
