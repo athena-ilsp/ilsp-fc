@@ -40,8 +40,8 @@ $NumericEx  = $Numeric ($Extend | $Format)*;
 $ATermEx    = $ATerm ($Extend | $Format)*;
 $SContinueEx= $SContinue ($Extend | $Format)*;
 $STermEx    = $STerm   ($Extend | $Format)*;
-$CloseEx    = $Close   ($Extend | $Format)*;
-$MixedCaseAbbrs = (Ph\.D\.?|M\.Sc\.?|μ\.Χ\.?|π\.Χ\.?);
+$CloseEx    = $Close   ($Extend | $Format )*;
+$MixedCaseAbbrs = (b\.C\.?|Ph\.D\.?|M\.Sc\.?|μ\.Χ\.?|π\.Χ\.?);
 $InternetAddressA = ((https?|ftp|file)\:\/\/[\-a-zA-Z0-9\+\&\@\#\/\%\?\=\~\_\|\!\:\,\.\;]*[\-a-zA-Z0-9\+\&\@\#\/\%\=\~\_\|]);
 $InternetAddressB = ((www|ftp)\.[\-a-zA-Z0-9\+\&\@\#\/\%\?\=\~\_\|\!\:\,\.\;]*[\-a-zA-Z0-9\+\&\@\#\/\%\=\~\_\|]);
 # Emoticon: A run that starts with :;B8{[ and contains only one or more of the following -=/{})(

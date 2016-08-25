@@ -20,8 +20,7 @@ public class SentenceSplitterFactory {
 	private static final String PREFIX = "-abbrs-";
 	private static final String NBABBR_STR = "=0";
 	private static final String DOT_STR = ".";
-	private static final Logger logger = LoggerFactory
-			.getLogger(SentenceSplitter.class);
+	private static final Logger logger = LoggerFactory.getLogger(SentenceSplitter.class);
 
 	public SentenceSplitter getSentenceSplitter(String lang) {
 		SentenceSplitter sentenceSplitter;

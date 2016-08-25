@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,9 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 	private static final Logger logger = LoggerFactory.getLogger(MorphAdornerSentenceSplitter.class);
 	private String lang;
 	private Set<String> noLatinPunctuationLangs = new HashSet<String>();
-
+	Matcher startsWithClosePunctMatcher = Pattern.compile("[”›』›»\\p{Pe}].*").matcher(""); //\p{Pe} or \p{Close_Punctuation}: any kind of closing bracket. 
+	Matcher isPossibleEnumMatcher = Pattern.compile("\\s*([0-9]+)[\\.\\)]\\s*").matcher(""); 
+	
 	edu.northwestern.at.morphadorner.corpuslinguistics.sentencesplitter.SentenceSplitter splitter;
 	PreTokenizer preTokenizer;
 	WordTokenizer tokenizer;
@@ -49,7 +53,6 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 		} else  {
 			logger.debug("Loading default segmenters");
 			splitter = new  DefaultSentenceSplitter();
-
 			String segmentationRules = getSegmentationRulesURL(lang);
 			try {
 				sentenceSplitterIterator = new ICU4JRBBISentenceSplitterIterator(this.getClass().getResource(segmentationRules));
@@ -67,7 +70,9 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 	 */
 	private String getSegmentationRulesURL(String lang) {
 		String segmentationRules = DEFAULT_ICU_SEGMENTATION_RULES + TXT_SUFFIX;
+		logger.debug("Checking for language specific segmentation rules for " + lang);
 		if (this.getClass().getResource(DEFAULT_ICU_SEGMENTATION_RULES + "-" + lang + TXT_SUFFIX) != null) {
+			logger.debug("Loading language specific segmentation rules for " + lang);
 			segmentationRules = DEFAULT_ICU_SEGMENTATION_RULES + "-" + lang + TXT_SUFFIX;
 		}
 		return segmentationRules;
@@ -76,6 +81,7 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 	@Override
 	public List<String> getSentences(String text, int paragraphMode)
 			throws IOException {
+		
 		List<List<String>> splitterSents = splitter.extractSentences(text, tokenizer);
 		List<String> paraSents = new ArrayList<String>();
 
@@ -104,11 +110,35 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 
 			// Get sentence text.
 			//logger.debug(text.substring(start, end));
-			paraSents.add(text.substring(start, end));
+
+			// FIXME: Ugly hack to fixup certain obvious errors by sentence splitter. Remove once solved in the ICU rules.
+			if (paraSents.isEmpty()) {
+				paraSents.add(text.substring(start, end));				
+			} else {
+				boolean prevSentIsFirst=false;
+				if (paraSents.size()-1==0) {
+					prevSentIsFirst=true;
+				}
+				
+				String prevSent = paraSents.get(paraSents.size()-1);
+				String sent = text.substring(start, end);
+//				logger.info(prevSent);
+//				logger.info(sent);
+				if (startsWithClosePunctMatcher.reset(sent).matches()) {
+					paraSents.set(paraSents.size()-1, prevSent+sent);
+				} else if (isPossibleEnumMatcher.reset(prevSent).matches()) {
+					paraSents.set(paraSents.size()-1, prevSent+sent);
+				} else {
+					paraSents.add(text.substring(start, end));
+				}
+			}
 			
 		}
+		
+		
 		return paraSents;
 	}
+
 
 	@Override
 	public void setAbbreviationsURL(URL abbreviationsURL) {
