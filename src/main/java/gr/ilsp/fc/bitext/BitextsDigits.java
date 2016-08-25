@@ -17,7 +17,7 @@ public class BitextsDigits {
 	private final static int len_thr=30;
 	private final static int len_thr2=15;
 	private final static int len_thr1=90;
-	private final static double max_dig_dif=0.3;
+	private final static double max_dig_dif=0.315;
 	private final static double max_par_dif=0.6;
 	private final static double max_tok_dif=0.4;
 	private final static String dig_pair_method = "d";

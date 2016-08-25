@@ -92,7 +92,7 @@ public class PairDetectorOptions {
 						+ "\"u\" for checking urls for patterns, \"p\" for combining common images and digits, \"i\" for using common images"
 						+ "\"d\" for examining digit sequences, \"s\" for examining structures")
 						.hasArg()
-						.create("meth") );
+						.create("pdm") );
 		options.addOption( OptionBuilder.withLongOpt( "DelRedundantFiles" )
 				.withDescription( "deletes files that have not been pairs" )				
 				.create("del") );
@@ -118,8 +118,8 @@ public class PairDetectorOptions {
 				_debug = true;
 			if(line.hasOption( "l"))
 				_loggingAppender = line.getOptionValue("l");
-			if(line.hasOption( "meth")) 
-				_methods = line.getOptionValue("meth");
+			if(line.hasOption( "pdm")) 
+				_methods = line.getOptionValue("pdm");
 			if(line.hasOption( "i")) {
 				_inDir = new File(line.getOptionValue("i"));
 				_inDir = new File(_inDir.getAbsolutePath());

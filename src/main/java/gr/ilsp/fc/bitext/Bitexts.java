@@ -321,7 +321,7 @@ public class Bitexts {
 					}else
 						LOGGER.info("No pairs found (based on combination of images and digits)");
 				}else{
-					LOGGER.info("No pairs found (based on combination of images and digits)");
+					LOGGER.info("No pairs found (based on combination of images and digits), no images are available");
 				}
 			}
 		}
@@ -359,7 +359,8 @@ public class Bitexts {
 						LOGGER.info(features.size()+ " files still remained for pair detection.");
 					}else
 						LOGGER.info("No pairs found (based on images)");
-				}
+				}else
+					LOGGER.info("No pairs found (based on images) since no images are available.");	
 			}
 		}
 		//Find pairs based on similar structures
