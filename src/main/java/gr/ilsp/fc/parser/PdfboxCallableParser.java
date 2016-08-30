@@ -5,6 +5,7 @@ package gr.ilsp.fc.parser;
 
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 
+
 //import java.io.BufferedReader;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -20,6 +21,8 @@ import java.util.concurrent.Callable;
 
 
 
+
+import org.apache.commons.io.FilenameUtils;
 //import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
@@ -35,25 +38,21 @@ import org.apache.tika.parser.Parser;
 
 
 
+
 //import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
 //import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import bixo.parser.BaseContentExtractor;
 
 
 public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
-	//private static final Logger LOGGER = Logger.getLogger(PdfboxCallableParser.class);
-
-	//private Parser _parser;
-	// private BaseContentExtractor _contentExtractor;
+		
 	private InputStream _input;
 	private Metadata _metadata;
-	//private boolean _extractLanguage;
 	private String _storedir_path;
-	private boolean _sort_type = false;
-	//private boolean _keepBoiler = false;
-	private static String fs1 = System.getProperty("file.separator");
-	private static String PDFcontent = "PDFcontent";
+	//private boolean _sort_type = false;
+	private static String PDFcontent = "pdfcontent";
 	private static String PDFext = ".pdf";
+	private static String PDF = "pdf";
 	private static final String EUROPE_ORG_STR = "europa.eu";
 	private static final String default_Europecomment_in_url = "©European Union, 1995-2014. Reuse is authorised, provided the source is acknowledged.";
 
@@ -68,13 +67,9 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
 
 	public PdfboxCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input,
 			Metadata metadata, boolean extractLanguage, boolean keepBoiler, String storedir_path) {
-		//_parser = parser;
-		//_contentExtractor = contentExtractor;
 		_input = input;
 		_metadata = metadata;
-		// _extractLanguage = extractLanguage;
 		_storedir_path = storedir_path;
-		//_keepBoiler = keepBoiler;     
 	}
 
 	@Override
@@ -83,9 +78,9 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
 			String content=PDFcontent;
 			if (_storedir_path.startsWith("file:/"))
 				_storedir_path = _storedir_path.substring(5); 
-			File temp_dir = new File(_storedir_path+fs1+"pdf");
+			File temp_dir = new File(FilenameUtils.concat(_storedir_path,PDF));
 			File[] stored_files = temp_dir.listFiles();
-			String filename = temp_dir.getAbsolutePath()+fs1+stored_files.length+PDFext;
+			String filename = FilenameUtils.concat(temp_dir.getAbsolutePath(),stored_files.length+PDFext);
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(filename));
 
 			URL baseUrl = new URL(_metadata.get(Metadata.CONTENT_LOCATION));
@@ -93,10 +88,10 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
 			InputStream inputstream=urlc.getInputStream();
 			byte[] buffer = new byte[1024];
 			int numRead;
-			long numWritten = 0;
+			//long numWritten = 0;
 			while ((numRead = inputstream.read(buffer)) != -1) {
 				out.write(buffer, 0, numRead);
-				numWritten += numRead;
+				//numWritten += numRead;
 			}
 			inputstream.close();
 			out.close();
