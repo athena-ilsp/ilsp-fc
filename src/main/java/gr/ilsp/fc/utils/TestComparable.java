@@ -48,7 +48,6 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 public class TestComparable {
 	//private static Analyzer analyzer = null;
 	//private static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
-	//private static String fs = System.getProperty("file.separator");
 	//private static int len=100;
 	//private static double thr=0.75;
 	//private static boolean use_pdf=false;
@@ -289,7 +288,7 @@ public class TestComparable {
 			String filename=files[ii];
 			System.out.println(files[ii]);
 			try {
-				String filetext = readFileAsString(files1+fs+filename);
+				String filetext = readFileAsString(FilenameUtils.concat(files1,filename));
 				ArrayList<String> stems =new ArrayList<String>();
 				stems = analyze(filetext, lang1);
 				String str="";
