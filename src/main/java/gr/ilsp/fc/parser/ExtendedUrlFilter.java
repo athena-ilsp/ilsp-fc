@@ -69,7 +69,6 @@ public class ExtendedUrlFilter extends BaseOperation<NullContext> implements Fil
 			System.out.println(aaa);
 			return false;
 		}*/
-		 
 		//filter.
 		String mainhost;
 		if (_mainhost==null)
