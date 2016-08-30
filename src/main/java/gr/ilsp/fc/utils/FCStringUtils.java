@@ -12,7 +12,7 @@ public  class FCStringUtils {
 	private static final String delimiters = "-|;|!| |\\?|,|\\.|\\)|\\(|\\[|\\]";
     private static final String NOT_A_LETTER_PATTERN = "\\P{L}+";
 
-	public static int getGraphemeLength(String str) {
+    public static int getGraphemeLength(String str) {
 	    BreakIterator it = BreakIterator.getCharacterInstance();
 	    it.setText(str);
 	    int count = 0;
@@ -23,19 +23,17 @@ public  class FCStringUtils {
 	}
 	
 	public static int getWordLength(String string) {
-		if (StringUtils.isBlank(string)) {
+		if (StringUtils.isBlank(string))
 			return 0;
-		} else { 
+		else 
 			return getWords(string).size();
-		}
 	}
 
 	public static List<String> getWords(String string) {
-		if (StringUtils.isBlank(string)) {
+		if (StringUtils.isBlank(string))
 			return null;
-		} else { 
+		else 
 			return Arrays.asList(string.split(NOT_A_LETTER_PATTERN));
-		}
 	}
 	
 	
@@ -89,9 +87,9 @@ public  class FCStringUtils {
 			return true;
 		StringTokenizer st = new StringTokenizer(text);
 		int count=st.countTokens();
-		if (count<thresh){	
+		if (count<thresh)	
 			return false;
-		}else
+		else
 			return true;				
 	}
 
@@ -127,5 +125,5 @@ public  class FCStringUtils {
 		}
 		return lens;
 	}
-	
+
 }
