@@ -3,10 +3,13 @@
  */
 package gr.ilsp.fc.utils;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,6 +30,10 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.tika.detect.Detector;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.parser.AutoDetectParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -518,4 +525,27 @@ public class FcFileUtils {
 		return tmxfiles;
 	}
 	
+
+	public static String MimeDetect(String filename){
+		String mimetype=null;
+		InputStream is;
+		try {
+			is = new FileInputStream(filename);
+			BufferedInputStream bis = new BufferedInputStream(is);
+			AutoDetectParser parser = new AutoDetectParser();
+			Detector detector = parser.getDetector();
+			Metadata md = new Metadata();
+			md.add(Metadata.RESOURCE_NAME_KEY, filename);
+			MediaType mediaType = detector.detect(bis, md);
+			mimetype=  mediaType.toString();
+			bis.close();
+		} catch (IOException e) {
+			logger.error("Problem in examing mime type of file "+ filename);
+			e.printStackTrace();
+		}
+		logger.info(filename + " detected mimetype is " + mimetype);
+		return mimetype;
+	}
+
+
 }
