@@ -246,7 +246,7 @@ public class Bitexts {
 			String outputDirName, String[][] urlRepls, boolean offlineXSLT, boolean keepimpath, File groundTruth) {
 
 		ArrayList<String[]> bitextsALL=new ArrayList<String[]>();
-		LOGGER.info("Feature extraction from generated cesDoc and corresponding HTML files");
+		LOGGER.info("Feature extraction from generated cesDoc and corresponding HTML/msoffice/pdf files");
 		//extracts features and images of docs
 		features = Bitexts.extractXML_Features(xmldir, Arrays.asList(langs));
 		//Are there enough docs for identification of pairs?

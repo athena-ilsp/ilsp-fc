@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 
 public class DirUtils {
 	private static final Logger LOGGER = Logger.getLogger(DirUtils.class);
-	//private static String fs1 = System.getProperty("file.separator");
+
 	@SuppressWarnings("deprecation")
 	public static void clearPreviousLoopDir(FileSystem fs, Path outputPath, int curLoop) {
 		Path dir;

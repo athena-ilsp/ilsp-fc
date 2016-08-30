@@ -17,7 +17,9 @@ public class BitextsDigits {
 	private final static int len_thr=30;
 	private final static int len_thr2=15;
 	private final static int len_thr1=90;
-	private final static double max_dig_dif=0.315;
+	private final static int len_thr3=500;
+	//private final static int step=20;
+	private final static double max_dig_dif=0.3;
 	private final static double max_par_dif=0.6;
 	private final static double max_tok_dif=0.4;
 	private final static String dig_pair_method = "d";
@@ -66,6 +68,7 @@ public class BitextsDigits {
 			ind="";
 			while (files2_it.hasNext()){
 				key2 = files2_it.next();
+				//System.out.println(key1+"\t"+key2);
 				if (paired.contains(key2))
 					continue;
 				if (features.get(key2)==null){
@@ -103,6 +106,29 @@ public class BitextsDigits {
 					continue;
 				if (digits2length<len_thr2 && digits1length<len_thr2 && temp>0) 
 					continue;
+				int minlen = Math.min(digits1length,digits2length); 
+				if (minlen>len_thr3){
+					temp = Statistics.editDist(digits1.substring(0, minlen), digits2.substring(0, minlen)) / (double)minlen;	
+					/*if (temp>=mindist){
+						String dmax= digits1, dmin=digits2;
+						if (digits1length<digits2length){
+							dmax = digits2;
+							dmin = digits1;
+						}
+						for (int jj=1;jj<1000;jj++){
+							int st=jj*step;
+							int en = st+minlen;
+							if (en>dmax.length())
+								break;
+							else{
+								double temp1 = Statistics.editDist(dmin, dmax.substring(st, en)) / (double)minlen;
+								System.out.println(st+"\t"+en+"\t"+temp1);
+								if (temp1<temp)
+									temp = temp1;
+							}
+						}
+					}*/
+				}
 				//if (digits2.length()<len_thr3 && digits1.length()<len_thr3 && tok1<toknum_thr && tok2<toknum_thr ) 
 				//	continue;
 				if (temp<mindist){
@@ -136,6 +162,7 @@ public class BitextsDigits {
 				paired.add(key1);
 				paired.add(ind); 
 			}
+			//System.out.println("paired:"+"\t"+key1+"\t"+ind);
 		}
 		return pairs;
 	}

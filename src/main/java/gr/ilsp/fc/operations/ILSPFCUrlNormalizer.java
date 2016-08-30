@@ -173,7 +173,7 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
     // to split up the path as otherwise '/' => %2F.
     public String normalizePath(String path) {
         // First, handle relative paths
-        Matcher matcher = RELATIVE_PATH_PATTERN.matcher(path);
+       	Matcher matcher = RELATIVE_PATH_PATTERN.matcher(path);
         while (matcher.find()) {
             path = path.substring(0, matcher.start()) + "/" + path.substring(matcher.end());
             matcher = RELATIVE_PATH_PATTERN.matcher(path);
@@ -181,6 +181,7 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
         
         // Next, get rid of any default page.
         matcher = DEFAULT_PAGE_PATTERN.matcher(path);
+       
         if (matcher.find()) {
           path = path.substring(0, matcher.start()) + "/" + matcher.group(3) + path.substring(matcher.end());
         }
@@ -203,7 +204,6 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
         if (path.endsWith("/") && (newPath.charAt(newPath.length() - 1) != '/')) {
             newPath.append('/');
         }
-        
         return newPath.toString();
     }
 
@@ -222,7 +222,6 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
                 // Strip out empty query parts, e.g. q=1&&z=2
                 continue;
             }
-            
             String[] keyValues = StringUtils.splitOnChar(queryPart, '=');
             if (keyValues.length == 1) {
                 newQuery.append(encodeUrlComponent(decodeUrl(keyValues[0]), RESERVED_QUERY_CHARS));
@@ -234,13 +233,10 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
                     newQuery.append(encodeUrlComponent(decodeUrl(kvPart), RESERVED_QUERY_CHARS));
                     newQuery.append('=');
                 }
-
                 newQuery.setLength(newQuery.length() - 1);
             }
-
             newQuery.append('&');
         }
-
         // Remove last '&'
         if ((newQuery.length() > 0) && (newQuery.charAt(newQuery.length() - 1) == '&')) {
             newQuery.setLength(newQuery.length() - 1);
@@ -251,7 +247,7 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
 
     public String normalize(String url) {
         String result = url.trim();
-        
+
         // First see if there is any protocol - if not, append http:// by default.
         if (result.indexOf("://") == -1) {
             // FUTURE - could put some limit on max length of protocol string.
@@ -341,8 +337,7 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
             LOGGER.error("Unexpected exception during normalization: " + e);
             return result;
         }
-        
         return testUrl.toExternalForm();
     }
-
+    
 }
