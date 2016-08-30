@@ -69,7 +69,7 @@ public class CleanerUtils {
 }
 	
 	/**
-	 * Returns the main content of a fetched webpage using a combination of NumofWords boilerpipeExtractor and Aritcle boilerpipeExtractor
+	 * Returns the main content of a fetched webpage using a combination of NumofWords boilerpipeExtractor and Article boilerpipeExtractor
 	 * @param boilerpipeExtractor
 	 * @param input
 	 * @param metadata
