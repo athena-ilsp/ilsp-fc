@@ -59,9 +59,8 @@ public class LangDetectUtils {
 	 */
 	public static boolean istargetedlang(String lang, String[] targeted_langs) {
 		for (String l:targeted_langs){
-			if (lang.equals(l)){
+			if (lang.equals(l))
 				return true;
-			}
 		}
 		return false;
 	}
@@ -74,9 +73,8 @@ public class LangDetectUtils {
 	public static int idOfTargetedLang(String lang, String[] targeted_langs) {
 		int ind=-1;
 		for (int ii=0;ii<targeted_langs.length;ii++){
-			if (lang.equals(targeted_langs[ii])){
+			if (lang.equals(targeted_langs[ii]))
 				ind =ii;
-			}
 		}
 		return ind;
 	}
