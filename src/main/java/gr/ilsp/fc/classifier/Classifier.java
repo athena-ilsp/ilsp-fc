@@ -24,6 +24,7 @@ public class Classifier implements Serializable{
 	private static final String keyword_loc="keywords";
 	private static final String description_loc= "description";
 	private static final String PDFcontent = "pdfcontent";
+	private static String WORDcontent = "wordcontent";
 	private static double TITLE_WEIGHT = 10;
 	private static double KEYWORDS_WEIGHT = 4;
 	private static double META_WEIGHT = 2;
@@ -77,44 +78,33 @@ public class Classifier implements Serializable{
 	 */
 	public ClassifierDatum classify(ExtendedParsedDatum parsedDatum) {
 		String url = parsedDatum.getUrl();
-		//LOGGER.info(url);
 		if (_storeFilter!=null){
-			if (!url.matches(_storeFilter)){
+			if (!url.matches(_storeFilter))
 				return null;
-			}
 		}
-		
-		String content = parsedDatum.getParsedText().toLowerCase();
-		
-		if (content.equals(PDFcontent)){
+		String content = parsedDatum.getParsedText();
+		if (content.equals(PDFcontent) || content.equals(WORDcontent))
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,0);
-		}
-		//LOGGER.info(content);
 		if (_keepBoiler)
 			content = ContentNormalizer.cleanContent(content);
+		//LOGGER.debug("-----Main Content-----------------");  LOGGER.debug(content);  LOGGER.debug("----End of Main Content-----------");
 		
-		//System.out.println("-----Main Content-------------------------");
-		//LOGGER.info(content);
-		//System.out.println("----End of Main Content--------------------------");
-		
-		//LOGGER.info("Recognised Language: "+parsedDatum.getLanguage());
 		String identifiedlanguage = parsedDatum.getLanguage();
+		LOGGER.debug("URL:\t"+url+"\t"+"LANG:\t"+identifiedlanguage);
 		if (!LangDetectUtils.istargetedlang(identifiedlanguage,_targetLanguages))
 			return null;
 				
 		int length_in_tok= 0;
-		
 		if (identifiedlanguage.equals(CHINESE)){
 			try {
 				length_in_tok =  TopicTools.getStems(content, identifiedlanguage).size();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				LOGGER.warn("Problem in counting tokens in "+CHINESE);
 				e.printStackTrace();
 			}
 		}else
 			length_in_tok = FCStringUtils.countTokens(content);
-		
-		//LOGGER.info("Number of tokens: "+length_in_tok);
+		LOGGER.debug("Number of tokens:\t"+length_in_tok);
 		if (length_in_tok<_minTokensNumber){
 			LOGGER.debug(parsedDatum.getUrl()+"\nCUT due to its small clean content length:"+length_in_tok+ "/"+_minTokensNumber);
 			return null;
@@ -138,12 +128,9 @@ public class Classifier implements Serializable{
 			if (s.getKey().equals(description_loc))
 				meta = s.getValue();			
 		}
-		//LOGGER.info(identifiedlanguage+"\t"+url);
-		if (_topic==null){	
+		if (_topic==null)	
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,length_in_tok);
-		}		
 		if (title==null) title = "";
-
 		ClassifierDatum result=classifyText(title,keywords,meta,content,identifiedlanguage, url, length_in_tok);
 		return result;
 	}
@@ -285,9 +272,8 @@ public class Classifier implements Serializable{
 			}
 
 			if (matches>0){
-				if (weight>0.0){
+				if (weight>0.0)
 					uniqueTermsFound++;
-				}
 				//add found term
 				//termfound.add(term);
 				//add id of the found term
@@ -313,9 +299,8 @@ public class Classifier implements Serializable{
 		}
 		//Check if found terms in the content are equal or above the predefined threshold
 		if (isContent) {
-			if (uniqueTermsFound<_min_uniq_terms && _min_uniq_terms>0) {
+			if (uniqueTermsFound<_min_uniq_terms && _min_uniq_terms>0)
 				return null;
-			}
 		}
 		//calculate scores with the weight of the text (the location weight) 
 		//and the relative scores
@@ -379,11 +364,10 @@ public class Classifier implements Serializable{
 				}
 			}
 			if (matchT & matchL){
-				if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text)>3 & vv>=_absthres){
+				if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text)>3 & vv>=_absthres)
 					score+=10*_absthres; //text and link are in dif. langs but both in targ. langs
-				}else{
+				else
 					score+=_absthres;  //text and link are in same langs and in targ. langs
-				}
 				stems = TopicTools.getStems(text, langidentified_link);
 			}
 			else
@@ -493,11 +477,10 @@ public class Classifier implements Serializable{
 			}
 		}
 		if (matchT & matchL){
-			if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text)>3 & vv>=_absthres){
+			if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text)>3 & vv>=_absthres)
 				score+=1; //text and link are in dif. langs but both in targ. langs
-			}else{
+			else
 				score+=1;  //text and link are in same langs and in targ. langs
-			}
 		}
 		else
 			return score;
