@@ -206,6 +206,10 @@ public class ContentNormalizer {
 		}
 		text = text.replaceAll("\t", " ");
 		text = text.replaceAll("(\\s){2,}", " ");
+		text = text.replaceAll("\r\n", "\n");
+		text = text.replaceAll("\r", "\n");
+		text = text.replaceAll("</text><text>", "</text>\n<text>");
+		text = text.replaceAll("\n</text>", "</text>");
 		text = text.replaceAll("<text> ", "<text>");
 		text = text.replaceAll("<boiler> ", "<boiler>");
 		text = text.replaceAll(" </text>", "</text>");
