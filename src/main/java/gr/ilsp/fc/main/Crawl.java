@@ -86,6 +86,7 @@ public class Crawl {
 	//parameters for file handling
 	private static final String resultXMLDir = "xml";
 	private static final String resultPDFDir = "pdf";
+	private static final String resultDOCDir = "doc";
 	private static final String XML_EXTENSION = ".xml";
 	private static final String XMLlist = ".xmllist.txt";
 
@@ -193,24 +194,17 @@ public class Crawl {
 				linecounter++;
 				if (skipLineM.reset(line).matches()) 
 					continue;
-				if (linecounter==1){ //checks BOM
-					byte[] bts = line.trim().getBytes("UTF-8");
-					if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
-						byte[] bts2 = new byte[bts.length-3];
-						for (int i = 3; i<bts.length;i++)
-							bts2[i-3]=bts[i];
-						line = new String(bts2);
-					}
-				}
+				if (linecounter==1)
+					line = ReadResources.checkBOM(line);
 				//FIXME put these checks in a checker for valid/useful URLs
 				if (line.startsWith("ftp") || line.equals("http://"))
 					continue;
 				if (seedUrls.contains(line))
 					continue;
 				else
-					seedUrls.add(line);
-				CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize(line), 0, 0, 
-						UrlStatus.UNFETCHED, 0,0.0);
+					line = normalizer.normalize(line);
+				seedUrls.add(line);
+				CrawlDbDatum datum = new CrawlDbDatum(line, 0, 0, UrlStatus.UNFETCHED, 0,0.0);
 				writer.add(datum.getTuple());
 			}
 			LOGGER.info("Starting from "+ seedUrls.size()+ " URLs");
@@ -241,24 +235,17 @@ public class Crawl {
 				linecounter++;
 				if (skipLineM.reset(line).matches()) 
 					continue;
-				if (linecounter==1){ //checks BOM
-					byte[] bts = line.getBytes("UTF-8");
-					if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
-						byte[] bts2 = new byte[bts.length-3];
-						for (int i = 3; i<bts.length;i++)
-							bts2[i-3]=bts[i];
-						line = new String(bts2);
-					}
-				}
+				if (linecounter==1) 
+					line = ReadResources.checkBOM(line);
+				if ( line.startsWith("ftp") || line.equals("http://"))
+					continue;	
+				line = normalizer.normalize(line);
 				if (seedUrls.contains(line)) 
 					continue;
 				else
 					seedUrls.add(line);
-				if ( line.startsWith("ftp") || line.equals("http://")) continue;
 				//if (!urlValidator.isValid(line)&& !line.contains("#")) continue;
-
-				CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize(line), 0, 0, 
-						UrlStatus.UNFETCHED, 0,0.0);
+				CrawlDbDatum datum = new CrawlDbDatum(line, 0, 0, UrlStatus.UNFETCHED, 0,0.0);
 				writer.add(datum.getTuple());
 			}
 			LOGGER.info("Starting from "+ seedUrls.size()+ " URL(s)");
@@ -339,7 +326,7 @@ public class Crawl {
 				e.printStackTrace();
 			}
 		}	
-		
+
 		LangDetectUtils.loadCybozuLangIdentifier();
 		//check if there is an available aligner (if needed) for the targeted language pairs  
 		Aligner aligner = null; 
@@ -416,8 +403,9 @@ public class Crawl {
 			defaultPolicy.setMinResponseRate(config.getInt("fetcher.min_response_rate.value"));
 			defaultPolicy.setMaxRedirects(config.getInt("fetcher.max_redirects.value"));
 			defaultPolicy.setMaxContentSize(config.getInt("fetcher.max_content_size.value"));
-			defaultPolicy.setRedirectMode(RedirectMode.FOLLOW_TEMP);
-
+			//defaultPolicy.setRedirectMode(RedirectMode.FOLLOW_TEMP);
+			defaultPolicy.setRedirectMode(RedirectMode.FOLLOW_ALL);
+			
 			//Loading of acceptable MIME types from the config file
 			String[] mimes = config.getStringArray("fetcher.valid_mime_types.mime_type[@value]");			
 			Set<String> validMimeTypes = new HashSet<String>();
@@ -468,17 +456,14 @@ public class Crawl {
 				//topic and classes arrays, the term threshold and the crawl options
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, curLoop);
 				String curLoopDirName = path2str(curLoopDir);
-				//System.out.println(curLoopDirName);
 				String loopLogFile = setLoopLoggerFile(curLoopDirName, curLoop);	
-				//System.out.println(curLoopDirName);
-				LOGGER.debug( conf.toString());
 				for(int il =0; il<conf.getLocalDirs().length;il++) 
 					LOGGER.debug(conf.getLocalDirs()[il]);
-
+				
 				Flow flow = CrawlWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlFilter, options.getMapLangs(),
-						options.getTargetedLangs(), classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options);							
+						options.getTargetedLangs(), options.getTransLinksAttrs(), classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options);							
 				flow.complete();
-
+				defaultPolicy.setRedirectMode(RedirectMode.FOLLOW_TEMP);
 				//Reseting counters of parent class. We do it here so that SplitFetchedUnfetchedCrawlDatums
 				//when run again will not return the 256(or whatever) that were selected in the first run
 				CrawlWorkflow.resetCounters();
@@ -504,6 +489,7 @@ public class Crawl {
 			if (options.getType().equals(p_type))
 				urlPairsFromTranslationLinks = BitextsTranslationLinks.getURLPairsFromTranslationLinks(conf, ISOLangCodes.get3LetterCodes(options.getTargetedLangs()), outputDirName.getAbsolutePath());
 			////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 			Map<String, String> urlsToIds = new HashMap<String, String>();
 			// Finished crawling. Now export if needed.
 			if (operation.contains(EXPORT_operation)) {
@@ -564,7 +550,6 @@ public class Crawl {
 						pd.setUseImagepath(options.getImpath());
 						pd.setApplyXSLT(options.isOfflineXSLT());
 						pd.setURL_REPL(options.getUrlReplaces());
-						//pd.setMethods(detectpair_methods);
 						pd.setMethods(options.getPairMethods());
 						pd.setDelFiles(options.getDel());
 						pd.pairDetect();
@@ -645,9 +630,8 @@ public class Crawl {
 			}
 			/////////////////////////////////////////////////////////////////////////////////////////////////////			
 			if (operation.contains(EXPORT_operation)){
-				if (del){
+				if (del)
 					deleteRedunFiles(fs,outputPath );
-				}
 				// Rename file paths in output, if needed.
 				if (options.getPathReplace() != null){
 					List<File> outputFiles =  new ArrayList<File>();
@@ -683,11 +667,10 @@ public class Crawl {
 	private static String path2str(Path curLoopDir) {
 		String curLoopDirName = curLoopDir.toUri().toString();
 		if (curLoopDirName.startsWith("file:/")){
-			if (filesepar.equals("\\")){
+			if (filesepar.equals("\\"))
 				curLoopDirName = curLoopDirName.substring(6); 
-			}else{
+			else
 				curLoopDirName = curLoopDirName.substring(5);
-			}
 		}
 		return curLoopDirName;
 	}
@@ -697,9 +680,8 @@ public class Crawl {
 		String temp="";
 		while (temp!=null){
 			temp = FilenameUtils.getBaseName(file.getAbsolutePath());
-			if (temp.isEmpty()){
+			if (temp.isEmpty())
 				break;
-			}
 			dirs.add(temp);
 			file = file.getParentFile();
 		}
@@ -829,9 +811,11 @@ public class Crawl {
 				fs.mkdirs(outputPath);
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, 0);
 				Path pdf_dir =new Path(FilenameUtils.concat(outputPath.toString(),resultPDFDir));  
-				if (!fs.exists(pdf_dir)){
+				if (!fs.exists(pdf_dir))
 					fs.mkdirs(pdf_dir);
-				}	//fs.deleteOnExit(curLoopDir);
+				pdf_dir =new Path(FilenameUtils.concat(outputPath.toString(),resultDOCDir));  
+				if (!fs.exists(pdf_dir))
+					fs.mkdirs(pdf_dir);
 				String curLoopDirName = path2str(curLoopDir);
 				setLoopLoggerFile(curLoopDirName, 0);
 				Path crawlDbPath = new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME);
@@ -840,8 +824,7 @@ public class Crawl {
 						importURLOneDomain(urls,crawlDbPath , conf);
 					else
 						importOneDomain(domain,crawlDbPath , conf);
-				}
-				else
+				}else
 					importUrlList(urls,crawlDbPath, conf);
 			}
 		} catch (IOException e) {
@@ -862,8 +845,6 @@ public class Crawl {
 		conf.set("mapred.dir",FilenameUtils.concat(conf.get("hadoop.tmp.dir"),"mapred"));
 		conf.set("mapred.local.dir",FilenameUtils.concat(conf.get("mapred.dir"),"local"));
 		conf.set("mapred.system.dir",FilenameUtils.concat(conf.get("mapred.dir"),"system"));
-
-
 		return conf;
 	}
 
@@ -973,9 +954,8 @@ public class Crawl {
 		boolean stop_crawl = false;
 		int runs = stor_vis.size();
 		if (runs>1){ //two runs at least 
-			if (stor_vis.get(runs-1)[1]==stor_vis.get(runs-2)[1]){
+			if (stor_vis.get(runs-1)[1]==stor_vis.get(runs-2)[1])
 				stop_crawl=true;
-			}
 		}
 		return stop_crawl;
 	}
