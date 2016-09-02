@@ -200,8 +200,10 @@ public class Bitexts {
 						curElement = "";
 				}
 				if (!skip){
-					numofToksb = FCStringUtils.countTokens(tempstr);
-					numofTokso = FCStringUtils.countTokens(newtempstr);
+					numofToksb = FCStringUtils.countTokens(tempstr, codelang);
+					numofTokso = FCStringUtils.countTokens(newtempstr, codelang);
+					//System.out.println(numofToksb + "\t"+FCStringUtils.countTokens(tempstr));
+					//System.out.println(numofTokso + "\t"+FCStringUtils.countTokens(newtempstr));
 
 					listofDigits=ReadResources.extractNumsfromXML(FilenameUtils.concat(xmldir.getPath(),files[ii]), P_ELE,ooi_crawlinfo, ooi_boilerplate, false);
 					//listofSymbols = ReadResources.extractSymbolsfromXML(FilenameUtils.concat(xmldir.getPath(),files[ii]), P_ELE,ooi_crawlinfo, ooi_boilerplate, false);
