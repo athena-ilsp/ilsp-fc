@@ -36,20 +36,21 @@ public class ExtendedLinksExtractorTest {
 	}
 
 	public void testGetLinks(String urlString, String linkToBeExtracted, String testName) {
+		URL url=null;
 		try {
-			URL url = new URL(urlString);
+			url = new URL(urlString);
 			InputStream input = new BufferedInputStream(url.openConnection().getInputStream());
 			metadata = new Metadata();
 			parser.parse(input, contentHandler , metadata, context);
 			metadata.add(Metadata.CONTENT_LOCATION, url.toExternalForm()); 
 			// Hardcoded to avoid calling bixo fetchedDatum.getHeaders().getFirst(HttpHeaderNames.CONTENT_LOCATION);
 			input.mark(0);
-			ExtendedOutlink[] rankedLinks =  ExtendedLinksExtractor.getLinks(input, metadata, null);
+			ExtendedOutlink[] rankedLinks =  ExtendedLinksExtractor.getLinks(input, metadata, null,null);
 			input.close();
 			boolean found = false;
 			for (int i = 0; i < rankedLinks.length; i++) {
 				if (rankedLinks[i].getToUrl().equals(linkToBeExtracted)) {
-					logger.debug("Found link: " + rankedLinks[i].toString());
+					logger.info("Found link: " + rankedLinks[i].toString());
 					found = true;
 					break;
 				}
@@ -59,10 +60,11 @@ public class ExtendedLinksExtractorTest {
 			}
 		} catch (Exception e) {
 			logger.warn("Cannot open/process URL " + urlString);
+			fail ("Did not fetch seed: " + url);
 		}
 	}
 
-	@Test
+	//@Test
 	public void testGetAltLinksWithHreflang() {
 		testGetLinks(  
 				"http://www.citizensinformation.ie/en/housing/renting_a_home/tenants_rights_and_obligations.html",
@@ -73,10 +75,42 @@ public class ExtendedLinksExtractorTest {
 				"http://www.fold.lv/2015/07/one-wolf-entomologija-un-celotaja-gars/", 
 				"Test that links contain links with hreflang attributes");
 	}
-
-	// @Test Uncomment to test. Comment to speed up building
+	
+	// @Test //Uncomment to test. Comment to speed up building
 	public void testGetLinks() {
+		/* testGetLinks(
+				"http://www.hermitage.nl",
+				"http://www.hermitage.nl/en/pers/",
+				"Test that link can be extracted from URL");*/
+		/* testGetLinks(
+				"http://www.fehergolyamuzeum.hu/mainpage_en",
+				"http://www.fehergolyamuzeum.hu/about_the_stork/the_white_stork/the_white_stork_detailed",
+				"Test that link can be extracted from URL");*/
+		/* testGetLinks(
+				"http://www.fehergolyamuzeum.hu/mainpage_hu",
+				"http://www.fehergolyamuzeum.hu/turizmus/programajanlatok/programajanlatok_reszletes",
+				"Test that link can be extracted from URL");*/
 		testGetLinks(  
+				"http://www.svb.nl/int/nl/index.jsp",
+				"http://www.svb.nl/gaia/mijnsvb/pages/entree.jsf",
+				"Test that link can be extracted from URL");
+		testGetLinks(  
+				"http://www.svb.nl/int/nl/kinderbijslag/veranderingen_in_gezin/uw_kind_gaat_uit_huis/index.jsp",
+				"http://www.svb.nl/int/nl/kinderbijslag/veranderingen_in_gezin/bijdrage_aan_het_onderhoud/index.jsp",
+				"Test that link can be extracted from URL");
+		 testGetLinks(
+				"https://www.zamek-buchlovice.cz/en/about/history",
+				"https://www.zamek-buchlovice.cz/cs/informace-pro-navstevniky",
+				"Test that link can be extracted from URL");
+		 testGetLinks(
+				"http://www.sziklakorhaz.eu/en",
+				"http://www.sziklakorhaz.eu/en/news",
+				"Test that link can be extracted from URL");
+		 testGetLinks(
+				"http://www.svb.nl/int/nl/index.jsp",
+				"http://www.svb.nl/gaia/mijnsvb/pages/entree.jsf",
+				"Test that link can be extracted from URL");
+		 testGetLinks(  
 				"http://www.svb.nl/int/nl/index.jsp",
 				"http://www.svb.nl/gaia/mijnsvb/pages/entree.jsf",
 				"Test that link can be extracted from URL");
