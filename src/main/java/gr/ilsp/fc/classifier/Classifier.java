@@ -39,7 +39,6 @@ public class Classifier implements Serializable{
 	private int _minTokensNumber;
 	private static String[] _classes;
 	private String[] _targetlangKeys;
-	private static String CHINESE="zho";
 	private static ArrayList<String[]> _topic;
 
 	private static double _absthres;
@@ -87,29 +86,18 @@ public class Classifier implements Serializable{
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,0);
 		if (_keepBoiler)
 			content = ContentNormalizer.cleanContent(content);
-		//LOGGER.debug("-----Main Content-----------------");  LOGGER.debug(content);  LOGGER.debug("----End of Main Content-----------");
-		
 		String identifiedlanguage = parsedDatum.getLanguage();
 		LOGGER.debug("URL:\t"+url+"\t"+"LANG:\t"+identifiedlanguage);
 		if (!LangDetectUtils.istargetedlang(identifiedlanguage,_targetLanguages))
 			return null;
 				
-		int length_in_tok= 0;
-		if (identifiedlanguage.equals(CHINESE)){
-			try {
-				length_in_tok =  TopicTools.getStems(content, identifiedlanguage).size();
-			} catch (IOException e) {
-				LOGGER.warn("Problem in counting tokens in "+CHINESE);
-				e.printStackTrace();
-			}
-		}else
-			length_in_tok = FCStringUtils.countTokens(content);
+		int length_in_tok =FCStringUtils.countTokens(content,identifiedlanguage);
 		LOGGER.debug("Number of tokens:\t"+length_in_tok);
 		if (length_in_tok<_minTokensNumber){
 			LOGGER.debug(parsedDatum.getUrl()+"\nCUT due to its small clean content length:"+length_in_tok+ "/"+_minTokensNumber);
 			return null;
 		}
-		
+	
 		String title = parsedDatum.getTitle();
 		String keywords = "", meta= "";
 		//if (url.contains("wikipedia"))
@@ -238,7 +226,7 @@ public class Classifier implements Serializable{
 		str="";
 		for (String s:stems){ str+=" "+s;}
 		str = str.trim();
-		double words_num= FCStringUtils.countTokens(str);
+		double words_num= FCStringUtils.countTokens(str, language);
 		//initialization of scores array
 		Double[][] scores = new Double[classes.length+1][2];
 		for (int ii=0;ii<classes.length;ii++){
@@ -364,7 +352,7 @@ public class Classifier implements Serializable{
 				}
 			}
 			if (matchT & matchL){
-				if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text)>3 & vv>=_absthres)
+				if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text, langidentified_link)>3 & vv>=_absthres)
 					score+=10*_absthres; //text and link are in dif. langs but both in targ. langs
 				else
 					score+=_absthres;  //text and link are in same langs and in targ. langs
@@ -477,7 +465,7 @@ public class Classifier implements Serializable{
 			}
 		}
 		if (matchT & matchL){
-			if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text)>3 & vv>=_absthres)
+			if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text,langidentified_link)>3 & vv>=_absthres)
 				score+=1; //text and link are in dif. langs but both in targ. langs
 			else
 				score+=1;  //text and link are in same langs and in targ. langs
