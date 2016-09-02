@@ -1,10 +1,6 @@
 package gr.ilsp.fc.utils;
 
 import gr.ilsp.fc.aligner.factory.BilingualScoredTmxParser;
-//import gr.ilsp.fc.main.WriteResources;
-
-import gr.ilsp.fc.langdetect.LangDetectUtils;
-import gr.ilsp.fc.main.WriteResources;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,29 +13,23 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+
 import java.util.ArrayList;
-//import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import net.loomchild.maligna.coretypes.Alignment;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.apache.tika.language.LanguageIdentifier;
-
+import org.apache.commons.io.FilenameUtils;
 
 public class CleanTMX {
-	private static final Logger LOGGER = Logger.getLogger(CleanTMX.class);
 	private static final String UTF_8 = "UTF-8";
-	private static String fs = System.getProperty("file.separator");
 	private static final String textext=".txt";
 
 
 	public static void tmx2txts(String tmxfile, String l1, String l2){
 		File tmxFile = new File(tmxfile);
-		File l1File = new File(tmxFile.getParent()+fs+l1+textext);
-		File l2File = new File(tmxFile.getParent()+fs+l2+textext);
+		File l1File = new File(FilenameUtils.concat(tmxFile.getParent(),l1+textext));
+		File l2File = new File(FilenameUtils.concat(tmxFile.getParent(),l2+textext));
 		Reader reader;
 		Writer out1, out2;
 		try {
