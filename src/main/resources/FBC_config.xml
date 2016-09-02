@@ -80,6 +80,8 @@
 			<mime_type value="application/xhtml+xml" />
 			<mime_type value="application/pdf" />
 			<mime_type value="application/x-pdf" /> 
+			<mime_type value="application/msword" />
+			<mime_type value="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
 			<description>Accepted mime types</description>
 		</valid_mime_types>
 		<crawl_delay>

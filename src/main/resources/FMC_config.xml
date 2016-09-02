@@ -56,7 +56,7 @@
 	<fetcher>
 		<fetch_buffer_size>
 			<description>Max number of urls to fetch per run</description>
-			<value>512</value>
+			<value>1024</value>
 		</fetch_buffer_size>
 		<socket_timeout>
 			<value>10000</value>
@@ -78,8 +78,10 @@
 			<mime_type value="text/html" />
 			<mime_type value="text/plain" />
 			<mime_type value="application/xhtml+xml" />
-			<!--<mime_type value="application/pdf" />
-			<mime_type value="application/x-pdf" /> -->
+			<mime_type value="application/pdf" />
+			<mime_type value="application/x-pdf" /> 
+			<mime_type value="application/msword" /> 
+			<mime_type value="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
 			<description>Accepted mime types</description>
 		</valid_mime_types>
 		<crawl_delay>
