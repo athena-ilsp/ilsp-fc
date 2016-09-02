@@ -33,7 +33,6 @@ public class TopicTools {
 	private static final String UNDERSCORE_STR = "_";
 	private static final String QUESTION_SEP=";";
 	private static final String  COLON =" : ";
-	
 
 	/**
 	 * Returns the stems of the text (in language) based on a naive analyzer of this language
