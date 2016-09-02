@@ -256,7 +256,7 @@ public class TMXHandlerUtils {
 			if (i==2)
 				temp =align.getTargetSegmentList();
 			for (String str:temp){
-				List<String> toks = FCStringUtils.getWords(str); 
+				List<String> toks = FCStringUtils.getWords(str); //FIXME for CHINESE
 				totallen =totallen +toks.size();
 				for (String tok:toks){
 					if (!allwords.contains(tok))
