@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -49,8 +50,12 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 	private boolean _keepBoiler = false;
 	private String[] _targeted_langs;
 	private HashMap<String,String> _maplangs;
+	private List<String[]> _tranlistAttrs;
 	private String _storedir_path;
-
+	private static String pdfmime = "application/pdf";
+	private static String docmime = "application/msword";
+	private static String docmime1 = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+	
 	public SimpleNoLinksParser(FetchedDatum datum) {
 		this();
 		_datum = datum;    	
@@ -58,12 +63,13 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 	public SimpleNoLinksParser() {
 		this(new ParserPolicy());
 	}
-	public SimpleNoLinksParser(boolean keepBoiler, String storedir_path, HashMap<String,String> maplangs, String[] targeted_langs) {    	
+	public SimpleNoLinksParser(boolean keepBoiler, String storedir_path, HashMap<String,String> maplangs, List<String[]> tranlistAttrs, String[] targeted_langs) {    	
 		this(new ParserPolicy());
 		_keepBoiler  = keepBoiler;
 		_storedir_path = storedir_path;
 		_targeted_langs = targeted_langs;
 		_maplangs = maplangs;
+		_tranlistAttrs = tranlistAttrs;
 	}
 	public SimpleNoLinksParser(ParserPolicy parserPolicy) {
 		this(new SimpleContentExtractor(),  parserPolicy);
@@ -88,9 +94,6 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 		if (_parser == null) {
 			_parser = getTikaParser();
 		}
-		// if (_parser1 == null) {
-		//     _parser1 = getPDFParser();
-		// }
 		_contentExtractor.reset();        
 	}
 
@@ -98,11 +101,6 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 	public Parser getTikaParser() {
 		return new AutoDetectParser();
 	}
-
-	// public Parser getPDFParser() {
-	//     //return new PDFParser();
-	// 	return _parser1;
-	// }
 
 	public void setExtractLanguage(boolean extractLanguage) {
 		_extractLanguage = extractLanguage;
@@ -119,10 +117,10 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace(String.format("Parsing %s", fetchedDatum.getUrl()));
 		}
+		LOGGER.debug(fetchedDatum.getUrl());
 		// Provide clues to the parser about the format of the content.
 		Metadata metadata = new Metadata();
 		metadata.add(Metadata.RESOURCE_NAME_KEY, fetchedDatum.getUrl());
-		// detects application/pdf mime types 
 		metadata.add(Metadata.CONTENT_TYPE, fetchedDatum.getContentType());
 		String charset = getCharset(fetchedDatum);
 		metadata.add(Metadata.CONTENT_LANGUAGE, getLanguage(fetchedDatum, charset));
@@ -134,14 +132,18 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 			URL baseUrl = getContentLocation(fetchedDatum);
 			metadata.add(Metadata.CONTENT_LOCATION, baseUrl.toExternalForm());
 			Callable<ExtendedParsedDatum> callable;
-				
-			if (metadata.get("Content-Type").contains("application/pdf")){	
+			if (metadata.get("Content-Type").contains(pdfmime)){	
 				_parser=null; 
 				LOGGER.debug("pdf reached");
 				callable = new PdfboxCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler, _storedir_path);
 			}else{
-				//Callable<ExtendedParsedDatum>
-				callable = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _maplangs, _targeted_langs, _keepBoiler);
+				if (metadata.get("Content-Type").contains(docmime) || metadata.get("Content-Type").contains(docmime1)){
+					_parser=null; 
+					LOGGER.debug("msword reached");
+					callable = new MsWordCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler, _storedir_path);
+				}else{
+					callable = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _maplangs, _tranlistAttrs, _targeted_langs, _keepBoiler);
+				}
 			}
 			//Callable<ExtendedParsedDatum> c = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler);
 			FutureTask<ExtendedParsedDatum> task = new FutureTask<ExtendedParsedDatum>(callable);
