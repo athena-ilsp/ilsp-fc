@@ -247,7 +247,6 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
 
     public String normalize(String url) {
         String result = url.trim();
-
         // First see if there is any protocol - if not, append http:// by default.
         if (result.indexOf("://") == -1) {
             // FUTURE - could put some limit on max length of protocol string.
@@ -278,7 +277,7 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
                 result = result.substring(0, matcher.start()) + matcher.group(1) + matcher.group(2) + result.substring(matcher.end());
             }
         }
-        
+
         URL testUrl;
         
         try {
