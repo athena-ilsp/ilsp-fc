@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 public class ISOLangCodes {
 
 	private static final Logger logger = LoggerFactory.getLogger(ISOLangCodes.class);
-	private static final String CHINESE="zh-cn";
+	private static final String CHINESE="zh";
+	private static final String CHINESE0="zh-cn";
+	private static final String CHINESE1="zh-tw";
 	
     private static final Map<String, String> iso2Toiso3;
     static {
@@ -38,8 +40,8 @@ public class ISOLangCodes {
     
 
 	public static String get3LetterCode(String language) {
-		if (language.equals(CHINESE))
-			language="zh";
+		if (language.equals(CHINESE0) || language.equals(CHINESE1))
+			language=CHINESE;
 		if (iso2Toiso3.containsKey(language)) {
 			return iso2Toiso3.get(language);
 		} else {
@@ -48,8 +50,8 @@ public class ISOLangCodes {
 	}
 	
 	public static String get2LetterCode(String language) {
-		if (language.equals(CHINESE))
-			language="zh";
+		if (language.equals(CHINESE0) || language.equals(CHINESE1))
+			language=CHINESE;
 		if (iso3Toiso2.containsKey(language)) {
 			return iso3Toiso2.get(language);
 		} else {
