@@ -1,5 +1,6 @@
 package gr.ilsp.fc.utils;
 
+import java.io.IOException;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,21 +8,24 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 public  class FCStringUtils {
 	private static final String delimiters = "-|;|!| |\\?|,|\\.|\\)|\\(|\\[|\\]";
-    private static final String NOT_A_LETTER_PATTERN = "\\P{L}+";
-
-    public static int getGraphemeLength(String str) {
-	    BreakIterator it = BreakIterator.getCharacterInstance();
-	    it.setText(str);
-	    int count = 0;
-	    while (it.next() != BreakIterator.DONE) {
-	        count++;
-	    }
-	    return count;
-	}
+	private static final String NOT_A_LETTER_PATTERN = "\\P{L}+";
+	private static String CHINESE="zho";
+	private static final Logger LOGGER = Logger.getLogger(FCStringUtils.class);
 	
+	public static int getGraphemeLength(String str) {
+		BreakIterator it = BreakIterator.getCharacterInstance();
+		it.setText(str);
+		int count = 0;
+		while (it.next() != BreakIterator.DONE) {
+			count++;
+		}
+		return count;
+	}
+
 	public static int getWordLength(String string) {
 		if (StringUtils.isBlank(string))
 			return 0;
@@ -35,9 +39,9 @@ public  class FCStringUtils {
 		else 
 			return Arrays.asList(string.split(NOT_A_LETTER_PATTERN));
 	}
-	
-	
-		
+
+
+
 	/**
 	 * count parts of a string based on specific delimiters
 	 * @param str
@@ -52,7 +56,7 @@ public  class FCStringUtils {
 		else
 			return getParts(str, delimiter).size();
 	}
-	
+
 	/**
 	 * gets parts of a string, using specific delimiters
 	 * @param str
@@ -70,7 +74,7 @@ public  class FCStringUtils {
 			parts= Arrays.asList(str.split(delimiter));
 		for (String part:parts){
 			if (!StringUtils.isBlank(part))
-			 res.add(part);
+				res.add(part);
 		}
 		return res;
 	}
@@ -102,7 +106,21 @@ public  class FCStringUtils {
 		StringTokenizer st = new StringTokenizer(text);
 		return st.countTokens();
 	}
-	
+
+	public static int countTokens(String text, String identifiedlanguage){
+		int length_in_tok=0;
+		if (identifiedlanguage.equals(CHINESE)){
+			try {
+				length_in_tok =  TopicTools.getStems(text, identifiedlanguage).size();
+			} catch (IOException e) {
+				LOGGER.warn("Problem in counting tokens in "+CHINESE);
+				e.printStackTrace();
+			}
+		}else
+			length_in_tok = FCStringUtils.countTokens(text);
+		return length_in_tok;
+	}
+
 	/**
 	 * counts tokens (space separated)
 	 * @param text
@@ -116,8 +134,8 @@ public  class FCStringUtils {
 		}
 		return tokens;
 	}
-	
-	
+
+
 	public static Double[] getTokensLength(List<String> tokens) {
 		Double[] lens = new Double[tokens.size()];
 		for (int ii=0;ii<tokens.size();ii++){
