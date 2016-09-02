@@ -13,11 +13,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.apache.pdfbox.exceptions.CryptographyException;
 //import org.apache.pdfbox.exceptions.InvalidPasswordException;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDStream;
 
@@ -40,15 +42,15 @@ public class Pdf2text {
 	//private static double align_thr=0.3;
 	private static double align_thr_fully = 0.6;
 	private static double caps_thr = 0.75;
-	private static boolean sort_sections=false;
+	private static boolean sort_sections=false;// false;
 	//private static int window=15;
 	//private static double w1=2* (double) window;
 	//private static double w2= (double) window / 2;
 	//private static ArrayList<String> lastchars=new ArrayList<String>(Arrays.asList(".", "!", "?", ";")); 
 
 	public static void main( String[] args ) throws IOException	{
-		//String path=args[0];
-		String path="C:/Users/vpapa/test/1";
+		String path=args[0];
+		//String path="C:/Users/vpapa/p_61/xaris/Vouli/1994-1996 ΟΛΟΚΛΗΡΩΜΕΝΑ/0020216291/no_stamp/test_4"; ///Image00004_p.jpg.search.pdf
 		String files;
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles();
@@ -61,8 +63,9 @@ public class Pdf2text {
 					String filename=input.getName();
 					LOGGER.info("---------------------------------------FILE:"+ filename);
 					docprops.clear();
+					Map<String, String> data = run1(input, sort_sections);
 					content="";
-					content = run1(input, sort_sections);
+					content = data.get("content");
 					if (content.isEmpty()){
 						System.out.println(filename);
 					}else{
@@ -76,7 +79,10 @@ public class Pdf2text {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static String run1(File input, boolean sort_sections)  { 
+	//public static String run1(File input, boolean sort_sections)  { 
+
+	public static Map<String, String> run1(File input, boolean sort_sections)  { 
+		Map<String, String> data = new HashMap<String, String>();
 		String content="";
 		PDDocument document = null;
 		docprops.clear();
@@ -90,8 +96,16 @@ public class Pdf2text {
 				} catch (CryptographyException e) {
 					System.err.println("Error: CryptographyException.");
 				}
-				return "";
+				return null;
 			}
+
+			PDDocumentInformation pdDocInfo=new PDDocumentInformation();
+			pdDocInfo=document.getDocumentInformation();
+			data.put("author", ContentNormalizer.normalizeText(pdDocInfo.getAuthor()));
+			data.put("title", ContentNormalizer.normalizeText(pdDocInfo.getTitle()));
+			data.put("publisher", ContentNormalizer.normalizeText(pdDocInfo.getProducer()));
+			data.put("keywords",  pdDocInfo.getKeywords());
+
 			PrintTextLocations printer = new PrintTextLocations();
 			List<PDPage> allPages = document.getDocumentCatalog().getAllPages();
 			float pageheight=0, pagewidth=0;
@@ -105,7 +119,7 @@ public class Pdf2text {
 				}
 				else {/*FIXME since pageheight is unknown, it cannot be used for footer/header detection*/
 					LOGGER.error("PROBLEM in getMediaBox");
-					return "";
+					return null;
 				}
 				chardata.clear();
 				linedata.clear();
@@ -135,6 +149,7 @@ public class Pdf2text {
 				}
 				docprops.put("page"+i, current_linedata);
 				content = content+getAllText(docprops);
+				data.put("content", content);
 			}
 		} catch (IOException e) {
 			if (e.getMessage().contains(" End-of-File, expected line")){
@@ -146,14 +161,14 @@ public class Pdf2text {
 			if (document != null) {
 				try {
 					document.close();
-					return content;
+					return data;
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		}
-		return content;
+		return data;
 	}
 
 	public static String getText(HashMap<String, ArrayList<LineAttr>> docprops2) {
@@ -183,19 +198,22 @@ public class Pdf2text {
 				found=false ;
 				if ((docprops.get(temp_int).get(jj).p).equals(docprops.get(temp_int).get(jj-1).p)){
 					temp=docprops.get(temp_int).get(jj-1).chars.trim();
-					if (temp.endsWith("-")){
+					if (temp.endsWith("-") ){
 						temp=temp.substring(0, temp.lastIndexOf("-"));
+						found = true;
+					}
+					if (temp.endsWith("−")){
+						temp=temp.substring(0, temp.lastIndexOf("−"));
 						found = true;
 					}
 					if (docprops.get(temp_int).get(jj-1).t!=-2 & docprops.get(temp_int).get(jj-1).t!=-3){
 						if (found1)
 							content = content + "<bolier>"+temp; //out.write(temp);
 						else
-							if (content.isEmpty()){
+							if (content.isEmpty())
 								content = content +""+ temp; //out.write(" "+temp);
-							}else{
+							else
 								content = content +" "+ temp; //out.write(" "+temp);
-							}
 						if (found)
 							found1 = true;
 						else
@@ -208,6 +226,10 @@ public class Pdf2text {
 					if (temp.endsWith("-")){
 						temp=temp.substring(0, temp.lastIndexOf("-"));
 						found=true;
+					}
+					if (temp.endsWith("−")){
+						temp=temp.substring(0, temp.lastIndexOf("−"));
+						found = true;
 					}
 					if (docprops.get(temp_int).get(jj-1).t!=-2 & docprops.get(temp_int).get(jj-1).t!=-3){
 						if (found1)
@@ -227,6 +249,10 @@ public class Pdf2text {
 					if (temp.endsWith("-")){
 						temp=temp.substring(0, temp.lastIndexOf("-"));
 						found=true;
+					}
+					if (temp.endsWith("−")){
+						temp=temp.substring(0, temp.lastIndexOf("−"));
+						found = true;
 					}
 					if (found1)
 						content = content + temp+"</text>\n<text>";   //out.write(temp+"\n");
@@ -256,13 +282,16 @@ public class Pdf2text {
 				content = "<text>"+docprops.get(temp_int).get(0).chars+"</text>";
 				continue;
 			}else{
-				if (docprops.get(temp_int).size()==0){
+				if (docprops.get(temp_int).size()==0)
 					continue;
-				}
 				temp = docprops.get(temp_int).get(0).chars.trim();
 				if (temp.endsWith("-")){
 					temp=temp.substring(0, temp.lastIndexOf("-")).trim();
 					found1=true;
+				}
+				if (temp.endsWith("−")){
+					temp=temp.substring(0, temp.lastIndexOf("−")).trim();
+					found1 = true;
 				}
 				//content="<text>"+ temp;
 				content="<text>";
@@ -272,12 +301,10 @@ public class Pdf2text {
 				//System.out.println("2:\t"+docprops.get(temp_int).get(jj).p + "\t" +docprops.get(temp_int).get(jj).chars.trim());
 				//System.out.println(content);
 				if ((docprops.get(temp_int).get(jj).p).equals(docprops.get(temp_int).get(jj-1).p)){
-					if (found1){
+					if (found1)
 						content = content + temp;
-						//found1=false;
-					}else{
+					else
 						content = content + temp + " " ;
-					}
 				}else{
 					content=content+temp+"</text>\n<text>";
 					/*if (found1){
@@ -292,17 +319,19 @@ public class Pdf2text {
 					temp=temp.substring(0, temp.lastIndexOf("-")).trim();
 					found1=true;
 				}else{
-					found1=false;
+					if (temp.endsWith("−")){
+						temp=temp.substring(0, temp.lastIndexOf("−")).trim();
+						found1 = true;
+					}else
+						found1=false;
 				}
 				//System.out.println(temp);
-
 				if (jj==docprops.get(temp_int).size()-1){
-
 					temp= docprops.get(temp_int).get(jj).chars.trim();
-					if (temp.endsWith("-")){
-						temp=temp.substring(0, temp.lastIndexOf("-"));
-						//found=true;
-					}
+					if (temp.endsWith("-"))
+						temp=temp.substring(0, temp.lastIndexOf("-"));						//found=true; 
+					if (temp.endsWith("−"))
+						temp=temp.substring(0, temp.lastIndexOf("−")); 						//found=true;
 					content = content + temp+"</text>\n";   //out.write(temp+"\n");
 					//content = content + " "+temp+"</text>\n<text>";  //out.write(" "+temp+"\n");
 				}
@@ -653,6 +682,7 @@ public class Pdf2text {
 			x_st[ii-sectionAttr.sl] = Math.floor(linedata.get(ii).x);
 			x_en[ii-sectionAttr.sl] = Math.floor(linedata.get(ii).w)-x_st[ii-sectionAttr.sl];
 			//System.out.println(linedata.get(ii).chars.trim());
+			//System.out.println(linedata.get(ii).h);
 			if (linedata.get(ii).chars.trim().length()>0){
 				if (Character.isUpperCase(linedata.get(ii).chars.trim().charAt(0)) 
 						& !linedata.get(ii).chars.trim().toUpperCase().equals(linedata.get(ii).chars.trim()))	{
@@ -668,6 +698,10 @@ public class Pdf2text {
 		double mr = Utils.getMax(x_en);
 		if (cr[1]==-1); cr[0]=max_width;
 		int type=0;
+
+		//System.out.println(cl[1]/x_st.length);
+		//System.out.println(cr[1]/x_en.length);
+
 		if (((cl[1]/x_st.length)>=align_thr_fully)& ((cr[1]/x_en.length)>=align_thr_fully)){
 			//System.out.println("Section is fully justified");
 			type=1;
@@ -687,27 +721,23 @@ public class Pdf2text {
 		}
 		if (type==1){//fully justified
 			for (int ii=sectionAttr.sl;ii<sectionAttr.el+1;ii++){
-				if (x_st[ii-sectionAttr.sl]>cl[0]+std_x_st & !pars.contains(ii-sectionAttr.sl)){
+				if (x_st[ii-sectionAttr.sl]>cl[0]+std_x_st & !pars.contains(ii-sectionAttr.sl))
 					pars.add(ii-sectionAttr.sl);
-				}
-				if ( x_en[ii-sectionAttr.sl]<cr[0]-2*sectionAttr.fs & !pars.contains(ii-sectionAttr.sl+1)){
+				if ( x_en[ii-sectionAttr.sl]<cr[0]-2*sectionAttr.fs & !pars.contains(ii-sectionAttr.sl+1))
 					pars.add(ii-sectionAttr.sl+1);
-				}
 			}
 		}
 		if (type==2){//left justified
 			for (int ii=sectionAttr.sl;ii<sectionAttr.el+1;ii++){
 				//if (x_st[ii-sectionAttr.sl]>cl[0]+std_x_st ){
-				if (x_st[ii-sectionAttr.sl]>cl[0]+ sectionAttr.fs){	//intend is more than the "font size"					
+				if (x_st[ii-sectionAttr.sl]>cl[0]+ sectionAttr.fs)	//intend is more than the "font size"					
 					pars.add(ii-sectionAttr.sl);
-				}
 			}
 			for (int ii=1;ii<x_en.length;ii++){
 				String templine=linedata.get(sectionAttr.sl+ii).chars.trim();
 				String templine1=linedata.get(sectionAttr.sl+ii-1).chars.trim();
-				if (templine.length()==0 | templine1.length()==0){
+				if (templine.length()==0 | templine1.length()==0)
 					break;
-				}
 				String ch = templine.substring(0, 1);
 				String ch1 = templine1.substring(templine1.length()-1, templine1.length());
 
@@ -725,9 +755,8 @@ public class Pdf2text {
 		}
 		if (type==3){//right justified
 			for (int ii=sectionAttr.sl;ii<sectionAttr.el+1;ii++){
-				if (x_en[ii-sectionAttr.sl]<cr[0]-std_x_en){
+				if (x_en[ii-sectionAttr.sl]<cr[0]-std_x_en)
 					pars.add(ii-sectionAttr.sl+1);
-				}
 			}
 			for (int ii=1;ii<x_en.length;ii++){
 				//String templine=linedata.get(sectionAttr.sl+ii).chars.trim();
@@ -743,13 +772,26 @@ public class Pdf2text {
 					pars.add(ii);	
 			}
 		}
+		if (type==4){
+			ArrayList<Double> distances = new ArrayList<Double>();
+			float real_height_1=0;
+			for (int ii=0;ii<x_en.length-1;ii++){
+				//System.out.println(linedata.get(sectionAttr.sl+ii).chars);
+				if (usefonts)
+					real_height_1 = linedata.get(sectionAttr.sl+ii).fs;
+				else
+					real_height_1 = linedata.get(sectionAttr.sl+ii).fs; 
+				distances.add((double) Math.round((Math.abs(linedata.get(sectionAttr.sl+ii).y +
+						real_height_1 -linedata.get(sectionAttr.sl+ii+1).y)*10))/10);
+			}
+		}
 		for (int ii=0;ii<x_en.length;ii++){
 			String templine=linedata.get(sectionAttr.sl+ii).chars.trim();
 			if (templine.length()==0){
 				break;
 			}
 			String ch=templine.substring(0, 1);
-			if (( ch.matches("●") | ch.matches("•"))
+			if (( ch.matches("●") | ch.matches("•") | ch.matches("−"))
 					& !pars.contains(ii))
 				pars.add(ii);
 		}
@@ -913,9 +955,8 @@ public class Pdf2text {
 		}
 		int count=0;
 		int[] indeces=new int[sectionAttr.num];
-
+		double com_dist;
 		if (distances.size()>1){
-			double com_dist;
 			if (distances.size()>3){
 				double[] dist=new double[distances.size()];
 				for (int ii=0;ii<dist.length;ii++){
@@ -928,7 +969,8 @@ public class Pdf2text {
 
 			for (int ii=0;ii<distances.size();ii++){
 				if (com_dist>0){
-					if (distances.get(ii)>=2.715*com_dist){
+					//if (distances.get(ii)>=2.715*com_dist){
+					if (distances.get(ii)>=1.84*com_dist){	
 						count++;
 						indeces[ii]=1;
 					}
@@ -942,7 +984,7 @@ public class Pdf2text {
 				}
 			}
 		}
-		//if (distances.size()==1){
+		//if (distances.size()>3 && count==0){ //no segmentation into sections
 		//}
 
 		int pars=0;
