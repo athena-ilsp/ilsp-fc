@@ -1,13 +1,13 @@
 package gr.ilsp.fc.main;
 
 import gr.ilsp.fc.utils.FCStringUtils;
-import gr.ilsp.fc.utils.TopicTools;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +34,7 @@ public class ReadResources {
 	private static final String ooi_crawlinfo = "crawlinfo";
 	private static final String UNDERSCORE = "_";
 	private static final String XML_EXTENSION = ".xml";
-	private static final String CHINESE="zho";
-	
+		
 	public static String extractNodefromXML(String inputString, String ele_name) {
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -223,16 +222,7 @@ public class ReadResources {
 		for (int ii=0;ii<files.length;ii++){
 			text = ReadResources.extractTextfromXML_clean(files[ii].getAbsolutePath(),P_ELE,ooi_crawlinfo, false);
 			lang = ReadResources.extractAttrfromXML(files[ii].getAbsolutePath(), L_ELE, L_ATTR,true,false);
-			if (lang.equals(CHINESE)){
-				try {
-					length_in_tok =  TopicTools.getStems(text, lang).size();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}else{
-				length_in_tok = FCStringUtils.countTokens(text);
-			}
+			length_in_tok = FCStringUtils.countTokens(text,lang);
 			total_tokens=total_tokens+length_in_tok;
 		}
 		return total_tokens;
@@ -359,5 +349,21 @@ public class ReadResources {
 		return domain;
 	}
 	
-	
+	public static String checkBOM(String line){
+		//checks BOM
+		byte[] bts;
+		try {
+			bts = line.getBytes("UTF-8");
+			if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
+				byte[] bts2 = new byte[bts.length-3];
+				for (int i = 3; i<bts.length;i++)
+					bts2[i-3]=bts[i];
+				line = new String(bts2);
+			}
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return line;
+	}
 }
