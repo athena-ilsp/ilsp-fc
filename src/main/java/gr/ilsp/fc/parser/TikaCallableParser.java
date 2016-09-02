@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 //import java.util.regex.Matcher;
@@ -66,13 +67,15 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	private boolean _keepBoiler = false;
 	private String[] _targeted_langs;
 	private HashMap<String,String> _maplangs;
+	private List<String[]> _tranlistAttrs;
 
-	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata, HashMap<String,String> maplangs, String[] targeted_langs) {
-		this(parser, contentExtractor, input, metadata, true, maplangs, targeted_langs, false);
+	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata, HashMap<String,String> maplangs, 
+			List<String[]> tranlistAttrs, String[] targeted_langs) {
+		this(parser, contentExtractor, input, metadata, true, maplangs, tranlistAttrs, targeted_langs, false);
 	}
 
 	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, 
-			InputStream input, Metadata metadata, boolean extractLanguage, HashMap<String,String> maplangs, String[] targeted_langs, boolean keepBoiler) {
+			InputStream input, Metadata metadata, boolean extractLanguage, HashMap<String,String> maplangs, List<String[]> tranlistAttrs, String[] targeted_langs, boolean keepBoiler) {
 		_parser = parser;
 		_contentExtractor = contentExtractor;
 		_input = input;
@@ -81,6 +84,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 		_targeted_langs = targeted_langs;
 		_keepBoiler = keepBoiler;
 		_maplangs = maplangs;
+		_tranlistAttrs = tranlistAttrs;
 	}
 
 	@Override
@@ -99,7 +103,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			//Temp solution until bug is resolved: keep the HTTP response META (if exists) and overwrite
 			String respoCharset = _metadata.get(Metadata.CONTENT_ENCODING);
 			_parser.parse(_input, teeContentHandler, _metadata, makeParseContext());
-
+		
 			//FIXME set another property to HTMLSource or in the fetchedDatum. Check if we keep HTML source twice
 			_input.reset();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(_input,_metadata.get(Metadata.CONTENT_ENCODING)));
@@ -112,9 +116,9 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			    builder.append(aux);
 			}
 			_metadata.set(Metadata.COMMENTS, builder.toString());
-			//System.out.println(_metadata.get("Comments"));
 
-			//respoCharset = _metadata.get(Metadata.CONTENT_ENCODING);
+			//FIXME Why we check this? 
+			//if (_metadata.get(Metadata.CONTENT_ENCODING)!=null && respoCharset!=_metadata.get(Metadata.CONTENT_ENCODING))
 			if (respoCharset!=null && respoCharset!=_metadata.get(Metadata.CONTENT_ENCODING))
 				_metadata.set(Metadata.CONTENT_ENCODING, respoCharset);
 
@@ -137,7 +141,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			String content = CleanerUtils.getContent(_input, _metadata, _keepBoiler);  
 			String lang = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
 
-			ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata,_maplangs);
+			ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata,_maplangs, _tranlistAttrs);
 			if (outlinks.length==1 && outlinks[0].getAnchor().equals(LINK_CANONICAL)) {
 				return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, "", lang,
 						_metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
