@@ -74,6 +74,17 @@ public class ExtendedLinksExtractorTest {
 				"Test that links contain links with hreflang attributes");
 	}
 
+	// @Test Uncomment to test. Comment to speed up building
+	public void testGetLinks() {
+		testGetLinks(  
+				"http://www.svb.nl/int/nl/index.jsp",
+				"http://www.svb.nl/gaia/mijnsvb/pages/entree.jsf",
+				"Test that link can be extracted from URL");
+		testGetLinks(  
+				"http://www.svb.nl/int/nl/kinderbijslag/veranderingen_in_gezin/uw_kind_gaat_uit_huis/index.jsp",
+				"http://www.svb.nl/int/nl/kinderbijslag/veranderingen_in_gezin/bijdrage_aan_het_onderhoud/index.jsp",
+				"Test that link can be extracted from URL");
+	}
 
 }
 
