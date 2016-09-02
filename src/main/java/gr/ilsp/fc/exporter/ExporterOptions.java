@@ -36,7 +36,7 @@ public class ExporterOptions {
 	
 	private boolean _textexport=false;
 	private boolean _offline=false;
-	private boolean _applyOfflineXSLT=false;
+	private boolean _offlineXSLT=false;
 	private boolean _httrack=false;
 	private String _paths_repl="";
 	private String _targetDomain="";
@@ -111,8 +111,8 @@ public class ExporterOptions {
 		options.addOption( OptionBuilder.withLongOpt( "webpages_by_httrack" )
 				.withDescription( "Httrack website copier has been used to download html pages" )
 				.create("httrack") );
-		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
-				.withDescription( "Apply an xsl transformation to generate list of links pointing to HTML (rendered XML) files.")
+		options.addOption( OptionBuilder.withLongOpt( "offline_xslt" )
+				.withDescription( "Apply an xsl transformation to generate html files during exporting.")
 				.create("oxslt") );
 		options.addOption( OptionBuilder.withLongOpt( "paths_replacements" )
 				.withDescription( "Put the strings to be replaced, separated by ';'." +
@@ -140,19 +140,19 @@ public class ExporterOptions {
 				_offline=true;
 			if(line.hasOption( "httrack")) 
 				_httrack=true;
+			if(line.hasOption( "oxslt")) 
+				_offlineXSLT  = true;
 			if(line.hasOption( "lang")) 
 				_targetlanguages = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true).split(QUEST_SEPAR);
-				//	_targetlanguages = line.getOptionValue("lang").split(SEPARATOR);
 			if(line.hasOption( "t")) {
 				_topic = new File(line.getOptionValue("t"));
 				_topic = new File(_topic.getAbsolutePath());
-				//_topicterms = TopicTools.analyzeTopic(_topic, _targetlanguages);
 			}
 			if(line.hasOption( "dom")) {
 				if (_topic==null){
 					LOGGER.warn("The targeted domain is defined but a topic definition is not applied. " +
 							"So, the domain will be used as provided, i.e. it will not be identified.");
-					help();
+					//help();
 				}else
 					_targetDomain = line.getOptionValue("dom");
 			}else{
@@ -243,7 +243,7 @@ public class ExporterOptions {
 		return _offline;
 	}
 	public boolean applyOfflineXSLT(){
-		return _applyOfflineXSLT;
+		return _offlineXSLT;
 	}
 	public boolean usedHttrack(){
 		return _httrack;
