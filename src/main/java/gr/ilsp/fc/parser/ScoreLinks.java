@@ -111,6 +111,7 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 				resultDatum.setScore(score + linkScore);    
 				collector.add(resultDatum.getTuple());
 				_flowProcess.increment(ScoreLinksCounters.SCORING_LINKS_NUMBER, 1);
+				LOGGER.debug(url+"\t:\t"+linktext+"\t"+linktext1+"\t"+(score+linkScore));
 			}
 		} else{
 			LOGGER.debug("SCORING_LINKS_TUNNEL_REJECTED:"+ScoreLinksCounters.SCORING_LINKS_TUNNEL_REJECTED.toString());
@@ -119,8 +120,4 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 		_flowProcess.increment(ScoreLinksCounters.SCORING_LINKS_TIME, (int)(System.currentTimeMillis()-time));
 		LOGGER.debug("EXTRACTION FINISHED");
 	}
-
-
-
-
 }
