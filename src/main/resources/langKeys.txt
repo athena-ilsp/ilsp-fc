@@ -1,14 +1,14 @@
-eng>eng,EN,en,English,ENGLISH,(en),English [en],[en],english,United Kingdom,English Edition,english (en),Eng,Switch to English,In English,in English,english version,engs
+eng>eng,EN,en,English,ENGLISH,(en),English [en],[en],english,United Kingdom,English Edition,english (en),Eng,Switch to English,In English,in English,english version,engs,switch to english version
 fra>fra,FR,fr,French,français,(fr),Français [fr],[fr],Français,français,langue française,fras 
 ell>ell,EL,el,Greek,ελληνικά,(el),[el],Ελληνική,Ελληνικά,Επιλογή γλώσσας,Greece, Greek Edition, ελληνικά (el),Greek (modern),gre
 grc>ell,EL,el,Greek,ελληνικά,(el),[el],Ελληνική,Ελληνικά,Επιλογή γλώσσας,Greece, Greek Edition, ελληνικά (el)
-deu>deu,DE,de,German,Deutsch,DEUTSH,(de),Deutsch [de],[de],Germany,Deutsch (de),Wechsel zu Deutsch,ger,deus 
+deu>deu,DE,de,German,Deutsch,deutsch,DEUTSH,(de),Deutsch [de],[de],Germany,Deutsch (de),Wechsel zu Deutsch,ger,deus 
 ita>ita,IT,it,Italian,italiano,(it),[it],Italy,itas
 spa>spa,ES,es,Spanish,español,(es),Español [es],[es],Español,Spain,España (ES)
 por>por,PT,pt,Portuguese,Português,português,português [pt],português (pt)
 hrv>hrv,hr,HR,hrvatski,Cro,Croatian,hrvatski jezik
 jpn>jpn,JA,ja,JP,jp,Japanese,ja,日本語 (にほんご),Japonic
-zho>zho,zh,zhs,chi,zh-cn,zh-tw,ZH,zh,zho,chi,Chinese,中文 (Zhōngwén), 汉语, 漢語, Sino-Tibetan,zhs,zhhans
+zho>zho,zh,zhs,chi,zh-cn,zh-tw,ZH,chi,Chinese,中文 (Zhōngwén), 汉语, 漢語, Sino-Tibetan,zhhans,switch to chinese version,中文
 gle>gle,GA,ga,Irish,Gaelic,Gaeilge
 fin>fin,Fi,fi,finnish,Finnish,suomi,Suomi,suomi (fi),suomi [fi],suomeksi,Suomeksi,suomen kieli
 hun>hun,HU,hu,hungarian,Hungarian,MAGYAR,(hu),Magyar,magyar
@@ -20,7 +20,7 @@ ron>ron,rum,ro,Romanian,romanian,limba română
 nor>nor,no,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
 nld>nld,nl,Dutch,dutch,Nederlands,Vlaams,dut
 glg>glg,gl,Galician,galician,galego
-ces>ces,cz,Czech,czech,čeština,český jazyk
+ces>ces,cz,Czech,czech,čeština,český jazyk,Česky
 dan>dan,da,Danish,danish,dansk
 bul>bul,bg,Bulgarian,bulgarian,Български,български език
 rus>rus,ru,Russian,russian,Русский,По-русски
