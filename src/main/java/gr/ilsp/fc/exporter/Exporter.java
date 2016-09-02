@@ -27,6 +27,7 @@ import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.datums.ClassifierDatum;
 import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
+import gr.ilsp.fc.extractors.MSO2text;
 import gr.ilsp.fc.extractors.Pdf2text;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.main.Crawl;
@@ -42,11 +43,6 @@ import gr.ilsp.fc.utils.TempUtils;
 import gr.ilsp.fc.utils.TopicTools;
 //import gr.ilsp.fc.genreclassifier.GenreClassifier;
 
-
-
-
-
-
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -61,8 +57,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -94,9 +93,6 @@ import cascading.tap.Tap;
 import cascading.tuple.TupleEntry;
 import cascading.tuple.TupleEntryIterator;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentInformation;
-
 @SuppressWarnings("deprecation")
 public class Exporter {
 	private static final Logger LOGGER = Logger.getLogger(Exporter.class);
@@ -109,8 +105,8 @@ public class Exporter {
 	//private static final String XMLlist = ".xmllist.txt";
 
 	private static final String xml_type="xml";
-	private static final String html_type="html";
 	private static final String pdf_type="pdf";
+	private static final String doc_type="doc";
 	private static final String tag_type="type";
 	private static final String tag_crawlinfo="crawlinfo";
 	private static final String attr_boilerplateV = "boilerplate";
@@ -121,6 +117,7 @@ public class Exporter {
 	private static final String appXMLext = ".xml";
 	private static final String appHTMLext=".html";
 	private static final String appPDFext=".pdf";
+	private static final String appDOCext =".doc";
 	private static final String separator = ";";
 	private static final String HYPHEN="-";
 	private static final String p_type = "p";
@@ -133,7 +130,9 @@ public class Exporter {
 	private static final String boiler_st = "<boiler";
 	private static final String XMLlist = ".xmllist.txt";
 	private static final String XMLHTMLlist = ".xmllist.html";
-	
+	private static final String pdfmime = "pdf";
+	private static final String docmime = "word";
+
 	private static String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
 
 	private static int MIN_TOKENS_PER_PARAGRAPH;
@@ -175,7 +174,7 @@ public class Exporter {
 	//private static String contentEncoding = "";
 	private static String author ="";
 	private static String licenseURL="";
-	private static String pdfname="";
+	private static String extfilename="";
 	private static String publisher="";
 	private static String url = "";
 	private static double relscore;
@@ -258,44 +257,22 @@ public class Exporter {
 		if (topicFile!=null)
 			topic=TopicTools.analyzeTopic(topicFile,targetlanguages); 
 		String[] ext = {xml_type}; 
-	
-		if (!new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).exists())
-			LOGGER.info("No pdf files fetched");
+
+		if (offline)// OFFLINE PROCESS SHOULD BE FIXED
+			offlineExport(neg_words, ext, topic);
 		else{
-			File[] pdffiles = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).listFiles();
-			LOGGER.info(pdffiles.length + " pdf files fetched");
-		}
-		
-		if (offline){
-			String[] temp = {html_type};
-			if (!crawlDirName.exists()){
-				LOGGER.error("The directory " +crawlDirName.getAbsolutePath() + " does not exist.");
-				System.exit(0);
+			if (!new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).exists())
+				LOGGER.info("No pdf files fetched");
+			else{
+				File[] files = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).listFiles();
+				LOGGER.info(files.length + " pdf files fetched");
 			}
-			boolean keepBoiler=true;
-			//invole pdf files in offline exporting
-			List<File> htmlfiles = (List<File>) FileUtils.listFiles(crawlDirName, temp, true);
-			for (File file:htmlfiles){
-				try {
-					byte[] array = FileUtils.readFileToByteArray(file);
-					InputStream input = new ByteArrayInputStream(array);
-					String content = CleanerUtils.getContent(input, keepBoiler);
-					String identifiedlanguage = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
-					if (!LangDetectUtils.istargetedlang(identifiedlanguage,targetlanguages))
-						continue;
-					if (httrack){//FIXME
-						input.reset();
-						url = TempUtils.handleCopiedSite(input);
-					}
-					XMLExporter(file,"text/html", title, url, targetlanguages, identifiedlanguage, content, "", author,
-							publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, pdfname);
-				} catch (IOException e1) {
-					LOGGER.error("problem in getting byte[] for file "+ file.getAbsolutePath());
-					e1.printStackTrace();
-				}
+			if (!new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),doc_type)).exists())
+				LOGGER.info("No doc files fetched");
+			else{
+				File[] files = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),doc_type)).listFiles();
+				LOGGER.info(files.length + " doc files fetched");
 			}
-			xmlFiles =(List<File>) FileUtils.listFiles(crawlDirName, ext, true);
-		}else{
 			try {
 				JobConf conf = new JobConf();
 				Path crawlDirPath = new Path(crawlDirName.getAbsolutePath());
@@ -315,9 +292,8 @@ public class Exporter {
 					id = exportToXml(conf,curDirPath, id,topic,targeteddomain, urlsToIds, neg_words);
 					LOGGER.debug("Current loop path in xml export is " + curDirPath );
 					int curLoop = CrawlDirUtils.extractLoopNumber(curDirPath);
-					if (curLoop != prevLoop + 1) {
+					if (curLoop != prevLoop + 1) 
 						LOGGER.warn(String.format("Missing directories between %d and %d", prevLoop, curLoop));
-					}
 					prevLoop = curLoop;
 				}
 				//xmlFiles = FcFileUtils.getFilesList(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type)), "", appXMLext);
@@ -345,8 +321,95 @@ public class Exporter {
 		}
 	}
 
-	private static int exportToXml(JobConf conf, Path curDirPath,  int id, ArrayList<String[]> topic, String targeteddomain, Map<String, String> urlsToIds, List<String> neg_words) throws IOException {
+	private void offlineExport(List<String> neg_words, String[] ext, ArrayList<String[]> topic) {
+		String[] mimes = config.getStringArray("fetcher.valid_mime_types.mime_type[@value]");			
+		Set<String> validMimeTypes = new HashSet<String>();
+		for (String s: mimes) validMimeTypes.add(s);
+		
+		if (!outputDir.exists())
+			outputDir.mkdirs();
+		
+		int id=0;
+		if (!crawlDirName.exists()){
+			LOGGER.error("The directory " +crawlDirName.getAbsolutePath() + " does not exist.");
+			System.exit(0);
+		}
+		boolean keepBoiler=true;
+		List<File> files = (List<File>) FileUtils.listFiles(crawlDirName, null, false);
+		for (File file:files){
+			String maincontent="";
+			format =  getValidFormat(FcFileUtils.MimeDetect(file.getAbsolutePath()));
+			if (!validMimeTypes.contains(format))
+				continue;
+			if (format.contains(pdfmime) || format.contains(docmime)){
+				Map<String, String> data = new HashMap<String, String>();
+				if (format.contains(pdfmime))
+					data = Pdf2text.run1(file, _sort_type);
+				if (format.contains(docmime))
+					data = MSO2text.run1(file);
+				cleanText = data.get("content");
+				if (StringUtils.isBlank(cleanText)){
+					LOGGER.info("No text extracted from " + file.getAbsolutePath());
+					continue;
+				}
+				cleanText = ContentNormalizer.normalizeText(cleanText);
+				maincontent = cleanText;
+				maincontent = maincontent.replaceAll(text_tag, "");
+				maincontent = maincontent.replaceAll(text_tag_en, "");
+				identifiedlanguage =  LangDetectUtils.detectLanguage(maincontent.toLowerCase());
+				if (!LangDetectUtils.istargetedlang(identifiedlanguage, targetlanguages)){
+					LOGGER.info(file.getAbsolutePath()+ " not in targeted languages.");
+					continue;
+				}
+				int length_in_tok=FCStringUtils.countTokens(maincontent, identifiedlanguage);
+				if (length_in_tok<MIN_TOKENS_NUMBER){
+					LOGGER.info("very short text extracted from " + file.getAbsolutePath());
+					continue;		
+				}
+				LOGGER.info(file.getAbsolutePath()+ " processed.");
+				//LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN+ id + "\t" + url);
+				author = data.get("author");
+				title = data.get("title");
+				publisher = data.get("publisher");
+				String termsArray = data.get("keywords");
+				terms = new ArrayList<String>();
+				if (termsArray!=null){
+					for (String s: termsArray.split(",|;|:"))
+						terms.add(s.trim());
+				}
+				if (topic!=null){//check domainess //FIXME terms.toString()
+					if (Classifier.classifyText(title, terms.toString(), "", maincontent, identifiedlanguage, url, length_in_tok)==null)
+						continue;
+				}
+				htmlText =""; 
+				url = file.getName();
+			}else{
+				try {
+					byte[] array = FileUtils.readFileToByteArray(file);
+					InputStream input = new ByteArrayInputStream(array);
+					cleanText = CleanerUtils.getContent(input, keepBoiler);
+					String identifiedlanguage = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(cleanText));
+					if (!LangDetectUtils.istargetedlang(identifiedlanguage,targetlanguages))
+						continue;
+					if (httrack){//FIXME
+						input.reset();
+						url = TempUtils.handleCopiedSite(input);
+					}
+				} catch (IOException e1) {
+					LOGGER.error("problem in getting byte[] for file "+ file.getAbsolutePath());
+					e1.printStackTrace();
+				}
+			}
+			XMLExporter(new File(FilenameUtils.concat(outputDir.getAbsolutePath(),identifiedlanguage+"-"+id)), format, title, url, targetlanguages,
+					identifiedlanguage, cleanText, "", author, publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,
+					relscore, extfilename);
+			id++;
+		}
+		//xmlFiles =(List<File>) FileUtils.listFiles(crawlDirName, ext, false);
+		xmlFiles =(List<File>) FileUtils.listFiles(outputDir, ext, false);
+	}
 
+	private static int exportToXml(JobConf conf, Path curDirPath,  int id, ArrayList<String[]> topic, String targeteddomain, Map<String, String> urlsToIds, List<String> neg_words) throws IOException {
 		TupleEntryIterator iter;
 		initValues();
 
@@ -359,16 +422,15 @@ public class Exporter {
 		TupleEntryIterator classIter = classifierDbTap.openForRead(conf);
 		TupleEntryIterator classIter1 = classifierDbTap.openForRead(conf);
 
-		//FIXME PUT IT OUT OF THE LOOP
-		Path xmlPath = null;
+		Path xmlPath = null; //FIXME PUT IT OUT OF THE LOOP
 		if (outputDir==null)
 			xmlPath = new Path(curDirPath.getParent(), CrawlConfig.XML_SUBDIR_NAME);
 		else 
 			xmlPath = new Path(outputDir.getAbsolutePath());
 
 		FileSystem fs = xmlPath.getFileSystem(conf);
-		if (!fs.exists(xmlPath)) fs.mkdirs(xmlPath);
-
+		if (!fs.exists(xmlPath))
+			fs.mkdirs(xmlPath);
 		TupleEntryIterator contentIter = contentDbTap.openForRead(conf);
 		iter = parseDbTap.openForRead(conf);
 
@@ -377,27 +439,22 @@ public class Exporter {
 			ExtendedParsedDatum datum = new ExtendedParsedDatum(entry);
 			meta = datum.getParsedMeta();
 			url = datum.getUrl();
-			licenseURL = meta.get(Metadata.LICENSE_URL);
-			if (licenseURL==null){licenseURL="";}
-			format = meta.get("Content-Type");	
-			format = getValidFormat(format);
-			if (format.contains(pdf_type)){
-				if (!getPDFInfo( id, topic)){
+			licenseURL = meta.get(Metadata.LICENSE_URL);			if (licenseURL==null){licenseURL="";}
+			format = meta.get("Content-Type");				format = getValidFormat(format);
+			if (format.contains(pdfmime) || format.contains(docmime)){
+				if (!getEXTFileInfo( id, topic, format))
 					continue;
-				}
 				htmlText =""; 
-			}else{
+			}else
 				getHTMLInfo(datum, meta, id, curDirPath, classIter, classIter1, contentIter);
-			}
-			if (StringUtils.isBlank(identifiedlanguage)){
-				//FIXME this should not happen
+
+			if (StringUtils.isBlank(identifiedlanguage))	//FIXME this should not happen
 				continue;
-			}
+
 			if (XMLExporter(xmlPath,format, title, url, targetlanguages, identifiedlanguage, htmlText, cleanText,id, "", author,
-					publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, pdfname)){
-				if (urlsToIds!=null){
+					publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, extfilename)){
+				if (urlsToIds!=null)
 					urlsToIds.put(datum.getUrl(), identifiedlanguage+HYPHEN+id);
-				}
 			}
 			id++;
 			if (textExport) TextExporter(xmlPath,cleanText,id-1, identifiedlanguage);
@@ -409,16 +466,101 @@ public class Exporter {
 	}
 
 
-	private static boolean getPDFInfo(int id, ArrayList<String[]> topic ) {
+	private static boolean getEXTFileInfo(int id, ArrayList<String[]> topic2, String format) {
 		boolean done=true;
-		pdfname = meta.get("comment");
-		//pdfname = pdfname.replaceAll("/var/www/html/elrc8/ministries/eng-slk", "C:/Users/vpapa/ELRC/public_admin/ENG-SLK");
-		if (!new File(pdfname).exists())
+		extfilename = meta.get("comment");
+		if (!new File(extfilename).exists())
 			return false;
-		LOGGER.info(pdfname);
-		cleanText = Pdf2text.run1(new File(pdfname), _sort_type);
+		LOGGER.info(extfilename);
+
+		Map<String, String> data = new HashMap<String, String>();
+		if (format.contains(docmime))
+			data = MSO2text.run1(new File(extfilename));
+		if (format.contains(pdfmime))
+			data = Pdf2text.run1(new File(extfilename), _sort_type);
+
+		cleanText = data.get("content");
 		if (StringUtils.isBlank(cleanText)){
-			LOGGER.info("PDF to Text Conversion failed." + pdfname);
+			LOGGER.info("Text Conversion failed." + extfilename);
+			return false;
+		}
+		cleanText = ContentNormalizer.normalizeText(cleanText);
+		String maincontent = cleanText;
+		maincontent = maincontent.replaceAll(text_tag, "");
+		maincontent = maincontent.replaceAll(text_tag_en, "");
+		identifiedlanguage =  LangDetectUtils.detectLanguage(maincontent.toLowerCase());
+		if (!LangDetectUtils.istargetedlang(identifiedlanguage, targetlanguages))
+			return false;
+		int length_in_tok=FCStringUtils.countTokens(maincontent, identifiedlanguage);
+		if (length_in_tok<MIN_TOKENS_NUMBER)
+			return false;
+		LOGGER.info(extfilename+ " processed.");
+		LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN+ id + "\t" + url);
+
+		author = data.get("author");
+		title = data.get("title");
+		publisher = data.get("publisher");
+		String termsArray = data.get("keywords");
+		terms = new ArrayList<String>();
+		if (termsArray!=null){
+			for (String s: termsArray.split(",|;|:"))
+				terms.add(s.trim());
+		}
+		if (topic!=null)//check domainess //FIXME terms.toString()
+			Classifier.classifyText(title, terms.toString(), "", maincontent, identifiedlanguage, url, length_in_tok); 
+
+		return done;
+	}
+
+	/*private static boolean getDOCInfo(int id, ArrayList<String[]> topic2) {
+		boolean done=true;
+		extfilename = meta.get("comment");
+		if (!new File(extfilename).exists())
+			return false;
+		LOGGER.info(extfilename);
+		Map<String, String> data = MSO2text.run1(new File(extfilename));
+		cleanText = data.get("content");
+		if (StringUtils.isBlank(cleanText)){
+			LOGGER.info("DOC to Text Conversion failed." + extfilename);
+			return false;
+		}
+		cleanText = ContentNormalizer.normalizeText(cleanText);
+		String maincontent = cleanText;
+		maincontent = maincontent.replaceAll(text_tag, "");
+		maincontent = maincontent.replaceAll(text_tag_en, "");
+		int length_in_tok=FCStringUtils.countTokens(maincontent);
+		if (length_in_tok<MIN_TOKENS_NUMBER)
+			return false;		
+		identifiedlanguage =  LangDetectUtils.detectLanguage(maincontent.toLowerCase());
+		if (!LangDetectUtils.istargetedlang(identifiedlanguage, targetlanguages))
+			return false;
+		LOGGER.info(extfilename+ " processed.");
+		LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN+ id + "\t" + url);
+		author = data.get("author");
+		title = data.get("title");
+		publisher = data.get("publisher");
+		String termsArray = data.get("keywords");
+		terms = new ArrayList<String>();
+		if (termsArray!=null){
+			for (String s: termsArray.split(",|;|:"))
+				terms.add(s.trim());
+		}
+		if (topic!=null)//check domainess //FIXME terms.toString()
+			Classifier.classifyText(title, terms.toString(), "", maincontent, identifiedlanguage, url, length_in_tok); 
+
+		return done;
+	}*/
+
+	/*	private static boolean getPDFInfo(int id, ArrayList<String[]> topic ) {
+		boolean done=true;
+		extfilename = meta.get("comment"); //pdfname = pdfname.replaceAll("/var/www/html/elrc8/ministries/eng-slk", "C:/Users/vpapa/ELRC/public_admin/ENG-SLK");
+		if (!new File(extfilename).exists())
+			return false;
+		LOGGER.info(extfilename);
+		Map<String, String> data = Pdf2text.run1(new File(extfilename), _sort_type);
+		cleanText = data.get("content");		//cleanText = Pdf2text.run1(new File(extfilename), _sort_type);
+		if (StringUtils.isBlank(cleanText)){
+			LOGGER.info("PDF to Text Conversion failed." + extfilename);
 			return false;
 		}
 		cleanText = ContentNormalizer.normalizeText(cleanText);
@@ -433,11 +575,23 @@ public class Exporter {
 		if (!LangDetectUtils.istargetedlang(identifiedlanguage, targetlanguages)){
 			return false;
 		}
-		LOGGER.info(pdfname+ " processed.");
+		LOGGER.info(extfilename+ " processed.");
 		LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN+ id + "\t" + url);
+		author = data.get("author");
+		title = data.get("title");
+		publisher = data.get("publisher");
+		String termsArray = data.get("keywords");
+		terms = new ArrayList<String>();
+		if (termsArray!=null){
+			for (String s: termsArray.split(",|;|:"))
+				terms.add(s.trim());
+		}
+		if (topic!=null)//check domainess 
+			Classifier.classifyText(title, terms.toString(), "", maincontent, identifiedlanguage, url, length_in_tok); 
+
 		PDDocument pdDoc=null;
 		try {
-			pdDoc = PDDocument.load(pdfname);
+			pdDoc = PDDocument.load(extfilename);
 			PDDocumentInformation pdDocInfo=new PDDocumentInformation();
 			pdDocInfo=pdDoc.getDocumentInformation();
 			author= ContentNormalizer.normalizeText(pdDocInfo.getAuthor());
@@ -450,7 +604,6 @@ public class Exporter {
 					terms.add(s.trim());
 			}
 			if (topic!=null){//check domainess
-				//FIXME terms.toString()
 				Classifier.classifyText(title, terms.toString(), "", maincontent, identifiedlanguage, url, length_in_tok);
 			}
 			if (pdDoc != null)
@@ -460,14 +613,14 @@ public class Exporter {
 			e.printStackTrace();
 		}
 		return done;
-	}
+	}*/
 
 	/**
 	 * Initialization of parameters holding content and metadata 
 	 */
 	private static void initValues() {
 		identifiedlanguage="";		title = "";		cleanText = "";	 htmlText = ""; genre=""; format = "";  // pubdate="";
-		subdomains = "";author =""; licenseURL=""; pdfname=""; publisher=""; url = "";
+		subdomains = "";author =""; licenseURL=""; extfilename=""; publisher=""; url = "";
 		relscore=0; 
 		terms = null;
 		meta = null;
@@ -537,8 +690,7 @@ public class Exporter {
 			double domain_confidence, String pdfname) { //throws Exception {
 
 		if (html_text==null){
-			//return false;
-			//FIXME Why does it happen when there is no content? 
+			//Why does it happen when there is no content? 
 			LOGGER.warn("HTML content of "+eAddress + " cannot be stored.");
 			html_text=""; //for avoiding future catches
 		}
@@ -546,18 +698,20 @@ public class Exporter {
 		String temp_id=Integer.toString(id);
 		String html_filename="";
 
-		if (format.contains("application/pdf")){
-			html_filename = identifiedlanguage+HYPHEN+temp_id + appPDFext;
-			html_text = cleaned_text;
+		if (format.contains(pdfmime) ){
+			html_filename = identifiedlanguage+HYPHEN+temp_id + appPDFext;			html_text = cleaned_text;
 		}else{
-			html_filename = identifiedlanguage+HYPHEN+temp_id + appHTMLext;
+			if (format.contains(docmime) ){
+				html_filename = identifiedlanguage+HYPHEN+temp_id + appDOCext;		html_text = cleaned_text;
+			}else
+				html_filename = identifiedlanguage+HYPHEN+temp_id + appHTMLext;
 		}
 
 		Path xml_file = new Path("file", "",
 				(FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appXMLext )));
 
 		Path annotation = new Path(outputdir,html_filename);
-		if (format.contains("application/pdf")){
+		if (format.contains(pdfmime)){
 			try {
 				FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appPDFext));
 				//File storedpdf = new File(pdfname); 
@@ -567,23 +721,32 @@ public class Exporter {
 				e.printStackTrace();
 			}
 		}else{
-			OutputStreamWriter tmpwrt=null;
-			try {
-				tmpwrt = new OutputStreamWriter(new FileOutputStream(annotation.toUri().getPath()),"UTF-8");
-				tmpwrt.write(html_text);
-				tmpwrt.flush();
-				//tmpwrt.close();
-			} catch (UnsupportedEncodingException e1) {
-				e1.printStackTrace();
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}finally{
+			if (format.contains(docmime)){
 				try {
-					tmpwrt.close();
+					FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appDOCext));
+				} catch (IOException e) {
+					LOGGER.info("source DOC file is not stored.");
+					e.printStackTrace();
+				}
+			}else{
+				OutputStreamWriter tmpwrt=null;
+				try {
+					tmpwrt = new OutputStreamWriter(new FileOutputStream(annotation.toUri().getPath()),"UTF-8");
+					tmpwrt.write(html_text);
+					tmpwrt.flush();
+					//tmpwrt.close();
+				} catch (UnsupportedEncodingException e1) {
+					e1.printStackTrace();
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
+				}finally{
+					try {
+						tmpwrt.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -1074,8 +1237,6 @@ public class Exporter {
 		return config;
 	}
 
-
-
 	private static double getRelscore(String url, Path curDirPath,
 			TupleEntryIterator contentIter) {
 		while (contentIter.hasNext()){
@@ -1093,6 +1254,7 @@ public class Exporter {
 		}		
 		return 0;
 	}
+
 	private static String getSubdomains(String url, Path curDirPath, TupleEntryIterator contentIter){
 		String subdomains = "";
 		while (contentIter.hasNext()){
@@ -1112,6 +1274,7 @@ public class Exporter {
 		}		
 		return null;
 	}
+	
 	private static String getValidFormat(String format){
 		String result = format;
 		if (format.contains(";")){
@@ -1217,17 +1380,11 @@ public class Exporter {
 		}
 	}
 
-
-
 	public static Boolean XMLExporter(File file, String format, String title, String eAddress,
 			String[] langs, String identifiedlanguage, String cleaned_text, String pubDate, String author,String publisher,  
 			String domain, String subdomain, ArrayList<String> terms, ArrayList<String[]> topic, List<String> neg_words, String licenseURL, String genre,
 			double domain_confidence, String pdfname) { //throws Exception {
 
-
-		if (format.contains("application/pdf")){
-
-		}
 		//Write the XML file
 		File xml_file =new File(FilenameUtils.concat(file.getParent(), FilenameUtils.getBaseName(file.getName())+appXMLext));
 		int parId = 1;
@@ -1473,6 +1630,5 @@ public class Exporter {
 		}
 		return true;
 	}
-
 
 }
