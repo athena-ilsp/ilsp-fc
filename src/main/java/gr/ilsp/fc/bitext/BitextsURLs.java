@@ -167,7 +167,6 @@ public class BitextsURLs {
 	}
 
 
-
 	/**
 	 * instead of using special pattern matches in URLs, we could compare URLs, and calculate edit-distance 
 	 * @param filesURLS
@@ -280,10 +279,10 @@ public class BitextsURLs {
 		if (url1.equals(url2))
 			return false;
 	
-		if ( url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
-				|| url1.replace(lang1,lang2).equals(url2) || url1.replace(lang2,lang1).equals(url2))  
+		if (checkUrsCommonPatterns(lang1, lang2,url1,url2))
 			return true;
-		if ( url1.replace("."+lang1+".", "."+lang2+".").equals(url2) || url2.replace("."+lang2+".", "."+lang1+".").equals(url1))
+		
+		if (checkUrslangPatterns(url1,url2))
 			return true;
 		
 		/*if (url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2) || url1.replace("/"+lang2+"/", "/"+lang1+"/").equals(url2)
@@ -310,16 +309,10 @@ public class BitextsURLs {
 						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
 			return true;*/
 
-		if (checkUrslangPatterns(url1,url2))
-			return true;
-		
 		lang1 =  ISOLangCodes.get2LetterCode(lang1);
 		lang2 =  ISOLangCodes.get2LetterCode(lang2);
 
-		if ( url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
-				|| url1.replace(lang1,lang2).equals(url2) || url1.replace(lang2,lang1).equals(url2))  
-			return true;
-		if ( url1.replace("."+lang1+".", "."+lang2+".").equals(url2) || url2.replace("."+lang2+".", "."+lang1+".").equals(url1))
+		if (checkUrsCommonPatterns(lang1, lang2,url1,url2))
 			return true;
 		
 		if (checkUrslangPatterns(url1,url2))
@@ -327,8 +320,26 @@ public class BitextsURLs {
 		
 		return found;
 	}
-
 	
+	private static boolean checkUrsCommonPatterns(String lang1, String lang2, String url1, String url2) {
+		boolean found=false;
+		if ( url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
+				|| url1.replace(lang1,lang2).equals(url2) || url1.replace(lang2,lang1).equals(url2))  
+			return true;
+		if ( url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2) || url2.replace("/"+lang2+"/", "/"+lang1+"/").equals(url1))
+			return true;
+		if ( url1.replace("."+lang1+".", "."+lang2+".").equals(url2) || url2.replace("."+lang2+".", "."+lang1+".").equals(url1))
+			return true;
+		if ( url1.replace("_"+lang1, "_"+lang2).equals(url2) || url2.replace("_"+lang2, "_"+lang1).equals(url1))
+			return true;
+		if ( url1.replace("_"+lang1, "").equals(url2) || url2.replace("_"+lang2, "").equals(url1))
+			return true;
+		
+		if ( url1.replace("-"+lang1, "-"+lang2).equals(url2) || url2.replace("-"+lang2, "-"+lang1).equals(url1))
+			return true;
+		return found;
+	}
+
 	private static boolean checkUrslangPatterns(String url1, String url2) {
 		boolean found=false;
 		String[] patts = {"0", "1", "2", "3", "4"};
