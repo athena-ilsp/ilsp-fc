@@ -52,6 +52,7 @@ public class CrawlOptions {
 	private String _language;
 	private String[] _langKeys;
 	private String[] _targetedLangs;
+	private List<String[]> _linkAttrs;
 	private HashMap<String, String> _mapLangs;
 	private List<String> _langPairs;
 	private String _urls;
@@ -114,7 +115,9 @@ public class CrawlOptions {
 	private static final String type_q = "q";
 	private static final String type_m = "m";
 	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
+	private static final String DIESIS="#";
 	private static final String QUEST_SEPAR = ";";
+	private static final String COLON_SEPAR = ":";
 	private static final String DOUBLEQUEST_SEPAR = ";;";
 	
 	private static String _selectDocs = "aupdihml";
@@ -128,7 +131,8 @@ public class CrawlOptions {
 	private static final String ALIGN_operation = "align";
 	private static final String TMX_MERGE_operation = "tmxmerge";
 	private static final String LANG_KEYS_RESOURCE = "langKeys.txt" ;
-
+	private static final String TRANS_LINKS_ATTRS = "crossLinksAttrs.txt";
+	
 	public CrawlOptions() {
 		createOptions();
 	}
@@ -359,6 +363,7 @@ public class CrawlOptions {
 				_langKeys = findKeys4lang(_language);
 				_mapLangs = mapLangs(_language);
 				_langPairs = findLangPairs(_language);
+				_linkAttrs = findTransLinks();
 				checkAnalyzers(_language);
 			}else{
 				if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation) || _operation.contains(PAIRDETECT_operation) 
@@ -448,6 +453,23 @@ public class CrawlOptions {
 			System.err.println( "Parsing options failed.  Reason: " + exp.getMessage() );			
 			System.exit(64);
 		}
+	}
+	private List<String[]> findTransLinks() {
+		List<String[]> res = new ArrayList<String[]>();
+		try {
+			URL svURL = ReadResources.class.getClassLoader().getResource(TRANS_LINKS_ATTRS);
+			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
+			String str;
+			while ((str = in.readLine()) != null) {
+				if (str.startsWith(DIESIS))
+					continue;
+				String[] temp = str.split(COLON_SEPAR);
+				res.add(temp);
+			}
+		} catch (IOException e) {
+			LOGGER.error("Problem in reading the file for crossLinksAttrs.");
+		}
+		return res;
 	}
 	private List<String> findLangPairs(String language) {
 		String[] langs = language.split(QUEST_SEPAR); 
@@ -672,7 +694,6 @@ public class CrawlOptions {
 											mainhost=processhost(host);
 										}
 										if (mainhost.startsWith("www5") | mainhost.startsWith("www2"))
-											//if (mainhost.substring(0, 4).equals("www5") | mainhost.substring(0, 4).equals("www2"))
 											mainhost=host.substring(5);
 										else{
 											if (mainhost.startsWith("www"))//(mainhost.substring(0, 3).equals("www"))
@@ -843,7 +864,7 @@ public class CrawlOptions {
 			}
 			in.close();
 			if (langKeys.size()!=langs.length){
-				LOGGER.error("The targetted language(s) is (are) not supported. Check the file for langKeys.");
+				LOGGER.error("The targeted language(s) is (are) not supported. Check the file for langKeys and/or langcode-langs.");
 				System.exit(0);
 			}
 		} catch (IOException e) {
@@ -913,7 +934,9 @@ public class CrawlOptions {
 	public List<String> getLangPairs() {
 		return _langPairs;
 	}
-
+	public List<String[]> getTransLinksAttrs() {
+		return _linkAttrs;
+	}
 	public File getTopic() {
 		return _topic;
 	}
