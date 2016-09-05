@@ -59,7 +59,7 @@ public class ExtendedLinksExtractorTest {
 				fail ("Did not find link: " + linkToBeExtracted);
 			}
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			logger.warn("Cannot open/process URL " + urlString);
 			fail ("Did not fetch seed: " + urlString);
 		}
@@ -77,12 +77,8 @@ public class ExtendedLinksExtractorTest {
 				"Test that links contain links with hreflang attributes");
 	}
 	
-	// @Test //Uncomment to test. Comment to speed up building
+	//@Test //Uncomment to test. Comment to speed up building
 	public void testGetLinks() {
-		/* testGetLinks(
-				"http://www.hermitage.nl",
-				"http://www.hermitage.nl/en/pers/",
-				"Test that link can be extracted from URL");*/
 		/* testGetLinks(
 				"http://www.fehergolyamuzeum.hu/mainpage_en",
 				"http://www.fehergolyamuzeum.hu/about_the_stork/the_white_stork/the_white_stork_detailed",
