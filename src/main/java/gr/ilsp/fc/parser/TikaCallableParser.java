@@ -146,7 +146,10 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, "", lang,
 						_metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
 			}
-
+			/*for (ExtendedOutlink outlink:outlinks){
+				LOGGER.info(outlink.getToUrl());
+			}*/
+			
 			// Check if the  sourcelink is from europa.eu
 			boolean found_license=false;
 			if (_metadata.get(Metadata.CONTENT_LOCATION).contains(EUROPE_ORG_STR)){
