@@ -156,7 +156,7 @@ public class ExtendedLinksExtractor {
 					logger.debug("Found hreflang link (" + extendedOutLink.getHrefLang() + "): " + extendedOutLink.getToUrl());
 					//}
 				}		
-				
+
 				if (link.hasAttr(CLASS_ATTR)){
 					if (link.attr(CLASS_ATTR).equals(TRANSLATIONLINK_VALUE)){
 						//System.out.println(link);
@@ -171,9 +171,9 @@ public class ExtendedLinksExtractor {
 						}
 					}
 				}*/
-				
+
 				extendedOutLink = getTranslationLink(extendedOutLink, link,_maplangs, tranlistAttrs);
-				
+
 				rankedLinks[linksIndex] = extendedOutLink;
 				linksIndex++;
 				//rankedlinks.add(new String[] {linktext, anchortext, wholetext});
@@ -186,7 +186,7 @@ public class ExtendedLinksExtractor {
 	}
 
 	private static ExtendedOutlink getTranslationLink(	ExtendedOutlink extendedOutLink, Element link,	HashMap<String, String> _maplangs, List<String[]> tranlistAttrs) {
-		
+
 		// A check for links with hreflang () attributes.
 		if (link.hasAttr(HREFLANG_ATTR)   ) {// && link.hasAttr(REL_ATTR)) {
 			//if (!linktext.contains("http://www.bundesregierung.de/Webs/Breg/")) {
@@ -196,16 +196,18 @@ public class ExtendedLinksExtractor {
 			return extendedOutLink;
 			//}
 		}
-		for (String[] tranlistAttr:tranlistAttrs){
-			if (link.hasAttr(tranlistAttr[0])){
-				if (link.attr(tranlistAttr[0]).equals(tranlistAttr[1])){
-					for (Node nd:link.childNodes()){
-						String langcode = LangDetectUtils.getlangCodeFromLangkeys(_maplangs, nd.toString());
-						if (!langcode.isEmpty()){
-							extendedOutLink.setToUrl(normalizer.normalize(extendedOutLink.getToUrl()));
-							extendedOutLink.setHrefLang(langcode);
-							logger.debug("Found translation-link (" + extendedOutLink.getHrefLang() + "): " + extendedOutLink.getToUrl());
-							return extendedOutLink;
+		if (tranlistAttrs!=null){
+			for (String[] tranlistAttr:tranlistAttrs){
+				if (link.hasAttr(tranlistAttr[0])){
+					if (link.attr(tranlistAttr[0]).equals(tranlistAttr[1])){
+						for (Node nd:link.childNodes()){
+							String langcode = LangDetectUtils.getlangCodeFromLangkeys(_maplangs, nd.toString());
+							if (!langcode.isEmpty()){
+								extendedOutLink.setToUrl(normalizer.normalize(extendedOutLink.getToUrl()));
+								extendedOutLink.setHrefLang(langcode);
+								logger.debug("Found translation-link (" + extendedOutLink.getHrefLang() + "): " + extendedOutLink.getToUrl());
+								return extendedOutLink;
+							}
 						}
 					}
 				}
