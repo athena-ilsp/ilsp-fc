@@ -1,3 +1,10 @@
+# ILSP-FC 2.2.3 2016-06-06
+
+- It is now possible to construct bilingual collections from a web-domain for all pairs of the targeted languages by running the whole pipeline once. See the example for running bilingual crawls in the http://nlp.ilsp.gr/redmine/projects/ilsp-fc/wiki/Getting_Started/ page of the wiki for more details
+- Identical TUs; TUs with identical TUVs; TUVs with no letters; and TUs with different digits are optionally annotated as such during the merging process that creates one TMX file from a bilingual crawl
+- All generated files for easier content navigation are now created on the basis of a user-provided basename (i.e. options like "of, ofh, etc." are no longer used)
+- Bugs in, among other places, the PairDetector and the TMXMerger have been fixed
+
 # ILSP-FC 2.2.2 2016-02-17
 
 - Added classes for generation of ELRC-Metashare compatible metadata descriptors and for querying eurovoc-related domain concept-descriptor id pairs
