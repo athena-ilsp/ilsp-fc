@@ -34,9 +34,10 @@ public class MSO2text {
 	public static void main( String[] args ){
 		//File infile = new File("C:/Users/vpapa/test/test_20160803_165808/5c9d811d-37ef-4199-ae29-699623a51012/doc/0.doc");
 		File infile = new File(args[0]);
-		Map<String, String> docdata = run1(infile);
 		try {
-			FileUtils.writeStringToFile(new File(args[1]), docdata.get("content"));
+			Map<String, String> docdata = run1(infile);
+			if (!docdata.isEmpty())
+				FileUtils.writeStringToFile(new File(args[1]), docdata.get("content"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -69,6 +70,10 @@ public class MSO2text {
 			e.printStackTrace();
 		} catch (XmlException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}catch (IllegalArgumentException e){
+			e.printStackTrace();
+		}catch (Exception e){
 			e.printStackTrace();
 		}
 		return docdata;

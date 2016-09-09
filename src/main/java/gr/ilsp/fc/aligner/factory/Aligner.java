@@ -132,7 +132,7 @@ public abstract class Aligner {
 			}
 		}
 		logger.info("Aligning sentences in document pairs using "+ this.getClass().getSimpleName());
-		logger.info("... from cesAlign list " + cesAlignList);
+		logger.info("... from cesAlign list " + cesAlignList.getAbsolutePath());
 		List<File> tmxFiles = new ArrayList<File>();
 		List<File> htmlTmxFiles = new ArrayList<File>();
 		List<Integer> alignmentsPerFile = new ArrayList<Integer>();
