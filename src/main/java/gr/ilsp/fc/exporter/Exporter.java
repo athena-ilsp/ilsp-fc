@@ -325,10 +325,10 @@ public class Exporter {
 		String[] mimes = config.getStringArray("fetcher.valid_mime_types.mime_type[@value]");			
 		Set<String> validMimeTypes = new HashSet<String>();
 		for (String s: mimes) validMimeTypes.add(s);
-		
+
 		if (!outputDir.exists())
 			outputDir.mkdirs();
-		
+
 		int id=0;
 		if (!crawlDirName.exists()){
 			LOGGER.error("The directory " +crawlDirName.getAbsolutePath() + " does not exist.");
@@ -478,7 +478,10 @@ public class Exporter {
 			data = MSO2text.run1(new File(extfilename));
 		if (format.contains(pdfmime))
 			data = Pdf2text.run1(new File(extfilename), _sort_type);
-
+		if (data.isEmpty()){
+			LOGGER.info("Text Conversion failed." + extfilename);
+			return false;
+		}
 		cleanText = data.get("content");
 		if (StringUtils.isBlank(cleanText)){
 			LOGGER.info("Text Conversion failed." + extfilename);
@@ -1274,7 +1277,7 @@ public class Exporter {
 		}		
 		return null;
 	}
-	
+
 	private static String getValidFormat(String format){
 		String result = format;
 		if (format.contains(";")){
