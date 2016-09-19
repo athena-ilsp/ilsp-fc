@@ -141,11 +141,11 @@
 			<artifactId>stanford-corenlp</artifactId>
 			<version>3.5.2</version>
 		</dependency>
-		<dependency>
+	<!-- 	<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.13</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
