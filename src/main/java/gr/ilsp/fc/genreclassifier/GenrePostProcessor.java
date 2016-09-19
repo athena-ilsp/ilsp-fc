@@ -389,7 +389,9 @@ public class GenrePostProcessor {
 			tmp1 = FileUtils.readFileToString(files[ii]);
 			String tmp2=tmp1.replace(TagGenre3, TagGenre1+ doc_genre+TagGenre2);
 			tmp2=tmp2.replace(TagGenre1+TagGenre2, TagGenre1+ doc_genre+TagGenre2);
-			WriteResources.writetextfile(files[ii].getAbsolutePath(),tmp2);
+			//WriteResources.writetextfile(files[ii].getAbsolutePath(),tmp2);
+			FileUtils.writeStringToFile(files[ii], tmp2);
+			
 			//if (doc_genre.equals("Other"))
 			//		System.out.println(doc_url);
 					
