@@ -22,7 +22,6 @@ import gr.ilsp.fc.pipes.ClassifierPipe;
 import gr.ilsp.fc.pipes.ExtendedParsePipe;
 import gr.ilsp.fc.utils.CrawlConfig;
 
-
 //import java.io.File;
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -84,7 +83,8 @@ public class CrawlWorkflow {
 	private static final String type_p="p";
 	//_numSelected is used as a counter for URLs selected for this run
 	private static long _numSelected = 0;
-	private static String _subfilter;
+	private static int _level;
+	private static String _urlfilterstr;
 	private static String _storeFilter;
 	private static String _inithost;
 	private static String _mainhost;
@@ -132,26 +132,19 @@ public class CrawlWorkflow {
 
 			try {
 				url = new URL(datum.getUrl());
-				//LOGGER.info("tested: "+url);
 				host = url.getHost();
-				
-				if (host.length()<5){
-					//LOGGER.error("not valid: "+url);
+				if (host.length()<5)
 					return false;
-				}
 				//force crawler stay in web site 
 				if (_type.equals(type_p)){
 					if (_inithost!=null && _mainhost!=null){
-						//System.out.println(url);
-						//System.out.println(url.getAuthority()+url.getFile());
 						String temp1 = url.getAuthority()+url.getFile();
 						temp1 = temp1.substring(0,temp1.indexOf("/"));
 						if (temp1.startsWith("www2") | temp1.startsWith("www5")){
 							temp1=temp1.substring(5);
 						}else{
-							if (temp1.startsWith("www")){
+							if (temp1.startsWith("www"))
 								temp1=temp1.substring(4);
-							}
 						}
 					
 						int ind2=temp1.toString().indexOf(_inithost);
@@ -168,15 +161,14 @@ public class CrawlWorkflow {
 									break;
 								}
 							}
-							if (!match){
+							if (!match)
 								return false;
-							}
 						}
 					}
 				}
-				if (_subfilter!=null){
+				if (_urlfilterstr!=null){
 					String temp = url.getAuthority()+url.getFile();
-					if (!temp.matches(_subfilter))	
+					if (!temp.matches(_urlfilterstr))	
 						return false;
 				}
 				hostHash = url.getHost().hashCode();				
@@ -276,18 +268,20 @@ public class CrawlWorkflow {
 	
 	
 	public static Flow createFlow(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
-			BaseUrlFilter urlFilter, HashMap<String, String> maplangs, String[] targeted_langs, List<String[]> tranlistAttrs, String[] classes, ArrayList<String[]> topic, 
-			double abs_thres, double rel_thres, int min_uniq_terms,int max_depth,
-			CrawlOptions options) throws Throwable {
+			BaseUrlFilter urlDomainFilter, BaseUrlFilter urlDepthFilter, HashMap<String, String> maplangs, 
+			String[] targeted_langs, List<String[]> tranlistAttrs, String[] classes, ArrayList<String[]> topic, 
+			double abs_thres, double rel_thres, int min_uniq_terms,int max_depth,CrawlOptions options, boolean extractLinks) throws Throwable {
 
 		return createFlow071(curWorkingDirPath, crawlDbPath, userAgent, fetcherPolicy,
-				urlFilter, maplangs, targeted_langs, tranlistAttrs, classes, topic, abs_thres, rel_thres, min_uniq_terms, max_depth, options);				
+				urlDomainFilter, urlDepthFilter, maplangs, targeted_langs, tranlistAttrs,
+				classes, topic, abs_thres, rel_thres, min_uniq_terms, max_depth, options, extractLinks);				
 	}
 
 
 	public static Flow createFlow071(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
-			BaseUrlFilter urlFilter, HashMap<String, String> maplangs, String[] targeted_langs, List<String[]> tranlistAttrs, String[] classes, ArrayList<String[]> topic, double abs_thres,
-			double rel_thres, int min_uniq_terms,int max_depth, CrawlOptions options) throws Throwable {
+			BaseUrlFilter urlDomainFilter, BaseUrlFilter urlDepthFilter, HashMap<String, String> maplangs, 
+			String[] targeted_langs, List<String[]> tranlistAttrs, String[] classes, ArrayList<String[]> topic, double abs_thres,
+			double rel_thres, int min_uniq_terms,int max_depth, CrawlOptions options, boolean extractLinks) throws Throwable {
 		int maxThreads = options.getThreads();
 		boolean debug = options.isDebug();
 		boolean keepBoiler = options.keepBoiler();
@@ -295,9 +289,10 @@ public class CrawlWorkflow {
 		String subfilter = options.getFilter();
 		String initial_host = options.getDomain();
 		int minTokensNumber = options.getTokensNumber();
-		_subfilter=subfilter;
+		_urlfilterstr=subfilter;
 		_inithost = initial_host;
 		_mainhost=options.getMainDomain();
+		_level = options.getCrawlLevel();
 		//String language = options.getLanguage();
 		_targlang = options.getLanguage() ;//targeted_langs;
 		_type =options.getType();
@@ -374,8 +369,8 @@ public class CrawlWorkflow {
 
 		//contentPipe is parsed. Metadata, content and links are extracted. Content is
 		//cleaned using Boilerpipe.
-		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler, curWorkingDirPath.getParent().toString(), 
-				maplangs, tranlistAttrs, targeted_langs));
+		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler, 
+				curWorkingDirPath.getParent().toString(),	maplangs, tranlistAttrs, targeted_langs, _urlfilterstr, extractLinks));
 		//The results from the parser are forwarded to the classifier. The classifier
 		//will score the content of each fetched page. It will also score all links
 		//based on the score of the page they came from, the anchor text and the surrounding
@@ -410,7 +405,7 @@ public class CrawlWorkflow {
 		//The links scored by the classifier are handled be the urlFromOutlinksPipe
 		Pipe urlFromOutlinksPipe = new Pipe("url from outlinks", classifyPipe.getScoredLinksTailPipe());
 		//Outlinks are filtered and normalized
-		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlFilter, _mainhost));
+		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlDomainFilter, urlDepthFilter, _mainhost,_level));
 		//urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedNormalizeUrlFunction(new ILSPFCUrlNormalizer()));
 		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedNormalizeUrlFunction(new ILSPFCUrlNormalizer()));
 
