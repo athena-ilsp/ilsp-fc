@@ -53,6 +53,8 @@ public class TMXHandler {
 	private static File baseName = null;
 	private static File outTMX = null;
 	private static File outHTML = null;
+	private static File o1 = null;
+	private static File o2 = null;
 	private static final String DEFAULT_BI_CONFIG_FILE = "FBC_config.xml";
 	private static CompositeConfiguration config;
 	private static String[] languages;
@@ -147,6 +149,9 @@ public class TMXHandler {
 		ha.setKeepEmpty(options.getKeepEmpty());
 		ha.setKeepIdentical(options.getKeepIdentical());
 		ha.setKeepDuplicates(options.getKeepDuplicates());
+		ha.setO1(options.getO1());
+		ha.setO2(options.getO2());
+		
 		String[] languages = options.getLanguage().split(SEMICOLON_STR);
 		List<String> lang_pairs = new ArrayList<String>();
 		if (languages.length>1){
@@ -191,7 +196,7 @@ public class TMXHandler {
 			filter8=" Alignments with only non-letters in at least one of their TUVs were discarded/annotated";
 		if (keepdup)
 			filter9=" Duplicate alignments were kept and were discarded/annotated";
-		LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
+		//LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
 
 		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
 		FilenameFilter filter = new FilenameFilter() {			
@@ -228,6 +233,12 @@ public class TMXHandler {
 				e.printStackTrace();
 			} 
 		}
+		if (tmxfiles.isEmpty()){
+			LOGGER.info("No tmx files found.");
+			return;
+		}else
+			LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
+		
 		creationDescription = creationDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
 		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
 		List<String> domainEurovocIds=getEurovocId(domains);
@@ -267,7 +278,6 @@ public class TMXHandler {
 			
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
 
-			//if (metadata){
 			BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
 			File metadataFile = new File(baseName.getAbsolutePath()+ MetadataExt);
 			LOGGER.info("Generating metadata descriptor " + metadataFile);
@@ -278,7 +288,20 @@ public class TMXHandler {
 				bilingualTmxMetashareDescriptor.setMetadataLang("en");
 			}
 			bilingualTmxMetashareDescriptor.run();
-			//}
+			if (o1!=null){
+				try {
+					FileUtils.copyFile(outHTML, o1);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (o2!=null){
+				try {
+					FileUtils.copyFile(outTMX, o2);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}else{
 			LOGGER.info("No proper TUs found.");
 		}
@@ -584,5 +607,12 @@ public class TMXHandler {
 			LOGGER.error("Problem with default configuration file.");
 		}
 		return config;
+	}
+
+	public void setO1(File o1) {
+		TMXHandler.o1 = o1;
+	}
+	public void setO2(File o2) {
+		TMXHandler.o2 = o2;
 	}
 }

@@ -23,6 +23,8 @@ public class TMXHandlerOptions {
 	private static final String QUEST_SEPAR = ";";
 	private File _targetDir = null;
 	private File _baseName=null;
+	private File _o1=null;
+	private File _o2=null;
 	private String _config;
 	private String _language;
 	private String _doctypes="aupdih";
@@ -125,6 +127,14 @@ public class TMXHandlerOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepDuplicates" )
 				.withDescription( "keeps duplicate TUs")
 				.create("keepdup") );
+		options.addOption( OptionBuilder.withLongOpt( "specific_output1" )
+				.withDescription( "Not used (Specific outout1)")
+				.hasArg()
+				.create("o1") );
+		options.addOption( OptionBuilder.withLongOpt( "specific_output2" )
+				.withDescription( "Not used(Specific outout2)")
+				.hasArg()
+				.create("o2") );
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
 				.create("h") );
@@ -220,6 +230,12 @@ public class TMXHandlerOptions {
 	}
 	public File getTargetDir() {
 		return _targetDir;
+	}
+	public File getO1() {
+		return _o1;
+	}
+	public File getO2() {
+		return _o2;
 	}
 	public boolean getXSLTransform() {
 		return _oxslt;
