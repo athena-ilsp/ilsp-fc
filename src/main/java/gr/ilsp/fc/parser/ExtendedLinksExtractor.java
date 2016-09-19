@@ -44,7 +44,7 @@ public class ExtendedLinksExtractor {
 
 	private static final int context_thresh=40;
 
-	public static ExtendedOutlink[] getLinks(InputStream _input, Metadata metadata, HashMap<String, String> _maplangs, List<String[]> tranlistAttrs) {
+	public static ExtendedOutlink[] getLinks(InputStream _input, Metadata metadata, HashMap<String, String> _maplangs, List<String[]> tranlistAttrs) {	
 		//ArrayList<String[]> rankedlinks = new ArrayList<String[]>();
 		org.jsoup.nodes.Document doc;
 		ExtendedOutlink[] rankedLinks = null;
@@ -63,7 +63,8 @@ public class ExtendedLinksExtractor {
 			org.jsoup.nodes.Element node = null;
 			String[] preWORDS=null, postWORDS=null;
 
-			while ((line=reader.readLine())!=null) htmltext=htmltext.concat(line);
+			while ((line=reader.readLine())!=null) 
+				htmltext=htmltext.concat(line);
 			reader.close();
 			baseUrl = metadata.get(Metadata.CONTENT_LOCATION);			
 			doc = baseUrl!=null ? Jsoup.parse(htmltext,baseUrl) : Jsoup.parse(htmltext);	

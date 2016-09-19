@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,8 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	private BaseContentExtractor _contentExtractor;
 	private InputStream _input;
 	private Metadata _metadata;
+	private String _urlfilterstr;
+	private boolean _extractLinks;
 	private boolean _extractLanguage;
 	private boolean _keepBoiler = false;
 	private String[] _targeted_langs;
@@ -70,12 +73,14 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	private List<String[]> _tranlistAttrs;
 
 	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata, HashMap<String,String> maplangs, 
-			List<String[]> tranlistAttrs, String[] targeted_langs) {
-		this(parser, contentExtractor, input, metadata, true, maplangs, tranlistAttrs, targeted_langs, false);
+			List<String[]> tranlistAttrs, String[] targeted_langs, String urlfilterstr, boolean extractLinks) {
+		this(parser, contentExtractor, input, metadata, true, maplangs, tranlistAttrs, targeted_langs, false, urlfilterstr, extractLinks);
 	}
 
+
 	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, 
-			InputStream input, Metadata metadata, boolean extractLanguage, HashMap<String,String> maplangs, List<String[]> tranlistAttrs, String[] targeted_langs, boolean keepBoiler) {
+			InputStream input, Metadata metadata, boolean extractLanguage, HashMap<String,String> maplangs, 
+			List<String[]> tranlistAttrs, String[] targeted_langs, boolean keepBoiler, String urlfilterstr, boolean extractLinks) {
 		_parser = parser;
 		_contentExtractor = contentExtractor;
 		_input = input;
@@ -85,6 +90,8 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 		_keepBoiler = keepBoiler;
 		_maplangs = maplangs;
 		_tranlistAttrs = tranlistAttrs;
+		_urlfilterstr =urlfilterstr;
+		_extractLinks = extractLinks;
 	}
 
 	@Override
@@ -103,7 +110,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			//Temp solution until bug is resolved: keep the HTTP response META (if exists) and overwrite
 			String respoCharset = _metadata.get(Metadata.CONTENT_ENCODING);
 			_parser.parse(_input, teeContentHandler, _metadata, makeParseContext());
-		
+
 			//FIXME set another property to HTMLSource or in the fetchedDatum. Check if we keep HTML source twice
 			_input.reset();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(_input,_metadata.get(Metadata.CONTENT_ENCODING)));
@@ -112,8 +119,8 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			StringBuilder builder = new StringBuilder();
 			String aux = "";
 			while ((aux = reader.readLine()) != null) {
-			    //builder.append(aux+" ");
-			    builder.append(aux);
+				//builder.append(aux+" ");
+				builder.append(aux);
 			}
 			_metadata.set(Metadata.COMMENTS, builder.toString());
 
@@ -141,48 +148,50 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			String content = CleanerUtils.getContent(_input, _metadata, _keepBoiler);  
 			String lang = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
 
-			ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata,_maplangs, _tranlistAttrs);
-			if (outlinks.length==1 && outlinks[0].getAnchor().equals(LINK_CANONICAL)) {
-				return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, "", lang,
-						_metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
-			}
-			/*for (ExtendedOutlink outlink:outlinks){
-				LOGGER.info(outlink.getToUrl());
-			}*/
+			ExtendedOutlink[] outlinks = new ExtendedOutlink[0] ;
 			
-			// Check if the  sourcelink is from europa.eu
-			boolean found_license=false;
-			if (_metadata.get(Metadata.CONTENT_LOCATION).contains(EUROPE_ORG_STR)){
-				_metadata.set(Metadata.LICENSE_URL, default_Europecomment_in_url);
-				found_license=true;
-			}
-			if (!found_license){
-				// Check each link for creative commons licenses
-				for (ExtendedOutlink extendedOutlink : outlinks) {
-					try {
-						URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
-						// check that it's a CC license URL
-						if ((HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol())
-								| HTTPS_PROTOCOL.equalsIgnoreCase(url.getProtocol())) &&
-								CREATIVECOMMONS_ORG_STR.equalsIgnoreCase(url.getHost()) &&
-								url.getPath() != null &&
-								url.getPath().startsWith(LICENSES_STR) &&
-								url.getPath().length() > LICENSES_STR.length()) {
-							_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_url+text_cc_separ+url.toString());
-							found_license=true;
-							break;
-						}
-					} catch (Exception e) {
-						LOGGER.debug("reached");
-					}
+			if (_extractLinks){
+				outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata,_maplangs, _tranlistAttrs);
+				outlinks = filterOutLinks(outlinks, _urlfilterstr);
+				if (outlinks.length==1 && outlinks[0].getAnchor().equals(LINK_CANONICAL)) {
+					return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, "", lang,
+							_metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
 				}
-				//if a creative commons license is mentioned in the content 
-				//if (!found_license){
-				//	if (content.contains(CC_pattern)){
-				//		_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_text+text_cc_separ+default_CCurl_in_text);	
-				//	}
-				//}
+				// Check if the  sourcelink is from europa.eu
+				boolean found_license=false;
+				if (_metadata.get(Metadata.CONTENT_LOCATION).contains(EUROPE_ORG_STR)){
+					_metadata.set(Metadata.LICENSE_URL, default_Europecomment_in_url);
+					found_license=true;
+				}
+				if (!found_license){
+					// Check each link for creative commons licenses
+					for (ExtendedOutlink extendedOutlink : outlinks) {
+						try {
+							URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
+							// check that it's a CC license URL
+							if ((HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol())
+									| HTTPS_PROTOCOL.equalsIgnoreCase(url.getProtocol())) &&
+									CREATIVECOMMONS_ORG_STR.equalsIgnoreCase(url.getHost()) &&
+									url.getPath() != null &&
+									url.getPath().startsWith(LICENSES_STR) &&
+									url.getPath().length() > LICENSES_STR.length()) {
+								_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_url+text_cc_separ+url.toString());
+								found_license=true;
+								break;
+							}
+						} catch (Exception e) {
+							LOGGER.debug("reached");
+						}
+					}
+					//if a creative commons license is mentioned in the content 
+					//if (!found_license){
+					//	if (content.contains(CC_pattern)){
+					//		_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_text+text_cc_separ+default_CCurl_in_text);	
+					//	}
+					//}
+				}
 			}
+			LOGGER.debug(outlinks.length+"\t"+_metadata.get(Metadata.CONTENT_LOCATION));
 			LOGGER.debug(_metadata.get(Metadata.CONTENT_LOCATION) + _metadata.get(Metadata.LICENSE_URL));
 			return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, content, lang,
 					_metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
@@ -196,6 +205,21 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			throw new RuntimeException("Serious shut-down error thrown from Tika", t);
 		}
 	}
+
+	private ExtendedOutlink[] filterOutLinks(ExtendedOutlink[] outlinks, String urlfilterstr) {
+		List<ExtendedOutlink> temp = new ArrayList<ExtendedOutlink>();
+		for (ExtendedOutlink outlink:outlinks){
+			if (outlink.getToUrl().matches(urlfilterstr))
+				temp.add(outlink);
+			//else
+			//	System.out.println(outlink.getToUrl());
+		}
+		ExtendedOutlink[] res= new ExtendedOutlink[temp.size()];
+		for (int ii=0;ii<res.length;ii++)
+			res[ii] = temp.get(ii);
+		return res;
+	}
+
 
 	/**
 	 * Decide if we need to set up our own HtmlMapper, because the link extractor has tags that

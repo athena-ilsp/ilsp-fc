@@ -14,7 +14,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-
 //import org.apache.pdfbox.pdfparser.PDFParser;
 //import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
@@ -48,10 +47,12 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 	private FetchedDatum _datum;
 
 	private boolean _keepBoiler = false;
+	private boolean _extractLinks = true;
 	private String[] _targeted_langs;
 	private HashMap<String,String> _maplangs;
 	private List<String[]> _tranlistAttrs;
 	private String _storedir_path;
+	private  String _urlfilterstr;
 	private static String pdfmime = "application/pdf";
 	private static String docmime = "application/msword";
 	private static String docmime1 = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -63,13 +64,16 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 	public SimpleNoLinksParser() {
 		this(new ParserPolicy());
 	}
-	public SimpleNoLinksParser(boolean keepBoiler, String storedir_path, HashMap<String,String> maplangs, List<String[]> tranlistAttrs, String[] targeted_langs) {    	
+	public SimpleNoLinksParser(boolean keepBoiler, String storedir_path, HashMap<String,String> maplangs, 
+			List<String[]> tranlistAttrs, String[] targeted_langs, String urlfilterstr, boolean extractLinks) {    	
 		this(new ParserPolicy());
 		_keepBoiler  = keepBoiler;
 		_storedir_path = storedir_path;
 		_targeted_langs = targeted_langs;
 		_maplangs = maplangs;
 		_tranlistAttrs = tranlistAttrs;
+		_urlfilterstr = urlfilterstr;
+		_extractLinks = extractLinks;
 	}
 	public SimpleNoLinksParser(ParserPolicy parserPolicy) {
 		this(new SimpleContentExtractor(),  parserPolicy);
@@ -142,7 +146,9 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 					LOGGER.debug("msword reached");
 					callable = new MsWordCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler, _storedir_path);
 				}else{
-					callable = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _maplangs, _tranlistAttrs, _targeted_langs, _keepBoiler);
+					callable = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _maplangs,
+							_tranlistAttrs, _targeted_langs, _keepBoiler, _urlfilterstr,_extractLinks);
+					//callable = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _maplangs, _tranlistAttrs, _targeted_langs, _keepBoiler);
 				}
 			}
 			//Callable<ExtendedParsedDatum> c = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler);

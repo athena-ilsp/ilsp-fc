@@ -95,7 +95,7 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
 			}
 			inputstream.close();
 			out.close();
-			LOGGER.info(filename + " saved.");
+			LOGGER.debug(filename + " saved.");
 			//System.out.println(filename);
 			//content = Pdf2text.run1(new File(filename), _sort_type);
 			//content = "";
