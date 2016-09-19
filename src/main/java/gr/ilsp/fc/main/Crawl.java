@@ -11,12 +11,15 @@ import gr.ilsp.fc.exporter.Exporter;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.monomerge.MonoMerger;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
+import gr.ilsp.fc.parser.LevelUrlFilter;
 import gr.ilsp.fc.parser.DomainUrlFilter;
 import gr.ilsp.fc.tmxhandler.TMXHandler;
 //import gr.ilsp.fc.tmxhandler.TMXHandlerOptions;
 import gr.ilsp.fc.utils.CrawlConfig;
 import gr.ilsp.fc.utils.DirUtils;
+import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.fc.utils.Statistics;
 import gr.ilsp.fc.utils.TopicTools;
 import gr.ilsp.fc.workflows.CrawlWorkflow;
 
@@ -93,6 +96,7 @@ public class Crawl {
 	private static final String p_type = "p";
 	private static final String m_type = "m";
 	private static final String q_type = "q";
+	private static final String CSV = ".csv";
 	//parameters for operations
 	private static final String CRAWL_operation = "crawl";
 	private static final String EXPORT_operation = "export";
@@ -114,7 +118,7 @@ public class Crawl {
 	private static int PAGES_FAILED_CLASSIFICATION=0;
 	private static int PAGES_VISITED = 0;
 	private static int TOKENS_STORED = 0;
-	private static int TOKENS_TARGET = 100000000;
+	private static int TOKENS_TARGET = 2000000000;
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	//parameters for domain classification
 	private static ArrayList<String[]> topic;
@@ -417,12 +421,15 @@ public class Crawl {
 			long targetEndTime = hasEndTime ? System.currentTimeMillis() + 	(crawlDurationInMinutes * 60000L) : FetcherPolicy.NO_CRAWL_END_TIME;
 			//Setting up the URL filter. If domain is supplied, the filter will disregard all
 			//URLs that do not belong in the specified web domain.
-			BaseUrlFilter urlFilter = null;
+			BaseUrlFilter urlDomainFilter = null;
+			BaseUrlFilter urlLevelFilter = null;
 			if (isDomainFile)
-				urlFilter = new DomainUrlFilter(dompath);
+				urlDomainFilter = new DomainUrlFilter(dompath);
 			else
-				urlFilter = new DomainUrlFilter(domain);
+				urlDomainFilter = new DomainUrlFilter(domain);
 
+			urlLevelFilter = new LevelUrlFilter(options.getCrawlLevel());
+					
 			// Main loop. This will run as many times as specified by the numloop option
 			//or until the specified duration is reached
 			long startTime = System.currentTimeMillis();
@@ -460,8 +467,12 @@ public class Crawl {
 				for(int il =0; il<conf.getLocalDirs().length;il++) 
 					LOGGER.debug(conf.getLocalDirs()[il]);
 				
-				Flow flow = CrawlWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlFilter, options.getMapLangs(),
-						options.getTargetedLangs(), options.getTransLinksAttrs(), classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options);							
+				boolean extractliks = true;
+				if (options.upToDepth()-curLoop<0)
+					extractliks = false;
+								
+				Flow flow = CrawlWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlDomainFilter, urlLevelFilter, options.getMapLangs(),
+						options.getTargetedLangs(), options.getTransLinksAttrs(), classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options, extractliks);							
 				flow.complete();
 				defaultPolicy.setRedirectMode(RedirectMode.FOLLOW_TEMP);
 				//Reseting counters of parent class. We do it here so that SplitFetchedUnfetchedCrawlDatums
@@ -491,11 +502,13 @@ public class Crawl {
 			////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			Map<String, String> urlsToIds = new HashMap<String, String>();
+			Map<String,Integer> langnumMap = new HashMap<String,Integer>();
 			// Finished crawling. Now export if needed.
 			if (operation.contains(EXPORT_operation)) {
 				Exporter se = new Exporter();
 				se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
 				se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
+				se.setDepth(options.upToDepth());
 				se.setTargetLanguages(options.getTargetedLangs());
 				se.setCrawlDirName(outputDirName);
 				se.setTopic(options.getTopic());
@@ -506,10 +519,32 @@ public class Crawl {
 				se.setTargetedDomain(options.getTargetedDomain());
 				se.setGenres(options.getGenre());
 				se.setUrlsToIds(urlsToIds);
-				se.export(false);
+				langnumMap = se.export(false);
 			}else{
 				LOGGER.info("Crawl ended");
 				System.exit(0);
+			}
+			if (options.upToDepth()<10000){
+				String webdomains = options.getFilter();
+				if (webdomains.isEmpty())
+					webdomains = options.getDomain()+"\t"+options.getMainDomain();
+				String csvtext = "targeted domain:\t"+webdomains+"\n";
+				csvtext = csvtext+"crawled up to depth:\t"+options.upToDepth()+"\n";
+				csvtext = csvtext+"minimum length of text of accepted webpages:\t"+options.getminTokenslength()+"\n";
+				csvtext = csvtext+"staring from:\t"+FileUtils.readFileToString(new File(options.getUrls()));
+				csvtext = csvtext+"languages\tnumber of pages\n";
+				String[][] sortlangs = Statistics.sort2darray(FCStringUtils.map2array(langnumMap),2,"d");
+				for (int kk=0;kk<sortlangs.length;kk++){
+					if (!sortlangs[kk][1].equals("0"))
+						csvtext = csvtext+sortlangs[kk][0]+"\t"+sortlangs[kk][1]+"\n";
+				}
+				File csvfile = new File(options.getBaseName()+CSV);
+				try {
+					FileUtils.writeStringToFile(csvfile, csvtext);
+				} catch (IOException e) {
+					LOGGER.error("problem in writing the file "+csvfile.getAbsolutePath());
+					e.printStackTrace();
+				}
 			}
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//File parentDir =new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)); 
@@ -518,7 +553,6 @@ public class Crawl {
 			if (options.getType().equals(p_type)){	
 				//This info is known from crawl session. If a pair exists in hreflangIDPairs, it does not mean that we have fetched the webpages of this pair (i.e. the cycles were not enough, the content is too short.
 				Map<String, String> idPairsFromTranslationLinks = BitextsTranslationLinks.getIdPairsFromTranslationLinks(urlPairsFromTranslationLinks, urlsToIds);
-
 				// Remove (near) duplicates.  DOCS THAT ARE INCLUDED IN hreflangURLPairs ARE NOT REMOVED
 				if (operation.contains(DEDUP_operation)){
 					Set<String> filesinPairs = BitextUtils.getDocsinPairs(idPairsFromTranslationLinks);  
@@ -586,6 +620,8 @@ public class Crawl {
 					ha.setKeepEmpty(options.getKeepEmpty());
 					ha.setKeepIdentical(options.getKeepIdentical());
 					ha.setKeepDuplicates(options.getKeepDuplicates());
+					ha.setO1(options.getO1());
+					ha.setO2(options.getO2());
 					//ha.setMetadata(options.getMetadata());
 					for (String lang_pair:options.getLangPairs()){
 						ha.setLanguage(lang_pair);
@@ -654,7 +690,11 @@ public class Crawl {
 			LOGGER.error("PlannerException: " + e.getMessage());
 			e.printStackTrace(System.err);
 			System.exit(-1);
-		} catch (Throwable t) {
+		} catch ( NullPointerException  e) {
+			LOGGER.error("null pointer: " + e.getMessage());			
+			e.printStackTrace(System.err);
+			System.exit(-1);
+		}catch (Throwable t) {
 			//System.err.println(conf.get("hadoop.tmp.dir"));
 			LOGGER.error("Exception running tool: " + t.getMessage());
 			LOGGER.error("Things you could check:");
