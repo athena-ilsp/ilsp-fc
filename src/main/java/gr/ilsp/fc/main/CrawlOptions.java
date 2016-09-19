@@ -77,6 +77,8 @@ public class CrawlOptions {
 	private File _outputFileHTMLTMX;
 	private File _outputFile_mergedTMX;
 	private File _outputFile_mergedTMXHTML;
+	private File _o1 ;
+	private File _o2 ;
 	private File _topic=null;
 
 	private  int _threads = 10;
@@ -85,6 +87,8 @@ public class CrawlOptions {
 	private  int _minTokensNumber = 100;
 	private  int _length = 3;
 	private  int _minTuvLen = 0;
+	private  int _level = 100;
+	private  int _depth = 10000;
 	private  double _minPerce01Align = 1;
 	private  double _minTULenRatio = 0;
 	private  double _maxTULenRatio = 100;
@@ -155,7 +159,7 @@ public class CrawlOptions {
 				.hasArg()
 				.create("cfg") );
 		options.addOption( OptionBuilder.withLongOpt("crawl")
-				.withDescription( "Start a crawl" )				
+				.withDescription( "Start or continue a crawl" )				
 				.create("crawl") );
 		options.addOption( OptionBuilder.withLongOpt("export")
 				.withDescription( "Export crawled documents to cesDoc XML files" )				
@@ -237,6 +241,10 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt( "keepboiler" )
 				.withDescription( "Keep and annotate boilerplate content in parsed text" )				
 				.create("k") );
+		options.addOption( OptionBuilder.withLongOpt( "crawlUpToDepth" )
+				.withDescription( "Links will not be extracted only from webpages which have been visited up to this number of cycles" )	
+				.hasArg()
+				.create("depth") );
 		options.addOption( OptionBuilder.withLongOpt( "delete_redundant_files" )
 				.withDescription( "Delete redundant crawled documents that have not been detected as members of a document pair" )				
 				.create("del") );
@@ -286,6 +294,10 @@ public class CrawlOptions {
 				.withDescription("Crawl type: m (monolingual) or  p (parallel)" )
 				.hasArg()
 				.create("type") );
+		options.addOption( OptionBuilder.withLongOpt( "levelfilter" )
+				.withDescription( "Use this option to force the crawler visit only urls that are up to a specific level of a webdomain webdomains." )	
+				.hasArg()
+				.create("level") );
 		options.addOption( OptionBuilder.withLongOpt( "fetchfilter" )
 				.withDescription( "Use this regex to force the crawler to crawl only in specific sub webdomains. Webpages with urls that do not match this regex will not be fetched." )	
 				.hasArg()
@@ -330,6 +342,14 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt( "creative_commons" )
 				.withDescription( "Force the alignment process to generate a merged TMX with sentence alignments only from document pairs for which an open content license has been detected.")
 				.create("cc") );
+		options.addOption( OptionBuilder.withLongOpt( "specific_output1" )
+				.withDescription( "Not used (Specific outout1)")
+				.hasArg()
+				.create("o1") );
+		options.addOption( OptionBuilder.withLongOpt( "specific_output2" )
+				.withDescription( "Not used (Specific outout2)")
+				.hasArg()
+				.create("o2") );
 		//options.addOption( OptionBuilder.withLongOpt( "metadata" )
 		//		.withDescription( "Generate a metadata description with information for a resource created with the crawler")
 		//		.create("metadata") );
@@ -358,7 +378,10 @@ public class CrawlOptions {
 
 			//get parameters concerning languages
 			if(line.hasOption( "lang")) {
-				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true);
+				String ll = line.getOptionValue("lang").toLowerCase();
+				if (line.getOptionValue("lang").toLowerCase().equals("g"))
+					ll = getSupportedLanguages();
+				_language = LangDetectUtils.updateLanguages(ll,true);
 				_targetedLangs =_language.split(QUEST_SEPAR);
 				_langKeys = findKeys4lang(_language);
 				_mapLangs = mapLangs(_language);
@@ -376,11 +399,15 @@ public class CrawlOptions {
 			if(line.hasOption( "i"))			{	_inputDir = new File(line.getOptionValue("i"));			}
 			if(line.hasOption( "o"))			{	_outputDir = new File(line.getOptionValue("o"));		}
 
+			if (_operation.contains(CRAWL_operation)){
+				getParams4Crawl(line);
+			}
+			
 			if (line.hasOption( "bs")) {
-				_outBaseName = new File(line.getOptionValue("bs"));				_outBaseName = _outBaseName.getAbsoluteFile();
-				_outputFile = new File(line.getOptionValue("bs")+XMLlist);		_outputFile = _outputFile.getAbsoluteFile();
+				_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName);			_outBaseName = _outBaseName.getAbsoluteFile();
+				_outputFile = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLlist);	_outputFile = _outputFile.getAbsoluteFile();
 				if(line.hasOption( "oxslt")) {
-					_outputFileHTML = new File(line.getOptionValue("bs")+XMLHTMLlist);
+					_outputFileHTML = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLHTMLlist);
 					_outputFileHTML = _outputFileHTML.getAbsoluteFile();
 				} 
 			}else{
@@ -388,9 +415,6 @@ public class CrawlOptions {
 					LOGGER.error("Outputfile required ");
 					System.exit(0);
 				}
-			}
-			if (_operation.contains(CRAWL_operation)){
-				getParams4Crawl(line);
 			}
 			if (_operation.contains(ALIGN_operation) || _operation.contains(TMX_MERGE_operation)){
 				if(line.hasOption("iso6393"))
@@ -539,8 +563,9 @@ public class CrawlOptions {
 	 */
 	private void getParams4Crawl(CommandLine line) {
 		if(line.hasOption( "a")){
-			_agentName = line.getOptionValue("a");
+			_agentName = line.getOptionValue("a").replace(" ", "_");
 		}else{
+			LOGGER.error("option -a is required");
 			help();
 		}
 		if (line.hasOption("type"))
@@ -563,6 +588,8 @@ public class CrawlOptions {
 		if(line.hasOption("f"))				{	_force   = true;	}
 		if (line.hasOption("filter"))		{	_filter = line.getOptionValue("filter");	}
 		if (line.hasOption("storefilter"))	{	_storefilter = line.getOptionValue("storefilter");	}
+		if(line.hasOption("level")) 		{	_level = Integer.parseInt(line.getOptionValue("level"));	}
+		if(line.hasOption("depth")) 		{	_depth = Integer.parseInt(line.getOptionValue("depth"));	}
 
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 		if (line.hasOption( "dest")) {
@@ -732,20 +759,18 @@ public class CrawlOptions {
 	 */
 	private void getParams4Align(CommandLine line) {
 		_aligner = line.getOptionValue("align");
-		if (_aligner==null){
+		if (_aligner==null)
 			_aligner = default_aligner;
-		}
 		if (line.hasOption( "dict")) {
 			_dict = line.getOptionValue("dict");
-			if (_dict==null) {
+			if (_dict==null) 
 				_dict = "default";
-			}
-		}else{
+		}else
 			_dict=null;
-		}
-		_outputFileTMX = new File(line.getOptionValue("bs")+TMXlist);	_outputFileTMX = _outputFileTMX.getAbsoluteFile();	
+		_outputFileTMX = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+TMXlist);
+		_outputFileTMX = _outputFileTMX.getAbsoluteFile();	
 		if (line.hasOption( "oxslt")){
-			_outputFileHTMLTMX = new File(line.getOptionValue("bs")+TMXHTMLlist);
+			_outputFileHTMLTMX = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+TMXHTMLlist);
 			_outputFileHTMLTMX =_outputFileHTMLTMX.getAbsoluteFile();	
 		}
 	}
@@ -759,10 +784,10 @@ public class CrawlOptions {
 	 * @param line
 	 */
 	private void getParams4MergingAlignments(CommandLine line) {
-		_outputFile_mergedTMX = new File(line.getOptionValue("bs")+TMXEXT);
-		_outputFile_mergedTMX = _outputFile_mergedTMX.getAbsoluteFile();	
+		_outputFile_mergedTMX = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+TMXEXT);
+		_outputFile_mergedTMX = _outputFile_mergedTMX.getAbsoluteFile();
 		if (line.hasOption( "oxslt")){
-			_outputFile_mergedTMXHTML = new File(line.getOptionValue("bs")+TMXEXT+HTMLEXT);
+			_outputFile_mergedTMXHTML = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+TMXEXT+HTMLEXT);
 			_outputFile_mergedTMXHTML =_outputFile_mergedTMXHTML.getAbsoluteFile();
 		}
 		if (line.hasOption("pdm"))
@@ -793,8 +818,10 @@ public class CrawlOptions {
 		}
 		if (line.hasOption("cc"))
 			_cc=true;
-		//if (line.hasOption("metadata"))
-		//	_metadata=true;
+		if (line.hasOption("o1"))
+			_o1=new File(line.getOptionValue("o1"));
+		if (line.hasOption("o2"))
+			_o2=new File(line.getOptionValue("o2"));
 	}
 
 	/**
@@ -907,7 +934,21 @@ public class CrawlOptions {
 		return result;
 	}
 
-
+	private String getSupportedLanguages() {
+		String supportedlangs = "";
+		try {
+			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
+			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
+			String str;
+			while ((str = in.readLine()) != null) {
+				supportedlangs=supportedlangs+QUEST_SEPAR+str.subSequence(0, str.indexOf(">")).toString();
+			}
+			in.close();
+		} catch (IOException e) {
+			LOGGER.error("Problem in reading the file for langKeys.");
+		}
+		return supportedlangs.substring(1);
+	}
 
 	public  void help(){
 		printHelp( APPNAME , options );
@@ -1078,6 +1119,12 @@ public class CrawlOptions {
 	public int getminTokenslength() {
 		return _minTokensNumber;
 	}
+	public int getCrawlLevel() {
+		return _level;
+	}
+	public int upToDepth() {
+		return _depth;
+	}
 	public String getOperation() {
 		return _operation;
 	}
@@ -1104,7 +1151,10 @@ public class CrawlOptions {
 	public boolean getKeepDuplicates() {
 		return _keepdup;
 	}
-	//public boolean getMetadata() {
-	//	return _metadata;
-	//}
+	public File getO1() {
+		return _o1;
+	}
+	public File getO2() {
+		return _o2;
+	}
 }
