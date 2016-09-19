@@ -1,7 +1,5 @@
 package gr.ilsp.fc.extractors;
 
-
-import gr.ilsp.fc.main.WriteResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.Statistics;
 
@@ -15,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.pdfbox.exceptions.CryptographyException;
 //import org.apache.pdfbox.exceptions.InvalidPasswordException;
@@ -22,7 +21,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDStream;
-
 
 public class Pdf2text {
 	private static final Logger LOGGER = Logger.getLogger(Pdf2text.class);
@@ -69,7 +67,8 @@ public class Pdf2text {
 					if (content.isEmpty()){
 						System.out.println(filename);
 					}else{
-						WriteResources.writetextfile(input.getAbsolutePath()+".txt", content);
+						//WriteResources.writetextfile(input.getAbsolutePath()+".txt", content);
+						FileUtils.writeStringToFile(new File(input.getAbsolutePath()+".txt"), content);
 					}
 					//System.out.println(content);
 					LOGGER.info("done");
