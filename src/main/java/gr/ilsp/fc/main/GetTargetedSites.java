@@ -229,7 +229,13 @@ public class GetTargetedSites {
 			}
 			//	System.out.println(sitet.site+"\t"+sitet.lang1+"\t"+sitet.l1pages+"\t"+sitet.lang2+"\t"+sitet.l2pages+"\t"+String.valueOf(sitet.factor));
 		}
-		WriteResources.writetextfile(shellSiteFile.getAbsolutePath(), commands);
+		//WriteResources.writetextfile(shellSiteFile.getAbsolutePath(), commands);
+		try {
+			FileUtils.writeStringToFile(shellSiteFile, commands);
+		} catch (IOException e) {
+			System.err.println("Problem in writing commands");
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -275,7 +281,13 @@ public class GetTargetedSites {
 				}
 			}
 		}
-		WriteResources.writetextfile(urlSeedFile.getAbsolutePath(), seedurls);
+		//WriteResources.writetextfile(urlSeedFile.getAbsolutePath(), seedurls);
+		try {
+			FileUtils.writeStringToFile(urlSeedFile, seedurls);
+		} catch (IOException e) {
+			System.err.println("Problem in writing seedurls");
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -373,7 +385,14 @@ public class GetTargetedSites {
 				}
 			}
 		}
-		WriteResources.writetextfile(urlSeedFile.getAbsolutePath(), seedurls);
+		//WriteResources.writetextfile(urlSeedFile.getAbsolutePath(), seedurls);
+		try {
+			FileUtils.writeStringToFile(urlSeedFile, seedurls);
+		} catch (IOException e) {
+			System.err.println("Problem in writing seedurls");
+			e.printStackTrace();
+		}
+		
 				
 		Collections.sort(sites, new SiteComparator());
 		String commands = "";
@@ -389,8 +408,13 @@ public class GetTargetedSites {
 			}
 			//	System.out.println(sitet.site+"\t"+sitet.lang1+"\t"+sitet.l1pages+"\t"+sitet.lang2+"\t"+sitet.l2pages+"\t"+String.valueOf(sitet.factor));
 		}
-		WriteResources.writetextfile(shellSiteFile.getAbsolutePath(), commands);
-		
+		//WriteResources.writetextfile(shellSiteFile.getAbsolutePath(), commands);
+		try {
+			FileUtils.writeStringToFile(shellSiteFile, commands);
+		} catch (IOException e) {
+			System.err.println("Problem in writing commands");
+			e.printStackTrace();
+		}
 	}
 	
 	
