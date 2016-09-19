@@ -69,7 +69,7 @@ public class AnalyzerFactory {
 			return new LatvianAnalyzer();
 		} else if (lang3.equals("lit")) {
 			return new LithuanianAnalyzer();
-		} else if (lang3.equals("hrv")) {
+		} else if (lang3.equals("hrv") || lang3.equals("srp")) { //FIXME Same analyzer for Serbian and Croatian !!!
 			return new CroatianAnalyzer();
 		} else if (lang3.equals("hun")) {
 			return new HungarianAnalyzer();
@@ -89,7 +89,7 @@ public class AnalyzerFactory {
 			return new DutchAnalyzer();
 		} else if (lang3.equals("glg")) {
 			return new GalicianAnalyzer();
-		} else if (lang3.equals("ces") || lang3.equals("slk")) {
+		} else if (lang3.equals("ces") || lang3.equals("slk")) { //FIXME Same analyzer for Czech and Slovak !!!
 			return new CzechAnalyzer();
 		} else if (lang3.equals("dan")) {
 			return new DanishAnalyzer();

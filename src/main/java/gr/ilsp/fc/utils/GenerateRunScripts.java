@@ -1,7 +1,6 @@
 package gr.ilsp.fc.utils;
 
 import gr.ilsp.fc.main.ReadResources;
-import gr.ilsp.fc.main.WriteResources;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -68,7 +67,8 @@ public class GenerateRunScripts {
 					outfile = outfile+winext;
 				}
 			}
-			WriteResources.writetextfile(outfile, commands);
+			//WriteResources.writetextfile(outfile, commands);
+			FileUtils.writeStringToFile(new File(outfile), commands);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

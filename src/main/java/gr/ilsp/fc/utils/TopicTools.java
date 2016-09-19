@@ -1,7 +1,7 @@
 package gr.ilsp.fc.utils;
 
 import gr.ilsp.fc.main.ReadResources;
-import gr.ilsp.fc.main.WriteResources;
+//import gr.ilsp.fc.main.WriteResources;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -229,7 +230,13 @@ public class TopicTools {
 				}
 			}
 		}
-		WriteResources.writetextfile(corpusFile.getAbsolutePath(), corpus);
+		//WriteResources.writetextfile(corpusFile.getAbsolutePath(), corpus);
+		try {
+			FileUtils.writeStringToFile(corpusFile, corpus);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 

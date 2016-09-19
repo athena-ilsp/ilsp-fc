@@ -1,7 +1,9 @@
 package gr.ilsp.fc.utils;
 
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -9,9 +11,39 @@ import java.util.Set;
 public class Statistics {
 
 	private static double text_thres=0.4;
+	enum SortingOrder{
+	    ASCENDING, DESCENDING;
+	};
+
 	
-	public static double getMean(Double[] numarray)
-	{
+	public static void main(String[] args) throws IOException {
+		String[][] temp = new String[3][2];
+		temp[0][0] = "en";  temp[0][1] = "25";
+		temp[1][0] = "fr";  temp[1][1] = "35";
+		temp[2][0] = "aa";  temp[2][1] = "15";
+		
+		sort2darray(temp,1, "d");
+		System.out.println("aaa");
+		
+	}
+	
+	private static class ColumnComparator implements Comparator<String[]> {
+		private final int iColumn;
+		private final SortingOrder order;
+		
+		public ColumnComparator(int column, SortingOrder order) {
+			this.iColumn = column;
+			this.order = order;
+		}
+
+		@Override 
+		public int compare(String[] c1, String[] c2) {
+			int result = c1[iColumn].compareTo(c2[iColumn]);
+			return order==SortingOrder.ASCENDING ? result : -result;
+		}
+	}
+	
+	public static double getMean(Double[] numarray){
 		double sum = 0.0;
 		for(double a : numarray)
 			sum += a;
@@ -25,17 +57,14 @@ public class Statistics {
 		int middle = numarray.length/2;
 		double medianValue = 0; //declare variable 
 		if (numarray.length%2 == 1) 
-		    medianValue = numarray[middle];
+			medianValue = numarray[middle];
 		else
-		   medianValue = (numarray[middle-1] + numarray[middle]) / 2;
-		
+			medianValue = (numarray[middle-1] + numarray[middle]) / 2;
+
 		return medianValue;
 	}
-	
-	
-	
-	public static double getVariance(Double[] numarray)
-	{
+
+	public static double getVariance(Double[] numarray)	{
 		double mean = getMean(numarray);
 		double temp = 0;
 		for(double a :numarray)
@@ -48,24 +77,12 @@ public class Statistics {
 		return Math.sqrt(getVariance(numarray));
 	}
 
-	/*public static double median(Double[] numarray) 
-	{
-		Double[] b = new Double[numarray.length];
-		System.arraycopy(numarray, 0, b, 0, b.length);
-		Arrays.sort(b);
-
-		if (numarray.length % 2 == 0) 
-			return (b[(b.length / 2) - 1] + b[b.length / 2]) / 2.0;
-		else 
-			return b[b.length / 2];
-	}*/
-	
 	public static int min3(int i, int j, int k) {
 		int l = Math.min(i, j);
 		int res = Math.min(l, k);
 		return res;
 	}
-	
+
 	public static double editDist(String s, String t) {
 		int cost;
 
@@ -98,7 +115,7 @@ public class Statistics {
 		}
 		return v1[t.length()];
 	}
-	
+
 	public static int editDist(int[] sl, int[] tl) {
 		int n=sl.length, m=tl.length, cost, sl_i, tl_j; 
 		int d[][] = new int[n+1][m+1]; // matrix
@@ -130,7 +147,7 @@ public class Statistics {
 		}
 		return d[n][m];
 	}
-	
+
 	/**
 	 * calculate by using SVM with linear kernel
 	 * @param f1
@@ -168,7 +185,7 @@ public class Statistics {
 				tempFreq = bins.get(numArray[ii])+1;
 			else
 				tempFreq = 1.0;
-			
+
 			bins.put(numArray[ii],tempFreq);
 		}
 		return bins;
@@ -195,6 +212,14 @@ public class Statistics {
 		Arrays.sort(numarray);
 		return numarray[numarray.length-1];
 	}
-	
-	
+
+	public static String[][] sort2darray(String[][] arr, int col, String order) {
+		ColumnComparator cc = null;
+		if (order.equals("a"));
+			cc = new ColumnComparator(0,SortingOrder.ASCENDING);
+		if (order.equals("d"))
+			cc = new ColumnComparator(0,SortingOrder.DESCENDING);
+		Arrays.sort(arr, cc);
+		return arr;
+	}
 }

@@ -5,7 +5,6 @@ import gr.ilsp.fc.bitext.Bitexts;
 import gr.ilsp.fc.bitext.Bitexts.DocVector;
 import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.main.ReadResources;
-import gr.ilsp.fc.main.WriteResources;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -53,7 +52,14 @@ public class TempUtils {
 
 	public static void main(String[] args) throws IOException {
 
-		URL url = new URL("http://www.svb.nl");
+		URL url = new URL("https://github.com/bixo/bixo/blob/master/examples/src/test/java/bixo/examples/crawl/DemoCrawlWorkflowLRTest.java");
+		System.out.println(url.getPath());
+		url = new URL("http://www.antagonistikotita.gr/epanek/proskliseis.asp?id=49&cs=");
+		System.out.println(url.getPath());
+		url = new URL("http://www.ilsp.gr/el/infoprojects/meta");
+		System.out.println(url.getPath());
+		System.exit(0);
+		
 		URLConnection conn = url.openConnection();
 		InputStream ins = conn.getInputStream();
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -998,7 +1004,8 @@ public class TempUtils {
 				continue;
 
 		}
-		WriteResources.writetextfile(FilenameUtils.concat(location,score_text), score);
+		//WriteResources.writetextfile(FilenameUtils.concat(location,score_text), score);
+		FileUtils.writeStringToFile(new File(FilenameUtils.concat(location,score_text)), score);
 	}
 
 	private static void merge_outlist_files(String sourcedir, String newfile) throws IOException {
@@ -1013,7 +1020,8 @@ public class TempUtils {
 				whole_text=whole_text+"\n"+text;
 			}
 		}
-		WriteResources.writetextfile(filename, whole_text);
+		//WriteResources.writetextfile(filename, whole_text);
+		FileUtils.writeStringToFile(new File(filename), whole_text);
 	}
 
 	private static void check_bilingual_collection(String source_path,	String langs1, String output_list_file) throws IOException {
@@ -1295,7 +1303,7 @@ public class TempUtils {
 
 
 	private static void discriminate_CC_from_nonCC(String xml_dir,
-			String xmlCC_dir, String licensed_list, String nonCC_list, String CC_list, String pathstring) {
+			String xmlCC_dir, String licensed_list, String nonCC_list, String CC_list, String pathstring) throws IOException {
 
 		String tmp1;
 		try {
@@ -1353,7 +1361,8 @@ public class TempUtils {
 			if (filesinXML[ii].endsWith("xml"))
 				urlList=urlList + pathstring+filesinXML[ii]+"\n";
 		}
-		WriteResources.writetextfile(CC_list,urlList);
+		//WriteResources.writetextfile(CC_list,urlList);
+		FileUtils.writeStringToFile(new File(nonCC_list), urlList);
 		writeHTMLfile(CC_list+appHTMLext,urlList,true);
 
 		temp_dir = xml_dir;
@@ -1364,7 +1373,10 @@ public class TempUtils {
 			if (filesinXML[ii].endsWith("xml"))
 				urlList=urlList + pathstring+filesinXML[ii]+"\n";
 		}
-		WriteResources.writetextfile(nonCC_list,urlList);
+		//WriteResources.writetextfile(nonCC_list,urlList);
+		
+		FileUtils.writeStringToFile(new File(nonCC_list), urlList);
+		
 		writeHTMLfile(nonCC_list+appHTMLext,urlList,true);
 	}
 

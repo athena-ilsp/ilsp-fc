@@ -165,7 +165,8 @@ public class LicensePostProcessor {
 				if (text.contains("              <license target=")){ 
 					text=text.replace("        <availability>Under review</availability>\r\n", "");
 				}
-				WriteResources.writetextfile(curFile.getAbsolutePath(),text);
+				//WriteResources.writetextfile(curFile.getAbsolutePath(),text);
+				FileUtils.writeStringToFile(curFile, text);
 //	text.replace("<availability>Under review</availability>",);
 			}
 		}

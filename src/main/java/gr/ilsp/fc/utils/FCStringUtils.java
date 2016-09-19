@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +18,7 @@ public  class FCStringUtils {
 	private static final String NOT_A_LETTER_PATTERN = "\\P{L}+";
 	private static String CHINESE="zho";
 	private static final Logger LOGGER = Logger.getLogger(FCStringUtils.class);
-	
+
 	public static int getGraphemeLength(String str) {
 		BreakIterator it = BreakIterator.getCharacterInstance();
 		it.setText(str);
@@ -142,6 +145,20 @@ public  class FCStringUtils {
 			lens[ii] = (double) tokens.get(ii).length();
 		}
 		return lens;
+	}
+
+	public static String[][] map2array(Map<String, Integer> map) {
+		String[][] arr = new String[map.size()][2];
+		Set entries = map.entrySet();
+		Iterator entriesIterator = entries.iterator();
+		int i = 0;
+		while(entriesIterator.hasNext()){
+			Map.Entry mapping = (Map.Entry) entriesIterator.next();
+			arr[i][0] = mapping.getKey().toString();
+			arr[i][1] = mapping.getValue().toString();
+			i++;
+		}
+		return arr;
 	}
 
 }
