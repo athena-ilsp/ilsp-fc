@@ -73,7 +73,7 @@ public class ExtendedLinksExtractorTest {
 				"Test that links contain links with hreflang attributes");
 		testGetLinks(  
 				"http://www.fold.lv/en/2015/07/the-entomology-and-wanderlust-of-one-wolf/",
-				"http://www.fold.lv/2015/07/one-wolf-entomologija-un-celotaja-gars/", 
+				"http://www.fold.lv/2015/07/one-wolf-entomologija-un-celotaja-gars/",
 				"Test that links contain links with hreflang attributes");
 	}
 	
