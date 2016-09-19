@@ -247,6 +247,7 @@ public class Bitexts {
 	public static ArrayList<String[]> findPairsUIDS(File xmldir, String methods, String[] langs,  Map<String, String> hreflangIDPairs,
 			String outputDirName, String[][] urlRepls, boolean offlineXSLT, boolean keepimpath, File groundTruth) {
 
+		List<String> targetlanguages = Arrays.asList(langs);
 		ArrayList<String[]> bitextsALL=new ArrayList<String[]>();
 		LOGGER.info("Feature extraction from generated cesDoc and corresponding HTML/msoffice/pdf files");
 		//extracts features and images of docs
@@ -270,7 +271,7 @@ public class Bitexts {
 		//generates cesAlign based on this method, updates list with bitexts, calculates tokens for this method
 		if (methods.contains(a_type)){
 			if (hreflangIDPairs!=null){
-				bitexts=BitextsURLs.findpairsHRefLang(hreflangIDPairs, features);
+				bitexts=BitextsURLs.findpairsHRefLang(hreflangIDPairs, features,targetlanguages);
 				if (bitexts.size()>0){
 					LOGGER.info(bitexts.size()+ " pairs found (based on links).");
 					WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
@@ -290,7 +291,7 @@ public class Bitexts {
 		if (methods.contains(u_type)){
 			if (features.size()>1){
 				//Find pairs based on URLs
-				bitexts=BitextsURLs.findpairsURLs(features,urlRepls);
+				bitexts=BitextsURLs.findpairsURLs(features,urlRepls,targetlanguages);
 				if (bitexts.size()>0){
 					LOGGER.info(bitexts.size()+ " pairs found (based on URLs).");
 					WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
@@ -310,7 +311,7 @@ public class Bitexts {
 			if (features.size()>1){
 				bitexts=new ArrayList<String[]>();
 				if (imagesInHTML.size()>1){
-					bitexts=BitextsImages.findpairsIMDI(imagesInHTML,features);
+					bitexts=BitextsImages.findpairsIMDI(imagesInHTML,features, targetlanguages);
 					//bitexts=BitextsImages.findpairsIMDI__(imagesInHTML,features, langs);
 					if (bitexts.size()>0){
 						LOGGER.info(bitexts.size()+ " pairs found (based on images and digits).");
@@ -331,7 +332,7 @@ public class Bitexts {
 		if (methods.contains(d_type)){
 			if (features.size()>1){
 				//bitexts = BitextsDigits.findpairsDig__(features, langs);
-				bitexts = BitextsDigits.findpairsDig(features);
+				bitexts = BitextsDigits.findpairsDig(features, targetlanguages);
 				if (bitexts.size()>0){
 					LOGGER.info(bitexts.size()+ " pairs found (based on digits).");
 					WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
@@ -349,7 +350,7 @@ public class Bitexts {
 			if (features.size()>1){
 				bitexts=new ArrayList<String[]>();
 				if (imagesInHTML.size()>1){
-					bitexts=BitextsImages.findpairsIM(imagesInHTML,features);
+					bitexts=BitextsImages.findpairsIM(imagesInHTML,features, targetlanguages);
 					//bitexts=BitextsImages.findpairsIM__(imagesInHTML,features,langs);
 					if (bitexts.size()>0){
 						LOGGER.info(bitexts.size()+ " pairs found (based on images).");

@@ -5,15 +5,16 @@ import gr.ilsp.fc.utils.PrettyPrintHandler;
 
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
-import java.io.BufferedWriter;
+//import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+//import java.io.Writer;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -242,36 +243,71 @@ public class WriteBitexts {
 	public static void writeOutList(File outputDirName, File outputFile, 
 			File outputFileHTML, ArrayList<String[]> bitexts ) {
 		String filename, fullfilename;
-
-		try {
-			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
-			for (int ii=bitexts.size()-1;ii>-1;ii--){
-				filename=bitexts.get(ii)[0]+UNDERSCORE_STR+bitexts.get(ii)[1]+UNDERSCORE_STR+bitexts.get(ii)[4].substring(0, 1)+appXMLext;
-				out.write(FilenameUtils.concat(outputDirName.getAbsolutePath(),filename).replace("\\","/")+"\n");
-			}
-			out.close();
-		} catch (IOException e){
-			System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
-			e.printStackTrace();
+		LOGGER.debug("CesAlignListFile:"+"\t"+outputFile.getAbsolutePath());
+		List<String> cesAlignFiles = new ArrayList<String>();
+		for (int ii=bitexts.size()-1;ii>-1;ii--){
+			filename=bitexts.get(ii)[0]+UNDERSCORE_STR+bitexts.get(ii)[1]+UNDERSCORE_STR+bitexts.get(ii)[4].substring(0, 1)+appXMLext;
+			cesAlignFiles.add(FilenameUtils.concat(outputDirName.getAbsolutePath(),filename).replace("\\","/"));
 		}
+		try {
+			FileUtils.writeLines(outputFile, cesAlignFiles);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			System.err.println("Problem in writing file containing the list of paths of cesAlign files");
+			e1.printStackTrace();
+		}
+		
+		LOGGER.debug("Rendered CesAlignListFile:"+"\t"+outputFileHTML.getAbsolutePath());
 		if (outputFileHTML!=null){
+			List<String> cesAlignHTMLFiles = new ArrayList<String>();
+			cesAlignHTMLFiles.add(XMLNS);
+			for (int ii=bitexts.size()-1;ii>-1;ii--){
+				filename= bitexts.get(ii)[0]+UNDERSCORE_STR+bitexts.get(ii)[1]+UNDERSCORE_STR+bitexts.get(ii)[4].substring(0, 1)+appXMLHTMLext;
+				fullfilename = FilenameUtils.concat(outputDirName.getAbsolutePath(), filename).replace("\\","/");
+				cesAlignHTMLFiles.add("<br />"+"<a href=\""+fullfilename+"\">\n"+filename+"</a>");
+			}
+			cesAlignHTMLFiles.add("</html>");
 			try {
-				Writer out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileHTML),"UTF-8"));
-				if (bitexts.size()>0){
-					out1.write(XMLNS);
-					for (int ii=bitexts.size()-1;ii>-1;ii--){
-						filename= bitexts.get(ii)[0]+UNDERSCORE_STR+bitexts.get(ii)[1]+UNDERSCORE_STR+bitexts.get(ii)[4].substring(0, 1)+appXMLHTMLext;
-						fullfilename = FilenameUtils.concat(outputDirName.getAbsolutePath(), filename).replace("\\","/");
-						out1.write("<br />"+"<a href=\""+fullfilename+"\">\n"+filename+"</a>"+"\n");
-					}
-					out1.write("</html>");
-				}
-				out1.close();
-			} catch (IOException e){
-				System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
-				e.printStackTrace();
-			}	
+				FileUtils.writeLines(outputFileHTML, cesAlignHTMLFiles);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				System.err.println("Problem in writing file containing the list of links pointing to rendered cesAlign files");
+				e1.printStackTrace();
+			}
 		}
 	}
-
+	
+	/*try {
+	Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
+	LOGGER.info("items in document pair list:\t"+bitexts.size());
+	for (int ii=bitexts.size()-1;ii>-1;ii--){
+		LOGGER.info(ii);
+		filename=bitexts.get(ii)[0]+UNDERSCORE_STR+bitexts.get(ii)[1]+UNDERSCORE_STR+bitexts.get(ii)[4].substring(0, 1)+appXMLext;
+		LOGGER.info("CesAlignFileName:\t"+filename);
+		LOGGER.info("CesAlign in ListFile:"+"\t"+
+				FilenameUtils.concat(outputDirName.getAbsolutePath(),filename).replace("\\","/"));
+		out.write(FilenameUtils.concat(outputDirName.getAbsolutePath(),filename).replace("\\","/")+"\n");
+	}
+	out.close();
+} catch (IOException e){
+	System.err.println("Problem in writing the output file i.e. the list of paths of cesAlign files.");
+	e.printStackTrace();
+}*/
+	
+	/*try {
+		Writer out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileHTML),"UTF-8"));
+		if (bitexts.size()>0){
+			out1.write(XMLNS);
+			for (int ii=bitexts.size()-1;ii>-1;ii--){
+				filename= bitexts.get(ii)[0]+UNDERSCORE_STR+bitexts.get(ii)[1]+UNDERSCORE_STR+bitexts.get(ii)[4].substring(0, 1)+appXMLHTMLext;
+				fullfilename = FilenameUtils.concat(outputDirName.getAbsolutePath(), filename).replace("\\","/");
+				out1.write("<br />"+"<a href=\""+fullfilename+"\">\n"+filename+"</a>"+"\n");
+			}
+			out1.write("</html>");
+		}
+		out1.close();
+	} catch (IOException e){
+		System.err.println("Problem in writing the output file i.e. the list of urls pointing to cesAlign files.");
+		e.printStackTrace();
+	}	*/
 }

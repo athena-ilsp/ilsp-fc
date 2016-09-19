@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -27,10 +28,11 @@ public class BitextsDigits {
 	/**
 	 * identifies pairs based on common digits
 	 * @param features holds filename as key and its features in DocVector as value
+	 * @param targetlanguages 
 	 * @return
 	 */
 	//FIXME thresholds should be checked and selected more carefully (if we keep using thresholds)
-	public static ArrayList<String[]> findpairsDig(HashMap<String,DocVector> features) {
+	public static ArrayList<String[]> findpairsDig(HashMap<String,DocVector> features, List<String> targetlanguages) {
 		LOGGER.info("Examining pages based on common digits");
 		ArrayList<String[]> pairs = new ArrayList<String[]>();
 		String  key1, key2, digits1, digits2, lang1, lang2;
@@ -53,12 +55,16 @@ public class BitextsDigits {
 				paired.add(key1); // even it is not paired, we do not need to examine it 
 				continue;
 			}
+			lang1=features.get(key1).codeLang;
+			if (!targetlanguages.contains(lang1)){
+				paired.add(key1); // even it is not paired, we do not need to examine it
+				continue;
+			}
 			digits1=features.get(key1).digitList;
 			if (StringUtils.isBlank(digits1)){
 				paired.add(key1); // even it is not paired, we do not need to examine it 
 				continue;			
 			}
-			lang1=features.get(key1).codeLang;
 			level1=features.get(key1).urlLevel;
 			p1=features.get(key1).numPars;
 			tok1=features.get(key1).numToksnoBoil;
@@ -75,15 +81,20 @@ public class BitextsDigits {
 					paired.add(key2); // even it is not paired, we do not need to examine it 
 					continue;
 				}
+				lang2=features.get(key2).codeLang;
+				if (lang1.equals(lang2))
+					continue;
+				if (!targetlanguages.contains(lang2)){
+					paired.add(key2); // even it is not paired, we do not need to examine it
+					continue;
+				}
 				digits2=features.get(key2).digitList;
 				digits2length = digits2.length();
 				if (StringUtils.isBlank(digits2)){
 					paired.add(key2); // even it is not paired, we do not need to examine it
 					continue;	
 				}
-				lang2=features.get(key2).codeLang;
-				if (lang1.equals(lang2))
-					continue;
+				
 				level2=features.get(key2).urlLevel;
 				if (Math.abs(level1-level2)>URL_LEVEL)
 					continue;

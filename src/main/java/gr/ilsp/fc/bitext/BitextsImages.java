@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -29,11 +30,12 @@ public class BitextsImages {
 	 * Detects pairs of docs based on common filenames of images and digits. It also checks # of pars, #of toks, urlslevel 
 	 * @param imagesInHTML : key is the filename and value is an array with imagenames
 	 * @param features holds filename as key and its features in DocVector as value
+	 * @param targetlanguages 
 	 * @param targetedlang1 
 	 * @return
 	 * @throws IOException 
 	 */
-	public static ArrayList<String[]> findpairsIMDI(HashMap<String, String[]> imagesInHTML,HashMap<String, DocVector> features)  {
+	public static ArrayList<String[]> findpairsIMDI(HashMap<String, String[]> imagesInHTML,HashMap<String, DocVector> features, List<String> targetlanguages)  {
 		LOGGER.info("Examining pages for pairing based on common images and digits");
 		ArrayList<String[]> pairsIM=new ArrayList<String[]>();
 		HashMap<String,Double> temppairs=new HashMap<String,Double>();
@@ -64,6 +66,11 @@ public class BitextsImages {
 				paired.add(key1);//even it is not paired, we do not need to examine it 
 				continue;
 			}
+			lang1  = features.get(key1).codeLang;
+			if (!targetlanguages.contains(lang1)){
+				paired.add(key1);//even it is not paired, we do not need to examine it
+				continue;
+			}
 			digits1=features.get(key1).digitList;
 			Set<String> mySet1 = new HashSet<String>();
 			Collections.addAll(mySet1, imagesInHTML.get(key1));
@@ -71,7 +78,6 @@ public class BitextsImages {
 				paired.add(key1);//even it is not paired, we do not need to examine it 
 				continue;
 			}
-			lang1  = features.get(key1).codeLang;
 			level1=features.get(key1).urlLevel;
 			p1=features.get(key1).numPars;
 			cp1 = features.get(key1).numCleanPars;
@@ -89,6 +95,10 @@ public class BitextsImages {
 					continue;
 				}
 				lang2=features.get(key2).codeLang;
+				if (!targetlanguages.contains(lang2)){
+					paired.add(key2);//even it is not paired, we do not need to examine it
+					continue;
+				}
 				if (lang1.equals(lang2))
 					continue;
 				level2=features.get(key2).urlLevel;
@@ -175,11 +185,12 @@ public class BitextsImages {
 	 * Detects pairs of docs based on common filenames of images. It also checks # of pars, #of toks, urlslevel 
 	 * @param imagesInHTML : key is the filename and value is an array with imagenames
 	 * @param features holds filename as key and its features in DocVector as value
+	 * @param targetlanguages 
 	 * @param targetedlang1 
 	 * @return
 	 * @throws IOException 
 	 */
-	public static ArrayList<String[]> findpairsIM(HashMap<String, String[]> imagesInHTML, HashMap<String, DocVector> features){
+	public static ArrayList<String[]> findpairsIM(HashMap<String, String[]> imagesInHTML, HashMap<String, DocVector> features, List<String> targetlanguages){
 		LOGGER.info("Examining pages for pairing based on common images");
 		ArrayList<String[]> pairsIM=new ArrayList<String[]>();
 		HashMap<String,Double> temppairs=new HashMap<String,Double>();
@@ -210,13 +221,17 @@ public class BitextsImages {
 				paired.add(key1);//even it is not paired, we do not need to examine it 
 				continue;
 			}
+			lang1=features.get(key1).codeLang;
+			if (!targetlanguages.contains(lang1)){
+				paired.add(key1); // even it is not paired, we do not need to examine it
+				continue;
+			}
 			Set<String> mySet1 = new HashSet<String>();
 			Collections.addAll(mySet1, imagesInHTML.get(key1));
 			if (mySet1.isEmpty()){
 				paired.add(key1);//even it is not paired, we do not need to examine it
 				continue;
 			}
-			lang1=features.get(key1).codeLang;
 			level1=features.get(key1).urlLevel;
 			p1 = features.get(key1).numPars;
 			cp1 = features.get(key1).numCleanPars;
@@ -237,6 +252,10 @@ public class BitextsImages {
 				lang2=features.get(key2).codeLang;
 				if (lang1.equals(lang2))
 					continue;
+				if (!targetlanguages.contains(lang2)){
+					paired.add(key2); // even it is not paired, we do not need to examine it
+					continue;
+				}
 				Set<String> mySet2 = new HashSet<String>();
 				if (imagesInHTML.get(key2)==null){
 					paired.add(key2);//even it is not paired, we do not need to examine it

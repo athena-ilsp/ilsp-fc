@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,7 +30,7 @@ public class BitextsURLs {
 	 * @return list of pairs (id1, id2, lang1, lang2, type="a", total num of tokens)
 	 */	
 	//FIXME should we add a check on #of paragraphs and #of tokens? If yes, we need features variable
-	public static ArrayList<String[]> findpairsHRefLang(Map<String, String> hreflangIDPairs, HashMap<String, DocVector> features) {
+	public static ArrayList<String[]> findpairsHRefLang(Map<String, String> hreflangIDPairs, HashMap<String, DocVector> features, List<String> targetlanguages) {
 		LOGGER.info("Examining pages based on links");
 		ArrayList<String[]> pairs = new ArrayList<String[]>();
 		Set<String> paired = new HashSet<>();
@@ -37,20 +38,24 @@ public class BitextsURLs {
 			String id1_lang = entry.getKey();
 			int p1 = id1_lang.lastIndexOf(HYPHEN);
 			String lang1 = id1_lang.substring(0, p1);
+			if (!targetlanguages.contains(lang1))
+				continue;
 			String id1 = id1_lang.substring(p1+1);
 
 			String id2_lang = entry.getValue();
 			int p2 = id2_lang.lastIndexOf(HYPHEN);
 			String lang2 = id2_lang.substring(0, p2);
+			if (!targetlanguages.contains(lang2))
+				continue;
 			String id2 = id2_lang.substring(p2+1);
 			if (lang1.equals(lang2))
 				continue;
 			if (paired.contains(id1) && paired.contains(id2)) // Do not add the other pair direction. 
 				continue;
-			/*if (paired.contains(id1_lang))
+			if (paired.contains(id1_lang))
 				System.out.println("Multiple matches :" + id1_lang);
 			if (paired.contains(id2_lang))
-				System.out.println("Multiple matches :" + id2_lang);*/
+				System.out.println("Multiple matches :" + id2_lang);		
 			String temp[] = {id1_lang, id2_lang, lang1,lang2, pair_type_link, Double.toString(features.get(id1_lang).numToksnoOOI+features.get(id2_lang).numToksnoOOI)};
 			if (id1_lang.compareTo(id2_lang)>0){
 				temp[0] = id2_lang;
@@ -74,7 +79,7 @@ public class BitextsURLs {
 	 * @return list of pairs (id1, id2, lang1, lang2, type="u", total num of tokens)
 	 */
 	//FIXME should we add a check on # of paragraphs and #of tokens?
-	public static ArrayList<String[]> findpairsURLs(HashMap<String, DocVector> features, String[][] urls_repls) {
+	public static ArrayList<String[]> findpairsURLs(HashMap<String, DocVector> features, String[][] urls_repls, List<String> targetlanguages) {
 		LOGGER.info("Examining pages for pairing based on URLs");
 		ArrayList<String[]> result=new ArrayList<String[]>();
 		Set<String> paired=new HashSet<String>();
@@ -98,6 +103,10 @@ public class BitextsURLs {
 				continue;
 			}
 			lang1=features.get(key1).codeLang;
+			if (!targetlanguages.contains(lang1)){
+				paired.add(key1); // even it is not paired, we do not need to examine it
+				continue;
+			}
 			level1=features.get(key1).urlLevel;
 			p1=features.get(key1).numPars;
 			tok1=features.get(key1).numToksnoBoil;
@@ -113,6 +122,10 @@ public class BitextsURLs {
 					continue;
 				}
 				lang2=features.get(key2).codeLang;
+				if (!targetlanguages.contains(lang2)){
+					paired.add(key2); // even it is not paired, we do not need to examine it
+					continue;
+				}
 				if (lang1.equals(lang2))
 					continue;
 				level2=features.get(key2).urlLevel;
