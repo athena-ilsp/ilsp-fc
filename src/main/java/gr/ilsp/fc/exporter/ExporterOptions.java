@@ -32,6 +32,7 @@ public class ExporterOptions {
 	private String[] _targetlanguages;
 		
 	private int _length=3;
+	private int _depth=10000;
 	private int _minTokensNumber=100;
 	
 	private boolean _textexport=false;
@@ -119,6 +120,10 @@ public class ExporterOptions {
 						" This might be useful for crawling via the web service")
 						.hasArg()
 						.create("p_r") );
+		options.addOption( OptionBuilder.withLongOpt( "exportUpToDepth" )
+				.withDescription( "Export webpages which have been stored up to this number of cycles" )	
+				.hasArg()
+				.create("depth") );
 		return options;
 	}
 
@@ -176,6 +181,8 @@ public class ExporterOptions {
 				_length = Integer.parseInt(line.getOptionValue("len"));
 			if(line.hasOption( "mtlen"))
 				_minTokensNumber = Integer.parseInt(line.getOptionValue("mtlen"));
+			if(line.hasOption( "depth"))
+				_depth = Integer.parseInt(line.getOptionValue("depth"));
 			if(line.hasOption( "neg")) {
 				_negwords = new File(line.getOptionValue("n"));
 				_negwords = new File(_negwords.getAbsolutePath());
@@ -232,6 +239,9 @@ public class ExporterOptions {
 
 	public int get_length() {
 		return _length;
+	}
+	public int get_depth() {
+		return _depth;
 	}
 	public int get_minTokenslength() {
 		return _minTokensNumber;

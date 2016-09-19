@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -129,6 +130,7 @@ public class Exporter {
 	private static final String boiler_tag = "<boiler>";
 	private static final String boiler_st = "<boiler";
 	private static final String XMLlist = ".xmllist.txt";
+	private static final String CSV = ".csv";
 	private static final String XMLHTMLlist = ".xmllist.html";
 	private static final String pdfmime = "pdf";
 	private static final String docmime = "word";
@@ -136,6 +138,7 @@ public class Exporter {
 	private static String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
 
 	private static int MIN_TOKENS_PER_PARAGRAPH;
+	private static int depth=10000;
 	private static int MIN_TOKENS_NUMBER;
 	private static String[] targetlanguages;
 
@@ -183,6 +186,7 @@ public class Exporter {
 	private static ArrayList<String> terms = null;
 	private static Map<String,String> meta = null;
 	private Map<String, String> urlsToIds;
+	private static Map<String, Integer> langnumMap = new HashMap<String, Integer>(); 
 
 	private static void processCrawlDb(JobConf conf, Path curDirPath, boolean exportDb) throws IOException {
 		TupleEntryIterator iter;
@@ -231,11 +235,12 @@ public class Exporter {
 		//fs.close();
 	}
 
-	public void export(boolean loadProfile) {
+	public Map<String,Integer> export(boolean loadProfile) {
 		long start = System.currentTimeMillis();
 		LOGGER.info("------------Exporting cesDoc Files------------");
 		for (int ii=0;ii<targetlanguages.length;ii++){
 			targetlanguages[ii] = ISOLangCodes.get3LetterCode(targetlanguages[ii]);
+			langnumMap.put(targetlanguages[ii], 0);
 		}
 		outputFile = new File(outBaseName.getAbsolutePath()+XMLlist);
 		if (applyOfflineXSLT)
@@ -295,6 +300,8 @@ public class Exporter {
 					if (curLoop != prevLoop + 1) 
 						LOGGER.warn(String.format("Missing directories between %d and %d", prevLoop, curLoop));
 					prevLoop = curLoop;
+					if (curLoop>depth)
+						break;
 				}
 				//xmlFiles = FcFileUtils.getFilesList(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type)), "", appXMLext);
 				File tf = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type));
@@ -318,6 +325,23 @@ public class Exporter {
 				WriteResources.WriteHTMLList(xmlFiles, new File(outputFileHTML.getAbsolutePath()));
 				LOGGER.info("Created list of rendered cesDoc in "+ outputFileHTML.getAbsolutePath());
 			}
+		}
+		return langnumMap;
+	}
+
+	public static void generateCSV(File file, Map<String, Integer> map) {
+		Set<String> keys=map.keySet();
+		Iterator<String> it = keys.iterator();
+		String file_key, csvtext="";
+		while (it.hasNext()){
+			file_key = it.next();
+			csvtext = csvtext+file_key+"\t"+map.get(file_key)+"\n";
+		}
+		try {
+			FileUtils.writeStringToFile(file, csvtext);
+		} catch (IOException e) {
+			LOGGER.error("problem in writing the file "+file.getAbsolutePath());
+			e.printStackTrace();
 		}
 	}
 
@@ -451,6 +475,9 @@ public class Exporter {
 			if (StringUtils.isBlank(identifiedlanguage))	//FIXME this should not happen
 				continue;
 
+			if (langnumMap.containsKey(identifiedlanguage))
+				langnumMap.put(identifiedlanguage, langnumMap.get(identifiedlanguage)+1);
+			
 			if (XMLExporter(xmlPath,format, title, url, targetlanguages, identifiedlanguage, htmlText, cleanText,id, "", author,
 					publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, extfilename)){
 				if (urlsToIds!=null)
@@ -1207,7 +1234,9 @@ public class Exporter {
 		mimetypes = config.getStringArray("fetcher.valid_mime_types.mime_type[@value]");	
 		se.setAcceptedMimeTypes(mimetypes);
 		LangDetectUtils.loadCybozuLangIdentifier();
-		se.export(true);
+		langnumMap = se.export(true);
+		if (depth<10000)
+			generateCSV(new File(outBaseName.getAbsolutePath()+CSV), langnumMap);
 	}
 
 
@@ -1290,6 +1319,9 @@ public class Exporter {
 	}
 	public void setMIN_TOKENS_NUMBER(int mIN_TOKENS_NUMBER) {
 		MIN_TOKENS_NUMBER = mIN_TOKENS_NUMBER;
+	}
+	public void setDepth(int d) {
+		depth = d;
 	}
 	public static File getCrawlDirName() {
 		return crawlDirName;
