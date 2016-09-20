@@ -198,7 +198,7 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.14</version>
 		</dependency>
-		<dependency>
+	<!--	<dependency>
 			<groupId>cascading</groupId>
 			<artifactId>cascading-11-jdbc</artifactId>
 			<version>0.0.4</version>
@@ -208,7 +208,7 @@
 					<groupId>org.slf4j</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
