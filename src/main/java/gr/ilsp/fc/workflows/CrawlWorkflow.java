@@ -1,6 +1,6 @@
 package gr.ilsp.fc.workflows;
 
-import gr.ilsp.fc.attic.SimpleCrawlWorkflow;
+//import gr.ilsp.fc.attic.SimpleCrawlWorkflow;
 import gr.ilsp.fc.classifier.Classifier;
 import gr.ilsp.fc.datums.ClassifierDatum;
 import gr.ilsp.fc.datums.CrawlDbDatum;
@@ -305,7 +305,7 @@ public class CrawlWorkflow {
 		//conf.setQuietMode(true);
 		//conf.set("hadoop.tmp.dir", "hadoop-temp");
 		int numReducers = conf.getNumReduceTasks() * HadoopUtils.getTaskTrackers(conf);
-		Properties props = HadoopUtils.getDefaultProperties(SimpleCrawlWorkflow.class, debug, conf);
+		Properties props = HadoopUtils.getDefaultProperties(CrawlWorkflow.class, debug, conf);
 
 		FileSystem fs = curWorkingDirPath.getFileSystem(conf);
 		//System.err.println(conf.get("hadoop.tmp.dir"));
