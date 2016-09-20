@@ -257,8 +257,8 @@ public class WriteBitexts {
 			e1.printStackTrace();
 		}
 		
-		LOGGER.debug("Rendered CesAlignListFile:"+"\t"+outputFileHTML.getAbsolutePath());
 		if (outputFileHTML!=null){
+			LOGGER.debug("Rendered CesAlignListFile:"+"\t"+outputFileHTML.getAbsolutePath());
 			List<String> cesAlignHTMLFiles = new ArrayList<String>();
 			cesAlignHTMLFiles.add(XMLNS);
 			for (int ii=bitexts.size()-1;ii>-1;ii--){

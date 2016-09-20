@@ -498,7 +498,7 @@ public class Exporter {
 		extfilename = meta.get("comment");
 		if (!new File(extfilename).exists())
 			return false;
-		LOGGER.info(extfilename);
+		LOGGER.debug(extfilename);
 
 		Map<String, String> data = new HashMap<String, String>();
 		if (format.contains(docmime))
@@ -524,7 +524,7 @@ public class Exporter {
 		int length_in_tok=FCStringUtils.countTokens(maincontent, identifiedlanguage);
 		if (length_in_tok<MIN_TOKENS_NUMBER)
 			return false;
-		LOGGER.info(extfilename+ " processed.");
+		LOGGER.debug(extfilename+ " processed.");
 		LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN+ id + "\t" + url);
 
 		author = data.get("author");
