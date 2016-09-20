@@ -483,7 +483,7 @@ public class TMXHandler {
 				alignmentList.add(alignment);
 			}
 		}
-		LOGGER.info("NumofValid/UniqueAlignments: "+alignmentList.size()+"\t"+"totalNumofSegmentPairs: "+totalcounter);
+		LOGGER.info("Number of Kept/Annotated Alignments: "+alignmentList.size()+"\t"+"totalNumofSegmentPairs: "+totalcounter);
 		return alignmentList;
 	}
 

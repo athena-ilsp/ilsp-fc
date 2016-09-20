@@ -57,7 +57,7 @@ public class PairDetector {
 		pd.pairDetect();
 	}
 
-	public void pairDetect() {
+	public String pairDetect() {
 		for (int ii=0;ii<languages.length;ii++){
 			languages[ii] = ISOLangCodes.get3LetterCode(languages[ii]);
 		}
@@ -89,10 +89,14 @@ public class PairDetector {
 		}
 		if (delFiles)
 			BitextUtils.removeRedundantFiles(indir,bitextsALL);
-
+		
 		//FcFileUtils.moveZipDeleteFiles(indir,html, Arrays.asList(htmlExt, pdfExt), UNDERSCORE_STR, false);
 		//if (!offlineXSLT)
 		//	FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
+		if (bitextsALL!=null && !bitextsALL.isEmpty() )
+			return "document pairs in "+lang.substring(1)+"\t"+bitextsALL.size();
+		else
+			return "";
 	}
 
 	public void setLanguage(String languages) {

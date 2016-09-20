@@ -402,7 +402,8 @@ public class CrawlOptions {
 			if (_operation.contains(CRAWL_operation)){
 				getParams4Crawl(line);
 			}
-			
+			if (_agentName==null)
+				_agentName="A";
 			if (line.hasOption( "bs")) {
 				_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName);			_outBaseName = _outBaseName.getAbsoluteFile();
 				_outputFile = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLlist);	_outputFile = _outputFile.getAbsoluteFile();

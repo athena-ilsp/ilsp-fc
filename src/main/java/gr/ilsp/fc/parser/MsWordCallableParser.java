@@ -93,7 +93,7 @@ public class MsWordCallableParser implements Callable<ExtendedParsedDatum> {
 			}
 			inputstream.close();
 			out.close();
-			LOGGER.info(filename + " saved.");
+			LOGGER.debug(filename + " saved.");
 		
 			String lang = "";
 			_metadata.set(Metadata.CONTENT_ENCODING, "UTF-8");

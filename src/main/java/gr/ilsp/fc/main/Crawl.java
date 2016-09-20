@@ -366,6 +366,10 @@ public class Crawl {
 		if (options.getLoggingAppender() != null) 
 			System.setProperty("fc.appender", options.getLoggingAppender()); // Set console vs. DRFA vs. something else
 		List<String> loopLogFiles = new ArrayList<String>();
+		
+		Map<String,Integer> langnumMap = new HashMap<String,Integer>();
+		String logpair="";
+		
 		try {
 			//JobConf conf = new JobConf();
 			//conf.setJarByClass(Crawl.class);
@@ -409,7 +413,7 @@ public class Crawl {
 			defaultPolicy.setMaxContentSize(config.getInt("fetcher.max_content_size.value"));
 			//defaultPolicy.setRedirectMode(RedirectMode.FOLLOW_TEMP);
 			defaultPolicy.setRedirectMode(RedirectMode.FOLLOW_ALL);
-			
+
 			//Loading of acceptable MIME types from the config file
 			String[] mimes = config.getStringArray("fetcher.valid_mime_types.mime_type[@value]");			
 			Set<String> validMimeTypes = new HashSet<String>();
@@ -429,7 +433,7 @@ public class Crawl {
 				urlDomainFilter = new DomainUrlFilter(domain);
 
 			urlLevelFilter = new LevelUrlFilter(options.getCrawlLevel());
-					
+
 			// Main loop. This will run as many times as specified by the numloop option
 			//or until the specified duration is reached
 			long startTime = System.currentTimeMillis();
@@ -466,11 +470,11 @@ public class Crawl {
 				String loopLogFile = setLoopLoggerFile(curLoopDirName, curLoop);	
 				for(int il =0; il<conf.getLocalDirs().length;il++) 
 					LOGGER.debug(conf.getLocalDirs()[il]);
-				
+
 				boolean extractliks = true;
 				if (options.upToDepth()-curLoop<0)
 					extractliks = false;
-								
+
 				Flow flow = CrawlWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlDomainFilter, urlLevelFilter, options.getMapLangs(),
 						options.getTargetedLangs(), options.getTransLinksAttrs(), classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options, extractliks);							
 				flow.complete();
@@ -502,8 +506,8 @@ public class Crawl {
 			////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			Map<String, String> urlsToIds = new HashMap<String, String>();
-			Map<String,Integer> langnumMap = new HashMap<String,Integer>();
 			// Finished crawling. Now export if needed.
+
 			if (operation.contains(EXPORT_operation)) {
 				Exporter se = new Exporter();
 				se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
@@ -523,28 +527,6 @@ public class Crawl {
 			}else{
 				LOGGER.info("Crawl ended");
 				System.exit(0);
-			}
-			if (options.upToDepth()<10000){
-				String webdomains = options.getFilter();
-				if (webdomains.isEmpty())
-					webdomains = options.getDomain()+"\t"+options.getMainDomain();
-				String csvtext = "targeted domain:\t"+webdomains+"\n";
-				csvtext = csvtext+"crawled up to depth:\t"+options.upToDepth()+"\n";
-				csvtext = csvtext+"minimum length of text of accepted webpages:\t"+options.getminTokenslength()+"\n";
-				csvtext = csvtext+"staring from:\t"+FileUtils.readFileToString(new File(options.getUrls()));
-				csvtext = csvtext+"languages\tnumber of pages\n";
-				String[][] sortlangs = Statistics.sort2darray(FCStringUtils.map2array(langnumMap),2,"d");
-				for (int kk=0;kk<sortlangs.length;kk++){
-					if (!sortlangs[kk][1].equals("0"))
-						csvtext = csvtext+sortlangs[kk][0]+"\t"+sortlangs[kk][1]+"\n";
-				}
-				File csvfile = new File(options.getBaseName()+CSV);
-				try {
-					FileUtils.writeStringToFile(csvfile, csvtext);
-				} catch (IOException e) {
-					LOGGER.error("problem in writing the file "+csvfile.getAbsolutePath());
-					e.printStackTrace();
-				}
 			}
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//File parentDir =new File(FilenameUtils.concat(outputDirName.getAbsolutePath(),resultXMLDir)); 
@@ -568,7 +550,7 @@ public class Crawl {
 					ded.setInputType(XML_EXTENSION.substring(1));
 					ded.nearDedup();
 				}
-				//////////////////////////////////////////////////////////////////////////////////////////////	
+				//////////////////////////////////////////////////////////////////////////////////////////////
 				if (operation.contains(PAIRDETECT_operation)){
 					if (options.getTargetedLangs().length<1){
 						LOGGER.warn("At least 2 languages are required.");
@@ -586,7 +568,7 @@ public class Crawl {
 						pd.setURL_REPL(options.getUrlReplaces());
 						pd.setMethods(options.getPairMethods());
 						pd.setDelFiles(options.getDel());
-						pd.pairDetect();
+						logpair = logpair+pd.pairDetect()+"\n";
 					}
 				}
 				//////////////////////////////////////////////////////////////////////////////////////////////
@@ -622,7 +604,6 @@ public class Crawl {
 					ha.setKeepDuplicates(options.getKeepDuplicates());
 					ha.setO1(options.getO1());
 					ha.setO2(options.getO2());
-					//ha.setMetadata(options.getMetadata());
 					for (String lang_pair:options.getLangPairs()){
 						ha.setLanguage(lang_pair);
 						String[] temp_langs = lang_pair.split(SEMICOLON_STR);
@@ -683,6 +664,8 @@ public class Crawl {
 					}
 				}
 			}
+			if (options.upToDepth()<10000)
+				createCSV(options, langnumMap, logpair);
 			System.exit(0);
 		} catch (PlannerException e) {
 			//LOGGER.debug(conf.get("hadoop.tmp.dir"));			
@@ -702,6 +685,48 @@ public class Crawl {
 			t.printStackTrace(System.err);
 			System.exit(-1);
 		}
+	}
+
+	private static void createCSV(CrawlOptions options, Map<String, Integer> langnumMap, String logpair) {
+		File csvfile = new File(options.getBaseName()+CSV);
+		String csvtext="";
+		String webdomains = options.getFilter();
+		if (webdomains.isEmpty())
+			webdomains = options.getDomain()+"\t"+options.getMainDomain();
+		csvtext = "targeted domain:\t"+webdomains+"\n";
+		csvtext = csvtext+"crawled up to depth:\t"+options.upToDepth()+"\n";
+		csvtext = csvtext+"minimum length of text of accepted webpages:\t"+options.getminTokenslength()+"\n";
+		csvtext = csvtext+"staring from";
+		csvtext = addSeeds(csvtext, new File(options.getUrls()));
+		csvtext = csvtext+"languages\tnumber of pages\n";
+		String[][] sortlangs = Statistics.sort2darray(FCStringUtils.map2array(langnumMap),2,"d");
+		for (int kk=0;kk<sortlangs.length;kk++){
+			if (!sortlangs[kk][1].equals("0"))
+				csvtext = csvtext+sortlangs[kk][0]+"\t"+sortlangs[kk][1]+"\n";
+		}
+		csvtext = csvtext+logpair;
+		try {
+			FileUtils.writeStringToFile(csvfile, csvtext);
+		} catch (IOException e) {
+			LOGGER.error("problem in writing the file "+csvfile.getAbsolutePath());
+			e.printStackTrace();
+		}
+	}
+
+	private static String addSeeds(String csvtext, File seedFile) {
+		List<String> urlLines;
+		try {
+			urlLines = FileUtils.readLines(seedFile);
+			for (String urlLine:urlLines){
+				if (skipLineM.reset(urlLine).matches()) 
+					continue;
+				csvtext = csvtext+"\t"+urlLine+"\n";
+			}
+		} catch (IOException e) {
+			LOGGER.error("Problem in reading "+seedFile.getAbsolutePath());
+			e.printStackTrace();
+		}
+		return csvtext;
 	}
 
 	private static String path2str(Path curLoopDir) {
