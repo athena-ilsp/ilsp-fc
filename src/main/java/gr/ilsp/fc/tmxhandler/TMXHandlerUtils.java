@@ -35,7 +35,7 @@ public class TMXHandlerUtils {
 	private static final Logger LOGGER = Logger.getLogger(TMXHandlerUtils.class);
 
 	private static final String SPACE_SEPARATOR = " ";
-//	private static final String SEMI_SEPAR = ";";
+	//	private static final String SEMI_SEPAR = ";";
 	private final static String PUNCT = ".";
 	private static final String UNDERSCORE = "_";
 	private static final String XML_EXTENSION = ".xml";
@@ -43,6 +43,7 @@ public class TMXHandlerUtils {
 	private final static String licenseNode = "license";
 	private final static String TARGET_STR = "target";
 	private final static String SCORE = "score";
+	private final static String INFO = "info";
 	//private final static String L1URL = "l1-ulr";
 	//private final static String L2URL = "l2-url";
 	private final static String SEGMENTTYPE = "segmentType";
@@ -286,6 +287,44 @@ public class TMXHandlerUtils {
 	public static List<Tu> getTUs(File tmxFile) throws FileNotFoundException {
 		return TmxMarshallerUnmarshaller.getInstance().unmarshal(new InputStreamReader(new FileInputStream(tmxFile))).getBody().getTu();
 	}
+
+
+	/**
+	 * gets the tus of a tmx if the tu is non-annotated
+	 * @param tmxFile
+	 */
+	public static List<SegPair>  getBestTUsFromTMX(File tmxFile, String lang1, String lang2) {
+		List<SegPair> segpairs = new ArrayList<SegPair>();
+		Tmx tmx;
+		try {
+			tmx = TmxMarshallerUnmarshaller.getInstance().unmarshal(new FileReader(tmxFile));
+			List<Tu> tus = tmx.getBody().getTu();
+			for (Tu tu: tus) {
+				List<Object> tuProps = tu.getNoteOrProp();
+				boolean found=false;
+				for (Object obProp : tuProps) {
+					Prop prop = (Prop) obProp;
+					if (prop.getType().equals(INFO)) {
+						if (prop.getContent().isEmpty())
+							found=true;
+						else
+							System.out.println(prop.getContent().get(0));
+					}
+				}
+				if (found){
+					segpairs.add(new SegPair(StringUtils.join(createSegmentList(tu, lang1), SPACE_SEPARATOR), 
+							StringUtils.join(createSegmentList(tu, lang2), SPACE_SEPARATOR),
+							0, "", "", "", "", "", ""));
+				}
+			}
+			LOGGER.debug("Examining " + tmxFile.getAbsolutePath() + SPACE_SEPARATOR + tus.size());
+		} catch (FileNotFoundException e) {
+			LOGGER.warn("Problem in reading "+ tmxFile.getAbsolutePath());
+			e.printStackTrace();
+		}
+		return segpairs;
+	}
+
 
 
 }

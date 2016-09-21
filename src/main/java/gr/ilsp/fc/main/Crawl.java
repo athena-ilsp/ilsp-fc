@@ -570,6 +570,7 @@ public class Crawl {
 						pd.setDelFiles(options.getDel());
 						logpair = logpair+pd.pairDetect()+"\n";
 					}
+					logpair = logpair.replaceAll("(\n){2,}","\n");
 				}
 				//////////////////////////////////////////////////////////////////////////////////////////////
 				if (operation.contains(ALIGN_operation)){
@@ -698,11 +699,10 @@ public class Crawl {
 		csvtext = csvtext+"minimum length of text of accepted webpages:\t"+options.getminTokenslength()+"\n";
 		csvtext = csvtext+"staring from";
 		csvtext = addSeeds(csvtext, new File(options.getUrls()));
-		csvtext = csvtext+"languages\tnumber of pages\n";
 		String[][] sortlangs = Statistics.sort2darray(FCStringUtils.map2array(langnumMap),2,"d");
 		for (int kk=0;kk<sortlangs.length;kk++){
 			if (!sortlangs[kk][1].equals("0"))
-				csvtext = csvtext+sortlangs[kk][0]+"\t"+sortlangs[kk][1]+"\n";
+				csvtext = csvtext+"number of pages in "+sortlangs[kk][0]+"\t"+sortlangs[kk][1]+"\n";
 		}
 		csvtext = csvtext+logpair;
 		try {
