@@ -70,7 +70,7 @@ public class BitextsTranslationLinks {
 					ExtendedParsedDatum.FIELDS), parseDbPath.toUri().toString());
 			LOGGER.debug("Examining " + parseDbPath.toUri().toString());
 			TupleEntryIterator iter = parseDbTap.openForRead(conf);
-			iter = parseDbTap.openForRead(conf);
+
 
 			while (iter.hasNext()) {
 				TupleEntry entry = iter.next();
