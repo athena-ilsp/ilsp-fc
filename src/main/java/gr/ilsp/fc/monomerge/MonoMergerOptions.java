@@ -54,7 +54,7 @@ public class MonoMergerOptions {
 				.withDescription( "If exist, only documents for which"
 						+ " a license has been detected will be selected in collection.")
 				.create("cc") );
-		options.addOption( OptionBuilder.withLongOpt( "level of coprus' item" )
+		options.addOption( OptionBuilder.withLongOpt( "level of corpus' item" )
 				.withDescription( "copus consists of txt documents, or paragraphs, or sentences")
 				.hasArg()
 				.create("level") );

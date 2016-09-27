@@ -42,7 +42,7 @@ public class MonoMerger {
 	private static CompositeConfiguration config;
 	private static String[] languages;
 	private static String domain;
-	private static String copruslevel;
+	private static String corpuslevel;
 	//private static boolean oxslt=false;
 	private static boolean cc=false;
 	private static final int len_thr=5;
@@ -101,11 +101,11 @@ public class MonoMerger {
 		LOGGER.info("------------Constructing a monolingual corpus in "+languages[0]+".------------");
 		outTXTFile = new File(baseName.getAbsolutePath()+TXTEXT);
 		outXMLFile = new File(baseName.getAbsolutePath()+XMLEXT);
-		File corpusdoc = new File(baseName.getAbsolutePath()+"-coprus");
+		File corpusdoc = new File(baseName.getAbsolutePath()+"-corpus");
 		LOGGER.info("Type of corpus:\tMonolingual");
-		LOGGER.info("level of corpus:\t"+copruslevel);
+		LOGGER.info("level of corpus:\t"+corpuslevel);
 		LOGGER.info("filename of corpus:\t"+corpusdoc.getName());
-		if (copruslevel.equals("doc")){
+		if (corpuslevel.equals("doc")){
 			corpusdoc.mkdirs();
 		}
 		if (!outTXTFile.getParentFile().exists())
@@ -138,11 +138,11 @@ public class MonoMerger {
 		List<String> sentences = new ArrayList<String>();
 		int[] sizes = new int[5]; //docs, pars, sents, tokens, words
 		if (!xmlfiles.isEmpty()){
-			if (copruslevel.equals("doc"))
+			if (corpuslevel.equals("doc"))
 				sizes = generateDocLevelMonoCorpus(xmlfiles, corpusdoc);
-			if (copruslevel.equals("par"))
+			if (corpuslevel.equals("par"))
 				generateParLevelMonoCorpus(xmlfiles, corpusdoc);
-			if (copruslevel.equals("sen")){
+			if (corpuslevel.equals("sen")){
 				//sentences = generateSenLevelMonoCorpus(xmlfiles, corpusdoc);
 				sizes =  generateSenLevelMonoCorpus(xmlfiles, corpusdoc);
 				try {
@@ -185,7 +185,7 @@ public class MonoMerger {
 			corpusmetadata.add("Type of corpus:\tMonolingual");
 			corpusmetadata.add("Domain of corpus:\t"+ monlingualCorpusInfo.getDomain());
 			corpusmetadata.add("DomainID of corpus:\t"+ monlingualCorpusInfo.getDomainId());
-			corpusmetadata.add("level of corpus:\t"+copruslevel);
+			corpusmetadata.add("level of corpus:\t"+corpuslevel);
 			corpusmetadata.add("size of corpus in documents:\t"+sizes[0]);
 			corpusmetadata.add("size of corpus in tokens:\t"+monlingualCorpusInfo.getTokensSize());
 			corpusmetadata.add("size of corpus in lexical types:\t"+monlingualCorpusInfo.getLenInWords());
@@ -420,7 +420,7 @@ public class MonoMerger {
 	}
 
 	public void setCorpusLevel(String level) {
-		MonoMerger.copruslevel  = level;
+		MonoMerger.corpuslevel  = level;
 	}
 
 
