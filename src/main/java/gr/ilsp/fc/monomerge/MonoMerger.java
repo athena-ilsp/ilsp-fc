@@ -180,7 +180,7 @@ public class MonoMerger {
 			LOGGER.info("language of corpus:\t"+monlingualCorpusInfo.getLang());
 			//if (oxslt) 
 			//	outHTMLFile =  new File(baseName.getAbsolutePath() + HTML);
-			File metadataFile = new File(baseName.getAbsolutePath()+"-coprus"+ MetadataExt);
+			File metadataFile = new File(baseName.getAbsolutePath()+"-corpus"+ MetadataExt);
 			LOGGER.info("Generating metadata descriptor " + metadataFile);
 			corpusmetadata.add("Type of corpus:\tMonolingual");
 			corpusmetadata.add("Domain of corpus:\t"+ monlingualCorpusInfo.getDomain());
@@ -202,7 +202,7 @@ public class MonoMerger {
 		}
 	}
 
-	private int[] generateSenLevelMonoCorpus(List<File> xmlfiles, File coprusdoc) {
+	private int[] generateSenLevelMonoCorpus(List<File> xmlfiles, File corpusdoc) {
 		int totalTokens=0, parsnum=0;
 		List<String> paragraphs = new ArrayList<String>();
 		List<String> tempSentences = new ArrayList<String>();
@@ -257,12 +257,12 @@ public class MonoMerger {
 		return sizes;
 	}
 
-	private void generateParLevelMonoCorpus(List<File> xmlfiles, File coprusdoc) {
+	private void generateParLevelMonoCorpus(List<File> xmlfiles, File corpusdoc) {
 		// TODO Auto-generated method stub
 
 	}
 
-	private int[] generateDocLevelMonoCorpus(List<File> xmlfiles, File coprusdoc) {
+	private int[] generateDocLevelMonoCorpus(List<File> xmlfiles, File corpusdoc) {
 		int[] sizes = new int[5]; //docs, paragraphs, sentences, tokens, words
 		List<String> paragraphs = new ArrayList<String>();
 		int totalTokens = 0 ;
@@ -271,10 +271,10 @@ public class MonoMerger {
 		for (File xmlfile:xmlfiles){
 			paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\t"));
 			try {
-				//FileUtils.writeLines(new File(FilenameUtils.concat(coprusdoc.getAbsolutePath(),xmlfile.getName()+TXTEXT)), paragraphs);
+				//FileUtils.writeLines(new File(FilenameUtils.concat(corpusdoc.getAbsolutePath(),xmlfile.getName()+TXTEXT)), paragraphs);
 				//File temp = xmlfile.getParentFile();
-				//FileUtils.copyFile(xmlfile, new File(FilenameUtils.concat(coprusdoc.getAbsolutePath(),temp.getName()+"-"+xmlfile.getName())));
-				FileUtils.copyFile(xmlfile, new File(FilenameUtils.concat(coprusdoc.getAbsolutePath(),filecounter+XMLEXT)));
+				//FileUtils.copyFile(xmlfile, new File(FilenameUtils.concat(corpusdoc.getAbsolutePath(),temp.getName()+"-"+xmlfile.getName())));
+				FileUtils.copyFile(xmlfile, new File(FilenameUtils.concat(corpusdoc.getAbsolutePath(),filecounter+XMLEXT)));
 				filecounter++;
 			} catch (IOException e) {
 				LOGGER.error("problem in writing text file for "+xmlfile.getAbsolutePath());
