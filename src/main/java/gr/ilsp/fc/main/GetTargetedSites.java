@@ -35,7 +35,8 @@ public class GetTargetedSites {
 		
 	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-jar-with-dependencies.jar "
 			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -f -k "
-			+ "-type p -n 100 -t 20 -len 0 -mtlen 100 -p_r \"http://nlp.ilsp.gr/elrc\" -pdm \"aupdih\" -segtypes \"1:1\"";
+			+ "-type p -n 100 -t 20 -len 0 -mtlen 100 -pdm \"aupdih\" -segtypes \"1:1\" "
+			+ "-mtuvl 3 -mpa \"0.16\" -minlr \"0.6\" -maxlr \"1.6\" -keepem -keepdup -keepiden"; //-p_r \"http://nlp.ilsp.gr/elrc\"
 
 	private static final String JAR_CRAWL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-jar-with-dependencies.jar "
 			+ "-crawl -f -k -type p -n 100 -t 20 -len 0 -mtlen 100 ";
@@ -245,8 +246,8 @@ public class GetTargetedSites {
 		String agent = t+"_"+lang1+SEP+lang2;
 		String filter = "\".*"+t1+".*\"";
 		String dest = " -dest ";
-		String dest1 = "/var/www/html/elrc1/culture/"+lang1+SEP+lang2+"/";
-		String dest2 =  dest1+"output_"+agent;
+		String dest1 = "/var/www/html/elrc4/ejustice/"+lang1+SEP+lang2+"/";
+		String dest2 =  dest1+"output";// dest1+"output_"+agent;
 		String command = JAR_ALL + L + QUOTE+lang1 + QUEST+ lang2 + QUOTE+ AGENT + agent +FILTER + filter + U +QUOTE+urlSeedFile.getAbsolutePath()+QUOTE +
 				dest+QUOTE+dest1+QUOTE + " -bs " + QUOTE+dest2+QUOTE + FORW +QUOTE+dest1+ "log_"+ agent + QUOTE; 
 						
