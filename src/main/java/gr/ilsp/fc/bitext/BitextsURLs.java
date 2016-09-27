@@ -224,15 +224,15 @@ public class BitextsURLs {
 					if (ind<0)
 						file_url1_file_url1=file_url1.substring(ind, file_url1.length());
 					else
-						file_url1_file_url1=file_url1.substring(ind1, file_url1.length());;
+						file_url1_file_url1=file_url1.substring(ind1, file_url1.length());
 
-						double  temp_dist=Statistics.editDist(file_url_file_url,file_url1_file_url1)
-								/Math.max(file_url_file_url.length()-ind, file_url1_file_url1.length()-ind1);
-						LOGGER.debug(file_url1);
-						dist_paired.add(temp_dist);
-						cand_paired.add(key+UNDERSCORE_STR+key1);
-						LOGGER.debug(dist_paired.get(dist_paired.size()-1));
-						LOGGER.debug(key+"\t"+key1+"\t"+file_url.length()+"\t"+file_url1.length()+"\t"+temp_dist);
+					double  temp_dist=Statistics.editDist(file_url_file_url,file_url1_file_url1)
+							/Math.max(file_url_file_url.length()-ind, file_url1_file_url1.length()-ind1);
+					LOGGER.debug(file_url1);
+					dist_paired.add(temp_dist);
+					cand_paired.add(key+UNDERSCORE_STR+key1);
+					LOGGER.debug(dist_paired.get(dist_paired.size()-1));
+					LOGGER.debug(key+"\t"+key1+"\t"+file_url.length()+"\t"+file_url1.length()+"\t"+temp_dist);
 
 				}
 			}
@@ -291,13 +291,13 @@ public class BitextsURLs {
 		boolean found = false;
 		if (url1.equals(url2))
 			return false;
-	
+
 		if (checkUrsCommonPatterns(lang1, lang2,url1,url2))
 			return true;
-		
+
 		if (checkUrslangPatterns(url1,url2))
 			return true;
-		
+
 		/*if (url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2) || url1.replace("/"+lang2+"/", "/"+lang1+"/").equals(url2)
 				|| url1.replace("_"+lang1, "_"+lang2).equals(url2)	|| url1.replace("_"+lang2, "_"+lang1).equals(url2)
 				|| url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
@@ -307,7 +307,7 @@ public class BitextsURLs {
 				|| (url1.substring(0, url1.length()-4).equals(url2.substring(0, url2.length()-4)) &
 						url1.endsWith("="+lang1) & url2.endsWith("="+lang2)))
 			return true;*/
-	
+
 		/*if (url1.replace("_"+lang1, "_"+lang2).equals(url2)
 				| url1.replace("/"+lang1+"/", "/"+lang2+"/").equals(url2)
 				| url1.replace("/"+lang1+"/", "/").equals(url2) | url2.replace("/"+lang2+"/", "/").equals(url1)
@@ -327,13 +327,13 @@ public class BitextsURLs {
 
 		if (checkUrsCommonPatterns(lang1, lang2,url1,url2))
 			return true;
-		
+
 		if (checkUrslangPatterns(url1,url2))
 			return true;
-		
+
 		return found;
 	}
-	
+
 	private static boolean checkUrsCommonPatterns(String lang1, String lang2, String url1, String url2) {
 		boolean found=false;
 		if ( url1.replace("/"+lang1+"/", "/").equals(url2)	|| url2.replace("/"+lang2+"/", "/").equals(url1)
@@ -347,7 +347,7 @@ public class BitextsURLs {
 			return true;
 		if ( url1.replace("_"+lang1, "").equals(url2) || url2.replace("_"+lang2, "").equals(url1))
 			return true;
-		
+
 		if ( url1.replace("-"+lang1, "-"+lang2).equals(url2) || url2.replace("-"+lang2, "-"+lang1).equals(url1))
 			return true;
 		return found;
@@ -390,7 +390,7 @@ public class BitextsURLs {
 		}
 		if (found)
 			return true;
-		
+
 		if (url1.contains("lang") && url2.contains("lang")){
 			for (int ii=0;ii<patts.length;ii++){
 				found =false;
@@ -411,5 +411,5 @@ public class BitextsURLs {
 		}
 		return found;
 	}
-	
+
 }
