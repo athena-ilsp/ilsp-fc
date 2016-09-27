@@ -3,8 +3,10 @@ package gr.ilsp.fc.main;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -24,7 +26,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
@@ -199,9 +200,9 @@ public class CrawlOptions {
 				.withDescription( "A descriptive title for the targeted domain" )
 				.hasArg()
 				.create("dom") );
-		options.addOption( OptionBuilder.withLongOpt("stay_in_webdomain")
-				.withDescription( "Force the monolingual crawler to stay in a specific web domain" )				
-				.create("d") );
+		//options.addOption( OptionBuilder.withLongOpt("stay_in_webdomain")
+		//		.withDescription( "Force the monolingual crawler to stay in a specific web domain" )				
+		//		.create("d") );
 		options.addOption( OptionBuilder.withLongOpt( "urls" )
 				.withDescription( "File with seed urls used to initialize the crawl" )
 				.hasArg()
@@ -496,6 +497,7 @@ public class CrawlOptions {
 		}
 		return res;
 	}
+
 	private List<String> findLangPairs(String language) {
 		String[] langs = language.split(QUEST_SEPAR); 
 		List<String> lang_pairs = new ArrayList<String>();
@@ -593,34 +595,19 @@ public class CrawlOptions {
 		if(line.hasOption("depth")) 		{	_depth = Integer.parseInt(line.getOptionValue("depth"));	}
 
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-		if (line.hasOption( "dest")) {
+		if (line.hasOption( "dest")) 
 			ws_dir = FilenameUtils.concat(line.getOptionValue("dest"), _agentName+UNDERSCORE_STR+timeStamp) ;
-		}else{
+		else
 			ws_dir=_agentName+UNDERSCORE_STR+timeStamp;
-		}
-		if(!line.hasOption( "o")) {
+		
+		if(!line.hasOption( "o")) 
 			_outputDir = new File(FilenameUtils.concat(ws_dir, UUID.randomUUID().toString())); 				 	
-		}
 
 		if (_type.equals(type_m)){
-			if(line.hasOption( "d")) {
-				URL url;
-				try {
-					//FIXME it is supposed that there is only one line in _urls
-					String temp=FileUtils.readFileToString(new File(_urls));
-					url = new URL(temp);
-					String host = url.getHost();
-					if (host.substring(0, 3).equals("www"))			{		host=host.substring(4);		}
-					String mainhost=processhost(host);
-					if (mainhost.substring(0, 3).equals("www"))		{		mainhost=host.substring(4);	}
-					_domain=host;
-					_maindomain=mainhost;
-					LOGGER.info(_domain);
-					LOGGER.info(_maindomain);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			if(line.hasOption( "filter")) 
+				_filter = line.getOptionValue("filter");
+			else
+				_filter = ".*";
 		}
 		if (_type.equals(type_p) | _type.equals(type_q)){
 			if (!_language.contains(QUEST_SEPAR)){
@@ -629,127 +616,106 @@ public class CrawlOptions {
 			}
 		}
 		if (_type.equals(type_p)){
-			/*String temp= line.getOptionValue("u_r");
-			if (temp!=null){
-				String[] aa=temp.split(DOUBLEQUEST_SEPAR);
-				String[][] urls_repls =new String[aa.length][2];  
-				for (int ii=0;ii<aa.length;ii++){
-					String[] bb = aa[ii].split(QUEST_SEPAR);
-					if (bb.length<1){
-						LOGGER.error("the argument for URL replacements is not correct." +
-								" Use ;; to seperate pairs and ; to separate the parts of each pair." +
-								"Check that none of the parts is empty.");
-						help();
-					}else{
-						if (bb.length==1){
-							urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = "";
-						}else{
-							urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = bb[1];
-						}
-					}
-				}
-				_urls_repls=urls_repls;
-			}*/
 			URL url;
 			if (!line.hasOption( "filter")){
-				try {
-					ArrayList<String> seed_list =new ArrayList<String>();
-					BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(_urls),"utf8"));
-					String cur_line="";
-					while ((cur_line=rdr.readLine())!=null){
-						if (skipLineM.reset(cur_line).matches()) 
-							continue;
-						seed_list.add(cur_line);
-					}
-					rdr.close();
-					if (!seed_list.isEmpty()){
-						String[] seeds=new String[seed_list.size()];
-						for (int ii=0;ii<seeds.length;ii++)
-							seeds[ii]=seed_list.get(ii);
-						if (seeds.length==1){
-							try {
-								url = new URL(seeds[0]);
-								String host = url.getHost();
-
-								if (host.startsWith("www5") | host.startsWith("www2"))
-									host=host.substring(5);
-								if (host.startsWith("www"))
-									host=host.substring(4);
-								String mainhost=processhost(host);
-								if (mainhost.startsWith("www5") | mainhost.startsWith("www2"))
-									mainhost=host.substring(5);
-								if (mainhost.startsWith("www"))
-									mainhost=host.substring(4);
-
-								_domain=host;
-								_maindomain=mainhost;
-								LOGGER.debug("Examining web domain : " + _domain);
-								LOGGER.debug("Examining second domain : " + _maindomain);
-							} catch (MalformedURLException e) {
-								LOGGER.error("Seed URL is not valid: "+seeds[0]);
-								help();
-							}
-						}else{
-							String firsthost="";
-							for (int ii=0;ii<seeds.length;ii++){
-								try {
-									if (ii==0)
-										firsthost = new URL(seeds[ii]).getHost();
-									url = new URL(seeds[ii]);
-									String host = url.getHost();
-									if (!host.equals(firsthost)){
-										if (!line.hasOption( "filter")){
-											LOGGER.error("Since the provided seed list for bilingual crawling includes more than on webdomains, " +
-													" USE the filter argument to confine FC within these webdomains.");
-											System.exit(0);				
-										}
-										else{
-											_domain=null;
-											_maindomain=null;
-										}
-									}else{
-										if (host.startsWith("www5") |host.startsWith("www2"))
-											host=host.substring(5);
-										else{
-											if (host.startsWith("www"))//(host.substring(0, 3).equals("www"))
-												host=host.substring(4);
-										}
-										String mainhost="";
-										char c = host.charAt(0);
-										if (Character.isDigit(c)){
-											mainhost=host;
-										}else{
-											mainhost=processhost(host);
-										}
-										if (mainhost.startsWith("www5") | mainhost.startsWith("www2"))
-											mainhost=host.substring(5);
-										else{
-											if (mainhost.startsWith("www"))//(mainhost.substring(0, 3).equals("www"))
-												mainhost=host.substring(4);
-										}
-										_domain=host;
-										_maindomain=mainhost;
-									}
-								}catch (MalformedURLException e) {
-									LOGGER.error("Seed URL is not valid:"+seeds[ii]);
-								}		
-							} 
+				ArrayList<String> seed_list = readSeedList();
+				if (!seed_list.isEmpty()){
+					if (seed_list.size()==1){
+						try {
+							url = new URL(seed_list.get(0));
+							_domain = removeWWW(url.getHost());				//LOGGER.debug("Examining web domain : " + _domain);
+							_maindomain = removeWWW(processhost(_domain));	//LOGGER.debug("Examining second domain : " + _maindomain);
+						} catch (MalformedURLException e) {
+							LOGGER.error("Seed URL is not valid: "+seed_list.get(0));
+							help();
 						}
 					}else{
-						LOGGER.error("There is no valid seed URL.");
-						help();
+						String firsthost="";
+						for (int ii=0;ii<seed_list.size();ii++){
+							try {
+								if (ii==0)
+									firsthost = new URL(seed_list.get(ii)).getHost();
+								url = new URL(seed_list.get(ii));
+								String host = url.getHost();
+								if (!host.equals(firsthost)){
+									if (!line.hasOption( "filter")){
+										LOGGER.error("Since the provided seed list for bilingual crawling includes more than on webdomains, " +
+												" USE the filter argument to confine FC within these webdomains.");
+										System.exit(0);				
+									}
+									else{
+										_domain=null;
+										_maindomain=null;
+									}
+								}else{
+									_domain = removeWWW(host);
+									String mainhost="";
+									char c = host.charAt(0);
+									if (Character.isDigit(c)){
+										mainhost=host;
+									}else{
+										mainhost=processhost(host);
+									}
+									_maindomain = removeWWW(mainhost);
+								}
+							}catch (MalformedURLException e) {
+								LOGGER.error("Seed URL is not valid:"+seed_list.get(ii));
+							}		
+						} 
 					}
-				} catch (IOException e) {
-					LOGGER.error("The seed URL file does not exist.");
+				}else{
+					LOGGER.error("There is no valid seed URL.");
 					help();
 				}
+				String t = _domain.replace(".", "\\.");
+				_filter = ".*"+t+".*";
 			}else{
 				_domain=null;
 				_maindomain=null;
+				_filter = line.getOptionValue("filter");
 			}
 		}
 	}
 
+	private String removeWWW(String host) {
+		if (host.startsWith("www5") | host.startsWith("www2"))
+			host=host.substring(5);
+		if (host.startsWith("www"))
+			host=host.substring(4);
+		return host;
+	}
+	
+	/**
+	 * read the seed list, skip commented or empty lines
+	 * @return
+	 */
+	private ArrayList<String> readSeedList() {
+		ArrayList<String> seed_list = new ArrayList<String>();
+		BufferedReader rdr;
+		try {
+			rdr = new BufferedReader(new InputStreamReader(new FileInputStream(_urls),"utf8"));
+			String cur_line="";
+			while ((cur_line=rdr.readLine())!=null){
+				if (skipLineM.reset(cur_line).matches()) 
+					continue;
+				seed_list.add(cur_line);
+			}
+			rdr.close();
+		} catch (UnsupportedEncodingException e) {
+			LOGGER.error("Problem in reading the seed URL file.");
+			help();
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			LOGGER.error("The seed URL file does not exist.");
+			help();
+			e.printStackTrace();
+		} catch (IOException e) {
+			LOGGER.error("Problem in reading the seed URL file.");
+			help();
+			e.printStackTrace();
+		}
+		return seed_list;
+	}
 	/**
 	 * parses the command line and returns:
 	 * The aligner @param _aligner,
