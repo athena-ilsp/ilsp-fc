@@ -25,7 +25,7 @@ package gr.ilsp.fc.exporter;
 import gr.ilsp.fc.classifier.Classifier;
 import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.datums.ClassifierDatum;
-import gr.ilsp.fc.datums.CrawlDbDatum;
+//import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.extractors.MSO2text;
 import gr.ilsp.fc.extractors.Pdf2text;
@@ -189,11 +189,11 @@ public class Exporter {
 	private static Map<String, Integer> langnumMap = new HashMap<String, Integer>(); 
 
 	private static void processCrawlDb(JobConf conf, Path curDirPath, boolean exportDb) throws IOException {
-		TupleEntryIterator iter;
+		//TupleEntryIterator iter;
 		int totalEntries;
-		Path crawlDbPath = new Path(curDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
-		Tap crawldbTap = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString());
-		iter = crawldbTap.openForRead(conf);
+		//Path crawlDbPath = new Path(curDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+		//Tap crawldbTap = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString());
+		//TupleEntryIterator iter = crawldbTap.openForRead(conf);
 		totalEntries = 0;
 		int fetchedUrls = 0;
 		int unfetchedUrls = 0;
@@ -220,9 +220,9 @@ public class Exporter {
 			if (curLoop != prevLoop + 1) {
 				LOGGER.warn(String.format("Missing directories between %d and %d", prevLoop, curLoop));
 			}
-			Path classifiedPath = new Path(curDirPath, CrawlConfig.CLASSIFIER_SUBDIR_NAME);
-			Tap classifiedTap = new Hfs(new SequenceFile(ClassifierDatum.FIELDS),classifiedPath.toUri().toString());
-			iter = classifiedTap.openForRead(conf);
+			//Path classifiedPath = new Path(curDirPath, CrawlConfig.CLASSIFIER_SUBDIR_NAME);
+			//Tap classifiedTap = new Hfs(new SequenceFile(ClassifierDatum.FIELDS),classifiedPath.toUri().toString());
+			//iter = classifiedTap.openForRead(conf);
 			prevLoop = curLoop;
 		}
 
