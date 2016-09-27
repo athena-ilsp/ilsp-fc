@@ -390,7 +390,7 @@ public class Exporter {
 					LOGGER.info("very short text extracted from " + file.getAbsolutePath());
 					continue;		
 				}
-				LOGGER.info(file.getAbsolutePath()+ " processed.");
+				LOGGER.debug(file.getAbsolutePath()+ " processed.");
 				//LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN+ id + "\t" + url);
 				author = data.get("author");
 				title = data.get("title");
