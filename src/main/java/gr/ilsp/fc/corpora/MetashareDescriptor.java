@@ -174,7 +174,6 @@ public abstract class MetashareDescriptor {
 			JAXBContext context= JAXBContext.newInstance("gr.ilsp.metashare");
 			Marshaller jaxbMarshaller = context.createMarshaller();
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			jaxbMarshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "");
 			jaxbMarshaller.marshal(resourceInfoType, getOutFile());
 
 		} catch (Exception e) {
