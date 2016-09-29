@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import gr.ilsp.fc.aligner.factory.ILSPAlignment;
 
-public class BilingualCorpusInformation {
+public class BilingualCorpusInformation extends CorpusInformation {
 
 	private static final Logger logger = LoggerFactory.getLogger(BilingualCorpusInformation.class);
 	
@@ -31,23 +31,10 @@ public class BilingualCorpusInformation {
 	private int vocSizeInL1, vocSizeInL2;
 	private int cleanlenInWordsL1, cleanlenInWordsL2;
 	private int cleanvocSizeInL1, cleanvocSizeInL2;
-	private String availability;
 	private List<String> crawledSites;
 
-	private String domain;
-	private String domainId;
-
 	private boolean mergedAndFilteredTMX = false;
-	private String creationDescription = "Acquisition of bilingual data (from multilingual websites), normalization, cleaning, deduplication and identification of parallel documents: ILSP-FC. "
-			+ "Maligna aligner was used for alignment of segments.";
-			//#As a post-processing serging/filtering of segment pairs has also been applied.";
-	
-	private String name;
-	private String description;
-	private String projectId = "ELRC"; 
-	private String projectURL = "http://lr-coordination.eu/"; 
-	private String organization = "ILSP"; 
-	private String organizationURL = "http://www.ilsp.gr/"; 
+	//#As a post-processing serging/filtering of segment pairs has also been applied.";
 	
 	public BilingualCorpusInformation(String name, String l1, String l2, 
 			List<ILSPAlignment> alignmentList, int lenInTUs, int cleanlenInTUs,
@@ -77,7 +64,9 @@ public class BilingualCorpusInformation {
 		this.availability = availability;
 		this.domainId = domainId;
 		this.domain = domain;
-		this.creationDescription = creationDescription;
+		this.creationDescription = "Acquisition of bilingual data (from multilingual websites), normalization, cleaning, deduplication and identification of parallel documents: ILSP-FC. "
+				+ "Maligna aligner was used for alignment of segments.";
+		
 		this.projectId = projectId;
 		this.projectURL = 	projectURL;
 		this.organization = organization;
@@ -212,21 +201,6 @@ public class BilingualCorpusInformation {
 	public void setL2(String l2) {
 		this.l2 = l2;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "BilingualCorpusInformation [alignmentsSize=" + alignmentsSize
-				+ ", l1SegmentsSize=" + l1SegmentsSize + ", l2SegmentsSize="
-				+ l2SegmentsSize + ", l1TokensSize=" + l1TokensSize
-				+ ", l2TokensSize=" + l2TokensSize + ", "
-				//+ (l1Files != null ? "l1Files=" + l1Files.size() + ", " : "")
-				//+ (l2Files != null ? "l2Files=" + l2Files.size() + ", " : "")
-				+ (tmxFiles != null ? "tmxFiles=" + tmxFiles.size() + ", " : "")
-				+ (l1 != null ? "l1=" + l1 + ", " : "")
-				+ (l2 != null ? "l2=" + l2 : "") + "]";
-	}
 	/**
 	 * @return the zeroToOneAlignmentsSize
 	 */
@@ -238,42 +212,6 @@ public class BilingualCorpusInformation {
 	 */
 	public void setZeroToOneAlignmentsSize(int zeroToOneAlignmentsSize) {
 		this.zeroToOneAlignmentsSize = zeroToOneAlignmentsSize;
-	}
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	/**
-	 * @return the domain
-	 */
-	public String getDomain() {
-		return domain;
-	}
-	/**
-	 * @param domain the domain to set
-	 */
-	public void setDomain(String domain) {
-		this.domain = domain;
-	}
-	/**
-	 * @return the domainId
-	 */
-	public String getDomainId() {
-		return domainId;
-	}
-	/**
-	 * @param domainId the domainId to set
-	 */
-	public void setDomainId(String domainId) {
-		this.domainId = domainId;
 	}
 	/**
 	 * @return the lenInTUs
@@ -399,18 +337,6 @@ public class BilingualCorpusInformation {
 	}
 		
 	/**
-	 * @return the availability
-	 */
-	public String getAvailability() {
-		return availability;
-	}
-	/**
-	 * @param availability the availability to set
-	 */
-	public void setAvailability(String availability) {
-		this.availability = availability;
-	}
-	/**
 	 * @return the crawledSites
 	 */
 	public List<String> getCrawledSites() {
@@ -446,88 +372,22 @@ public class BilingualCorpusInformation {
 	public void setMergedAndFilteredTMX(boolean mergedAndFilteredTMX) {
 		this.mergedAndFilteredTMX = mergedAndFilteredTMX;
 	}
-	/**
-	 * @return the creationDescription
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
 	 */
-	public String getCreationDescription() {
-		return creationDescription;
-	}
-	/**
-	 * @param creationDescription the creationDescription to set
-	 */
-	public void setCreationDescription(String creationDescription) {
-		this.creationDescription = creationDescription;
+	@Override
+	public String toString() {
+		return "BilingualCorpusInformation [alignmentsSize=" + alignmentsSize
+				+ ", l1SegmentsSize=" + l1SegmentsSize + ", l2SegmentsSize="
+				+ l2SegmentsSize + ", l1TokensSize=" + l1TokensSize
+				+ ", l2TokensSize=" + l2TokensSize + ", "
+				//+ (l1Files != null ? "l1Files=" + l1Files.size() + ", " : "")
+				//+ (l2Files != null ? "l2Files=" + l2Files.size() + ", " : "")
+				+ (tmxFiles != null ? "tmxFiles=" + tmxFiles.size() + ", " : "")
+				+ (l1 != null ? "l1=" + l1 + ", " : "")
+				+ (l2 != null ? "l2=" + l2 : "") + "]";
 	}
 
-
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * @return the projectId
-	 */
-	public String getProjectId() {
-		return projectId;
-	}
-
-	/**
-	 * @param projectId the projectId to set
-	 */
-	public void setProjectId(String projectId) {
-		this.projectId = projectId;
-	}
-
-	/**
-	 * @return the projectURL
-	 */
-	public String getProjectURL() {
-		return projectURL;
-	}
-
-	/**
-	 * @param projectURL the projectURL to set
-	 */
-	public void setProjectURL(String projectURL) {
-		this.projectURL = projectURL;
-	}
-
-	/**
-	 * @return the organization
-	 */
-	public String getOrganization() {
-		return organization;
-	}
-
-	/**
-	 * @param organization the organization to set
-	 */
-	public void setOrganization(String organization) {
-		this.organization = organization;
-	}
-
-	/**
-	 * @return the organizationURL
-	 */
-	public String getOrganizationURL() {
-		return organizationURL;
-	}
-
-	/**
-	 * @param organizationURL the organizationURL to set
-	 */
-	public void setOrganizationURL(String organizationURL) {
-		this.organizationURL = organizationURL;
-	}
 
 }

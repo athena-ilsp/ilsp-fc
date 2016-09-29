@@ -5,6 +5,7 @@ import java.io.File;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.namespace.NamespaceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,6 @@ import gr.ilsp.metashare.TextFormatInfoType;
 public abstract class MetashareDescriptor {
 
 	private static final String UTF_8 = "UTF-8";
-	private static final String MIMETYPE = "application/x-tmx+xml";
 	private static final String TEXT = "text";
 	private static final String RESOURCE_TYPE = "corpus";
 	private static final String ENG = "eng";
@@ -66,6 +66,7 @@ public abstract class MetashareDescriptor {
 	
 	private String creationDescription ="crawling; pair detection; segment alignments";
 	private File outFile ;
+	protected String mimetype;
 	
 	/**
 	 * Once all appropriate metadata fields have been set, call this method to
@@ -75,6 +76,7 @@ public abstract class MetashareDescriptor {
 		
 		ObjectFactory objectFactory = new ObjectFactory();
 		ResourceInfoType resourceInfoType = objectFactory.createResourceInfoType();
+		
 		
 		//
 		IdentificationInfoType identificationInfoType = objectFactory.createIdentificationInfoType();
@@ -107,7 +109,7 @@ public abstract class MetashareDescriptor {
 		corpusTextInfo.setMediaType(TEXT);
 		
 		TextFormatInfoType textFormatInfoType = objectFactory.createTextFormatInfoType();
-		textFormatInfoType.setMimeType(MIMETYPE);
+		textFormatInfoType.setMimeType(getMimetype());
 		
 		CharacterEncodingInfoType characterEncodingInfoType = objectFactory.createCharacterEncodingInfoType();
 		characterEncodingInfoType.setCharacterEncoding(UTF_8);
@@ -172,6 +174,7 @@ public abstract class MetashareDescriptor {
 			JAXBContext context= JAXBContext.newInstance("gr.ilsp.metashare");
 			Marshaller jaxbMarshaller = context.createMarshaller();
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			jaxbMarshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "");
 			jaxbMarshaller.marshal(resourceInfoType, getOutFile());
 
 		} catch (Exception e) {
@@ -403,6 +406,20 @@ public abstract class MetashareDescriptor {
 	 */
 	public void setProjectURL(String projectURL) {
 		this.projectURL = projectURL;
+	}
+
+	/**
+	 * @return the mimetype
+	 */
+	public String getMimetype() {
+		return mimetype;
+	}
+
+	/**
+	 * @param mimetype the mimetype to set
+	 */
+	public void setMimetype(String mimetype) {
+		this.mimetype = mimetype;
 	}
 
 }

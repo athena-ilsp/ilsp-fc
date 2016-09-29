@@ -5,47 +5,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class MonolingualCorpusInformation {
+public class MonolingualCorpusInformation extends CorpusInformation {
 	private int tokensSize;
-	private int lenInSentences;
-	private int lenInWords;
+	private int sentenceSize;
+	private int vocSize;
 	private String lang;
-	private String name;
-	private String description;
-	private String projectId = "ELRC"; 
-	private String projectURL = "http://lr-coordination.eu/"; 
-	private String organization = "ILSP"; 
-	private String organizationURL = "http://www.ilsp.gr/"; 
-	private String availability;
-	private String domain;
-	private String domainId;
-	private String creationDescription = "Acquisition of monolingual data (from websites), normalization, cleaning, and deduplication by ILSP-FC ";
-	
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(MonolingualCorpusInformation.class);
 	
-	public MonolingualCorpusInformation(String name, String l1, 
-			int numToks, int lenInWords, String domain, String domainId, String availability, String creationDescription,
-			String projectId, String projectURL,String organization, String organizationURL) {
+	public MonolingualCorpusInformation(String name, String lang, 
+			int filesSize, int tokensSize, int vocSize, String domain, String domainId, String availability, String creationDescription,
+			String projectId, String projectURL, String organization, String organizationURL) {
 		
 		logger.debug(domain);
 		
-		this.lang = l1;
+		this.lang = lang;
 		this.domain = domain;
-		this.tokensSize = numToks;
-		//this.lenInSentences = lenInSentences;
-		this.lenInWords = lenInWords;
+		this.filesSize = filesSize;
+		this.tokensSize = tokensSize;
+		//this.lenInSentences = sentenceSize;
+		this.vocSize = vocSize;
 		this.availability = availability;
 		this.domainId = domainId;
-		this.domain = domain;
-		this.creationDescription = creationDescription;
+		this.domain = domain; 
+		this.creationDescription = "Acquisition of monolingual data (from websites), normalization, cleaning, and deduplication by ILSP-FC ";
 		this.projectId = projectId;
 		this.projectURL = 	projectURL;
 		this.organization = organization;
 		this.organizationURL = organizationURL;
-		this.description = "Monolingual (" + l1 + ") " + "corpus, containing " +numToks  + " tokens and "+ lenInWords + " lexical types in the " + domain + " domain.";
+		this.description = "Monolingual (" + lang + ") " + "corpus, containing " + tokensSize  + " tokens and "+ vocSize + " lexical types in the " + domain + " domain.";
 		if (StringUtils.isBlank(domain)) {
-			this.description = "Monolingual (" + l1 + ") " + "corpus, containing " +numToks  + " tokens and "+ lenInWords +" lexical types in the " + domain + " domain.";
+			this.description = "Monolingual (" + lang + ") " + "corpus, containing " +tokensSize  + " tokens and "+ vocSize +" lexical types in the " + domain + " domain.";
 		}
 		this.name = name;
 	}
@@ -53,115 +43,79 @@ public class MonolingualCorpusInformation {
 	
 	public MonolingualCorpusInformation() {
 	}
-	
-	
+
+
 	/**
 	 * @return the tokensSize
 	 */
 	public int getTokensSize() {
 		return tokensSize;
 	}
+
+
 	/**
 	 * @param tokensSize the tokensSize to set
 	 */
 	public void setTokensSize(int tokensSize) {
 		this.tokensSize = tokensSize;
 	}
+
+
 	/**
-	 * @return the size in Sentences
+	 * @return the sentenceSize
 	 */
-	public int getSentencesNum() {
-		return lenInSentences;
+	public int getSentenceSize() {
+		return sentenceSize;
 	}
+
+
 	/**
-	 * @param documentsSize the documentsSize to set
+	 * @param sentenceSize the sentenceSize to set
 	 */
-	public void setSentencesNum(int lenInSentences) {
-		this.lenInSentences = lenInSentences;
+	public void setSentenceSize(int sentenceSize) {
+		this.sentenceSize = sentenceSize;
 	}
+
+
+	/**
+	 * @return the vocSize
+	 */
+	public int getVocSize() {
+		return vocSize;
+	}
+
+
+	/**
+	 * @param vocSize the vocSize to set
+	 */
+	public void setVocSize(int vocSize) {
+		this.vocSize = vocSize;
+	}
+
+
 	/**
 	 * @return the lang
 	 */
 	public String getLang() {
 		return lang;
 	}
+
+
 	/**
 	 * @param lang the lang to set
 	 */
 	public void setLang(String lang) {
 		this.lang = lang;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "MonolingualCorpusInformation [tokensSize=" + tokensSize
-				+ ", sentencesSize=" + lenInSentences + (lang != null ? "lang=" + lang : "")
-				+ "]";
-	}
+
 
 	/**
-	 * @return the description
+	 * @return the logger
 	 */
-	public String getDescription() {
-		return description;
+	public static Logger getLogger() {
+		return logger;
 	}
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	/**
-	 * @return the domain
-	 */
-	public String getDomain() {
-		return domain;
-	}
-	/**
-	 * @param domain the domain to set
-	 */
-	public void setDomain(String domain) {
-		this.domain = domain;
-	}
-	/**
-	 * @return the domainId
-	 */
-	public String getDomainId() {
-		return domainId;
-	}
-	/**
-	 * @param domainId the domainId to set
-	 */
-	public void setDomainId(String domainId) {
-		this.domainId = domainId;
-	}
-	
-	/**
-	 * @return the availability
-	 */
-	public String getAvailability() {
-		return availability;
-	}
-	/**
-	 * @param availability the availability to set
-	 */
-	public void setAvailability(String availability) {
-		this.availability = availability;
-	}
-	
-	/**
-	 * @return the lenInWordsL1
-	 */
-	public int getLenInWords() {
-		return lenInWords;
-	}
-	/**
-	 * @param lenInWordsL1 the lenInWordsL1 to set
-	 */
-	public void setLenInWords(int lenInWords) {
-		this.lenInWords = lenInWords;
-	}
+
+
 	
 }

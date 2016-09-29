@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import gr.ilsp.fc.corpora.MonolingualCorpusInformation;
+import gr.ilsp.fc.corpora.MonolingualMetashareDescriptor;
 import gr.ilsp.fc.main.Crawl;
 import gr.ilsp.fc.main.ReadResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
@@ -70,7 +71,8 @@ public class MonoMerger {
 			+ "First, paragraphs were split into sentences. "
 			+ "Sentences with length less than "+ len_thr +" characters (after removing non-letters) were discarded. "
 			+ "Duplicate sentences (after removing non-letters) were discarded.";
-
+	private static boolean iso6393=false;
+	
 	public static CompositeConfiguration getConfig() {
 		return config;
 	}
@@ -164,39 +166,52 @@ public class MonoMerger {
 			String projectURL = config.getString("fundingProject.projectURL"); 
 			MonolingualCorpusInformation monlingualCorpusInfo; 
 			if (cc) {
-				monlingualCorpusInfo = new MonolingualCorpusInformation(FilenameUtils.getBaseName(outXMLFile.getAbsolutePath()),MonoMerger.languages[0], sizes[3], sizes[4],
+				monlingualCorpusInfo = new MonolingualCorpusInformation(FilenameUtils.getBaseName(outXMLFile.getAbsolutePath()),MonoMerger.languages[0], sizes[0], sizes[3], sizes[4],
 						domain, domainEurovocId, FREE_STR, creationDescription, projectId, projectURL, organization, organizationURL);
 			} else {
-				monlingualCorpusInfo = new MonolingualCorpusInformation(FilenameUtils.getBaseName(outXMLFile.getAbsolutePath()),MonoMerger.languages[0], sizes[3], sizes[4],
+				monlingualCorpusInfo = new MonolingualCorpusInformation(FilenameUtils.getBaseName(outXMLFile.getAbsolutePath()),MonoMerger.languages[0], sizes[0], sizes[3], sizes[4],
 						domain, domainEurovocId, UNKNOWN_STR, creationDescription, projectId, projectURL, organization, organizationURL);
 			}
 			List<String> corpusmetadata= new ArrayList<String>();
 
-			LOGGER.info("size of corpus in documents:\t"+sizes[0]);
+			LOGGER.info("size of corpus in documents:\t"+monlingualCorpusInfo.getFilesSize());
 			LOGGER.info("size of corpus in tokens:\t"+monlingualCorpusInfo.getTokensSize());
-			LOGGER.info("size of corpus in lexical types:\t"+monlingualCorpusInfo.getLenInWords());
+			LOGGER.info("size of corpus in lexical types:\t"+monlingualCorpusInfo.getVocSize());
 			LOGGER.info("domain of corpus:\t"+monlingualCorpusInfo.getDomain());
 			LOGGER.info("description of corpus:\t"+monlingualCorpusInfo.getDescription());
 			LOGGER.info("language of corpus:\t"+monlingualCorpusInfo.getLang());
 			//if (oxslt) 
 			//	outHTMLFile =  new File(baseName.getAbsolutePath() + HTML);
-			File metadataFile = new File(baseName.getAbsolutePath()+"-corpus"+ MetadataExt);
-			LOGGER.info("Generating metadata descriptor " + metadataFile);
-			corpusmetadata.add("Type of corpus:\tMonolingual");
-			corpusmetadata.add("Domain of corpus:\t"+ monlingualCorpusInfo.getDomain());
-			corpusmetadata.add("DomainID of corpus:\t"+ monlingualCorpusInfo.getDomainId());
-			corpusmetadata.add("level of corpus:\t"+corpuslevel);
-			corpusmetadata.add("size of corpus in documents:\t"+sizes[0]);
-			corpusmetadata.add("size of corpus in tokens:\t"+monlingualCorpusInfo.getTokensSize());
-			corpusmetadata.add("size of corpus in lexical types:\t"+monlingualCorpusInfo.getLenInWords());
-			corpusmetadata.add("description of corpus:\t"+monlingualCorpusInfo.getDescription());
-			corpusmetadata.add("language of corpus:\t"+monlingualCorpusInfo.getLang());
-			try {
-				FileUtils.writeLines(metadataFile, corpusmetadata);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+
+//			File metadataFile = new File(baseName.getAbsolutePath()+"-corpus"+ MetadataExt);
+//			LOGGER.info("Generating metadata descriptor " + metadataFile);
+//			corpusmetadata.add("Type of corpus:\tMonolingual");
+//			corpusmetadata.add("Domain of corpus:\t"+ monlingualCorpusInfo.getDomain());
+//			corpusmetadata.add("DomainID of corpus:\t"+ monlingualCorpusInfo.getDomainId());
+//			corpusmetadata.add("level of corpus:\t"+corpuslevel);
+//			corpusmetadata.add("size of corpus in documents:\t"+sizes[0]);
+//			corpusmetadata.add("size of corpus in tokens:\t"+monlingualCorpusInfo.getTokensSize());
+//			corpusmetadata.add("size of corpus in lexical types:\t"+monlingualCorpusInfo.getVocSize());
+//			corpusmetadata.add("description of corpus:\t"+monlingualCorpusInfo.getDescription());
+//			corpusmetadata.add("language of corpus:\t"+monlingualCorpusInfo.getLang());
+			
+			MonolingualMetashareDescriptor monolingualMetashareDescriptor = new MonolingualMetashareDescriptor(monlingualCorpusInfo);
+			File metadatadaFile = new File(baseName.getAbsolutePath()+ MetadataExt);
+			LOGGER.info("Generating metadata descriptor " + metadatadaFile);
+			monolingualMetashareDescriptor.setOutFile(metadatadaFile);
+			if (iso6393) {
+				monolingualMetashareDescriptor.setMetadataLang("eng");
+			} else {
+				monolingualMetashareDescriptor.setMetadataLang("en");
 			}
+			monolingualMetashareDescriptor.run();
+
+//			try {
+//				FileUtils.writeLines(metadatadaFile, corpusmetadata);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}else{
 			LOGGER.info("No CesDoc found.");
 		}
@@ -455,5 +470,19 @@ public class MonoMerger {
 
 	public void setConfig(CompositeConfiguration config) {
 		MonoMerger.config = config;
+	}
+
+	/**
+	 * @return the iso6393
+	 */
+	public static boolean isIso6393() {
+		return iso6393;
+	}
+
+	/**
+	 * @param iso6393 the iso6393 to set
+	 */
+	public static void setIso6393(boolean iso6393) {
+		MonoMerger.iso6393 = iso6393;
 	}
 }
