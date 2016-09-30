@@ -40,7 +40,11 @@ public class AnalyzerTest {
 				throw new RuntimeException(e);
 			}
 			String actualStem = result.get(0);
-			logger.info("Token/ExpectedStem/SystemStem: " + token + "/" + expectedStem + "/" + actualStem);
+			if (expectedStem.equals(actualStem)) {
+				logger.debug("SUC Token/ExpectedStem/SystemStem: " + token + "/" + expectedStem + "/" + actualStem);
+			} else {
+				logger.debug("ERR Token/ExpectedStem/SystemStem: " + token + "/" + expectedStem + "/" + actualStem);
+			}
 			Assert.assertEquals(expectedStem, actualStem);
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -65,6 +69,8 @@ public class AnalyzerTest {
 		}
 	}
 
+	
+	//@Test FIXME. More tests for mlt using the gabra resource.
 	public void testNaiveAnalyzerRealTests() throws Exception {
 		String[] languages = new String[] {"mt", }; // FIXME
 		String testDir = "/analyzer-tests/";
@@ -81,8 +87,6 @@ public class AnalyzerTest {
 			System.out.println();
 		}
 	}
-
-	
 	
 	private List<Pair<String, String>> getTokenStemsForLang(InputStream in) throws IOException {
 		List<Pair<String, String>> tokenStems = new ArrayList<Pair<String, String>>();

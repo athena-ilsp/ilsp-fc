@@ -18,147 +18,126 @@ package gr.ilsp.fc.utils;
  */
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
-import java.text.ParseException;
 
-import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
-//.miscellaneous.KeywordMarkerFilter;
-import org.apache.lucene.analysis.miscellaneous.KeywordMarkerFilter;
-import org.apache.lucene.analysis.snowball.SnowballFilter;
-import org.apache.lucene.analysis.standard.StandardFilter;
+import org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.util.StopwordAnalyzerBase;
-import org.apache.lucene.analysis.util.WordlistLoader;
-import org.apache.lucene.util.IOUtils;
-import org.apache.lucene.util.Version;
-
-import org.apache.lucene.analysis.hunspell.HunspellStemFilter;
-import org.apache.lucene.analysis.hunspell.Dictionary; 
-import com.google.common.base.Charsets;
 
 /**
- * {@link Analyzer} for Maltese.
+ * {@link Analyzer} for Maltese. 
+ * <p>
+ * This analyzer implements light-stemming as specified by:
+ * <i>
+ * Light Stemming for Maltese Information Retrieval
+ * </i>    
+ * http://www.mtholyoke.edu/~lballest/Pubs/arab_stem05.pdf
+ * <p>
+ * The analysis package contains three primary components:
+ * <ul>
+ *  <li>{@link MalteseNormalizationFilter}: Maltese orthographic normalization.
+ *  <li>{@link MalteseStemFilter}: Maltese light stemming
+ *  <li>Maltese stop words file: a set of default Maltese stop words.
+ * </ul>
+ * 
  */
 public final class MalteseAnalyzer extends StopwordAnalyzerBase {
 
-	private static final Logger LOGGER = Logger.getLogger(MalteseAnalyzer.class);
+  /**
+   * File containing default Maltese stopwords.
+   * 
+   * Default stopword list is from http://members.unine.ch/jacques.savoy/clef/index.html
+   * The stopword list is BSD-Licensed.
+   */
+  public final static String DEFAULT_STOPWORD_FILE = "/stopword-lists/mlt.txt";
 
-	private final CharArraySet stemExclusionSet;
-	private Dictionary dictionary = null;
+  /**
+   * Returns an unmodifiable instance of the default stop-words set.
+   * @return an unmodifiable instance of the default stop-words set.
+   */
+  public static CharArraySet getDefaultStopSet(){
+    return DefaultSetHolder.DEFAULT_STOP_SET;
+  }
+  
+  /**
+   * Atomically loads the DEFAULT_STOP_SET in a lazy fashion once the outer class 
+   * accesses the static final set the first time.;
+   */
+  private static class DefaultSetHolder {
+    static final CharArraySet DEFAULT_STOP_SET;
 
-	/** File containing default Maltese stopwords. Add stopwords if placeholder. */
-	public final static String DEFAULT_STOPWORD_FILE = "/stopword-lists/mlt.txt";
+    static {
+      try {
+        DEFAULT_STOP_SET = loadStopwordSet(false, MalteseAnalyzer.class, DEFAULT_STOPWORD_FILE, "#");
+      } catch (IOException ex) {
+        // default set should always be present as it is part of the
+        // distribution (JAR)
+        throw new RuntimeException("Unable to load default stopword set");
+      }
+    }
+  }
+  
+  private final CharArraySet stemExclusionSet;
 
-	/**
-	 * Returns an unmodifiable instance of the default stop words set.
-	 * 
-	 * @return default stop words set.
-	 */
-	public static CharArraySet getDefaultStopSet() {
-		return DefaultSetHolder.DEFAULT_STOP_SET;
-	}
+  /**
+   * Builds an analyzer with the default stop words: {@link #DEFAULT_STOPWORD_FILE}.
+   */
+  public MalteseAnalyzer() {
+    this(DefaultSetHolder.DEFAULT_STOP_SET);
+  }
+  
+  /**
+   * Builds an analyzer with the given stop words
+   * 
+   * @param stopwords
+   *          a stopword set
+   */
+  public MalteseAnalyzer(CharArraySet stopwords){
+    this(stopwords, CharArraySet.EMPTY_SET);
+  }
 
-	/**
-	 * Atomically loads the DEFAULT_STOP_SET in a lazy fashion once the outer
-	 * class accesses the static final set the first time.;
-	 */
-	private static class DefaultSetHolder {
-		static final CharArraySet DEFAULT_STOP_SET;
+  /**
+   * Builds an analyzer with the given stop word. If a none-empty stem exclusion set is
+   * provided this analyzer will add a {@link SetKeywordMarkerFilter} before
+   * {@link MalteseStemFilter}.
+   * 
+   * @param stopwords
+   *          a stopword set
+   * @param stemExclusionSet
+   *          a set of terms not to be stemmed
+   */
+  public MalteseAnalyzer(CharArraySet stopwords, CharArraySet stemExclusionSet){
+    super(stopwords);
+    this.stemExclusionSet = CharArraySet.unmodifiableSet(CharArraySet.copy(stemExclusionSet));
+  }
 
-		static {
-			try {
-				DEFAULT_STOP_SET = WordlistLoader.getSnowballWordSet(IOUtils
-						.getDecodingReader(SnowballFilter.class,
-								DEFAULT_STOPWORD_FILE, Charsets.UTF_8));
-			} catch (IOException ex) {
-				// default set should always be present as it is part of the
-				// distribution (JAR)
-				throw new RuntimeException( "Unable to load default stopword set");
-			}
-		}
-	}
-
-	
-	/**
-	 * Builds an analyzer with the default stop words:
-	 * {@link #DEFAULT_STOPWORD_FILE}.
-	 * @throws ParseException 
-	 * @throws IOException 
-	 */
-	public MalteseAnalyzer(CharArraySet stopwords) throws IOException, ParseException {
-	    this(stopwords, CharArraySet.EMPTY_SET);
-
-	}
-
-	/**
-	 * Builds an analyzer with the given stop words.
-	 * 
-	 * @param matchVersion
-	 *            lucene compatibility version
-	 * @param stopwords
-	 *            a stopword set
-	 * @throws ParseException 
-	 * @throws IOException 
-	 */
-	public MalteseAnalyzer(Version matchVersion, CharArraySet stopwords) throws IOException, ParseException {
-		this(stopwords, CharArraySet.EMPTY_SET);
-	}
-
-	/**
-	 * Builds an analyzer with the given stop words. If a non-empty stem
-	 * exclusion set is provided this analyzer will add a
-	 * {@link KeywordMarkerFilter} before stemming.
-	 * 
-	 * @param matchVersion
-	 *            lucene compatibility version
-	 * @param stopwords
-	 *            a stopword set
-	 * @param stemExclusionSet
-	 *            a set of terms not to be stemmed
-	 * @throws ParseException 
-	 * @throws IOException 
-	 */
-	public MalteseAnalyzer(CharArraySet stopwords,	CharArraySet stemExclusionSet)  {
-		super( stopwords);
-		this.stemExclusionSet = CharArraySet.unmodifiableSet(CharArraySet.copy(stemExclusionSet));
-		InputStream affixStream = MalteseAnalyzer.class.getResourceAsStream("/hunspell-dictionaries/mt/mt.aff"); 
-		InputStream dictStream = MalteseAnalyzer.class.getResourceAsStream("/hunspell-dictionaries/mt/mt.dic"); 
-		try {
-			dictionary = new Dictionary(affixStream, dictStream);
-		} catch (Exception e) {
-			LOGGER.error("Could not initialize analyzer correctly: " );
-			LOGGER.error(e.getMessage());
-		} 
-	}
-
-	public MalteseAnalyzer() throws IOException, ParseException {
-		this(DefaultSetHolder.DEFAULT_STOP_SET);
-	}
-
-	/**
-	 * Creates a
-	 * {@link org.apache.lucene.analysis.Analyzer.TokenStreamComponents} which
-	 * tokenizes all the text in the provided {@link Reader}.
-	 * 
-	 * @return A
-	 *         {@link org.apache.lucene.analysis.Analyzer.TokenStreamComponents}
-	 *         built from an {@link StandardTokenizer} filtered with
-	 *         {@link StandardFilter}, {@link LowerCaseFilter},
-	 *         {@link StopFilter} , {@link KeywordMarkerFilter} if a stem
-	 *         exclusion set is provided and {@link SnowballFilter}.
-	 */
-	@Override
-	protected TokenStreamComponents createComponents(String fieldName) {
-		LOGGER.debug("Creating components  ");
-	    Tokenizer tokenizer = new StandardTokenizer();
-	    return new TokenStreamComponents(tokenizer, new HunspellStemFilter(tokenizer, dictionary));
-	}
-
-
+  /**
+   * Creates
+   * {@link org.apache.lucene.analysis.Analyzer.TokenStreamComponents}
+   * used to tokenize all the text in the provided {@link Reader}.
+   * 
+   * @return {@link org.apache.lucene.analysis.Analyzer.TokenStreamComponents}
+   *         built from an {@link StandardTokenizer} filtered with
+   *         {@link LowerCaseFilter}, {@link StopFilter},
+   *         {@link MalteseNormalizationFilter}, {@link SetKeywordMarkerFilter}
+   *         if a stem exclusion set is provided and {@link MalteseStemFilter}.
+   */
+  @Override
+  protected TokenStreamComponents createComponents(String fieldName) {
+    final Tokenizer source = new StandardTokenizer();
+    TokenStream result = new LowerCaseFilter(source);
+    // the order here is important: the stopword list is not normalized!
+    //result = new StopFilter(result, stopwords);
+    if(!stemExclusionSet.isEmpty()) {
+      result = new SetKeywordMarkerFilter(result, stemExclusionSet);
+    }
+    return new TokenStreamComponents(source, new MalteseStemFilter(result));
+  }
 }
+

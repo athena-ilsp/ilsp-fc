@@ -107,6 +107,8 @@ public class AnalyzerFactory {
 			return new CatalanAnalyzer();
 		} else if (lang3.equals("est")) {
 			return new FinnishAnalyzer(); //FIXME FinnishAnalyzer since Estonian is not available
+		} else if (lang3.equals("mlt")) {
+			return new MalteseAnalyzer(); 
 		} else if (lang3.equals("slk-hunspell")) {
 			// FIXME Obviously this if and the hunspell-analyzer will never be reached due to the CzechAnalyzer if above. 
 			// Our current hunspell-based stemmer seems to perform worse on a very small test case.
