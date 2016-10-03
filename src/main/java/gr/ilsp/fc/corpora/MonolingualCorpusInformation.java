@@ -10,7 +10,6 @@ public class MonolingualCorpusInformation extends CorpusInformation {
 	private int sentenceSize;
 	private int vocSize;
 	private String lang;
-
 	private static final Logger logger = LoggerFactory.getLogger(MonolingualCorpusInformation.class);
 	
 	public MonolingualCorpusInformation(String name, String lang, 
@@ -28,7 +27,7 @@ public class MonolingualCorpusInformation extends CorpusInformation {
 		this.availability = availability;
 		this.domainId = domainId;
 		this.domain = domain; 
-		this.creationDescription = "Acquisition of monolingual data (from websites), normalization, cleaning, and deduplication by ILSP-FC ";
+		this.creationDescription = creationDescription;
 		this.projectId = projectId;
 		this.projectURL = 	projectURL;
 		this.organization = organization;

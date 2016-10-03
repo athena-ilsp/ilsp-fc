@@ -11,7 +11,8 @@ public class CorpusInformation {
 	protected String domain;
 	protected String domainId;
 	protected String name;
-	protected String creationDescription ;
+	protected String creationDescription = "Acquisition, normalization, cleaning, and deduplication by ILSP-FC ";
+
 	protected int filesSize;
 
 	/**
