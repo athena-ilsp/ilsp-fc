@@ -64,9 +64,9 @@ public class BilingualCorpusInformation extends CorpusInformation {
 		this.availability = availability;
 		this.domainId = domainId;
 		this.domain = domain;
-		this.creationDescription = "Acquisition of bilingual data (from multilingual websites), normalization, cleaning, deduplication and identification of parallel documents: ILSP-FC. "
-				+ "Maligna aligner was used for alignment of segments.";
-		
+		//this.creationDescription = "Acquisition of bilingual data (from multilingual websites), normalization, cleaning, deduplication and identification of parallel documents: ILSP-FC. "
+		//		+ "Maligna aligner was used for alignment of segments.";
+		this.creationDescription =creationDescription;
 		this.projectId = projectId;
 		this.projectURL = 	projectURL;
 		this.organization = organization;
