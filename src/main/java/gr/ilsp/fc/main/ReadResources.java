@@ -20,12 +20,14 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class ReadResources {
+	private static final Logger LOGGER = Logger.getLogger(ReadResources.class);
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	private static final String P_ELE = "p";
 	private static final String L_ELE = "language";
@@ -110,7 +112,9 @@ public class ReadResources {
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (SAXException e) {
+			LOGGER.warn("problem in reading : "+ inputFile);
 			e.printStackTrace();
+			return "";
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
