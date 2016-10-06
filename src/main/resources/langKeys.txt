@@ -20,7 +20,7 @@ ron>ron,rum,ro,Romanian,romanian,limba română
 nor>nor,no,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
 nld>nld,nl,Dutch,dutch,Nederlands,Vlaams,dut
 glg>glg,gl,Galician,galician,galego
-ces>ces,cz,Czech,czech,čeština,český jazyk,Česky
+ces>ces,cs,cz,Czech,czech,čeština,český jazyk,Česky
 dan>dan,da,Danish,danish,dansk
 bul>bul,bg,Bulgarian,bulgarian,Български,български език
 rus>rus,ru,Russian,russian,Русский,По-русски
