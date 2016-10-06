@@ -136,6 +136,7 @@ public class MonoMerger {
 				e.printStackTrace();
 			} 
 		}
+		LOGGER.info("targeted files : "+ xmlfiles.size());
 		//List<String> paragraphs = new ArrayList<String>();
 		List<String> sentences = new ArrayList<String>();
 		int[] sizes = new int[5]; //docs, pars, sents, tokens, words
@@ -281,10 +282,12 @@ public class MonoMerger {
 		int[] sizes = new int[5]; //docs, paragraphs, sentences, tokens, words
 		List<String> paragraphs = new ArrayList<String>();
 		int totalTokens = 0 ;
-		int filecounter=1;
+		int filecounter=0;
 		Set<String> words = new HashSet<String>();
 		for (File xmlfile:xmlfiles){
-			paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\t"));
+			paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\n"));
+			if (paragraphs.isEmpty())
+				continue;
 			try {
 				//FileUtils.writeLines(new File(FilenameUtils.concat(corpusdoc.getAbsolutePath(),xmlfile.getName()+TXTEXT)), paragraphs);
 				//File temp = xmlfile.getParentFile();
