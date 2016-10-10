@@ -52,7 +52,7 @@ public class SentenceSplitterTest {
 
 	@Test
 	public void testLangSentenceSplitters() throws IOException {
-		List<String> langs = Arrays.asList(new String[]{"eng", "deu", "spa", "por", "ell"});
+		List<String> langs = Arrays.asList(new String[]{"ell", "fra", "eng", "deu", "spa", "por"});
 		
 		for (String lang: langs ) {
 			logger.info("Testing " + lang	+ " sentence splitter");
