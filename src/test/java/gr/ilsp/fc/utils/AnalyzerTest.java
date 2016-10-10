@@ -47,6 +47,7 @@ public class AnalyzerTest {
 			}
 			Assert.assertEquals(expectedStem, actualStem);
 		} catch (Exception e) {
+			e.printStackTrace();
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -54,6 +55,7 @@ public class AnalyzerTest {
 	@Test
 	public void testNaiveAnalyzer() throws Exception {
 		String[] languages = new String[] {"sk", };
+		//String[] languages = new String[] {"mt", }; // FIXME. More tests for mlt using the gabra resource.
 		String testDir = "/analyzer-tests/";
 
 		for (String lang: languages) {
@@ -65,28 +67,11 @@ public class AnalyzerTest {
 			for (Pair<String, String> tokenStem: tokenStems) {
 				testTokenAnalyzer(analyzer, tokenStem.getLeft(),  tokenStem.getRight(), lang,	lang + " test");
 			}
-			System.out.println();
-		}
+		}			
+		logger.info("Finished stemming tests" );
 	}
 
 	
-	//@Test FIXME. More tests for mlt using the gabra resource.
-	public void testNaiveAnalyzerRealTests() throws Exception {
-		String[] languages = new String[] {"mt", }; // FIXME
-		String testDir = "/analyzer-tests/";
-
-		for (String lang: languages) {
-			logger.info("Stemming test for " + lang );
-			Analyzer analyzer = analyzerFactory.getAnalyzer(lang);
-			InputStream in  =  AnalyzerTest.class.getResource(testDir+lang).openStream();
-			List<Pair<String, String>> tokenStems = getTokenStemsForLang(in);
-			in.close();
-			for (Pair<String, String> tokenStem: tokenStems) {
-				testTokenAnalyzer(analyzer, tokenStem.getLeft(),  tokenStem.getRight(), lang,	lang + " test");
-			}
-			System.out.println();
-		}
-	}
 	
 	private List<Pair<String, String>> getTokenStemsForLang(InputStream in) throws IOException {
 		List<Pair<String, String>> tokenStems = new ArrayList<Pair<String, String>>();
