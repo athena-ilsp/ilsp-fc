@@ -151,11 +151,17 @@ public class Pdf2text {
 				data.put("content", content);
 			}
 		} catch (IOException e) {
+			boolean catched = false;
 			if (e.getMessage().contains(" End-of-File, expected line")){
+				catched = true;
 				LOGGER.error("problem if reading header");
-			}else{
-				e.printStackTrace();
 			}
+			if (e.getMessage().contains(" reading table") || e.getMessage().contains("reading corrupt stream")){
+				catched = true;
+				LOGGER.error("problem if reading pdf file");
+			}
+			if (!catched)
+				e.printStackTrace();
 		} finally {
 			if (document != null) {
 				try {
