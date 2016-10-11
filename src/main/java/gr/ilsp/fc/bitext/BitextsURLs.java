@@ -52,10 +52,15 @@ public class BitextsURLs {
 				continue;
 			if (paired.contains(id1) && paired.contains(id2)) // Do not add the other pair direction. 
 				continue;
-			if (paired.contains(id1_lang))
+			//FIXME multiple matches should be examined
+			if (paired.contains(id1_lang)){ // if multiple matches are found, keep only the first  
 				System.out.println("Multiple matches :" + id1_lang);
-			if (paired.contains(id2_lang))
-				System.out.println("Multiple matches :" + id2_lang);		
+				continue;
+			}
+			if (paired.contains(id2_lang)){// if multiple matches are found, keep only the first. 
+				System.out.println("Multiple matches :" + id2_lang);
+				continue;
+			}
 			String temp[] = {id1_lang, id2_lang, lang1,lang2, pair_type_link, Double.toString(features.get(id1_lang).numToksnoOOI+features.get(id2_lang).numToksnoOOI)};
 			if (id1_lang.compareTo(id2_lang)>0){
 				temp[0] = id2_lang;
