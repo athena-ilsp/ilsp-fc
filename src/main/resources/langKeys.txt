@@ -28,3 +28,4 @@ swe>swe,sv,Swedish,swedish,(sv),[sv],svenska
 slk>slk,sk,Slovak,slovenčina,slovenský jazyk,Slovensky,slo 
 est>est,et,estonian,eesti
 srp>srp,sr,Serbian,српски језик,Srpski
+mlt>mlt,Maltese,Malti,mt
