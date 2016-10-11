@@ -40,7 +40,7 @@ public class AnalyzerFactory {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyzerFactory.class);
 	
 	static String[] langs = { "deu", "ell", "eng", "spa", "fra", "ita", "por", "lav", "lit", "hrv", "hun", "jpn","zho",
-			"gle", "fin", "grc", "pol", "ron", "nor", "nld", "glg", "ces", "dan", "euq", "bul", "rus", "swe", "slv", "cat", "est", "slk" };
+			"gle", "fin", "grc", "pol", "ron", "nor", "nld", "glg", "ces", "dan", "euq", "bul", "rus", "swe", "slv", "cat", "est", "mlt", "slk" };
 	List<String> langsList = Arrays.asList(langs);
 	
 	
