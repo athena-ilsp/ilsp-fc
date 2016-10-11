@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import com.cybozu.labs.langdetect.Detector;
 import com.cybozu.labs.langdetect.DetectorFactory;
 import com.cybozu.labs.langdetect.LangDetectException;
+//import com.cybozu.labs.langdetect.Language;
 
 public class LangDetectUtils {
 	private static final Logger LOGGER = Logger.getLogger(LangDetectUtils.class);
@@ -29,6 +30,7 @@ public class LangDetectUtils {
 	//private static final String LANG_CODES_RESOURCE = "langcode-langs.txt";
 	//private static final String SPACE_SEPERATOR = " ";
 	private static final int min_strlen=5;
+	//private static final double min_prob=0.6;
 
 	/**
 	 * Detects language of the provided content with loaded Cybozu. 
@@ -43,9 +45,20 @@ public class LangDetectUtils {
 		//String langIdentified = LangI.getLanguage();
 		Detector detector = null;			
 		try {
+			//for (int ii=0;ii<2;ii++){
 			detector = DetectorFactory.create();
 			detector.append(content);
+				//ArrayList<Language> aaa = detector.getProbabilities();
+				//System.out.println(aaa.get(0).prob +"\t"+aaa.get(0).lang);
+				//if (aaa.get(0).prob>min_prob){
+				//	lang = aaa.get(0).lang;
+				//	break;
+				//}
+			//}
+			//if (lang.isEmpty())
 			lang = ISOLangCodes.get3LetterCode(detector.detect());
+			//else
+			//	lang = ISOLangCodes.get3LetterCode(lang);
 		} catch (LangDetectException e) {
 			//LOGGER.error(e.getMessage());
 		}
