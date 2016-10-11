@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gr.ilsp.fc.utils.AnalyzerTest;
-import gr.ilsp.nlp.commons.Constants;
 
 public class LangDetectorFactoryTest {
 	
@@ -119,7 +118,7 @@ public class LangDetectorFactoryTest {
 			if (StringUtils.isAnyBlank(line) || line.startsWith("#")) {
 				continue;
 			} else {
-				String[] fields = StringUtils.split(line, Constants.TAB);
+				String[] fields = StringUtils.split(line, "\t");
 				//logger.info(line);
 				testLangDetector(fields[1], fields[0], fields[0]+ " test");
 			}
