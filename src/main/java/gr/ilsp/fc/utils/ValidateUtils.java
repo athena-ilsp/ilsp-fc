@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import net.loomchild.maligna.util.bind.TmxMarshallerUnmarshaller;
@@ -17,6 +16,8 @@ import net.loomchild.maligna.util.bind.tmx.Prop;
 import net.loomchild.maligna.util.bind.tmx.Seg;
 import net.loomchild.maligna.util.bind.tmx.Tmx;
 import net.loomchild.maligna.util.bind.tmx.Tu;
+
+import org.apache.commons.validator.routines.EmailValidator;
 
 public class ValidateUtils {
 	private static final Logger LOGGER = Logger.getLogger(ValidateUtils.class);
@@ -67,4 +68,10 @@ public class ValidateUtils {
 		}
 		return builder.toString();
 	}
+	
+	public static boolean isValidEmailAddress(String email) {
+		boolean valid = EmailValidator.getInstance().isValid(email);
+		return valid;
+	}
+	
 }
