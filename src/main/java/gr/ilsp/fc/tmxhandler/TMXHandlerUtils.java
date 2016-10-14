@@ -325,6 +325,4 @@ public class TMXHandlerUtils {
 		return segpairs;
 	}
 
-
-
 }

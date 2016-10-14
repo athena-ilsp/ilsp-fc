@@ -45,6 +45,7 @@ import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.fc.utils.ValidateUtils;
 
 public class TMXHandler {
 	private static final Logger LOGGER = Logger.getLogger(TMXHandler.class);
@@ -103,6 +104,7 @@ public class TMXHandler {
 	private final static String mes5a = " or higher than ";
 	private final static String mes6 = "different numbers in TUVs";
 	private final static String mes7 = "duplicate";
+	private final static String mes8 = "e-mail adderss";
 
 	private static int totalcounter=0;
 	//private static int distthr=5; //FIXME add as parameter
@@ -151,7 +153,7 @@ public class TMXHandler {
 		ha.setKeepDuplicates(options.getKeepDuplicates());
 		ha.setO1(options.getO1());
 		ha.setO2(options.getO2());
-		
+
 		String[] languages = options.getLanguage().split(SEMICOLON_STR);
 		List<String> lang_pairs = new ArrayList<String>();
 		if (languages.length>1){
@@ -238,7 +240,7 @@ public class TMXHandler {
 			return;
 		}else
 			LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
-		
+
 		creationDescription = creationDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
 		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
 		List<String> domainEurovocIds=getEurovocId(domains);
@@ -258,11 +260,11 @@ public class TMXHandler {
 			String organizationURL = config.getString("resourceCreator.organizationURL"); 
 			String projectId = config.getString("fundingProject.projectId"); 
 			String projectURL = config.getString("fundingProject.projectURL"); 
-			
+
 			creationDescription = creationDescription + " There are "+ stats1[5] +" TUs with no annotation,"+
 					" containing "+ stats1[2] +" words and "+ stats1[3] +" lexical types in "+ TMXHandler.languages[0] + 
 					" and "+ stats2[2] +" words and "+ stats2[3]+" lexical types in "+ TMXHandler.languages[1];
-			
+
 			BilingualCorpusInformation bilingualCorpusInfo;
 			if (cc) {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), TMXHandler.languages[0], TMXHandler.languages[1], 
@@ -275,7 +277,7 @@ public class TMXHandler {
 			}
 			if (oxslt) 
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
-			
+
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
 
 			BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
@@ -414,6 +416,7 @@ public class TMXHandler {
 				}
 				String info="";//, info1="";
 				//FIXME add constrains for length, or other "filters"
+
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
 				if ( normS.isEmpty() || normT.isEmpty()){
@@ -426,6 +429,11 @@ public class TMXHandler {
 						continue;
 					if (info.isEmpty()){	info =  mes2;}		else{	info =  info + " | "+mes2;}	
 				}
+				if (ValidateUtils.isValidEmailAddress(segpair.seg1) || ValidateUtils.isValidEmailAddress(segpair.seg2)){
+					if (!keepem)
+						continue;
+					if (info.isEmpty()){	info =  mes8;}		else{	info =  info + " | "+mes8;}	
+				}
 
 				List<String> stokens = FCStringUtils.getTokens(normS);
 				List<String> ttokens = FCStringUtils.getTokens(normT);
@@ -433,12 +441,12 @@ public class TMXHandler {
 				Double[] ttokenslen = FCStringUtils.getTokensLength(ttokens);
 				if (Statistics.getMax(stokenslen)>max_word_length || Statistics.getMax(ttokenslen)>max_word_length){
 					LOGGER.info("discarded TU, very large word (due to bad text extraction from pdf):"+ segpair.seg1 +"\t"+ segpair.seg2);
-					 //String info1 = "a: "+ max_word_length;
+					//String info1 = "a: "+ max_word_length;
 					continue;
 				}else{
 					if (Statistics.getMedian(stokenslen)>=median_word_length || Statistics.getMedian(ttokenslen)>=median_word_length){
 						LOGGER.info("discarded TU, very large words (due to bad text extraction from pdf):"+ segpair.seg1 +"\t"+ segpair.seg2);
-					 //	String info1 = "a: "+ median_word_length;
+						//	String info1 = "a: "+ median_word_length;
 						continue;
 					}
 				}
@@ -473,7 +481,7 @@ public class TMXHandler {
 				alignment.setScore((float)segpair.score);
 				alignment.setL1url(segpair.l1url);
 				alignment.setL2url(segpair.l2url);
-				
+
 				//alignment.setSite(segpair.site);
 				alignment.setMethod(segpair.method);
 				alignment.setLicense(segpair.license);
