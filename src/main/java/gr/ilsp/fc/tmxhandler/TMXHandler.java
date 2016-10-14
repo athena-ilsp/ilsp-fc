@@ -104,7 +104,7 @@ public class TMXHandler {
 	private final static String mes5a = " or higher than ";
 	private final static String mes6 = "different numbers in TUVs";
 	private final static String mes7 = "duplicate";
-	private final static String mes8 = "e-mail adderss";
+	private final static String mes8 = "e-mail address";
 
 	private static int totalcounter=0;
 	//private static int distthr=5; //FIXME add as parameter
