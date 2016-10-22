@@ -6,12 +6,15 @@ package gr.ilsp.fc.parser;
 import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,14 +55,17 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	private static final String default_Europecomment_in_url = "©European Union, 1995-2014. Reuse is authorised, provided the source is acknowledged.";
 	/*private static final String default_CCcomment_in_text = "Distributed under a Creative Commons license (auto detected in document)";*/
 	//private static final String default_CCcomment_in_text = "Distributed under a Creative Commons license";
-	private static final String text_cc_separ = ";";
+	private static final String SEMI_STR = ";";
+	private static final String OR_STR = "|";
 	//private static final String REL_LICENSE_LOCATION = "rel";
 	private static final Logger LOGGER = Logger.getLogger(TikaCallableParser.class);
 	// Simplistic language code pattern used when there are more than one languages specified
 	// FUTURE KKr - improve this to handle en-US, and "eng" for those using old-style language codes.
 	private static final Pattern LANGUAGE_CODE_PATTERN = Pattern.compile("([a-z]{2})([,;-]).*");
 	private static final String LINK_CANONICAL = "link[canonical]";
-
+	private static final List<String> rights_links= Arrays.asList("privacy statement", "οροι χρησης", "προστασία προσωπικών δεδομένων",
+			"terms of use", "privacy policy" , "disclaimer");
+	
 	private Parser _parser;
 	private BaseContentExtractor _contentExtractor;
 	private InputStream _input;
@@ -134,6 +140,8 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				LOGGER.debug("KEY: "+_metadata.get(Metadata.RESOURCE_NAME_KEY)+"\tLOC: "+_metadata.get(Metadata.CONTENT_LOCATION));	
 				_metadata.set(Metadata.CONTENT_LOCATION, _metadata.get(Metadata.RESOURCE_NAME_KEY));
 			}
+			LOGGER.debug("PARSED URL:\t"+_metadata.get(Metadata.CONTENT_LOCATION));
+			
 			//String lang = _extractLanguage ? _metadata.get(Metadata.CONTENT_LANGUAGE) : null;
 			/*String lang = _extractLanguage ? detectLanguageFromMetadata(_metadata, profilingHandler) : null;
 			String content = "";
@@ -146,8 +154,10 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				lang = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
 			}*/
 			String content = CleanerUtils.getContent(_input, _metadata, _keepBoiler);  
+			//String ttt = CleanerUtils.cleanContent(content);
 			String lang = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
-
+			//LOGGER.debug(_metadata.get(Metadata.CONTENT_LOCATION) + "\n"+ lang +"\n"+ttt);
+			
 			ExtendedOutlink[] outlinks = new ExtendedOutlink[0] ;
 			
 			if (_extractLinks){
@@ -168,6 +178,13 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 					for (ExtendedOutlink extendedOutlink : outlinks) {
 						try {
 							URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
+							if (rights_links.contains(extendedOutlink.getAnchor())){
+								String templic = _metadata.get(Metadata.LICENSE_URL); 
+								if (templic.isEmpty())
+									_metadata.set(Metadata.LICENSE_URL, extendedOutlink.getAnchor()+SEMI_STR+url.toString());
+								else
+									_metadata.set(Metadata.LICENSE_URL, templic+OR_STR+extendedOutlink.getAnchor()+SEMI_STR+url.toString());
+							}
 							// check that it's a CC license URL
 							if ((HTTP_PROTOCOL.equalsIgnoreCase(url.getProtocol())
 									| HTTPS_PROTOCOL.equalsIgnoreCase(url.getProtocol())) &&
@@ -175,13 +192,14 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 									url.getPath() != null &&
 									url.getPath().startsWith(LICENSES_STR) &&
 									url.getPath().length() > LICENSES_STR.length()) {
-								_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_url+text_cc_separ+url.toString());
+								_metadata.set(Metadata.LICENSE_URL, default_CCcomment_in_url+SEMI_STR+url.toString());
 								found_license=true;
 								break;
 							}
 						} catch (Exception e) {
 							LOGGER.debug("reached");
 						}
+						
 					}
 					//if a creative commons license is mentioned in the content 
 					//if (!found_license){
@@ -208,11 +226,30 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 
 	private ExtendedOutlink[] filterOutLinks(ExtendedOutlink[] outlinks, String urlfilterstr) {
 		List<ExtendedOutlink> temp = new ArrayList<ExtendedOutlink>();
+		URL url = null;
+		ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
 		for (ExtendedOutlink outlink:outlinks){
-			if (outlink.getToUrl().matches(urlfilterstr))
-				temp.add(outlink);
-			//else
-			//	System.out.println(outlink.getToUrl());
+			String link = normalizer.normalize(outlink.getToUrl());
+			//if(!link.equals(outlink.getToUrl())){
+			//	LOGGER.warn("url normalization affects outlinks");
+			//	LOGGER.info(link);
+			//	LOGGER.info(outlink.getToUrl());
+			//}
+			outlink.setToUrl(link);
+			try {
+				url = new URL(outlink.getToUrl());
+				link=link.replace(url.getProtocol()+"://", "");
+				if (link.matches(urlfilterstr)){
+					temp.add(outlink);
+					//LOGGER.info("PASSED\t"+outlink.getToUrl());
+				}else{
+					LOGGER.debug("CUT\t"+outlink.getToUrl());
+				}
+				
+			} catch (MalformedURLException e) {
+				//LOGGER.warn("not valid url: "+ outlink.getToUrl());
+				continue;
+			}
 		}
 		ExtendedOutlink[] res= new ExtendedOutlink[temp.size()];
 		for (int ii=0;ii<res.length;ii++)

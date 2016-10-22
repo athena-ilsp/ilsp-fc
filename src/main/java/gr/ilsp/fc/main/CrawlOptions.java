@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -33,7 +34,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.net.InternetDomainName;
 
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.utils.AnalyzerFactory;
+import gr.ilsp.fc.utils.FCStringUtils;
 
 public class CrawlOptions {
 	public static int NO_CRAWL_DURATION = 0;
@@ -124,6 +127,7 @@ public class CrawlOptions {
 	private static final String QUEST_SEPAR = ";";
 	private static final String COLON_SEPAR = ":";
 	private static final String DOUBLEQUEST_SEPAR = ";;";
+	//private static final String PUNCT = ".";
 	
 	private static String _selectDocs = "aupdihml";
 	private static List<String> _selectSegs = new ArrayList<String>();
@@ -137,7 +141,7 @@ public class CrawlOptions {
 	private static final String TMX_MERGE_operation = "tmxmerge";
 	private static final String LANG_KEYS_RESOURCE = "langKeys.txt" ;
 	private static final String TRANS_LINKS_ATTRS = "crossLinksAttrs.txt";
-	
+
 	public CrawlOptions() {
 		createOptions();
 	}
@@ -589,8 +593,24 @@ public class CrawlOptions {
 		if(line.hasOption("n")) 			{	_numLoops = Integer.parseInt(line.getOptionValue("n"));	_crawlDuration=0;	}
 		if(line.hasOption("c")) 			{	_crawlDuration = Integer.parseInt(line.getOptionValue("c"));	}
 		if(line.hasOption("f"))				{	_force   = true;	}
-		if (line.hasOption("filter"))		{	_filter = line.getOptionValue("filter");	}
-		if (line.hasOption("storefilter"))	{	_storefilter = line.getOptionValue("storefilter");	}
+		if (line.hasOption("filter"))		{	
+			_filter = line.getOptionValue("filter");	
+			try{
+				Pattern.compile(_filter);
+			}catch (PatternSyntaxException exception) {
+	            System.err.println(_filter +" is not a valid regex. See parameter -filter");
+	            System.exit(0);
+	        }
+		}
+		if (line.hasOption("storefilter"))	{
+			_storefilter = line.getOptionValue("storefilter");
+			try{
+				Pattern.compile(_storefilter);
+			}catch (PatternSyntaxException exception) {
+	            System.err.println(_storefilter +" is not a valid regex. See parameter -storefilter");
+	            System.exit(0);
+	        }
+		}
 		if(line.hasOption("level")) 		{	_level = Integer.parseInt(line.getOptionValue("level"));	}
 		if(line.hasOption("depth")) 		{	_depth = Integer.parseInt(line.getOptionValue("depth"));	}
 
@@ -599,7 +619,7 @@ public class CrawlOptions {
 			ws_dir = FilenameUtils.concat(line.getOptionValue("dest"), _agentName+UNDERSCORE_STR+timeStamp) ;
 		else
 			ws_dir=_agentName+UNDERSCORE_STR+timeStamp;
-		
+
 		if(!line.hasOption( "o")) 
 			_outputDir = new File(FilenameUtils.concat(ws_dir, UUID.randomUUID().toString())); 				 	
 
@@ -619,12 +639,14 @@ public class CrawlOptions {
 			URL url;
 			if (!line.hasOption( "filter")){
 				ArrayList<String> seed_list = readSeedList();
+				ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
 				if (!seed_list.isEmpty()){
 					if (seed_list.size()==1){
 						try {
-							url = new URL(seed_list.get(0));
-							_domain = removeWWW(url.getHost());				//LOGGER.debug("Examining web domain : " + _domain);
-							_maindomain = removeWWW(processhost(_domain));	//LOGGER.debug("Examining second domain : " + _maindomain);
+							url = new URL(normalizer.normalize(seed_list.get(0)));
+							_domain = FCStringUtils.removeWWW(url.getHost());				//LOGGER.debug("Examining web domain : " + _domain);
+							_maindomain = FCStringUtils.removeWWW(processhost(_domain));	//LOGGER.debug("Examining second domain : " + _maindomain);
+							//_domain = PUNCT+_domain;
 						} catch (MalformedURLException e) {
 							LOGGER.error("Seed URL is not valid: "+seed_list.get(0));
 							help();
@@ -634,12 +656,12 @@ public class CrawlOptions {
 						for (int ii=0;ii<seed_list.size();ii++){
 							try {
 								if (ii==0)
-									firsthost = new URL(seed_list.get(ii)).getHost();
-								url = new URL(seed_list.get(ii));
+									firsthost = new URL(normalizer.normalize(seed_list.get(ii))).getHost();
+								url = new URL(normalizer.normalize(seed_list.get(ii)));
 								String host = url.getHost();
 								if (!host.equals(firsthost)){
 									if (!line.hasOption( "filter")){
-										LOGGER.error("Since the provided seed list for bilingual crawling includes more than on webdomains, " +
+										LOGGER.error("Since the provided seed list for bilingual crawling includes more than one webdomains, " +
 												" USE the filter argument to confine FC within these webdomains.");
 										System.exit(0);				
 									}
@@ -648,7 +670,7 @@ public class CrawlOptions {
 										_maindomain=null;
 									}
 								}else{
-									_domain = removeWWW(host);
+									_domain = FCStringUtils.removeWWW(host);
 									String mainhost="";
 									char c = host.charAt(0);
 									if (Character.isDigit(c)){
@@ -656,7 +678,7 @@ public class CrawlOptions {
 									}else{
 										mainhost=processhost(host);
 									}
-									_maindomain = removeWWW(mainhost);
+									_maindomain = FCStringUtils.removeWWW(mainhost);
 								}
 							}catch (MalformedURLException e) {
 								LOGGER.error("Seed URL is not valid:"+seed_list.get(ii));
@@ -668,7 +690,8 @@ public class CrawlOptions {
 					help();
 				}
 				String t = _domain.replace(".", "\\.");
-				_filter = ".*"+t+".*";
+				//_filter = ".*"+t+".*";
+				_filter = "^[^/]*\\."+t+".*";
 			}else{
 				_domain=null;
 				_maindomain=null;
@@ -677,14 +700,6 @@ public class CrawlOptions {
 		}
 	}
 
-	private String removeWWW(String host) {
-		if (host.startsWith("www5") | host.startsWith("www2"))
-			host=host.substring(5);
-		if (host.startsWith("www"))
-			host=host.substring(4);
-		return host;
-	}
-	
 	/**
 	 * read the seed list, skip commented or empty lines
 	 * @return

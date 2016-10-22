@@ -203,10 +203,9 @@ public class Crawl {
 				//FIXME put these checks in a checker for valid/useful URLs
 				if (line.startsWith("ftp") || line.equals("http://"))
 					continue;
+				line = normalizer.normalize(line);
 				if (seedUrls.contains(line))
 					continue;
-				else
-					line = normalizer.normalize(line);
 				seedUrls.add(line);
 				CrawlDbDatum datum = new CrawlDbDatum(line, 0, 0, UrlStatus.UNFETCHED, 0,0.0);
 				writer.add(datum.getTuple());
@@ -246,8 +245,7 @@ public class Crawl {
 				line = normalizer.normalize(line);
 				if (seedUrls.contains(line)) 
 					continue;
-				else
-					seedUrls.add(line);
+				seedUrls.add(line);
 				//if (!urlValidator.isValid(line)&& !line.contains("#")) continue;
 				CrawlDbDatum datum = new CrawlDbDatum(line, 0, 0, UrlStatus.UNFETCHED, 0,0.0);
 				writer.add(datum.getTuple());
