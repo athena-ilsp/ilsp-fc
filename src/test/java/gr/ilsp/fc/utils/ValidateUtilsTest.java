@@ -10,7 +10,6 @@ public class ValidateUtilsTest {
 
 	private final static String APPNAME = ValidateUtilsTest.class.getSimpleName();
 	static Logger logger = LoggerFactory.getLogger(APPNAME);
-
 		
 	@Test
 	public void testEmailvalidator() throws Exception {
