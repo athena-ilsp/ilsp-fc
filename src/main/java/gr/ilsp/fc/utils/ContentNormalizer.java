@@ -343,10 +343,22 @@ public static String normalizeText1(String text){
 		text=text.replaceAll("[^\\p{L} ]", " ").trim();
 		text=text.replaceAll("(\\s){2,}", " ").trim();
 		text=text.toLowerCase();
-		
 		return text;
 	}
 
+public static String normtext1(String text) {
+		text=text.replaceAll("&apos;"," ");		text=text.replaceAll("&quot;"," ");
+		text=text.replaceAll("&amp;"," ");		text=text.replaceAll("&lt"," ");
+		text=text.replaceAll("&gt"," ");			text=text.replaceAll("&#"," ");
+		//if (text.contains("&")){
+		//	System.out.println(text);
+		//}
+		text=text.replaceAll("[\\p{N} ]", " ").trim();
+		text=text.replaceAll("(\\s){2,}", " ").trim();
+		text=text.toLowerCase();
+		return text;
+	}
+	
 	public static String removeBoilerPars(String content) {
 		content = content.replaceAll(boiler_st+"\\.*", "");
 		content=content.replaceAll("(\\n){2,}", "");
