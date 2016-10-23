@@ -43,103 +43,34 @@ public class CrawlOptions {
 	private  final String APPNAME = "ILSP Focused Crawler";
 	private Options options;
 
-	private String _domain=null;
-	private String _maindomain=null;
-	private String _descr=null;
-	private String _filter=null;
-	private String _storefilter=null;
-	private String _paths_repl=null;
-	private String _loggingAppender = null;
-	private String _type="m";
-	private String _operation="";
-	private String _agentName;
-	private String _language;
-	private String[] _langKeys;
-	private String[] _targetedLangs;
+	private String _domain=null, _maindomain=null, _descr=null, _filter=null, _storefilter=null, _paths_repl=null, _loggingAppender = null;
+	private String _type="m", _operation="", _agentName, _language, _urls, _aligner=null, _dict=null, _dictpath=null, _config, ws_dir, _methods = "aupdihml", defaultSegType="1:1";
+	private String[] _langKeys, _targetedLangs;
 	private List<String[]> _linkAttrs;
 	private HashMap<String, String> _mapLangs;
 	private List<String> _langPairs;
-	private String _urls;
-	private String _aligner=null;
-	private String _dict=null;
-	private String _dictpath=null;
-	private String _config;
-	private String ws_dir;
-	private String _methods = "aupdihml";
-	private String defaultSegType="1:1";
 	//private String default_genrefile="genres_keys.txt";
 	private URL _genre;
-
 	private String[][] _urls_repls=null;
-
-	private File _outputDir;
-	private File _inputDir;
-	private File _outBaseName;
-	private File _outputFile;
-	private File _outputFileHTML;
-	private File _outputFileTMX;
-	private File _outputFileHTMLTMX;
-	private File _outputFile_mergedTMX;
-	private File _outputFile_mergedTMXHTML;
-	private File _o1 ;
-	private File _o2 ;
-	private File _topic=null;
-
-	private  int _threads = 10;
-	private  int _numLoops = 0;
-	private  int _crawlDuration = 10;	
-	private  int _minTokensNumber = 100;
-	private  int _length = 3;
-	private  int _minTuvLen = 0;
-	private  int _level = 100;
-	private  int _depth = 10000;
-	private  double _minPerce01Align = 1;
-	private  double _minTULenRatio = 0;
-	private  double _maxTULenRatio = 100;
-
-	private boolean _debug = false;
-	private boolean _del=false;
-	private boolean _keepBoiler = true;
-	private boolean _keepsn = false;
-	private boolean _keepimagefp=false;
-	private boolean _iso6393 = false;
-	private boolean _force = false;
-	private boolean _offlineXSLT = false;
-	private boolean _cc = false;
-	private boolean _keepem = false;
-	private boolean _keepiden = false;
-	private boolean _keepdup = false;
+	private File _outputDir, _inputDir, _outBaseName, _outputFile, _outputFileHTML, _outputFileTMX, _outputFileHTMLTMX;
+	private File _outputFile_mergedTMX, _outputFile_mergedTMXHTML, _o1 , _o2, _topic=null;
+	private  int _threads = 10, _numLoops = 0, _crawlDuration = 10, _minTokensNumber = 100, _minTuvLen = 0, _level = 100, _depth = 10000, _length = 3;
+	private  double _minPerce01Align = 1, _minTULenRatio = 0, _maxTULenRatio = 100;
+	private boolean _debug = false,	 _del=false, _keepBoiler = true, _keepsn = false, _keepimagefp=false, _iso6393 = false; 
+	private boolean _cc = false, _keepem = false, _keepiden = false, _keepdup = false, _force = false,  _offlineXSLT = false;
 	//private boolean _metadata = true;
-
-	private static final String XMLlist = ".xmllist.txt";
-	private static final String XMLHTMLlist = ".xmllist.html";
-	private static final String TMXlist = ".tmxlist.txt";
-	private static final String TMXHTMLlist = ".tmxlist.html";
-	private static final String TMXEXT = ".tmx";
-	private static final String HTMLEXT = ".html";
-	private static final String UNDERSCORE_STR = "_";
+	private static final String XMLlist = ".xmllist.txt", XMLHTMLlist = ".xmllist.html", TMXlist = ".tmxlist.txt";
+	private static final String TMXHTMLlist = ".tmxlist.html", TMXEXT = ".tmx", HTMLEXT = ".html", UNDERSCORE_STR = "_";
 	private static final Logger LOGGER = Logger.getLogger(CrawlOptions.class);
-	private static final String type_p = "p";
-	private static final String type_q = "q";
-	private static final String type_m = "m";
+	private static final String type_p = "p", type_q = "q", type_m = "m";
 	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
-	private static final String DIESIS="#";
-	private static final String QUEST_SEPAR = ";";
-	private static final String COLON_SEPAR = ":";
-	private static final String DOUBLEQUEST_SEPAR = ";;";
+	private static final String DIESIS="#", QUEST_SEPAR = ";", COLON_SEPAR = ":", DOUBLEQUEST_SEPAR = ";;";
 	//private static final String PUNCT = ".";
-	
-	private static String _selectDocs = "aupdihml";
+	private static String _selectDocs = "aupdihml", default_aligner="maligna";
 	private static List<String> _selectSegs = new ArrayList<String>();
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
-	private static String default_aligner="maligna"; 
-	private static final String CRAWL_operation = "crawl";
-	private static final String EXPORT_operation = "export";
-	private static final String DEDUP_operation = "dedup";
-	private static final String PAIRDETECT_operation = "pairdetect";
-	private static final String ALIGN_operation = "align";
-	private static final String TMX_MERGE_operation = "tmxmerge";
-	private static final String LANG_KEYS_RESOURCE = "langKeys.txt" ;
+	private static final String CRAWL_operation = "crawl", EXPORT_operation = "export", DEDUP_operation = "dedup", PAIRDETECT_operation = "pairdetect";
+	private static final String ALIGN_operation = "align", TMX_MERGE_operation = "tmxmerge", LANG_KEYS_RESOURCE = "langKeys.txt" ;
 	private static final String TRANS_LINKS_ATTRS = "crossLinksAttrs.txt";
 
 	public CrawlOptions() {
@@ -407,8 +338,11 @@ public class CrawlOptions {
 			if (_operation.contains(CRAWL_operation)){
 				getParams4Crawl(line);
 			}
-			if (_agentName==null)
+			if(line.hasOption( "a"))
+				_agentName = line.getOptionValue("a").replace(" ", "_");
+			else
 				_agentName="A";
+			
 			if (line.hasOption( "bs")) {
 				_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName);			_outBaseName = _outBaseName.getAbsoluteFile();
 				_outputFile = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLlist);	_outputFile = _outputFile.getAbsoluteFile();
@@ -588,7 +522,6 @@ public class CrawlOptions {
 				help();
 			}
 		}
-
 		if(line.hasOption("t")) 			{	_threads = Integer.parseInt(line.getOptionValue("t"));	}							
 		if(line.hasOption("n")) 			{	_numLoops = Integer.parseInt(line.getOptionValue("n"));	_crawlDuration=0;	}
 		if(line.hasOption("c")) 			{	_crawlDuration = Integer.parseInt(line.getOptionValue("c"));	}

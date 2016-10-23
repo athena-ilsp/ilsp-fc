@@ -119,11 +119,7 @@ public class TMXHandler {
 
 	private String alignerStr = "Maligna";
 
-	private String creationDescription = "The ILSP Focused Crawler was used for the acquisition "
-			+ "of bilingual data from multilingual websites, and for the normalization, cleaning, (near) de-duplication and identification of parallel documents. "
-			+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
-			+ "As a post-processing step, alignments were merged into one TMX file. "
-			+ "The following filters were applied: ";
+	private String creationDescription = "";
 	private String filter6 = " Alignments in which different digits appear in each TUV were kept and annotated.";
 	private String filter7 = " Alignments with identical TUVs (after normalization) were removed.";
 	private String filter8 = " Alignments with only non-letters in at least one of their TUVs were removed";
@@ -181,6 +177,11 @@ public class TMXHandler {
 	 */
 	public void mergeTMXs() {
 		LOGGER.info("------------Merging of generated TMXs for "+languages[0]+"-"+languages[1] +" language pair.------------");
+		creationDescription = "The ILSP Focused Crawler was used for the acquisition "
+				+ "of bilingual data from multilingual websites, and for the normalization, cleaning, (near) de-duplication and identification of parallel documents. "
+				+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
+				+ "As a post-processing step, alignments were merged into one TMX file. "
+				+ "The following filters were applied: ";
 		outTMX = new File(baseName.getAbsolutePath()+TMXEXT);
 		if (!outTMX.getParentFile().exists())
 			outTMX.getParentFile().mkdirs();
