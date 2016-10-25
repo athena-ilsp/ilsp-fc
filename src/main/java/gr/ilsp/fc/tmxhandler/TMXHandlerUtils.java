@@ -112,7 +112,7 @@ public class TMXHandlerUtils {
 	}
 
 
-	private static TmxInfo getInfo(File tmxFile) {
+	public static TmxInfo getInfo(File tmxFile) {
 		String method = tmxFile.getName().substring(tmxFile.getName().lastIndexOf(UNDERSCORE)+1, tmxFile.getName().lastIndexOf(PUNCT));
 		File f1 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[0])+XML_EXTENSION);
 		File f2 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[1])+XML_EXTENSION);

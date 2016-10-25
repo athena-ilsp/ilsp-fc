@@ -1,11 +1,17 @@
 package gr.ilsp.fc.utils;
 
 
+import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class Statistics {
@@ -222,4 +228,28 @@ public class Statistics {
 		Arrays.sort(arr, cc);
 		return arr;
 	}
+	
+	public static Set<SegPair> distinctRandomIntegers(List<SegPair> range, int samplesize){
+		Set<SegPair> sample = new HashSet<SegPair>();
+		List<Integer> index = new ArrayList<Integer>();
+		for (int ii=0;ii<range.size();ii++)
+			index.add(ii);
+		
+		final Random random = new Random();
+	    for (int ii=0;ii<samplesize;ii++){
+	    	int sel = index.get(random.nextInt(index.size()));
+	    	System.out.println(sel);
+	    	sample.add(range.get(sel));
+	    	index.remove(sel);
+	    	range.remove(sel);
+	    	index = new ArrayList<Integer>();
+	    	for (int jj=0;jj<range.size();jj++)
+				index.add(jj);
+	    	
+	    }
+	  	
+		
+		return sample;
+	}
+	
 }
