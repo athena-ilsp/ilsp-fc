@@ -72,7 +72,7 @@ public class ExtendedLinksExtractor {
 			if (canonicalLinks.size()>0) {
 				//<link rel="canonical" href="https://blog.example.com/dresses/green-dresses-are-awesome" />
 				ExtendedOutlink extendedOutLink = new ExtendedOutlink(canonicalLinks.get(0).attr(ABS_HREF_ATTR), LINK_CANONICAL, null);	
-				logger.info("Found canonical URL: " + extendedOutLink.getToUrl());
+				logger.debug("Found canonical URL: " + extendedOutLink.getToUrl());
 				rankedLinks = new ExtendedOutlink[1];	
 				rankedLinks[0] = extendedOutLink;
 				return rankedLinks;
@@ -174,7 +174,6 @@ public class ExtendedLinksExtractor {
 				}*/
 
 				extendedOutLink = getTranslationLink(extendedOutLink, link,_maplangs, tranlistAttrs);
-
 				rankedLinks[linksIndex] = extendedOutLink;
 				linksIndex++;
 				//rankedlinks.add(new String[] {linktext, anchortext, wholetext});
