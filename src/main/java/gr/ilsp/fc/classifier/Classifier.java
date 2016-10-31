@@ -116,6 +116,7 @@ public class Classifier implements Serializable{
 			if (s.getKey().equals(description_loc))
 				meta = s.getValue();			
 		}
+		LOGGER.debug("stored\t"+ url);
 		if (_topic==null)	
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,length_in_tok);
 		if (title==null) title = "";
