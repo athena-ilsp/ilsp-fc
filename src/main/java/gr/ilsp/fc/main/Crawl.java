@@ -110,11 +110,11 @@ public class Crawl {
 	private static final String DEFAULT_CONFIG_FILE= "crawler_config.xml";
 	private static final String DEFAULT_MONO_CONFIG_FILE = "FMC_config.xml";
 	private static final String DEFAULT_BI_CONFIG_FILE = "FBC_config.xml";
-	private static final int default_depth=4;
+	private static final int default_dirdepth=4;
 	//parameters for crawling
 	public static JobConf conf = null;
 	public static CompositeConfiguration config;
-	private static int PAGES_STORED = 0;
+	private static int PAGES_STORED = 0, max_depth = 10000;
 	private static int PAGES_FAILED_CLASSIFICATION=0;
 	private static int PAGES_VISITED = 0;
 	private static int TOKENS_STORED = 0;
@@ -128,6 +128,9 @@ public class Crawl {
 	private static int min_uniq_terms=0;
 	//parameters for (near)deduplication
 	private static double intersection_thres = 0.7;
+
+	private static int max_fetch_per_run = 10000;
+	private static int max_fetch_per_host_per_run= 10000;
 	private static int MIN_TOK_LEN = 3;
 	private static int MIN_PAR_LEN = 3;
 	private static String dedup_method ="0";
@@ -364,10 +367,10 @@ public class Crawl {
 		if (options.getLoggingAppender() != null) 
 			System.setProperty("fc.appender", options.getLoggingAppender()); // Set console vs. DRFA vs. something else
 		List<String> loopLogFiles = new ArrayList<String>();
-		
+
 		Map<String,Integer> langnumMap = new HashMap<String,Integer>();
 		String logpair="";
-		
+
 		try {
 			//JobConf conf = new JobConf();
 			//conf.setJarByClass(Crawl.class);
@@ -404,8 +407,13 @@ public class Crawl {
 			defaultPolicy.setCrawlDelay(config.getLong("fetcher.crawl_delay.value"));
 			defaultPolicy.setFetcherMode(FetcherMode.EFFICIENT);
 			defaultPolicy.setRequestTimeout(config.getLong("fetcher.request_timeout.value"));
-			defaultPolicy.setMaxRequestsPerConnection(config.getInt("fetcher.max_requests_per_run.value"));
-			defaultPolicy.setMaxConnectionsPerHost(config.getInt("fetcher.max_connections_per_host.value"));
+			if (options.upToDepth()<max_depth){
+				defaultPolicy.setMaxRequestsPerConnection(max_fetch_per_run);
+				defaultPolicy.setMaxConnectionsPerHost(max_fetch_per_host_per_run);
+			}else{
+				defaultPolicy.setMaxRequestsPerConnection(config.getInt("fetcher.max_requests_per_run.value"));
+				defaultPolicy.setMaxConnectionsPerHost(config.getInt("fetcher.max_connections_per_host.value"));
+			}
 			defaultPolicy.setMinResponseRate(config.getInt("fetcher.min_response_rate.value"));
 			defaultPolicy.setMaxRedirects(config.getInt("fetcher.max_redirects.value"));
 			defaultPolicy.setMaxContentSize(config.getInt("fetcher.max_content_size.value"));
@@ -653,7 +661,7 @@ public class Crawl {
 					List<File> outputFiles =  new ArrayList<File>();
 					outputFiles.add(options.getOutputFile());
 					outputFiles.add(options.getOutputFileHTML());
-					String topDirName = getTopNDir(options.getOutputDir(), default_depth).replace("\\","/");
+					String topDirName = getTopNDir(options.getOutputDir(), default_dirdepth).replace("\\","/");
 					if (options.getType().equals(p_type)){
 						outputFiles.add(options.getOutputFileHTMLTMX());
 						outputFiles.add(options.getOutputFileTMX());
@@ -687,7 +695,7 @@ public class Crawl {
 	}
 
 	private static void createCSV(CrawlOptions options, Map<String, Integer> langnumMap, String logpair) {
-		File csvfile = new File(options.getBaseName()+CSV);
+		File csvfile = new File(options.getBaseName()+UNDERSCORE_STR+"depthIs"+options.upToDepth()+UNDERSCORE_STR+CSV);
 		String csvtext="";
 		String webdomains = options.getFilter();
 		if (webdomains.isEmpty())

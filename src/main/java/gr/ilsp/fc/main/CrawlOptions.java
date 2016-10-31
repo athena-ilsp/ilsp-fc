@@ -783,7 +783,8 @@ public class CrawlOptions {
 
 	/**
 	 * parses the predefined project resource LANG_KEYS_RESOURCE and for each targeted language
-	 * returns the array with alternative patterns each targeted languages  
+	 * returns the array with alternative patterns each targeted languages
+	 * Targeted languages must be included in LANG_KEYS_RESOURCE 
 	 * @param language
 	 * @return
 	 */
