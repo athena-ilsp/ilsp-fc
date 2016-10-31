@@ -77,9 +77,12 @@ public class Classifier implements Serializable{
 	 */
 	public ClassifierDatum classify(ExtendedParsedDatum parsedDatum) {
 		String url = parsedDatum.getUrl();
+		LOGGER.debug("FETCHED:\t"+url);
 		if (_storeFilter!=null){
-			if (!url.matches(_storeFilter))
+			if (!url.matches(_storeFilter)){
+				LOGGER.debug("FILTER_CUT:\t"+url);
 				return null;
+			}
 		}
 		String content = parsedDatum.getParsedText();
 		if (content.equals(PDFcontent) || content.equals(WORDcontent))
@@ -88,13 +91,14 @@ public class Classifier implements Serializable{
 			content = ContentNormalizer.cleanContent(content);
 		String identifiedlanguage = parsedDatum.getLanguage();
 		LOGGER.debug("URL:\t"+url+"\t"+"LANG:\t"+identifiedlanguage);
-		if (!LangDetectUtils.istargetedlang(identifiedlanguage,_targetLanguages))
+		if (!LangDetectUtils.istargetedlang(identifiedlanguage,_targetLanguages)){
+			LOGGER.debug("LANG_CUT:\t"+identifiedlanguage+"\t" +url);
 			return null;
-				
+		}
 		int length_in_tok =FCStringUtils.countTokens(content,identifiedlanguage);
 		LOGGER.debug("Number of tokens:\t"+length_in_tok);
 		if (length_in_tok<_minTokensNumber){
-			LOGGER.debug(parsedDatum.getUrl()+"\nCUT due to its small clean content length:"+length_in_tok+ "/"+_minTokensNumber);
+			LOGGER.debug("LEN_tCUT:\t"+parsedDatum.getUrl()+ "\tlength_in_tok/"+_minTokensNumber);
 			return null;
 		}
 	
@@ -116,7 +120,7 @@ public class Classifier implements Serializable{
 			if (s.getKey().equals(description_loc))
 				meta = s.getValue();			
 		}
-		LOGGER.debug("stored\t"+ url);
+		LOGGER.debug("stored:\t"+ url);
 		if (_topic==null)	
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,length_in_tok);
 		if (title==null) title = "";
