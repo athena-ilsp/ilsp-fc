@@ -230,6 +230,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 		ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
 		for (ExtendedOutlink outlink:outlinks){
 			String link = normalizer.normalize(outlink.getToUrl());
+			LOGGER.debug(outlink.getToUrl() +"\t"+ link);
 			//if(!link.equals(outlink.getToUrl())){
 			//	LOGGER.warn("url normalization affects outlinks");
 			//	LOGGER.info(link);
