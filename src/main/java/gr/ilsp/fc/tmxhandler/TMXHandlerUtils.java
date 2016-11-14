@@ -4,6 +4,7 @@ import gr.ilsp.fc.aligner.factory.ILSPAlignment;
 import gr.ilsp.fc.main.ReadResources;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.fc.utils.Statistics;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -323,6 +324,23 @@ public class TMXHandlerUtils {
 			e.printStackTrace();
 		}
 		return segpairs;
+	}
+
+
+	public static double[] scorestats(List<ILSPAlignment> alignmentList) {
+		double[] stats = new double[2];
+		List<Double> scores = new ArrayList<Double>(); 
+		
+		for (ILSPAlignment align:alignmentList){
+			scores.add((double)align.getScore());
+		}
+		Double[] scoresA = new  Double[scores.size()];
+		for (int ii=0;ii<scoresA.length;ii++){
+			scoresA[ii] = scores.get(ii);
+		}
+		stats[0] = 	Statistics.getMean(scoresA);
+		stats[1] = 	Statistics.getStdDev(scoresA);
+		return stats;
 	}
 
 }

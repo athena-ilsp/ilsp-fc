@@ -30,6 +30,7 @@ public class TMXHandlerOptions {
 	private String _doctypes="aupdih";
 	private boolean _oxslt=false;
 	private boolean _keepsn = false;
+	private boolean _clean = false;
 	private boolean _iso6393=false;
 	private boolean _cc=false;
 	private boolean _keepem = false;
@@ -118,6 +119,9 @@ public class TMXHandlerOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepTuSameNum" )
 				.withDescription( "keeps only TUs with same digits")
 				.create("ksn") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepNonAnnotatedTu" )
+				.withDescription( "keeps only non-annotated TUs")
+				.create("clean") );
 		options.addOption( OptionBuilder.withLongOpt( "KeepEmpty" )
 				.withDescription( "keeps TUs, even if one of its TUV does not contain any letter")
 				.create("keepem") );
@@ -173,6 +177,8 @@ public class TMXHandlerOptions {
 				_keepiden=true;
 			if (line.hasOption("keepdup"))
 				_keepdup=true;
+			if (line.hasOption("clean"))
+				_clean=true;
 			//if (line.hasOption("metadata"))
 			//	_metadata=true;
 			if (line.hasOption("iso6393"))		
@@ -254,6 +260,9 @@ public class TMXHandlerOptions {
 	}
 	public boolean getKeepEmpty() {
 		return _keepem;
+	}
+	public boolean getClean() {
+		return _clean;
 	}
 	public boolean getKeepIdentical() {
 		return _keepiden;

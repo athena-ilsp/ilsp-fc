@@ -23,6 +23,7 @@ public class BilingualCorpusInformation extends CorpusInformation {
 	private List<ILSPAlignment> alignmentList;
 	private int alignmentsSize;
 
+	private double alignMeanScore, alignStdScore;
 	private String l1;
 	private String l2;
 
@@ -39,7 +40,7 @@ public class BilingualCorpusInformation extends CorpusInformation {
 	public BilingualCorpusInformation(String name, String l1, String l2, 
 			List<ILSPAlignment> alignmentList, int lenInTUs, int cleanlenInTUs,
 			int lenInWordsL1, int lenInWordsL2, int vocSizeInL1, int vocSizeInL2,
-			int cleanlenInWordsL1, int cleanlenInWordsL2, int cleanvocSizeInL1, int cleanvocSizeInL2,
+			int cleanlenInWordsL1, int cleanlenInWordsL2, int cleanvocSizeInL1, int cleanvocSizeInL2, double alignmeanscore, double alignstdscore,
 			String domain, String domainId,
 			String availability, String creationDescription,
 			String projectId, String projectURL,
@@ -61,6 +62,8 @@ public class BilingualCorpusInformation extends CorpusInformation {
 		this.vocSizeInL2 = vocSizeInL2;
 		this.cleanvocSizeInL1 = cleanvocSizeInL1;
 		this.cleanvocSizeInL2 = cleanvocSizeInL2;
+		this.alignMeanScore = alignmeanscore;
+		this.alignStdScore = alignstdscore;
 		this.availability = availability;
 		this.domainId = domainId;
 		this.domain = domain;
@@ -213,6 +216,22 @@ public class BilingualCorpusInformation extends CorpusInformation {
 	public void setZeroToOneAlignmentsSize(int zeroToOneAlignmentsSize) {
 		this.zeroToOneAlignmentsSize = zeroToOneAlignmentsSize;
 	}
+	
+	public double getStdAlignScore() {
+		return alignStdScore;
+	}
+	public void setStdAlignScore(double stdAlignScore) {
+		this.alignStdScore = stdAlignScore;
+	}
+	
+	public double getMeanAlignScore() {
+		return alignMeanScore;
+	}
+	public void setMeanAlignScore(double meanAlignScore) {
+		this.alignMeanScore = meanAlignScore;
+	}
+	
+	
 	/**
 	 * @return the lenInTUs
 	 */

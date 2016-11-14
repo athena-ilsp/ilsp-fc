@@ -48,6 +48,8 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 	private static final String LENGTH_IN_TOKENS_L2 = "# of words in l2";
 	private static final String Num_Of_Unique_Words_L1 = "# of unique words in l1";
 	private static final String Num_Of_Unique_Words_L2 = "# of unique words in l2";
+	private static final String Mean_Aligner_Scores = "mean aligner's score";
+	private static final String Std_Aligner_Scores = "std aligner's score";
 	
 	private static final String EMPTY_STR = "";
 	private static final String SPACE_STR = " ";
@@ -308,6 +310,17 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 		NumOfUniqueWordsPropertyL2.setType(Num_Of_Unique_Words_L2);
 		NumOfUniqueWordsPropertyL2.getContent().add(Integer.toString(corpusinfo.getVocSizeInL2()));
 		header.getNoteOrPropOrUde().add(NumOfUniqueWordsPropertyL2);
+		
+		Prop Mean_Aligner_Scores1 = new Prop();
+		Mean_Aligner_Scores1.setType(Mean_Aligner_Scores);
+		Mean_Aligner_Scores1.getContent().add(Double.toString(corpusinfo.getMeanAlignScore()));
+		header.getNoteOrPropOrUde().add(Mean_Aligner_Scores1);
+		
+		Prop Std_Aligner_Scores1 = new Prop();
+		Std_Aligner_Scores1.setType(Std_Aligner_Scores);
+		Std_Aligner_Scores1.getContent().add(Double.toString(corpusinfo.getStdAlignScore()));
+		header.getNoteOrPropOrUde().add(Std_Aligner_Scores1);
+		
 		tmx.setHeader(header);
 	}
 
