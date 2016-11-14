@@ -33,31 +33,31 @@ public class GetTargetedSites {
 	private static String destpath="\"/var/www/html/elrc4/ministries/eng-fra/";
 	
 		
-	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-jar-with-dependencies.jar "
+	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -f -k "
 			+ "-type p -n 100 -t 20 -len 0 -mtlen 100 -pdm \"aupdih\" -segtypes \"1:1\" "
 			+ "-mtuvl 3 -mpa \"0.16\" -minlr \"0.6\" -maxlr \"1.6\" -keepem -keepdup -keepiden"; //-p_r \"http://nlp.ilsp.gr/elrc\"
 
-	private static final String JAR_CRAWL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-jar-with-dependencies.jar "
+	private static final String JAR_CRAWL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-crawl -f -k -type p -n 100 -t 20 -len 0 -mtlen 100 ";
 	
-	private static final String JAR_EXPORT = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-jar-with-dependencies.jar "
+	private static final String JAR_EXPORT = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-export "
 			+ " -i \"XXX\" -lang \"L1;L2\" -of "+destpath+ "output_YYY.txt\"  -dom ZZZ  &>"+ destpath +"log-export_YYY\"";
 
-	private static final String JAR_DEDUP = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-jar-with-dependencies.jar "
+	private static final String JAR_DEDUP = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-dedup "
 			+ " -o \"XXX\"  -lang \"L1;L2\"  -of "+destpath+ "output_YYY.txt\"  &>"+ destpath +"log-dedup_YYY\"";
 		
-	private static final String JAR_PAIR = "java -cp /opt/ilsp-fc/ilsp-fc-2.2.4-jar-with-dependencies.jar gr.ilsp.fc.bitext.PairDetector -meth \"aupidh\""
+	private static final String JAR_PAIR = "java -cp /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar gr.ilsp.fc.bitext.PairDetector -meth \"aupidh\""
 			+ " -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -of " + destpath + "output_YYY.txt\" &>"+destpath+"log-pairdetection_YYY\"";
 		
-	private static final String JAR_ALIGN = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-jar-with-dependencies.jar "
+	private static final String JAR_ALIGN = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-align -oxslt "
 			+ " -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -oft "+destpath+ "output_YYY.tmx.txt\" "
 			+ " -ofth "+destpath+ "output_YYY.tmx.html\" &> "+destpath+ "log-align_YYY\"";
 	
-	private static final String JAR_TMXMERGE = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-jar-with-dependencies.jar "
+	private static final String JAR_TMXMERGE = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ " -tmxmerge "
 			+ " -xslt -oxslt -pdm \"ZZZ\" -segtypes \"1:1\" -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -tmx  "+destpath+ "output_YYY.tmx\" "
 			+ " &> "+destpath+ "log-tmxmerge_YYY\"";
