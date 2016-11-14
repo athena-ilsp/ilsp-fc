@@ -25,7 +25,7 @@ package gr.ilsp.fc.exporter;
 import gr.ilsp.fc.classifier.Classifier;
 import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.datums.ClassifierDatum;
-//import gr.ilsp.fc.datums.CrawlDbDatum;
+import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.extractors.MSO2text;
 import gr.ilsp.fc.extractors.Pdf2text;
@@ -191,13 +191,13 @@ public class Exporter {
 	private static void processCrawlDb(JobConf conf, Path curDirPath, boolean exportDb) throws IOException {
 		//TupleEntryIterator iter;
 		int totalEntries;
-		//Path crawlDbPath = new Path(curDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
-		//Tap crawldbTap = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString());
-		//TupleEntryIterator iter = crawldbTap.openForRead(conf);
+		Path crawlDbPath = new Path(curDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+		Tap crawldbTap = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString());
+		TupleEntryIterator iter = crawldbTap.openForRead(conf);
 		totalEntries = 0;
 		int fetchedUrls = 0;
 		int unfetchedUrls = 0;
-		/*LOGGER.info("!!!! PRINTING CRAWLDB !!!!");
+		LOGGER.info("!!!! PRINTING CRAWLDB !!!!");
 		while (iter.hasNext()) {
 			TupleEntry entry = iter.next();
 			totalEntries += 1;			
@@ -210,7 +210,7 @@ public class Exporter {
 			} else {
 				fetchedUrls += 1;
 			}
-		}*/
+		}
 		//LOGGER.info("!!!! PRINTING CLASSIFIED !!!!");
 		int prevLoop = -1;
 		Path crawlDirPath = curDirPath.getParent();
@@ -300,16 +300,16 @@ public class Exporter {
 					if (curLoop != prevLoop + 1) 
 						LOGGER.warn(String.format("Missing directories between %d and %d", prevLoop, curLoop));
 					prevLoop = curLoop;
-					if (curLoop>depth)
-						break;
+					//if (curLoop>depth)
+					//	break;
 				}
 				//xmlFiles = FcFileUtils.getFilesList(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type)), "", appXMLext);
 				File tf = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type));
 				if (!tf.exists())
 					tf.mkdir();
 				xmlFiles =  (List<File>) FileUtils.listFiles(tf, ext, true);
-				Path latestCrawlDirPath = CrawlDirUtils.findLatestLoopDir(fs, crawlDirPath);
-				processCrawlDb(conf, latestCrawlDirPath, true);	//exportDb
+				//Path latestCrawlDirPath = CrawlDirUtils.findLatestLoopDir(fs, crawlDirPath);
+				//processCrawlDb(conf, latestCrawlDirPath, true);	//exportDb
 				//fs.close();
 			} catch (Throwable t) {
 				LOGGER.error("Exception running tool", t);
@@ -386,6 +386,7 @@ public class Exporter {
 					continue;
 				}
 				int length_in_tok=FCStringUtils.countTokens(maincontent, identifiedlanguage);
+				//int length_in_tok=maincontent.length();
 				if (length_in_tok<MIN_TOKENS_NUMBER){
 					LOGGER.info("very short text extracted from " + file.getAbsolutePath());
 					continue;		
@@ -436,7 +437,7 @@ public class Exporter {
 	private static int exportToXml(JobConf conf, Path curDirPath,  int id, ArrayList<String[]> topic, String targeteddomain, Map<String, String> urlsToIds, List<String> neg_words) throws IOException {
 		TupleEntryIterator iter;
 		initValues();
-
+		//List<String> urls = new ArrayList<String>();
 		Path parseDbPath = new Path(curDirPath, CrawlConfig.PARSE_SUBDIR_NAME);
 		Tap parseDbTap = new Hfs(new SequenceFile(ExtendedParsedDatum.FIELDS), parseDbPath.toUri().toString());	
 		Path contentPath = new Path(curDirPath,CrawlConfig.CONTENT_SUBDIR_NAME);
@@ -445,6 +446,21 @@ public class Exporter {
 		Tap classifierDbTap = new Hfs(new SequenceFile(ClassifierDatum.FIELDS), classifierPath.toUri().toString());
 		TupleEntryIterator classIter = classifierDbTap.openForRead(conf);
 		TupleEntryIterator classIter1 = classifierDbTap.openForRead(conf);
+
+		/*Path crawlDbPath = new Path(curDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+		Tap crawldbTap = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString());
+		TupleEntryIterator itercrawl = crawldbTap.openForRead(conf);
+		while (itercrawl.hasNext()) {
+			TupleEntry entry = itercrawl.next();
+			CrawlDbDatum datumcrawl = new CrawlDbDatum(entry);
+			//System.out.println(datum.getLastStatus().toString());
+			if (datumcrawl.getLastFetched() == 0) 
+				continue;
+			else{
+				if (datumcrawl.getCrawlDepth()<=depth) 
+					urls.add(datumcrawl.getUrl());
+			}
+		}*/
 
 		Path xmlPath = null; //FIXME PUT IT OUT OF THE LOOP
 		if (outputDir==null)
@@ -463,6 +479,16 @@ public class Exporter {
 			ExtendedParsedDatum datum = new ExtendedParsedDatum(entry);
 			meta = datum.getParsedMeta();
 			url = datum.getUrl();
+			//if (!urls.contains(url)){
+			//	System.out.println("not fetched?:\t"+url);
+			//}else{
+			//	System.out.println("fetched:\t"+url);
+			//}
+			/*CrawlDbDatum crawldatum = new CrawlDbDatum(entry);
+			LOGGER.info(url+"\t"+(crawldatum.getCrawlDepth()));
+			if (crawldatum.getCrawlDepth()>depth)
+				continue;*/
+
 			licenseURL = meta.get(Metadata.LICENSE_URL);			if (licenseURL==null){licenseURL="";}
 			format = meta.get("Content-Type");				format = getValidFormat(format);
 			if (format.contains(pdfmime) || format.contains(docmime)){
@@ -477,13 +503,14 @@ public class Exporter {
 
 			if (langnumMap.containsKey(identifiedlanguage))
 				langnumMap.put(identifiedlanguage, langnumMap.get(identifiedlanguage)+1);
-			
+
 			if (XMLExporter(xmlPath,format, title, url, targetlanguages, identifiedlanguage, htmlText, cleanText,id, "", author,
 					publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, extfilename)){
 				if (urlsToIds!=null)
 					urlsToIds.put(datum.getUrl(), identifiedlanguage+HYPHEN+id);
 			}
 			id++;
+			//LOGGER.info("EXPORTED:\t"+url+"\t"+identifiedlanguage);
 			if (textExport) TextExporter(xmlPath,cleanText,id-1, identifiedlanguage);
 		}
 		iter.close();
@@ -522,6 +549,7 @@ public class Exporter {
 		if (!LangDetectUtils.istargetedlang(identifiedlanguage, targetlanguages))
 			return false;
 		int length_in_tok=FCStringUtils.countTokens(maincontent, identifiedlanguage);
+		//int length_in_tok=maincontent.length();
 		if (length_in_tok<MIN_TOKENS_NUMBER)
 			return false;
 		LOGGER.debug(extfilename+ " processed.");
