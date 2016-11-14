@@ -79,11 +79,14 @@ import com.bixolabs.cascading.SplitterAssembly;
 public class CrawlWorkflow {
 	//private static final Logger LOGGER = Logger.getLogger(CrawlWorkflow.class);
 	//BUFFER_SIZE represents maximum number of URLs per run
-	private static final int BUFFER_SIZE = Crawl.config.getInt("fetcher.fetch_buffer_size.value");
+	//private static final int BUFFER_SIZE = Crawl.config.getInt("fetcher.fetch_buffer_size.value");
+	private static int BUFFER_SIZE = Crawl.config.getInt("fetcher.fetch_buffer_size.value");
 	private static final String type_p="p";
 	//_numSelected is used as a counter for URLs selected for this run
 	private static long _numSelected = 0;
 	private static int _level;
+	private static int _max_depth;
+	private static int _upToDepth;
 	private static String _urlfilterstr;
 	private static String _storeFilter;
 	private static String _inithost;
@@ -111,7 +114,8 @@ public class CrawlWorkflow {
 	private static class SplitFetchedUnfetchedCrawlDatums extends BaseSplitter {		
 		private static final long serialVersionUID = -5255131937144107833L;
 		private static final int urlsPerServer = Crawl.config.getInt("fetcher.max_fetched_per_host.value"); 
-		private static final int urlsPerServerPerRun = Crawl.config.getInt("fetcher.max_requests_per_host_per_run.value"); 
+		//private static final int urlsPerServerPerRun = Crawl.config.getInt("fetcher.max_requests_per_host_per_run.value"); 
+		private static int urlsPerServerPerRun = Crawl.config.getInt("fetcher.max_requests_per_host_per_run.value");
 
 		@Override
 		public String getLHSName() {
@@ -119,7 +123,11 @@ public class CrawlWorkflow {
 		}                
 
 		@Override
-		public boolean isLHS(TupleEntry tupleEntry) {			
+		public boolean isLHS(TupleEntry tupleEntry) {
+			if (_upToDepth<100){
+				BUFFER_SIZE = 100000;
+				urlsPerServerPerRun = 100000;
+			}
 			if (_numSelected>=BUFFER_SIZE) 
 				return false;
 			CrawlDbDatum datum = new CrawlDbDatum(tupleEntry);
@@ -181,7 +189,6 @@ public class CrawlWorkflow {
 				//LOGGER.error(e1.getMessage());
 			} 
 
-
 			if (statusSet.contains(status.name())) {
 				if (count==null)
 					hostsMap.put(hostHash, 1);
@@ -208,7 +215,7 @@ public class CrawlWorkflow {
 				}		
 				//LOGGER.info(hostIpHash + " " + url + " " + datum.getScore() + " " + datum.getLastStatus());
 				_numSelected++;
-				//System.out.println("SELECTED URL: "+url.getFile());
+				//System.out.println("SELECTED URL: "+url);
 				return true;
 			} else if (status == UrlStatus.FETCHED){
 				if (count==null)
@@ -298,6 +305,8 @@ public class CrawlWorkflow {
 		_type =options.getType();
 		String[] langKeys = options.getLangKeys();
 		_storeFilter = options.getStoreFilter();
+		_max_depth = max_depth;
+		_upToDepth = options.upToDepth();
 		JobConf conf = Crawl.conf;
 		//System.err.println(conf.get("hadoop.tmp.dir"));
 
