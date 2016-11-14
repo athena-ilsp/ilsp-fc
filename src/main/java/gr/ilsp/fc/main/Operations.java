@@ -205,6 +205,7 @@ public class Operations {
 		ha.setKeepEmpty(options.getKeepEmpty());
 		ha.setKeepIdentical(options.getKeepIdentical());
 		ha.setKeepDuplicates(options.getKeepDuplicates());
+		ha.setClean(options.getClean());
 		//ha.setMetadata(options.getMetadata());
 		for (String lang_pair:options.getLangPairs()){
 			ha.setLanguage(lang_pair);
