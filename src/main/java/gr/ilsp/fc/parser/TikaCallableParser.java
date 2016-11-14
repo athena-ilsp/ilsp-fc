@@ -141,6 +141,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				_metadata.set(Metadata.CONTENT_LOCATION, _metadata.get(Metadata.RESOURCE_NAME_KEY));
 			}
 			LOGGER.debug("PARSED URL:\t"+_metadata.get(Metadata.CONTENT_LOCATION));
+			//LOGGER.info("PARSED URL:\t"+_metadata.get(Metadata.CONTENT_LOCATION));
 			
 			//String lang = _extractLanguage ? _metadata.get(Metadata.CONTENT_LANGUAGE) : null;
 			/*String lang = _extractLanguage ? detectLanguageFromMetadata(_metadata, profilingHandler) : null;
@@ -242,6 +243,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				link=link.replace(url.getProtocol()+"://", "");
 				if (link.matches(urlfilterstr)){
 					temp.add(outlink);
+					//LOGGER.info("PASSED\t"+outlink.getToUrl());
 					LOGGER.debug("PASSED\t"+outlink.getToUrl());
 				}else{
 					LOGGER.debug("CUT\t"+outlink.getToUrl());
