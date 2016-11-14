@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -35,6 +36,8 @@ public class SampleTMXUtils {
 	//private static final String SITE = "site";
 	private final static String SCORE = "score";
 	private final static String INFO = "info";
+	private final static String L1URL = "l1-url";
+	private final static String L2URL = "l2-url";
 	private static final String SPACE_SEPARATOR = " ";
 
 	enum Sort { ASCENDING, DESCENDING; }
@@ -54,12 +57,26 @@ public class SampleTMXUtils {
 		String lang2 = args[4];
 		//String type = args[5];
 		List<SegPair> segpairs = getTUsFromTMX(tmxfile,info, lang1, lang2);
+		String temphost="";
+		List<String> sites=new ArrayList<String>();;
+		for (SegPair sg:segpairs){
+			System.out.println(sg.l1url);
+			temphost= (new URL(sg.l1url)).getHost();
+			if (!sites.contains(temphost))			
+				sites.add(temphost);
+			temphost= new URL(sg.l2url).getHost();
+			if (!sites.contains(temphost))			
+				sites.add(temphost);		
+		}
+		File txtfile = new File(tmxfile.getAbsolutePath()+".sites.txt");
+		FileUtils.writeLines(txtfile, sites);
+		samplesize = Math.min(samplesize, segpairs.size());
 		Set<SegPair> selpairs = Statistics.distinctRandomIntegers(segpairs, samplesize);
-		//if (type.contains("txt")){
 		String pairs="";
-		File txtfile = new File(tmxfile.getAbsolutePath()+".txt");
-		for (SegPair sg:selpairs)
+		txtfile = new File(tmxfile.getAbsolutePath()+".sample"+samplesize+".txt");
+		for (SegPair sg:selpairs){
 			pairs = pairs+sg.seg1+"\t"+ sg.seg2+"\n";
+		}
 		FileUtils.writeStringToFile(txtfile, pairs);
 	}
 
@@ -75,13 +92,17 @@ public class SampleTMXUtils {
 				List<String> segmentList1 = new ArrayList<String>();
 				List<String> segmentList2 = new ArrayList<String>();
 				List<Object> tuProps = tu.getNoteOrProp();
-				String type="", localinfo="";
+				String type="", localinfo="", l1url="", l2url="";
 				double score = 0;
 				found=false;
 				for (Object obProp : tuProps) {
 					Prop prop = (Prop) obProp;
 					if (prop.getType().equals(SCORE)) 
 						score = Double.parseDouble(prop.getContent().get(0));
+					if (prop.getType().equals(L1URL)) 
+						l1url = prop.getContent().get(0);
+					if (prop.getType().equals(L2URL)) 
+						l2url = prop.getContent().get(0);
 					if (prop.getType().equals(INFO)){
 						if (prop.getContent().isEmpty())
 							localinfo="";
@@ -106,7 +127,7 @@ public class SampleTMXUtils {
 
 				segpairs.add(new SegPair(StringUtils.join(segmentList1, SPACE_SEPARATOR), 
 						StringUtils.join(segmentList2, SPACE_SEPARATOR),
-						score, type, "", "", "", "", ""));
+						score, type, "", l1url, l2url,  "", ""));
 			}
 			LOGGER.debug("Examining " + tmxfile.getAbsolutePath() + SPACE_SEPARATOR + tus.size());
 

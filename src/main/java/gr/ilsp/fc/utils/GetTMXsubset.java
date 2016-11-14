@@ -137,7 +137,8 @@ public class GetTMXsubset {
 		if (!alignmentList.isEmpty()){
 			int[] stats1 =TMXHandlerUtils.countWordsInTMX(alignmentList, 1, true);
 			int[] stats2 =TMXHandlerUtils.countWordsInTMX(alignmentList, 2, true);
-
+			double[] scores = TMXHandlerUtils.scorestats(alignmentList);
+			
 			String organization = "ILSP";
 			String organizationURL = "http://www.ilsp.gr"; 
 			String projectId= "ELRC"; 
@@ -148,12 +149,12 @@ public class GetTMXsubset {
 			BilingualCorpusInformation bilingualCorpusInfo;
 			if (cc) {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), l1, l2, 
-						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0],stats1[1], stats2[1], stats1[2], stats2[2],stats1[3], stats2[3],
+						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0],stats1[1], stats2[1], stats1[2], stats2[2],stats1[3], stats2[3], scores[0], scores[1], 
 						domain, domainEurovocId, FREE_STR, creationDescription,
 						projectId, projectURL, organization, organizationURL);
 			} else {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), l1, l2, 
-						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0],stats1[1], stats2[1], stats1[2], stats2[2],stats1[3], stats2[3], 
+						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0],stats1[1], stats2[1], stats1[2], stats2[2],stats1[3], stats2[3], scores[0], scores[1],
 						domain, domainEurovocId, UNKNOWN_STR, creationDescription,
 						projectId, projectURL, organization, organizationURL);
 			}
