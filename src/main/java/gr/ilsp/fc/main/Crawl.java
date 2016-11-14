@@ -129,8 +129,7 @@ public class Crawl {
 	//parameters for (near)deduplication
 	private static double intersection_thres = 0.7;
 
-	private static int max_fetch_per_run = 10000;
-	private static int max_fetch_per_host_per_run= 10000;
+	private static int max_requests_per_run = 100000;
 	private static int MIN_TOK_LEN = 3;
 	private static int MIN_PAR_LEN = 3;
 	private static String dedup_method ="0";
@@ -334,6 +333,7 @@ public class Crawl {
 
 		LangDetectUtils.loadCybozuLangIdentifier();
 		//check if there is an available aligner (if needed) for the targeted language pairs  
+		LOGGER.info("language profiles loaded");
 		Aligner aligner = null; 
 		if (operation.contains(ALIGN_operation)){
 			for (String lang_pair:options.getLangPairs()){
@@ -344,7 +344,7 @@ public class Crawl {
 				}
 			}
 		}
-
+		
 		//outputDir
 		File outputDirName = options.getOutputDir();
 		//value for tunneling
@@ -407,13 +407,12 @@ public class Crawl {
 			defaultPolicy.setCrawlDelay(config.getLong("fetcher.crawl_delay.value"));
 			defaultPolicy.setFetcherMode(FetcherMode.EFFICIENT);
 			defaultPolicy.setRequestTimeout(config.getLong("fetcher.request_timeout.value"));
-			if (options.upToDepth()<max_depth){
-				defaultPolicy.setMaxRequestsPerConnection(max_fetch_per_run);
-				defaultPolicy.setMaxConnectionsPerHost(max_fetch_per_host_per_run);
-			}else{
+			if (options.upToDepth()<max_depth)
+				defaultPolicy.setMaxRequestsPerConnection(max_requests_per_run);
+			else
 				defaultPolicy.setMaxRequestsPerConnection(config.getInt("fetcher.max_requests_per_run.value"));
-				defaultPolicy.setMaxConnectionsPerHost(config.getInt("fetcher.max_connections_per_host.value"));
-			}
+			
+			defaultPolicy.setMaxConnectionsPerHost(config.getInt("fetcher.max_connections_per_host.value"));
 			defaultPolicy.setMinResponseRate(config.getInt("fetcher.min_response_rate.value"));
 			defaultPolicy.setMaxRedirects(config.getInt("fetcher.max_redirects.value"));
 			defaultPolicy.setMaxContentSize(config.getInt("fetcher.max_content_size.value"));
@@ -477,6 +476,7 @@ public class Crawl {
 				for(int il =0; il<conf.getLocalDirs().length;il++) 
 					LOGGER.debug(conf.getLocalDirs()[il]);
 
+				LOGGER.info("Starting cycle "+curLoop);
 				boolean extractliks = true;
 				if (options.upToDepth()-curLoop<0)
 					extractliks = false;
@@ -484,7 +484,8 @@ public class Crawl {
 				Flow flow = CrawlWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlDomainFilter, urlLevelFilter, options.getMapLangs(),
 						options.getTargetedLangs(), options.getTransLinksAttrs(), classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options, extractliks);							
 				flow.complete();
-				defaultPolicy.setRedirectMode(RedirectMode.FOLLOW_TEMP);
+				//defaultPolicy.setRedirectMode(RedirectMode.FOLLOW_TEMP);
+
 				//Reseting counters of parent class. We do it here so that SplitFetchedUnfetchedCrawlDatums
 				//when run again will not return the 256(or whatever) that were selected in the first run
 				CrawlWorkflow.resetCounters();
@@ -608,6 +609,7 @@ public class Crawl {
 					ha.setCC(options.getCC());
 					ha.setKeepEmpty(options.getKeepEmpty());
 					ha.setKeepIdentical(options.getKeepIdentical());
+					ha.setClean(options.getClean());
 					ha.setKeepDuplicates(options.getKeepDuplicates());
 					ha.setO1(options.getO1());
 					ha.setO2(options.getO2());
@@ -703,8 +705,8 @@ public class Crawl {
 		csvtext = "targeted domain:\t"+webdomains+"\n";
 		csvtext = csvtext+"crawled up to depth:\t"+options.upToDepth()+"\n";
 		csvtext = csvtext+"minimum length of text of accepted webpages:\t"+options.getminTokenslength()+"\n";
-		csvtext = csvtext+"staring from";
-		csvtext = addSeeds(csvtext, new File(options.getUrls()));
+		//csvtext = csvtext+"staring from";
+		//csvtext = addSeeds(csvtext, new File(options.getUrls()));
 		String[][] sortlangs = Statistics.sort2darray(FCStringUtils.map2array(langnumMap),2,"d");
 		for (int kk=0;kk<sortlangs.length;kk++){
 			if (!sortlangs[kk][1].equals("0"))

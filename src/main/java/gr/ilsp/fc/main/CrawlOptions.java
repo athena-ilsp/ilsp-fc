@@ -57,7 +57,7 @@ public class CrawlOptions {
 	private  int _threads = 10, _numLoops = 0, _crawlDuration = 10, _minTokensNumber = 100, _minTuvLen = 0, _level = 100, _depth = 10000, _length = 3;
 	private  double _minPerce01Align = 1, _minTULenRatio = 0, _maxTULenRatio = 100;
 	private boolean _debug = false,	 _del=false, _keepBoiler = true, _keepsn = false, _keepimagefp=false, _iso6393 = false; 
-	private boolean _cc = false, _keepem = false, _keepiden = false, _keepdup = false, _force = false,  _offlineXSLT = false;
+	private boolean _cc = false, _keepem = false, _keepiden = false, _keepdup = false, _clean =false, _force = false,  _offlineXSLT = false;
 	//private boolean _metadata = true;
 	private static final String XMLlist = ".xmllist.txt", XMLHTMLlist = ".xmllist.html", TMXlist = ".tmxlist.txt";
 	private static final String TMXHTMLlist = ".tmxlist.html", TMXEXT = ".tmx", HTMLEXT = ".html", UNDERSCORE_STR = "_";
@@ -213,6 +213,9 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepTuSameNum" )
 				.withDescription( "keeps only TUs with same digits")
 				.create("ksn") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepNonAnnotatedTu" )
+				.withDescription( "keeps only non-annotated TUs")
+				.create("clean") );
 		options.addOption( OptionBuilder.withLongOpt( "KeepEmpty" )
 				.withDescription( "keeps TUs, even if one of its TUV does not contain any letter")
 				.create("keepem") );
@@ -512,6 +515,7 @@ public class CrawlOptions {
 		if (line.hasOption("type"))
 			_type = line.getOptionValue("type");
 		else{
+			LOGGER.error("option -type is required");
 			help();
 		}
 		if (line.hasOption("u")) {
@@ -719,6 +723,8 @@ public class CrawlOptions {
 			_keepsn = true;
 		if(line.hasOption( "keepem"))
 			_keepem = true;
+		if (line.hasOption("clean"))
+			_clean=true;
 		if(line.hasOption( "keepiden"))
 			_keepiden = true;
 		if(line.hasOption( "keepdup"))
@@ -1066,6 +1072,9 @@ public class CrawlOptions {
 	}
 	public boolean getKeepDuplicates() {
 		return _keepdup;
+	}
+	public boolean getClean() {
+		return _clean;
 	}
 	public File getO1() {
 		return _o1;
