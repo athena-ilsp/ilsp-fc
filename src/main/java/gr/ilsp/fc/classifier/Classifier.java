@@ -91,11 +91,14 @@ public class Classifier implements Serializable{
 			content = ContentNormalizer.cleanContent(content);
 		String identifiedlanguage = parsedDatum.getLanguage();
 		LOGGER.debug("URL:\t"+url+"\t"+"LANG:\t"+identifiedlanguage);
+		//LOGGER.info("URL:\t"+url+"\t"+"LANG:\t"+identifiedlanguage);
 		if (!LangDetectUtils.istargetedlang(identifiedlanguage,_targetLanguages)){
 			LOGGER.debug("LANG_CUT:\t"+identifiedlanguage+"\t" +url);
 			return null;
 		}
 		int length_in_tok =FCStringUtils.countTokens(content,identifiedlanguage);
+		//int length_in_tok =content.length();
+		//LOGGER.info("Number of tokens:\t"+length_in_tok);
 		LOGGER.debug("Number of tokens:\t"+length_in_tok);
 		if (length_in_tok<_minTokensNumber){
 			LOGGER.debug("LEN_tCUT:\t"+parsedDatum.getUrl()+ "\tlength_in_tok/"+_minTokensNumber);
