@@ -48,6 +48,7 @@ nor	no Norwegian
 glg	gl Galician
 eus eu Basque
 slv sl Slovene
+isl is Islandic
 zhs zhs Chinese-simplified
 zht zht Chinese-traditional
 zhs zhhans Chinese-simplified
