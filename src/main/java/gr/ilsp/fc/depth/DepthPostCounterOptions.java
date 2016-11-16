@@ -18,6 +18,7 @@ public class DepthPostCounterOptions {
 	private String APPNAME = "DepthPostCounter";
 	
 	private File _inFile1 = null, _inFile2 = null;
+	private int _depth=0;
 	private boolean _merge = false;
 	
 	public DepthPostCounterOptions() {
@@ -36,6 +37,10 @@ public class DepthPostCounterOptions {
 				.withDescription( "dir with outfiles" )
 				.hasArg()
 				.create("i2") );
+		options.addOption( OptionBuilder.withLongOpt( "depth" )
+				.withDescription( "up_to_depth" )
+				.hasArg()
+				.create("d") );
 		options.addOption( OptionBuilder.withLongOpt( "merge" )
 				.withDescription( "merge files in case of many logs" )
 				.create("m") );		
@@ -68,10 +73,12 @@ public class DepthPostCounterOptions {
 				LOGGER.error("the input does not exist!");
 				System.exit(0);
 			}
-			
-			
 			if(line.hasOption( "m"))
 				_merge=true;
+			if(line.hasOption( "d"))
+				_depth=Integer.parseInt(line.getOptionValue("d"));
+			
+			
 		} catch( ParseException exp ) {
 			// oops, something went wrong
 			System.err.println( "Parsing options failed.  Reason: " + exp.getMessage() );			
@@ -98,6 +105,9 @@ public class DepthPostCounterOptions {
 		return _merge;
 	}
 	
+	public int getDepth() {
+		return _depth;
+	}
 }
 
 

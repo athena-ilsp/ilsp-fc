@@ -24,6 +24,7 @@ public class DepthPostCounter {
 	private static DepthPostCounterOptions options = null;
 	private static boolean merge;
 	private static File input1, input2;
+	private static int depth;
 	private static final String PUNCT = ".";
 	private static final String SPACE = " ";
 	private static final String TAB = "\t";
@@ -32,7 +33,9 @@ public class DepthPostCounter {
 	private static final String SEP = "-";
 	private static final String FC = "fc";
 	private static final String RES = "res";
+	private static final String SITES = "sites";
 	private static final String cycle = "Starting cycle";
+	private static final String langs = "afr;ara;ben;bul;cat;ces;cym;dan;deu;ell;eng;est;eus;fas;fin;fra;gle;glg;grc;guj;heb;hin;hrv;hun;ind;ita;isl;jpn;kan;kor;lav;lit;mal;mar;mkd;mlt;nep;nld;nor;pan;pol;por;ron;rus;slk;slv;som;spa;sqi;srp;swa;swe;tam;tel;tgl;tha;tur;ukr;urd;vie;zh-cn;zh-tw";
 	private static final String discovered = " - PASSED\t";
 	//private static final String fetched = " - PARSED URL:\t";
 	private static final String stored = " - EXPORTED:\t";
@@ -43,8 +46,14 @@ public class DepthPostCounter {
 		options.parseOptions(args);
 		dep.setInput1(options.getInput1());
 		dep.toMerge(options.toMerge());
-		dep.countDepth();
+		dep.setDepth(options.getDepth());
 		dep.setInput2(options.getInput2());
+		try {
+			dep.countDepth();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			dep.getStats();
 		} catch (IOException e) {
@@ -61,10 +70,11 @@ public class DepthPostCounter {
 	 * If merge is asked, it also merges the generated csv files       
 	 * @param infile
 	 * @param outfile
+	 * @throws IOException 
 	 */
-	private void countDepth() {
+	private void countDepth() throws IOException {
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-		File csvfile;
+		File csvfile = null;
 		if (input1.isDirectory()){
 			File[] logfiles = input1.listFiles();
 			for (File logfile:logfiles){
@@ -82,7 +92,149 @@ public class DepthPostCounter {
 			csvfile = new File(FilenameUtils.concat(input1.getParent(),timeStamp+SEP+FC+SEP+input1.getName()+PUNCT+CSV));
 			countCrawlDepth(input1,csvfile);
 		}
+		if (depth>0){
+			for (int ii=1;ii<=depth;ii++){
+				storeStats(csvfile, ii);
+			}
+		}
+		if (depth>0 && input1.isDirectory()){
+			String[] ls = LangDetectUtils.updateLanguages(langs,true).split(";");
+			
+			File[] outputs= input2.listFiles();
+			List<String> domains = new ArrayList<String>();
+			for (File file:outputs){
+				List<String> lines1 = FileUtils.readLines(file);
+				for (String line:lines1){
+					if (line.startsWith("target")){	
+						domains.add(line.split("\t")[1]);
+						break;
+					}
+				}
+			}
+			List<String> lines = FileUtils.readLines(csvfile);
+			for (int ii=0;ii<lines.size();ii++){
+				String[] t= lines.get(ii).split("\t");
+				for (int jj=0;jj<domains.size();jj++){
+					String line="", temp1 = t[0].trim(), temp2 = domains.get(jj).trim();
+					if (temp1.matches(temp2)){
+						t[0] = temp2;
+						for (int kk=0;kk<t.length;kk++){
+							line =line+"\t"+t[kk]+"\t"; 
+						}
+						line=line.trim();
+						line=line.replace("\t\t", "\t");
+						lines.set(ii, line);
+						break;
+					}
+				}
+			}
+			for (int ii=1;ii<=depth;ii++){
+				HashMap<String, HashMap<String, Integer>> map = new HashMap<String,HashMap<String, Integer>>();
+				for (String line:lines){
+					String[] t= line.split("\t");
+					if (Integer.parseInt(t[2])!=ii)
+						continue;
+					HashMap<String, Integer> tmap = new HashMap<String, Integer>();
+					if (map.containsKey(t[0])){
+						tmap = map.get(t[0]);
+						tmap.put(t[1], tmap.get(t[1])+1);
+					}else{
+						for (int jj=0;jj<ls.length;jj++){
+							tmap.put(ls[jj], 0);
+						}
+						tmap.put(t[1], 1);
+					}
+					map.put(t[0], tmap)	;
+				}
+				File resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+SEP+SITES+SEP+ii+PUNCT+CSV));
+				storefile(resi,map);
+				if (ii>1){
+					map = new HashMap<String,HashMap<String, Integer>>();
+					for (String line:lines){
+						String[] t= line.split("\t");
+						if (Integer.parseInt(t[2])>ii)
+							continue;
+						HashMap<String, Integer> tmap = new HashMap<String, Integer>();
+						if (map.containsKey(t[0])){
+							tmap = map.get(t[0]);
+							tmap.put(t[1], tmap.get(t[1])+1);
+						}else{
+							for (int jj=0;jj<ls.length;jj++){
+								tmap.put(ls[jj], 0);
+							}
+							tmap.put(t[1], 1);
+						}
+						map.put(t[0], tmap)	;
+					}
+					resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+SEP+SITES+SEP+"1"+SEP+ii+PUNCT+CSV));
+					storefile(resi,map);
+				}
+			}
+		}
 	}
+
+	private void storefile(File resi,	HashMap<String, HashMap<String, Integer>> map) throws IOException {
+		List<String> total = new ArrayList<String>();
+		String[] ls = LangDetectUtils.updateLanguages(langs,true).split(";");
+		total.add("site"+"\t");
+		for (int ii=0;ii<ls.length;ii++){
+			total.add(ls[ii]+"\t");
+		}
+		Set<String> sites = map.keySet();
+		Iterator<String> sites_it = sites.iterator();
+		String key_si;
+		while (sites_it.hasNext()){
+			key_si = sites_it.next();
+			total.set(0,total.get(0)+key_si+"\t");
+			HashMap<String, Integer> temp = map.get(key_si);
+			for (int ii=0;ii<ls.length;ii++){
+				total.set(ii+1, total.get(ii+1)+temp.get(ls[ii])+"\t");
+			}
+		}
+		FileUtils.writeLines(resi, total);
+	}
+
+	private void storeStats(File csvfile, int depth) throws IOException {
+		List<String> lines = FileUtils.readLines(csvfile) ;
+		String[] ls = LangDetectUtils.updateLanguages(langs,true).split(";");
+		Map<String, Integer> resu = new HashMap<String, Integer>();
+		for (int ii=0;ii<ls.length;ii++){
+			resu.put(ls[ii], 0);
+		}
+		for (String line:lines){
+			String[] t = line.split("\t");
+			if (Integer.parseInt(t[2])==depth)
+				resu.put(t[1], resu.get(t[1])+1);
+		}
+		File resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+SEP+RES+SEP+depth+PUNCT+CSV));
+		List<String> total = new ArrayList<String>();
+		for (int ii=0;ii<ls.length;ii++){
+			if (resu.containsKey(ls[ii]))
+				total.add(ls[ii]+"\t"+resu.get(ls[ii]));
+		}
+		FileUtils.writeLines(resi, total);
+
+		if (depth>1){
+			total = new ArrayList<String>();
+			resu = new HashMap<String, Integer>();
+			for (int ii=0;ii<ls.length;ii++){
+				resu.put(ls[ii], 0);
+			}
+			for (String line:lines){
+				String[] t = line.split("\t");
+				if (Integer.parseInt(t[2])<=depth)
+					resu.put(t[1], resu.get(t[1])+1);
+			}
+			resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+SEP+RES+SEP+"1-"+depth+PUNCT+CSV));	
+			for (int ii=0;ii<ls.length;ii++){
+				if (resu.containsKey(ls[ii]))
+					total.add(ls[ii]+"\t"+resu.get(ls[ii]));
+			}
+			FileUtils.writeLines(resi, total);
+		}
+	}
+
+
 
 	/**
 	 * parses a log file (its name shopuld start with log) which contains the number of crawl cycle, the parsed URLs,
@@ -189,16 +341,18 @@ public class DepthPostCounter {
 	private void setInput2(File infile) {
 		DepthPostCounter.input2=infile;
 	}
-	
+
 	private void toMerge(boolean merge) {
 		DepthPostCounter.merge=merge;
 	}
 
+	private void setDepth(int depth) {
+		DepthPostCounter.depth=depth;
+	}
 
 	public void getStats() throws IOException{
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 		File inn= input2;
-		String langs = "af;ar;bg;bn;ca;cs;cy;da;de;el;en;es;et;eu;fa;fi;fr;ga;gl;gu;he;hi;hr;hu;id;it;ja;kn;ko;lt;lv;mk;ml;mr;mt;ne;nl;no;pa;pl;pt;ro;ru;sk;sl;so;sq;sv;sw;ta;te;th;tl;tr;uk;ur;vi;zh-cn;zh-tw";
 		String[] ls = LangDetectUtils.updateLanguages(langs,true).split(";");
 		Map<String, String> resu = new HashMap<String, String>();
 		resu.put("site", "");		resu.put("depth", "");		resu.put("minlen", "");		for (int ii=0;ii<ls.length;ii++){resu.put(ls[ii], "");}
