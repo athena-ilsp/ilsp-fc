@@ -114,7 +114,7 @@ public class Crawl {
 	//parameters for crawling
 	public static JobConf conf = null;
 	public static CompositeConfiguration config;
-	private static int PAGES_STORED = 0, max_depth = 10000;
+	private static int PAGES_STORED = 0, max_crawldepth = 10000;  
 	private static int PAGES_FAILED_CLASSIFICATION=0;
 	private static int PAGES_VISITED = 0;
 	private static int TOKENS_STORED = 0;
@@ -407,7 +407,7 @@ public class Crawl {
 			defaultPolicy.setCrawlDelay(config.getLong("fetcher.crawl_delay.value"));
 			defaultPolicy.setFetcherMode(FetcherMode.EFFICIENT);
 			defaultPolicy.setRequestTimeout(config.getLong("fetcher.request_timeout.value"));
-			if (options.upToDepth()<max_depth)
+			if (options.upToDepth()<max_crawldepth)
 				defaultPolicy.setMaxRequestsPerConnection(max_requests_per_run);
 			else
 				defaultPolicy.setMaxRequestsPerConnection(config.getInt("fetcher.max_requests_per_run.value"));
