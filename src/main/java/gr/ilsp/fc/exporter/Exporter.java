@@ -511,6 +511,7 @@ public class Exporter {
 			}
 			id++;
 			//LOGGER.info("EXPORTED:\t"+url+"\t"+identifiedlanguage);
+			LOGGER.debug("EXPORTED:\t"+url+"\t"+identifiedlanguage);
 			if (textExport) TextExporter(xmlPath,cleanText,id-1, identifiedlanguage);
 		}
 		iter.close();
