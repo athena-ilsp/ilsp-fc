@@ -613,6 +613,7 @@ public class Crawl {
 					ha.setKeepDuplicates(options.getKeepDuplicates());
 					ha.setO1(options.getO1());
 					ha.setO2(options.getO2());
+					ha.setTargetedDomain(options.getTargetedDomain());
 					for (String lang_pair:options.getLangPairs()){
 						ha.setLanguage(lang_pair);
 						String[] temp_langs = lang_pair.split(SEMICOLON_STR);

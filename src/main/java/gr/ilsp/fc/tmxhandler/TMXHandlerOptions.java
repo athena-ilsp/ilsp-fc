@@ -26,6 +26,7 @@ public class TMXHandlerOptions {
 	private File _o1=null;
 	private File _o2=null;
 	private String _config;
+	private String _descr;
 	private String _language;
 	private String _doctypes="aupdih";
 	private boolean _oxslt=false;
@@ -135,6 +136,10 @@ public class TMXHandlerOptions {
 				.withDescription( "Not used (Specific outout1)")
 				.hasArg()
 				.create("o1") );
+		options.addOption( OptionBuilder.withLongOpt( "domain" )
+				.withDescription( "A descriptive title for the targeted domain" )
+				.hasArg()
+				.create("dom") );
 		options.addOption( OptionBuilder.withLongOpt( "specific_output2" )
 				.withDescription( "Not used(Specific outout2)")
 				.hasArg()
@@ -179,8 +184,8 @@ public class TMXHandlerOptions {
 				_keepdup=true;
 			if (line.hasOption("clean"))
 				_clean=true;
-			//if (line.hasOption("metadata"))
-			//	_metadata=true;
+			if (line.hasOption("dom"))
+				_descr=line.getOptionValue("dom");
 			if (line.hasOption("iso6393"))		
 				_iso6393=true;
 			if(line.hasOption( "lang")) {
@@ -242,6 +247,9 @@ public class TMXHandlerOptions {
 	}
 	public File getO2() {
 		return _o2;
+	}
+	public String getTargetedDomain() {
+		return _descr;
 	}
 	public boolean getXSLTransform() {
 		return _oxslt;

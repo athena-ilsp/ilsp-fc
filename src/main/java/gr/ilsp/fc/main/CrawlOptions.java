@@ -369,7 +369,7 @@ public class CrawlOptions {
 			if (_operation.contains(ALIGN_operation)){
 				getParams4Align(line);
 			}
-			if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation)){
+			if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation) || _operation.contains(TMX_MERGE_operation)){
 				getParams4Topicness(line);
 				getParams4ContentProps(line);
 			}
@@ -1020,9 +1020,9 @@ public class CrawlOptions {
 	public String getPathReplace() {
 		return _paths_repl;
 	}
-	public String getDesc() {
-		return _descr;
-	}
+	//public String getDesc() {
+	//	return _descr;
+	//}
 	public List<String> getSegTypes() {
 		return _selectSegs;
 	}

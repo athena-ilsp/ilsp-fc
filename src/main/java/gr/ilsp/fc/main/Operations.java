@@ -206,7 +206,7 @@ public class Operations {
 		ha.setKeepIdentical(options.getKeepIdentical());
 		ha.setKeepDuplicates(options.getKeepDuplicates());
 		ha.setClean(options.getClean());
-		//ha.setMetadata(options.getMetadata());
+		ha.setTargetedDomain(options.getTargetedDomain());
 		for (String lang_pair:options.getLangPairs()){
 			ha.setLanguage(lang_pair);
 			String[] temp_langs = lang_pair.split(SEMICOLON_STR);

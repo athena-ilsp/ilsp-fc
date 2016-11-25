@@ -59,6 +59,7 @@ public class TMXHandler {
 	private static final String DEFAULT_BI_CONFIG_FILE = "FBC_config.xml";
 	private static CompositeConfiguration config;
 	private static String[] languages;
+	private static String targeteddomain;
 	private static int[] thres = { 10,10,10,10,10,10,10};
 	private static boolean oxslt=false;
 	private static boolean iso6393=false;
@@ -151,7 +152,8 @@ public class TMXHandler {
 		ha.setClean(options.getClean());
 		ha.setO1(options.getO1());
 		ha.setO2(options.getO2());
-
+		ha.setTargetedDomain(options.getTargetedDomain());
+		
 		String[] languages = options.getLanguage().split(SEMICOLON_STR);
 		List<String> lang_pairs = new ArrayList<String>();
 		if (languages.length>1){
@@ -246,11 +248,13 @@ public class TMXHandler {
 
 		creationDescription = creationDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
 		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
+		if (domains.isEmpty())
+			domains.add(targeteddomain); 
 		List<String> domainEurovocIds=getEurovocId(domains);
-		//FIXME
+		//FIXME shall we integrate JRC?
 		String domain = StringUtils.join(domains, ',');
 		String domainEurovocId = StringUtils.join(domainEurovocIds, ',');
-
+		
 		HashMap<String, List<File>> tmxTypeFiles =FcFileUtils.clusterfiles(tmxfiles,doctypes);
 		for (int ii=0;ii<doctypes.length();ii++){
 			String m= Character.toString(doctypes.charAt(ii));
@@ -614,6 +618,9 @@ public class TMXHandler {
 	}
 	public void setMaxTuLenRatio(double maxTuLenRatio) {
 		TMXHandler.maxTuLenRatio = maxTuLenRatio;
+	}
+	public void setTargetedDomain(String targeteddomain){
+		TMXHandler.targeteddomain = targeteddomain;
 	}
 	/**
 	 * Loads the default configuration file and checks if user supplied a custom one.
