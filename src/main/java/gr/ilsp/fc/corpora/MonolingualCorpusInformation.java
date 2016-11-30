@@ -10,14 +10,18 @@ public class MonolingualCorpusInformation extends CorpusInformation {
 	private int sentenceSize;
 	private int vocSize;
 	private String lang;
-	private static final Logger logger = LoggerFactory.getLogger(MonolingualCorpusInformation.class);
+	private String DOCLEVEL = "_doc_";
+	//private String SENLEVEL = "_sen_";
+	//private String PARLEVEL = "_par_";
 	
+	private static final Logger logger = LoggerFactory.getLogger(MonolingualCorpusInformation.class);
+
 	public MonolingualCorpusInformation(String name, String lang, 
 			int filesSize, int tokensSize, int vocSize, String domain, String domainId, String availability, String creationDescription,
 			String projectId, String projectURL, String organization, String organizationURL) {
-		
+
 		logger.debug(domain);
-		
+
 		this.lang = lang;
 		this.domain = domain;
 		this.filesSize = filesSize;
@@ -32,14 +36,18 @@ public class MonolingualCorpusInformation extends CorpusInformation {
 		this.projectURL = 	projectURL;
 		this.organization = organization;
 		this.organizationURL = organizationURL;
-		this.description = "Monolingual (" + lang + ") " + "corpus, containing " + tokensSize  + " tokens and "+ vocSize + " lexical types in the " + domain + " domain.";
-		if (StringUtils.isBlank(domain)) {
-			this.description = "Monolingual (" + lang + ") " + "corpus, containing " +tokensSize  + " tokens and "+ vocSize +" lexical types in the " + domain + " domain.";
-		}
 		this.name = name;
+		this.description = "Monolingual (" + lang + ") " + "corpus";
+		if (name.contains(DOCLEVEL))
+			this.description = this.description + ". It consists of " + filesSize + "documents";
+		this.description = this.description +" containing " + tokensSize  + " tokens and "+ vocSize + " lexical types";
+		if (!StringUtils.isBlank(domain)) 
+			this.description = this.description + " in the " + domain + " domain.";
+		else
+			this.description = this.description + ".";
 	}
-	
-	
+
+
 	public MonolingualCorpusInformation() {
 	}
 
@@ -116,5 +124,5 @@ public class MonolingualCorpusInformation extends CorpusInformation {
 	}
 
 
-	
+
 }
