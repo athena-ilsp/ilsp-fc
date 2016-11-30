@@ -423,6 +423,8 @@ public class TMXHandler {
 			totalcounter=totalcounter+segpairs.size();
 			float ratio;
 			for (SegPair segpair:segpairs){
+				if (segpair.l1url.contains("twitter.") || segpair.l2url.contains("twitter.")) //temp addition. it should be removed 
+					continue;
 				if (!segtypes.isEmpty()){
 					if (!segtypes.contains(segpair.type))
 						continue;
