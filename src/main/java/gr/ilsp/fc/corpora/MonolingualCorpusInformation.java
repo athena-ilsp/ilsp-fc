@@ -39,7 +39,7 @@ public class MonolingualCorpusInformation extends CorpusInformation {
 		this.name = name;
 		this.description = "Monolingual (" + lang + ") " + "corpus";
 		if (name.contains(DOCLEVEL))
-			this.description = this.description + ". It consists of " + filesSize + "documents";
+			this.description = this.description + ". It consists of " + filesSize + " documents";
 		this.description = this.description +" containing " + tokensSize  + " tokens and "+ vocSize + " lexical types";
 		if (!StringUtils.isBlank(domain)) 
 			this.description = this.description + " in the " + domain + " domain.";
