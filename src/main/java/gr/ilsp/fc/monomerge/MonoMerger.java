@@ -40,14 +40,16 @@ public class MonoMerger {
 	private static String language, domain, corpuslevel;
 	//private static boolean oxslt=false;
 	private static boolean cc=false;
-	private static final int len_thr=5;
-	private static double max_median_word_length=15;
-	private static double min_median_word_length=3;
-	private static double max_word_length=20;
+	private static final int min_char_num=5;
+	private static final int min_tok_num=5;
+	private static final double max_word_length=25;
+	private static final double max_median_word_length=15;
+	private static final double min_median_word_length=3;
+	
 
 	private static SentenceSplitter sentenceSplitter;
 	private static final String UNDERSCORE_STR="_";
-	
+
 	//private final static String PUNCT = ".";
 	private final static String UNKNOWN_STR ="unknown";
 	//private static final String HTML =".html";
@@ -101,8 +103,8 @@ public class MonoMerger {
 			creationDescription = creationDescription + " Duplicate paragraphs were discarded.";
 		if (corpuslevel.equals("sen"))
 			creationDescription = creationDescription + " First, paragraphs were split into sentences. "
-			+ "Sentences with length less than "+ len_thr +" characters (after removing non-letters) were discarded. "
-			+ "Duplicate sentences (after removing non-letters) were discarded.";
+					+ "Sentences with length less than "+ min_tok_num +" tokens (after removing non-letters) were discarded. "
+					+ "Duplicate sentences (after removing non-letters) were discarded.";
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
 				return (arg1.endsWith(XMLEXT) &!arg1.contains(UNDERSCORE_STR) & arg1.startsWith(ISOLangCodes.get3LetterCode(language)));
@@ -110,9 +112,17 @@ public class MonoMerger {
 		};
 
 		List<File> xmlfiles = new ArrayList<File>();
-		if (inputFile.isDirectory())
+		if (inputFile.isDirectory()){
 			xmlfiles = FcFileUtils.listFiles(inputFile, filter,true);
-		else{ //it is considered a text file containing a list with full paths of targeted directories (a full path per line)
+			if (xmlfiles.isEmpty()){
+				FilenameFilter filter1 = new FilenameFilter() {			
+					public boolean accept(File arg0, String arg1) {
+						return (arg1.endsWith(XMLEXT) &!arg1.contains(UNDERSCORE_STR));
+					}
+				};
+				xmlfiles = FcFileUtils.listFiles(inputFile, filter1,true);
+			}
+		}else{ //it is considered a text file containing a list with full paths of targeted directories (a full path per line)
 			List<String> targetdirs;
 			try {
 				targetdirs = FileUtils.readLines(inputFile);
@@ -126,8 +136,9 @@ public class MonoMerger {
 				e.printStackTrace();
 			} 
 		}
+
 		LOGGER.info("targeted files : "+ xmlfiles.size());
-		
+
 		int[] sizes = new int[5]; //docs, pars, sents, tokens, words
 		if (!xmlfiles.isEmpty()){
 			if (corpuslevel.equals("doc"))
@@ -154,14 +165,14 @@ public class MonoMerger {
 			else 
 				monlingualCorpusInfo = new MonolingualCorpusInformation(FilenameUtils.getBaseName(corpusdoc.getAbsolutePath()),MonoMerger.language, sizes[0], sizes[3], sizes[4],
 						domain, domainEurovocId, UNKNOWN_STR, creationDescription, projectId, projectURL, organization, organizationURL);
-			
+
 			LOGGER.info("size of corpus in documents:\t"+monlingualCorpusInfo.getFilesSize());
 			LOGGER.info("size of corpus in tokens:\t"+monlingualCorpusInfo.getTokensSize());
 			LOGGER.info("size of corpus in lexical types:\t"+monlingualCorpusInfo.getVocSize());
 			LOGGER.info("domain of corpus:\t"+monlingualCorpusInfo.getDomain());
 			LOGGER.info("description of corpus:\t"+monlingualCorpusInfo.getDescription());
 			LOGGER.info("language of corpus:\t"+monlingualCorpusInfo.getLang());
-			
+
 			MonolingualMetashareDescriptor monolingualMetashareDescriptor = new MonolingualMetashareDescriptor(monlingualCorpusInfo);
 			File metadatadaFile = new File(baseName.getAbsolutePath()+ MetadataExt);
 			LOGGER.info("Generating metadata descriptor " + metadatadaFile);
@@ -198,9 +209,11 @@ public class MonoMerger {
 				sentence= ContentNormalizer.normalizeText(sentence);
 				sentence = sentence.replaceAll("\t", " ");	sentence = sentence.replaceAll("\r\n", "");	sentence = sentence.replaceAll("\n", ""); sentence = sentence.trim();
 				cleanSentence = ContentNormalizer.normtext(sentence);
-				if (cleanSentence.length()<len_thr)
+				if (cleanSentence.length()<min_char_num)
 					continue;
 				stokens = FCStringUtils.getTokens(cleanSentence);
+				if (stokens.size()<min_tok_num)
+					continue;
 				Double[] stokenslen= FCStringUtils.getTokensLength(stokens);
 				if (Statistics.getMax(stokenslen)>max_word_length 
 						|| Statistics.getMedian(stokenslen)>max_median_word_length || Statistics.getMedian(stokenslen)<min_median_word_length)
@@ -248,6 +261,17 @@ public class MonoMerger {
 			for (String paragraph:paragraphs){
 				if (total_paragraphs.contains(paragraph))
 					continue;
+				String normP = ContentNormalizer.normtext(paragraph);
+				if (normP.length()<min_char_num)
+					continue;
+				List<String> stokens = FCStringUtils.getTokens(normP);
+				if (stokens.size()<min_tok_num)
+					continue;
+				Double[] stokenslen = FCStringUtils.getTokensLength(stokens);
+				if (Statistics.getMax(stokenslen)>max_word_length 
+						|| Statistics.getMedian(stokenslen)>max_median_word_length || Statistics.getMedian(stokenslen)<min_median_word_length)
+					continue;
+				
 				total_paragraphs.add(paragraph);
 			}
 			filecounter++;
