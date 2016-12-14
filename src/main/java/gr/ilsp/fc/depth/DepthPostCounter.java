@@ -105,8 +105,17 @@ public class DepthPostCounter {
 			for (File file:outputs){
 				List<String> lines1 = FileUtils.readLines(file);
 				for (String line:lines1){
-					if (line.startsWith("target")){	
-						domains.add(line.split("\t")[1]);
+					if (line.startsWith("target")){
+						String a = line.split("\t")[1];
+						if (a.contains("(") || a.contains(")") || a.contains("|")){
+							String[] aa = a.split("\\(");
+							String[] aaa = aa[1].split("\\)");
+							String[] aaaa = aaa[0].split("\\|");
+							for (int ii=0;ii<aaaa.length;ii++){
+								domains.add(aa[0]+aaaa[ii]+aaa[1]);
+							}
+						}
+						//domains.add(line.split("\t")[1]);
 						break;
 					}
 				}
