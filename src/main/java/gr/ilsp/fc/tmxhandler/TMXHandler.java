@@ -56,6 +56,7 @@ public class TMXHandler {
 	private static File outHTML = null;
 	private static File o1 = null;
 	private static File o2 = null;
+	private static List<String> sites;
 	private static final String DEFAULT_BI_CONFIG_FILE = "FBC_config.xml";
 	private static CompositeConfiguration config;
 	private static String[] languages;
@@ -129,30 +130,31 @@ public class TMXHandler {
 
 
 	public static void main(String[] args) {
-		TMXHandler ha = new TMXHandler();
+		TMXHandler tm = new TMXHandler();
 		options = new TMXHandlerOptions();
 		options.parseOptions(args);
-		ha.setTargetDir(options.getTargetDir());
-		ha.setConfig(getConfig( options.getConfig()));
-		ha.setDocTypes(options.getDocTypes());
-		ha.setThres(options.getThres());
-		ha.setSegTypes(options.getSegTypes());
-		ha.setApplyOfflineXSLT(options.getXSLTransform());
-		ha.setLanguage(options.getLanguage());
-		ha.useISO6393(options.useISO6393());
-		ha.setMinTuvLen(options.getMinTuvLen());
-		ha.setMinPerce01Align(options.getMinPerce01Align());
-		ha.setMinTuLenRatio(options.getMinTuLenRatio());
-		ha.setMaxTuLenRatio(options.getMaxTuLenRatio());
-		ha.KeepTuSameNum(options.keepTuSameNum());
-		ha.setCC(options.getCC());
-		ha.setKeepEmpty(options.getKeepEmpty());
-		ha.setKeepIdentical(options.getKeepIdentical());
-		ha.setKeepDuplicates(options.getKeepDuplicates());
-		ha.setClean(options.getClean());
-		ha.setO1(options.getO1());
-		ha.setO2(options.getO2());
-		ha.setTargetedDomain(options.getTargetedDomain());
+		tm.setTargetDir(options.getTargetDir());
+		tm.setConfig(getConfig( options.getConfig()));
+		tm.setDocTypes(options.getDocTypes());
+		tm.setThres(options.getThres());
+		tm.setSegTypes(options.getSegTypes());
+		tm.setApplyOfflineXSLT(options.getXSLTransform());
+		tm.setLanguage(options.getLanguage());
+		tm.useISO6393(options.useISO6393());
+		tm.setMinTuvLen(options.getMinTuvLen());
+		tm.setMinPerce01Align(options.getMinPerce01Align());
+		tm.setMinTuLenRatio(options.getMinTuLenRatio());
+		tm.setMaxTuLenRatio(options.getMaxTuLenRatio());
+		tm.KeepTuSameNum(options.keepTuSameNum());
+		tm.setCC(options.getCC());
+		tm.setKeepEmpty(options.getKeepEmpty());
+		tm.setKeepIdentical(options.getKeepIdentical());
+		tm.setKeepDuplicates(options.getKeepDuplicates());
+		tm.setClean(options.getClean());
+		tm.setSites(options.getSites());
+		tm.setO1(options.getO1());
+		tm.setO2(options.getO2());
+		tm.setTargetedDomain(options.getTargetedDomain());
 		
 		String[] languages = options.getLanguage().split(SEMICOLON_STR);
 		List<String> lang_pairs = new ArrayList<String>();
@@ -164,11 +166,11 @@ public class TMXHandler {
 			}
 		}
 		for (String lang_pair:lang_pairs){
-			ha.setLanguage(lang_pair);
+			tm.setLanguage(lang_pair);
 			String[] temp_langs = lang_pair.split(SEMICOLON_STR);
 			String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
-			ha.setBaseName(new File(options.getBaseName()+lang));
-			ha.mergeTMXs();
+			tm.setBaseName(new File(options.getBaseName()+lang));
+			tm.mergeTMXs();
 		}
 	}
 
@@ -258,7 +260,7 @@ public class TMXHandler {
 		HashMap<String, List<File>> tmxTypeFiles =FcFileUtils.clusterfiles(tmxfiles,doctypes);
 		for (int ii=0;ii<doctypes.length();ii++){
 			String m= Character.toString(doctypes.charAt(ii));
-			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, keepsn, clean, cc);
+			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, keepsn, clean, cc,sites);
 		}
 		if (!alignmentList.isEmpty()){
 			int[] stats1 = TMXHandlerUtils.countWordsInTMX(alignmentList, 1, true);
@@ -403,11 +405,13 @@ public class TMXHandler {
 	 * @param keepiden
 	 * @param keepdup
 	 * @param cc
+	 * @param sites 
 	 * @param cc2 
 	 * @return
 	 */
 
-	private List<ILSPAlignment> addTMXs(List<File> tmxFiles, List<ILSPAlignment> alignmentList, String type, boolean keepem, boolean keepiden, boolean keepdup, boolean ksn, boolean clean, boolean cc) {
+	private List<ILSPAlignment> addTMXs(List<File> tmxFiles, List<ILSPAlignment> alignmentList, String type,
+			boolean keepem, boolean keepiden, boolean keepdup, boolean ksn, boolean clean, boolean cc, List<String> sites) {
 		LOGGER.info("Examining docpairs of type "+ type);
 		int thr = thres[doctypes.indexOf(type)];
 		if (tmxFiles==null)
@@ -415,7 +419,7 @@ public class TMXHandler {
 		if (tmxFiles.isEmpty())
 			return alignmentList;
 		for (File tmxFile : tmxFiles) {
-			List<SegPair> segpairs = TMXHandlerUtils.getTUsFromTMX(tmxFile,thr, minPerce01Align, languages[0], languages[1], cc);
+			List<SegPair> segpairs = TMXHandlerUtils.getTUsFromTMX(tmxFile,thr, minPerce01Align, languages[0], languages[1], cc,sites);
 			if (segpairs==null){
 				LOGGER.info("Cut due to many 0:1 alignments: " +tmxFile.getAbsolutePath());
 				continue;
@@ -651,7 +655,9 @@ public class TMXHandler {
 		}
 		return config;
 	}
-
+	public void setSites(List<String> sites) {
+		TMXHandler.sites  = sites;
+	}
 	public void setO1(File o1) {
 		TMXHandler.o1 = o1;
 	}
