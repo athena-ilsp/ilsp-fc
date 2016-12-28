@@ -247,8 +247,6 @@ public class Statistics {
 				index.add(jj);
 	    	
 	    }
-	  	
-		
 		return sample;
 	}
 	
