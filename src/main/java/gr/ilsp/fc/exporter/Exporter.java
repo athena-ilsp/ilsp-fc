@@ -772,9 +772,8 @@ public class Exporter {
 		Path annotation = new Path(outputdir,html_filename);
 		if (format.contains(pdfmime)){
 			try {
-				FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appPDFext));
-				//File storedpdf = new File(pdfname); 
-				//storedpdf.delete();
+				//FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appPDFext));
+				FileUtils.copyFile(new File(pdfname), new File(FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appPDFext)));
 			} catch (IOException e) {
 				LOGGER.info("source PDF file is not stored.");
 				e.printStackTrace();
@@ -782,7 +781,8 @@ public class Exporter {
 		}else{
 			if (format.contains(docmime)){
 				try {
-					FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appDOCext));
+					//FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appDOCext));
+					FileUtils.copyFile(new File(pdfname), new File(FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appDOCext)));	
 				} catch (IOException e) {
 					LOGGER.info("source DOC file is not stored.");
 					e.printStackTrace();
