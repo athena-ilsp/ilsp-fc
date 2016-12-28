@@ -85,7 +85,6 @@ public class SampleTMXUtils {
 		Tmx tmx;
 		try {
 			tmx = TmxMarshallerUnmarshaller.getInstance().unmarshal(new FileReader(tmxfile));
-			//TmxInfo tmxinfo = TMXHandlerUtils.getInfo(tmxfile);
 			List<Tu> tus = tmx.getBody().getTu();
 			boolean found = false;
 			for (Tu tu: tus) {
