@@ -147,6 +147,17 @@ public  class FCStringUtils {
 		return tokens;
 	}
 
+	public static String getTokensStr(String text) {
+		String str = "";
+		StringTokenizer st = new StringTokenizer(text);
+		while (st.hasMoreTokens()){
+			str = str+" " + st.nextToken();
+		}
+		return str;
+	}
+	
+	
+	
 
 	public static Double[] getTokensLength(List<String> tokens) {
 		Double[] lens = new Double[tokens.size()];
