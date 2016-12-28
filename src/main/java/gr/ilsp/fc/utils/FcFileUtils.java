@@ -11,23 +11,22 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
+//import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+//import java.text.DateFormat;
+//import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
+//import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
+//import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
+//import org.apache.commons.cli.HelpFormatter;
+//import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.detect.Detector;
@@ -48,20 +47,19 @@ public class FcFileUtils {
 	private static final Logger logger = LoggerFactory.getLogger(FcFileUtils.class
 			.getName());
 	private static final String UNDERSCORE_STR = "_";
-	private static final String XML_EXTENSION = ".xml";
 	private static final String TMX_EXTENSION = ".tmx";
 	private static final String ZIP=".zip";
 	//private final static String PUNCT = ".";
 
-	public static File[] listFilesAsArray(File directory,
+	/*public static File[] listFilesAsArray(File directory,
 			FilenameFilter filter, boolean recurse) {
 		Collection<File> files = listFiles(directory, filter, recurse);
 		// Java4: Collection files = listFiles(directory, filter, recurse);
 		File[] arr = new File[files.size()];
 		return files.toArray(arr);
-	}
+	}*/
 
-	public static Vector<URL> listFilesAsURLs(File directory, FilenameFilter filter,
+	/*public static Vector<URL> listFilesAsURLs(File directory, FilenameFilter filter,
 			boolean recurse) {
 		List<File> files = listFiles(directory, filter, recurse);
 		Vector<URL> URLs = new Vector<URL>();
@@ -73,7 +71,7 @@ public class FcFileUtils {
 			}
 		}
 		return URLs;
-	}
+	}*/
 
 	/**
 	 * Searches the directory recursively (if recurse is true) and matches filter
@@ -130,7 +128,7 @@ public class FcFileUtils {
 	}*/
 
 
-	public static Collection<File> listDirs(File directory, boolean recurse) {
+	/*public static Collection<File> listDirs(File directory, boolean recurse) {
 		// List of files / directories
 		Vector<File> files = new Vector<File>();
 		// Java4: Vector files = new Vector();
@@ -158,9 +156,9 @@ public class FcFileUtils {
 
 		// Return collection of files
 		return files;
-	}
+	}*/
 
-	public static String replaceExtension(String inFilename, String stripExt,
+	/*public static String replaceExtension(String inFilename, String stripExt,
 			String appendExt) {
 		String outFilename;
 		if (stripExt.equals("")) {
@@ -173,14 +171,14 @@ public class FcFileUtils {
 			outFilename = inFilename + appendExt;
 		}
 		return outFilename;
-	}
+	}*/
 
-	public static void printHelp(String program, Options options) {
+	/*public static void printHelp(String program, Options options) {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp(program, options);
-	}
+	}*/
 
-	public static int getRandomInt() {
+	/*public static int getRandomInt() {
 		return Math.abs(1 + new Random().nextInt(10000));
 	}
 
@@ -205,9 +203,9 @@ public class FcFileUtils {
 
 	public static File createTempDir() {
 		return createTempDir(null);
-	}
+	}*/
 
-	public static boolean deleteTempDir(File dir) {
+	/*public static boolean deleteTempDir(File dir) {
 		if (dir.isDirectory()) {
 			String[] children = dir.list();
 			for (int i = 0; i < children.length; i++) {
@@ -218,7 +216,7 @@ public class FcFileUtils {
 			}
 		}
 		return dir.delete();
-	}
+	}*/
 
 	/**
 	 * Reads the contents of a URL into a string
@@ -242,25 +240,25 @@ public class FcFileUtils {
 		return sb.toString();
 	}
 
-	public static String stripExtension(String filename, String mStripExt) {
+	/*public static String stripExtension(String filename, String mStripExt) {
 		if (filename.endsWith(mStripExt)) {
 			int lastMatch = filename.lastIndexOf(mStripExt);
 			return filename.substring(0, lastMatch);
 		} else {
 			return filename;
 		}
-	}
+	}*/
 
-	public static String stripExtension(String filename, String mStripExt,
+	/*public static String stripExtension(String filename, String mStripExt,
 			boolean removeLastDot) {
 		filename = stripExtension(filename, mStripExt);
 		if (removeLastDot) {
 			filename = filename.replaceAll("^(.*)\\.$", "$1");
 		}
 		return filename;
-	}
+	}*/
 
-	public static void copy(String fromFileName, String toFileName)
+/*	public static void copy(String fromFileName, String toFileName)
 			throws IOException {
 		File fromFile = new File(fromFileName);
 		File toFile = new File(toFileName);
@@ -308,7 +306,7 @@ public class FcFileUtils {
 						+ "destination directory is unwriteable: " + parent);
 		}
 		FileUtils.copyFile(fromFile,toFile);
-	}
+	}*/
 
 
 	/*public static ArrayList<File> getFilesList(File datadir, String start_name,	String end_name) {
@@ -343,7 +341,7 @@ public class FcFileUtils {
 	 * gets the cesDoc files (i.e. end with .xml and do not contain "_" from the datadir)
 	 * @param datadir
 	 * @return
-	 */
+	 *//*
 	public static ArrayList<File> getCesDocFiles(File datadir) {
 		File[] allfiles=datadir.listFiles(); 
 		ArrayList<File> result = new ArrayList<File>();
@@ -355,7 +353,7 @@ public class FcFileUtils {
 			}
 		}		
 		return result;
-	}
+	}*/
 
 	/**
 	 * Deletes the files (created for the output lists) if these lists are empty
