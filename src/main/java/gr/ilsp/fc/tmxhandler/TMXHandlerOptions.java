@@ -3,6 +3,7 @@ package gr.ilsp.fc.tmxhandler;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 public class TMXHandlerOptions {
@@ -21,6 +23,7 @@ public class TMXHandlerOptions {
 	
 	private static final Logger LOGGER = Logger.getLogger(TMXHandlerOptions.class);
 	private static final String QUEST_SEPAR = ";";
+	private List<String>_sites ;
 	private File _targetDir = null;
 	private File _baseName=null;
 	private File _o1=null;
@@ -140,6 +143,10 @@ public class TMXHandlerOptions {
 				.withDescription( "A descriptive title for the targeted domain" )
 				.hasArg()
 				.create("dom") );
+		options.addOption( OptionBuilder.withLongOpt( "sites" )
+				.withDescription( "A list of accepted websites" )
+				.hasArg()
+				.create("sites") );
 		options.addOption( OptionBuilder.withLongOpt( "specific_output2" )
 				.withDescription( "Not used(Specific outout2)")
 				.hasArg()
@@ -224,6 +231,14 @@ public class TMXHandlerOptions {
 					_segtypes.add(str);
 				}
 			}
+			if(line.hasOption( "sites")){
+				try {
+					_sites = FileUtils.readLines(new File(line.getOptionValue("sites")));
+				} catch (IOException e) {
+					LOGGER.error("Text file containing a list of accepted websites does not exist.");	
+					e.printStackTrace();
+				}	
+			}
 		}catch( ParseException exp ) {
 			// oops, something went wrong
 			System.err.println( "Parsing options failed.  Reason: " + exp.getMessage() );			
@@ -307,5 +322,8 @@ public class TMXHandlerOptions {
 	}
 	public String getConfig(){
 		return _config;
+	}
+	public List<String> getSites() {
+		return _sites;
 	}
 }

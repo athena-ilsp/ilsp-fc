@@ -11,6 +11,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 //import java.net.MalformedURLException;
 //import java.net.URL;
 import java.util.ArrayList;
@@ -57,8 +59,9 @@ public class TMXHandlerUtils {
 	 * @param tmxFile
 	 * @param thr
 	 * @param minPerce01Align 
+	 * @param sites 
 	 */
-	public static List<SegPair>  getTUsFromTMX(File tmxFile, int thr, double minPerce01Align, String lang1, String lang2, boolean lic) {
+	public static List<SegPair>  getTUsFromTMX(File tmxFile, int thr, double minPerce01Align, String lang1, String lang2, boolean lic, List<String> sites) {
 		List<SegPair> segpairs = new ArrayList<SegPair>();
 		Tmx tmx;
 		try {
@@ -68,7 +71,9 @@ public class TMXHandlerUtils {
 			int targetSegments = 0;
 			int zeroToOneAlignments = 0;
 			//double meanAlignmentScore = 0.0;
-			TmxInfo tmxinfo = TMXHandlerUtils.getInfo(tmxFile);
+			TmxInfo tmxinfo = TMXHandlerUtils.getInfo(tmxFile,sites);
+			if (tmxinfo==null)
+				return segpairs;
 			if (lic && tmxinfo.license.isEmpty())
 				return segpairs;
 			List<Tu> tus = tmx.getBody().getTu();
@@ -113,39 +118,17 @@ public class TMXHandlerUtils {
 	}
 
 
-	public static TmxInfo getInfo(File tmxFile) {
+	public static TmxInfo getInfo(File tmxFile, List<String> sites) {
 		String method = tmxFile.getName().substring(tmxFile.getName().lastIndexOf(UNDERSCORE)+1, tmxFile.getName().lastIndexOf(PUNCT));
 		File f1 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[0])+XML_EXTENSION);
 		File f2 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[1])+XML_EXTENSION);
 		String  license=""; //site="",
-		//URL url = null;
 		String webpage1=ReadResources.extractNodefromXML(f1.getAbsolutePath(), eAddressNode, false);
+		if (!inSites(webpage1,sites))
+				return null;
 		String webpage2=ReadResources.extractNodefromXML(f2.getAbsolutePath(), eAddressNode, false);
-		/*try {
-			url = new URL(webpage1);
-			webpage1 = url.getProtocol()+"://"+ url.getHost();
-		} catch (MalformedURLException e) {
-			webpage1 = webpage1.substring(0, webpage1.indexOf("/"));
-			LOGGER.warn("no protocol "+ webpage1);
-		}
-		try {
-			url = new URL(webpage2);
-			webpage2 = url.getProtocol()+"://"+ url.getHost();
-		} catch (MalformedURLException e) {
-			webpage2 = webpage2.substring(0, webpage2.indexOf("/"));
-			LOGGER.warn("no protocol "+ webpage2);
-		}
-
-		if (!webpage1.equals(webpage2)){
-			if (webpage1.contains(webpage2))
-				site = webpage1;
-			else if (webpage2.contains(webpage1))
-				site = webpage2;
-			else
-				site = webpage1+SEMI_SEPAR+webpage2;
-		}else
-			site = webpage1;*/
-
+		if (!inSites(webpage2,sites))
+				return null;
 		String license1 = ReadResources.extractAttrfromXML(f1.getAbsolutePath(), licenseNode, TARGET_STR,true, true);
 		String license2 = ReadResources.extractAttrfromXML(f2.getAbsolutePath(), licenseNode, TARGET_STR,true, true);
 		if (!license1.isEmpty())
@@ -156,9 +139,22 @@ public class TMXHandlerUtils {
 			else
 				license="";
 		}
-
 		return new TmxInfo(method, webpage1, webpage2, license, "");
 	}
+
+	private static boolean inSites(String webpage1, List<String> sites) {
+		if (!sites.isEmpty()){
+			try {
+				if (!sites.contains(new URL(webpage1).getHost()))
+					return false;
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return true;
+	}
+
 
 	public static List<String> createSegmentList(Tu tu, String languageCode) {
 		List<String> segmentList = new ArrayList<String>();
