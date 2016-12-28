@@ -4,7 +4,11 @@ import gr.ilsp.fc.bitext.BitextUtils;
 import gr.ilsp.fc.bitext.Bitexts;
 import gr.ilsp.fc.bitext.Bitexts.DocVector;
 import gr.ilsp.fc.cleaner.CleanerUtils;
+import gr.ilsp.fc.cleaner.CleanerUtils.ParsAttr;
+import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.main.ReadResources;
+import gr.ilsp.fc.tmxhandler.TMXHandlerUtils;
+import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -14,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,10 +27,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import net.loomchild.maligna.util.bind.TmxMarshallerUnmarshaller;
@@ -49,8 +59,317 @@ public class TempUtils {
 	private static final String HTTRACK2 = "by HTTrack Website Copier";
 	private static final String SITE = "site";
 	private static final String INFO = "info";
+	private static final String UNDERSCORE_STR ="_";
+	private static final String COPYRIGHT_STR ="©";
+	private static final String RIGHTS_STR ="all rights reserved";
+	private static final List<String> rights_links= Arrays.asList("privacy statement", "οροι χρησης", "προστασία προσωπικών δεδομένων",
+			"terms of use", "privacy policy" , "disclaimer");
+
+	enum Sort { ASCENDING, DESCENDING; }
+
+	enum Field {
+
+		S(String.class), D(Double.class);
+
+		private Class type;
+
+		Field(Class<? extends Comparable> type) {
+			this.type = type;
+		}
+
+		public Class getType() {
+			return type;
+		}
+	}
+
 
 	public static void main(String[] args) throws IOException {
+		
+		File in10 = new File ("C:/Users/vpapa/test/depth/polinst/polinst-hu_20161122_202939/6227940e-3987-4fe4-abad-75b13faa45d3/xml");
+		String lang11 = "eng";
+		String lang22 = "hun";
+		File[] files10 = in10.listFiles();
+		System.out.println(lang11+"\t"+lang22);
+		for (File file:files10){
+			String filename =file.getName(); 
+			if (filename.endsWith("xml") && filename.contains(UNDERSCORE_STR) && filename.contains(lang11) && filename.contains(lang22)){
+				String[] parts = filename.split(UNDERSCORE_STR);
+				File newfile = new File(FilenameUtils.concat(file.getParent(),parts[0]+".xml"));
+				String url1 = ReadResources.extractNodefromXML(newfile.getAbsolutePath(), "eAddress", false);
+				newfile = new File(FilenameUtils.concat(file.getParent(),parts[1]+".xml"));
+				url1 = url1+"\t"+ReadResources.extractNodefromXML(newfile.getAbsolutePath(), "eAddress",false);
+				System.out.println(url1);
+			}
+		}
+		System.exit(0);
+		
+		
+		File inn= new File("C:/Users/vpapa/test/depth/audi/outputs");
+		String langs = "af;ar;bg;bn;ca;cs;cy;da;de;el;en;es;et;eu;fa;fi;fr;ga;gl;gu;he;hi;hr;hu;id;it;ja;kn;ko;lt;lv;mk;ml;mr;mt;ne;nl;no;pa;pl;pt;ro;ru;sk;sl;so;sq;sv;sw;ta;te;th;tl;tr;uk;ur;vi;zh-cn;zh-tw";
+		String[] ls = LangDetectUtils.updateLanguages(langs,true).split(";");
+		Map<String, String> resu = new HashMap<String, String>();
+		resu.put("site", "");		resu.put("depth", "");		resu.put("minlen", "");		for (int ii=0;ii<ls.length;ii++){resu.put(ls[ii], "");}
+		File[] outputs= inn.listFiles();
+		File resi = new File(inn.getAbsolutePath()+"_res");
+				
+		for (File file:outputs){
+			List<String> lines= FileUtils.readLines(file) ;
+			List<String> found = new ArrayList<String>();
+			for (String line:lines){
+				if (line.startsWith("\t") || line.startsWith("staring"))
+					continue;
+				if (line.startsWith("target"))	{			//newlines.add(line.split("\t")[1]);
+					resu.put("site", resu.get("site")+line.split("\t")[1]+"\t");
+					continue;
+				}
+				if (line.startsWith("crawled"))	{			//newlines.add(line.split("\t")[1]);
+					//total[1] = total[1]+line.split("\t")[1]+"\t";
+					resu.put("depth", resu.get("depth")+line.split("\t")[1]+"\t");
+					continue;
+				}
+				if (line.startsWith("minimum"))	{			//newlines.add(line.split("\t")[1]);
+					//total[2] = total[2]+line.split("\t")[1]+"\t";
+					resu.put("minlen", resu.get("minlen")+line.split("\t")[1]+"\t");
+					continue;
+				}
+				if (line.startsWith("number")){
+					System.out.println(line);
+					String[] t = line.split("\t");
+					String l = t[0].split(" ")[4];
+					resu.put(l, resu.get(l)+t[1]+"\t");
+					found.add(l);
+				}
+			}
+			for (int ii=0;ii<ls.length;ii++){
+				if (found.contains(ls[ii]))
+					continue;
+				resu.put(ls[ii], resu.get(ls[ii])+"0"+"\t");
+			}
+		}
+		List<String> total = new ArrayList<String>();
+		total.add("site"+"\t"+resu.get("site"));
+		total.add("depth"+"\t"+resu.get("depth"));
+		total.add("minlen"+"\t"+resu.get("minlen"));
+		for (int ii=0;ii<ls.length;ii++){
+			total.add(ls[ii]+"\t"+resu.get(ls[ii]));
+		}
+		FileUtils.writeLines(resi, total);
+		System.exit(0);
+
+		List<String> cur = FileUtils.readLines(new File("C:/Users/vpapa/JRX-Resources/JREeurovoc/en-eurovoc-1.0/resources/ThesaurusStructure/desc_en.xml"));
+		List<String> or  = FileUtils.readLines(new File("C:/Users/vpapa/JRX-Resources/JREeurovoc/en-eurovoc-1.0/resources/ThesaurusStructure/desc_en_original.xml"));
+
+		for (String line_or:or){
+			if (!cur.contains(line_or)){
+				System.out.println(line_or);
+			}
+		}
+		System.exit(0);
+
+		String[] ext2=new String[1];
+		ext2[0]="docx";
+		List<File> jpgfiles = (List<File>) FileUtils.listFiles(new File("C:\\Users\\vpapa\\p_61\\xaris\\Vouli\\1994-1996 ΟΛΟΚΛΗΡΩΜΕΝΑ"), ext2, true);
+		int jpgcounter=0;
+		for (File file:jpgfiles){
+			//if (file.getName().contains("_p"))
+			//	continue;
+			if (!file.getAbsolutePath().contains("0020"))
+				continue;
+			jpgcounter++;
+		}
+		System.out.println(jpgcounter);
+		System.exit(0);
+
+		String[] ext=new String[1];
+		ext[0]="txt";
+		List<File> txtfiles = (List<File>) FileUtils.listFiles(new File("F:\\EROTISEIS_IST_4-6-15_processed\\txt_v0"), ext, true);
+		for (File txtfile:txtfiles){
+			List<String> lines = FileUtils.readLines(txtfile);
+			List<String> newlines = new ArrayList<String>();
+			String line1="";
+			System.out.println(txtfile.getName());
+			for (String line:lines){
+				line1 = line.replaceAll("[^\\p{L}&^\\p{N} ]", "").trim();
+				line1=line1.replaceAll("(\\s)", "").trim();
+				line1=line1.replaceAll("(\\^)", "").trim();
+				//line1=line1.replaceAll("(\\s){2,}", "").trim();
+				//System.out.println(line+"\t"+line1);
+
+				if ((double)line1.length()/(double)line.length()<0.6){
+					System.out.println("CUT:\t"+line+"\t"+line1);
+					continue;
+				}
+				if (line1.length()<10)
+					line1 = line1.replaceAll("[\\p{IsLatin} ]", "").trim();
+				if (line1.length()<2){
+					System.out.println("CUT:\t"+line);
+					continue;
+				}
+				newlines.add(line);
+			}
+			File newfile = new File(FilenameUtils.concat(txtfile.getParentFile().getParent(),txtfile.getName()));
+			FileUtils.writeLines(newfile, newlines);
+		}
+
+		System.exit(0);
+
+		List<String> el = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_GR.txt"));
+		List<String> en = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_EN.txt"));
+		List<String> ent = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_TransEN.txt"));
+		List<String> eval = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/testEL-EN.tsv"));
+
+
+		evalDonatedSet(el, en, ent, eval);
+
+
+		//ArrayList<File> cesDocFiles=FcFileUtils.getCesDocFiles(
+		//		new File("C:/Users/vpapa/test/test_20160928_110951/c74a9565-16c3-4fca-a869-b29b02ee169d/xml"));
+
+		//List<String> dirs= FileUtils.readLines(new File("C:/Users/vpapa/test/fraser1/License_test_dirs.txt"));
+		List<String> dirs= FileUtils.readLines(new File(args[0]));
+		FilenameFilter filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.endsWith(appXMLext) & !arg1.contains(UNDERSCORE_STR));
+			}
+		};
+
+
+		for (String dir:dirs){
+			//ArrayList<File> cesDocFiles=FcFileUtils.getCesDocFiles(new File(dir));
+			List<File> cesDocFiles = FcFileUtils.listFiles(new File(dir), filter,true);
+
+			HashMap<String, ParsAttr> boilerpars_attrs = CleanerUtils.getParsAttrs((ArrayList<File>) cesDocFiles, "crawlinfo", "boilerplate", true);
+			Set<String> pars = boilerpars_attrs.keySet();
+			Iterator<String> it_pars = pars.iterator();
+			String key, norm_key;
+			double thr = cesDocFiles.size()/10;
+			System.out.println(dir);
+			System.out.println("-------------------------------------------------");
+			while (it_pars.hasNext()){
+				key = it_pars.next();
+				if (boilerpars_attrs.get(key).filenames.size()<thr)
+					continue;
+				norm_key = ContentNormalizer.normalizeText(key);
+				norm_key =  ContentNormalizer.normtext1(norm_key);
+				if (norm_key.isEmpty())
+					continue;
+				String[] words = norm_key.split(" "); 
+				if (words.length<2)
+					continue;
+
+				Double[] temp = new Double[boilerpars_attrs.get(key).par_endids.size()];
+				for (int ii=0;ii<boilerpars_attrs.get(key).par_endids.size();ii++)
+					temp[ii] = boilerpars_attrs.get(key).par_startids.get(ii)/(boilerpars_attrs.get(key).par_endids.get(ii)+boilerpars_attrs.get(key).par_startids.get(ii));
+
+				if (Statistics.getMean(temp)<0.8)
+					continue;
+				if (norm_key.contains(COPYRIGHT_STR) || norm_key.contains(RIGHTS_STR)){
+					System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!"+key+"!!!!!!!!!!!!!!!!!!!!!!!!");
+					break;
+				}
+				System.out.println(key);
+			}	
+		}
+
+
+
+
+
+
+
+		//List<String> el       = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_GR.txt"));
+		//List<String> en       = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_EN.txt"));
+		List<String> en_trans = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_TransEN.txt"));
+
+		List<String> el_en = new ArrayList<String>();
+		Random rand=new Random();
+		String sent="";
+		int randomNum=0;
+		for (int ii=0;ii<el.size();ii++){
+			sent = el.get(ii)+"\t";
+			randomNum = rand.nextInt((1 - 0) + 1) + 0;
+			System.out.println(randomNum);
+			if (randomNum==0)
+				sent = sent+en.get(ii)+"\t\t"+en_trans.get(ii);
+			else
+				sent = sent+en_trans.get(ii)+"\t\t"+en.get(ii);
+			el_en.add(sent);
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/testEL-EN.tsv"), el_en);
+		// nextInt is normally exclusive of the top value,
+		// so add 1 to make it inclusive
+
+
+
+
+		System.exit(0);
+
+
+		File[] files = new File("C:/Users/vpapa/wmt16_bda/train/minelinks.com.lett").listFiles();
+		List<File> files1 = new ArrayList<File>();
+		List<File> files2 = new ArrayList<File>();
+		List<String> urls1 = new ArrayList<String>();
+		List<String> urls2 = new ArrayList<String>();
+		List<Record> records = new ArrayList<Record>();
+		String name="";
+		for (File file:files){
+			name =file.getName(); 
+			if (!name.endsWith("xml") || name.contains("_"))
+				continue;
+			if ( name.startsWith("en")){
+				files1.add(file); 	urls1.add(ReadResources.extractNodefromXML(file.getAbsolutePath(),"eAddress" ,false));
+			}
+			if ( name.startsWith("fr")){
+				files2.add(file);	urls2.add(ReadResources.extractNodefromXML(file.getAbsolutePath(),"eAddress" ,false));
+			}	
+		}
+		System.out.println(files1.size()+"\t"+urls1.size());		System.out.println(files2.size()+"\t"+urls2.size());
+		String key1pair="";
+		double mindist=6, dist = 6;
+		int c=0;
+		for (String n1:urls1){
+			c=0; 	mindist=6;
+			for (String n2:urls2){
+				dist = Statistics.editDist(n1, n2);
+				if (dist<mindist){
+					key1pair = n2;	 mindist = dist;
+				}else{
+					if (dist==mindist && !key1pair.isEmpty()){
+						key1pair=""; c++;
+					}
+				}
+			}
+			if (!key1pair.isEmpty() && c==0){
+				Record record = new Record(n1, key1pair, dist);
+				records.add(record);
+			}
+		}
+
+		//RecordComparator rc = new RecordComparator(Sort.ASCENDING, (new Field).D);
+		//Collections.sort(records, rc);
+
+		//Arrays.sort(theArray, new Comparator<String[]>(){
+
+
+		List<String> lines1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_EN.txt"));
+		List<String> lines2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_TransEN.txt"));
+		List<String> lines1stem = new ArrayList<String>(); 
+		List<String> lines2stem = new ArrayList<String>();		
+
+		for (String line:lines1){
+			lines1stem.add(line);
+		}
+
+
+		File tmxFile = new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/output_corpus1_tmxmerge_ell-eng.tmx");
+		String lang1 = "ell", lang2="eng";
+		double tr=0.18;
+
+		List<SegPair> segpairs = TMXHandlerUtils.getBestTUsFromTMX(tmxFile, lang1, lang2);
+		for (SegPair segpair:segpairs){
+			System.out.println(segpair.seg1+"\t"+segpair.seg2);
+		}
+
 
 		URL url = new URL("https://github.com/bixo/bixo/blob/master/examples/src/test/java/bixo/examples/crawl/DemoCrawlWorkflowLRTest.java");
 		System.out.println(url.getPath());
@@ -59,7 +378,7 @@ public class TempUtils {
 		url = new URL("http://www.ilsp.gr/el/infoprojects/meta");
 		System.out.println(url.getPath());
 		System.exit(0);
-		
+
 		URLConnection conn = url.openConnection();
 		InputStream ins = conn.getInputStream();
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -444,6 +763,121 @@ public class TempUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+
+	private static void evalDonatedSet(List<String> el, List<String> en,
+			List<String> ent,List<String> eval) {
+		double crawlcorrect=0, crawlwins=0, mtcorrect=0, mtwins=0, nowinswrong=0, nowinscorrect=0, emptycounter=0, onlycrawlwins=0, onlymtwins=0;
+		boolean ok=false;
+		eval.remove(0);
+		if (el.size()==en.size() && el.size()==ent.size() && el.size()==eval.size())
+			ok=true;
+		if (!ok){
+			System.out.println("list have not equal sizes");
+			System.exit(0);
+		}
+		for (int ii=0;ii<eval.size();ii++){
+			String[] temp = eval.get(ii).split("\t");
+			if (temp.length==0){
+				emptycounter++;
+				continue;
+			}
+			if (!(temp[2].contains("0") || temp[2].contains("1") || temp[2].contains("2")))
+				break;
+			if (!(temp[3].contains("0") || temp[3].contains("1") || temp[3].contains("2")))
+				break;
+			if (!(temp[4].contains("0") || temp[4].contains("1") || temp[4].contains("2")))
+				break;
+
+			if (el.contains(temp[0])){
+				if ((temp[4].equals("1") && temp[2].equals("0") && temp[3].equals("1"))
+						|| (temp[4].equals("2") && temp[2].equals("1") && temp[3].equals("0"))
+						|| (!temp[4].equals("0") && temp[2].equals("0") && temp[3].equals("0"))	)
+					continue;
+				if (temp[4].equals("0") && temp[2].equals("0") && temp[3].equals("0")){
+					nowinswrong++;
+					//continue;
+				}
+				if (temp[4].equals("0") && temp[2].equals("1") && temp[3].equals("1")){
+					nowinscorrect++;
+					crawlcorrect++;
+					mtcorrect++;
+					continue;
+				}
+				if (en.contains(temp[1]) && ent.contains(temp[5])){
+					if (temp[2].equals("0"))
+						System.out.println(temp[0]+"\t"+temp[1]);
+					if (temp[2].equals("1"))
+						crawlcorrect++;
+					if (temp[3].equals("1"))
+						mtcorrect++;
+					if (temp[4].equals("1") && temp[2].equals("1") && temp[3].equals("0")){
+						onlycrawlwins++;
+						continue;
+					}
+					if (temp[4].equals("1") && temp[2].equals("1") && temp[3].equals("1")){
+						crawlwins++;
+						continue;
+					}
+					if (temp[4].equals("2") && temp[2].equals("1") && temp[3].equals("1")){
+						mtwins++;
+						continue;
+					}
+					if (temp[4].equals("2") && temp[2].equals("0") && temp[3].equals("1")){
+						onlymtwins++;
+						continue;
+					}
+					continue;
+				}
+				if (ent.contains(temp[1]) && en.contains(temp[5])){
+					if (temp[3].equals("0"))
+						System.out.println(temp[0]+"\t"+temp[5]);
+					if (temp[3].equals("1"))
+						crawlcorrect++;
+					if (temp[2].equals("1"))
+						mtcorrect++;
+					if (temp[4].equals("2")  && temp[2].equals("1") && temp[3].equals("1")){
+						crawlwins++;
+						continue;
+					}
+					if (temp[4].equals("2")  && temp[2].equals("0") && temp[3].equals("1")){
+						onlycrawlwins++;
+						continue;
+					}
+					if (temp[4].equals("1")  && temp[2].equals("1") && temp[3].equals("1")){
+						mtwins++;
+						continue;
+					}
+					if (temp[4].equals("1")  && temp[2].equals("1") && temp[3].equals("0")){
+						onlymtwins++;
+						continue;
+					}
+
+					continue;
+				}
+				System.out.println(temp[1]);
+				System.out.println(temp[5]);
+				System.out.println(temp[0]);
+				System.out.println("eeeeep");
+			}else{
+				System.out.println("oops");
+			}
+		}
+		double total = eval.size()-emptycounter;
+		System.out.println("total pairs="+total);
+
+		System.out.println("both wrong="+nowinswrong);
+		System.out.println("both correct and equivalent="+nowinscorrect);
+		System.out.println("only crawler's correct="+ onlycrawlwins);
+		System.out.println("only mt's correct="+ onlymtwins);
+		System.out.println("both correct but crawler's better="+ crawlwins);
+		System.out.println("both correct but mt's better="+ mtwins);
+
+		System.out.println("crawlcorrect="+crawlcorrect+"\nmtcorrect="+mtcorrect);
+		System.out.println("crawlprecision="+(crawlcorrect/total));
+		System.out.println("mtprecision="+(mtcorrect/total));
+		System.out.println();
 	}
 
 
@@ -1142,13 +1576,17 @@ public class TempUtils {
 				//File temppair = new File(sourcedir.getAbsolutePath()+fs+pairlist[ii]);
 				//File temppairNEW = new File(targetdir.getAbsolutePath()+fs+pairlist[ii]);
 				//FcFileUtils.copyFile(temppair, temppairNEW);
-				FcFileUtils.copy(FilenameUtils.concat(sourcedir.getAbsolutePath(),pairlist[ii]), FilenameUtils.concat(targetdir.getAbsolutePath(),pairlist[ii]));
+				FileUtils.copyFile(new File(FilenameUtils.concat(sourcedir.getAbsolutePath(),pairlist[ii])),
+						new File(FilenameUtils.concat(targetdir.getAbsolutePath(),pairlist[ii])));
+				//FcFileUtils.copy(FilenameUtils.concat(sourcedir.getAbsolutePath(),pairlist[ii]), FilenameUtils.concat(targetdir.getAbsolutePath(),pairlist[ii]));
 
 				//temppair = new File(sourcedir.getAbsolutePath()+"\\"+pairlist[ii]+appHTMLext);
 				//temppairNEW = new File(targetdir.getAbsolutePath()+"\\"+pairlist[ii]+appHTMLext);
 				//FcFileUtils.copyFile(temppair, temppairNEW);
-				FcFileUtils.copy(FilenameUtils.concat(sourcedir.getAbsolutePath(),pairlist[ii]+appHTMLext),
-						FilenameUtils.concat(targetdir.getAbsolutePath(),pairlist[ii]+appHTMLext));
+				FileUtils.copyFile(new File(FilenameUtils.concat(sourcedir.getAbsolutePath(),pairlist[ii]+appHTMLext)),
+						new File(FilenameUtils.concat(targetdir.getAbsolutePath(),pairlist[ii]+appHTMLext)));
+				//FcFileUtils.copy(FilenameUtils.concat(sourcedir.getAbsolutePath(),pairlist[ii]+appHTMLext),
+				//		FilenameUtils.concat(targetdir.getAbsolutePath(),pairlist[ii]+appHTMLext));
 
 				File temppair = new File(FilenameUtils.concat(sourcedir.getAbsolutePath(),pairlist[ii]));
 				File temppairNEW = new File(FilenameUtils.concat(targetdir.getAbsolutePath(),pairlist[ii]+appHTMLext));
@@ -1157,38 +1595,51 @@ public class TempUtils {
 				//File tempitem = new File(temppair.getParent()+"\\"+tempitems[0]+appXMLext);
 				//File tempitemNEW = new File(temppairNEW.getParent()+"\\"+tempitems[0]+appXMLext);
 				//FcFileUtils.copyFile(tempitem, tempitemNEW);
-				FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[0]+appXMLext),
-						FilenameUtils.concat(temppairNEW.getParent(),tempitems[0]+appXMLext));
+				FileUtils.copyFile(new File(FilenameUtils.concat(temppair.getParent(),tempitems[0]+appXMLext)),
+						new File(FilenameUtils.concat(temppairNEW.getParent(),tempitems[0]+appXMLext)));
+				//FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[0]+appXMLext),
+				//		FilenameUtils.concat(temppairNEW.getParent(),tempitems[0]+appXMLext));
 
 				//tempitem = new File(temppair.getParent()+"\\"+tempitems[0]+appXMLHTMLext);
 				//tempitemNEW = new File(temppairNEW.getParent()+"\\"+tempitems[0]+appXMLHTMLext);
 				//FcFileUtils.copyFile(tempitem, tempitemNEW);
-				FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[0]+appXMLHTMLext),
-						FilenameUtils.concat(temppairNEW.getParent(),tempitems[0]+appXMLHTMLext));
+				FileUtils.copyFile(new File(FilenameUtils.concat(temppair.getParent(),tempitems[0]+appXMLHTMLext)),
+						new File(FilenameUtils.concat(temppairNEW.getParent(),tempitems[0]+appXMLHTMLext)));
+				//FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[0]+appXMLHTMLext),
+				//		FilenameUtils.concat(temppairNEW.getParent(),tempitems[0]+appXMLHTMLext));
 
+				
 				//tempitem = new File(temppair.getParent()+"\\"+tempitems[0]+appHTMLext);
 				//tempitemNEW = new File(tempitemNEW.getParent()+"\\"+tempitems[0]+appHTMLext);
 				//FcFileUtils.copyFile(tempitem, tempitemNEW);
-				FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[0]+appHTMLext),
-						FilenameUtils.concat(temppairNEW.getParent(),tempitems[0]+appHTMLext));
+				FileUtils.copyFile(new File(FilenameUtils.concat(temppair.getParent(),tempitems[0]+appHTMLext)),
+						new File(FilenameUtils.concat(temppairNEW.getParent(),tempitems[0]+appHTMLext)));
+				//FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[0]+appHTMLext),
+				//		FilenameUtils.concat(temppairNEW.getParent(),tempitems[0]+appHTMLext));
 
 				//tempitem = new File(temppair.getParent()+"\\"+tempitems[1]+appXMLext);
 				//tempitemNEW = new File(temppairNEW.getParent()+"\\"+tempitems[1]+appXMLext);
 				//FcFileUtils.copyFile(tempitem, tempitemNEW);
-				FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[1]+appXMLext),
-						FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appXMLext));
-
+				FileUtils.copyFile(new File(FilenameUtils.concat(temppair.getParent(),tempitems[1]+appXMLext)),
+						new File(FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appXMLext)));
+				//FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[1]+appXMLext),
+				//		FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appXMLext));
+				
 				//tempitem = new File(temppair.getParent()+"\\"+tempitems[1]+appXMLHTMLext);
 				//tempitemNEW = new File(temppairNEW.getParent()+"\\"+tempitems[1]+appXMLHTMLext);
 				//FcFileUtils.copyFile(tempitem, tempitemNEW);
-				FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[1]+appXMLHTMLext),
-						FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appXMLHTMLext));
+				FileUtils.copyFile(new File(FilenameUtils.concat(temppair.getParent(),tempitems[1]+appXMLHTMLext)),
+						new File(FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appXMLHTMLext)));
+				//FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[1]+appXMLHTMLext),
+				//		FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appXMLHTMLext));
 
 				//tempitem = new File(temppair.getParent()+"\\"+tempitems[1]+appHTMLext);
 				//tempitemNEW = new File(tempitemNEW.getParent()+"\\"+tempitems[1]+appHTMLext);
 				//FcFileUtils.copyFile(tempitem, tempitemNEW);
-				FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[1]+appHTMLext),
-						FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appHTMLext));
+				FileUtils.copyFile(new File(FilenameUtils.concat(temppair.getParent(),tempitems[1]+appHTMLext)),
+						new File(FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appHTMLext)));
+				//FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[1]+appHTMLext),
+				//		FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appHTMLext));
 			}
 		} catch (IOException e3) {
 			// TODO Auto-generated catch block
@@ -1204,7 +1655,9 @@ public class TempUtils {
 			String[] pairlist = tmx_list.split("\r\n");
 			for (int ii=0;ii<pairlist.length;ii++){
 				XMLTextCharsCleaner.clean(FilenameUtils.concat(location,pairlist[ii]), FilenameUtils.concat(location,pairlist[ii]+"1"));
-				FcFileUtils.copy(FilenameUtils.concat(location,pairlist[ii]+"1"),FilenameUtils.concat(location,pairlist[ii]));
+				FileUtils.copyFile(new File(FilenameUtils.concat(location,pairlist[ii]+"1")),
+						new File(FilenameUtils.concat(location,pairlist[ii])));
+				//FcFileUtils.copy(FilenameUtils.concat(location,pairlist[ii]+"1"),FilenameUtils.concat(location,pairlist[ii]));
 				File temp = new File(FilenameUtils.concat(location,pairlist[ii]+"1"));
 				temp.delete();
 			}
@@ -1374,9 +1827,9 @@ public class TempUtils {
 				urlList=urlList + pathstring+filesinXML[ii]+"\n";
 		}
 		//WriteResources.writetextfile(nonCC_list,urlList);
-		
+
 		FileUtils.writeStringToFile(new File(nonCC_list), urlList);
-		
+
 		writeHTMLfile(nonCC_list+appHTMLext,urlList,true);
 	}
 
@@ -1506,5 +1959,68 @@ public class TempUtils {
 					return "";
 				}
 	}*/
+
+
+
+	public class StrinArrayComparator implements Comparator<String[]> {
+		@Override
+		public int compare(final String[] first, final String[] second){
+			// here you should usually check that first and second
+			// a) are not null and b) have at least two items
+			// updated after comments: comparing Double, not Strings
+			// makes more sense, thanks Bart Kiers
+			return Double.valueOf(second[1]).compareTo(
+					Double.valueOf(first[1])
+					);
+		}
+	};
+
+
+	public static class Record {
+		public String url1;
+		public String url2;
+		public Double dist;
+
+		public Record(String url1, String url2, double dist) {
+			this.url1 = url1;
+			this.url2 = url2;
+			this.dist = dist;
+		}
+
+		@Override
+		public String toString() {
+			return url1 + " " + dist;
+		}
+
+		public int compareTo(Field field, Record record) {
+			switch (field) {
+			case S: return this.url1.compareTo(record.url1);
+			case D: return this.dist.compareTo(record.dist);
+			default: throw new IllegalArgumentException(
+					"Unable to sort Records by " + field.getType());
+			}
+		}
+
+	}
+
+
+	class RecordComparator implements Comparator<Record> {
+
+		private Field field;
+		private Sort sort;
+
+		public RecordComparator(Sort sort, Field field) {
+			this.sort = sort;
+			this.field = field;
+		}
+
+		@Override
+		public final int compare(Record a, Record b) {
+			int result = a.compareTo(field, b);
+			if (sort == Sort.ASCENDING) return result;
+			else return -result;
+		}
+	}
+
 
 }
