@@ -1,6 +1,7 @@
 package gr.ilsp.fc.utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +15,9 @@ import gr.ilsp.fc.tmxhandler.TMXHandlerUtils;
 import net.loomchild.maligna.util.bind.tmx.Prop;
 import net.loomchild.maligna.util.bind.tmx.Tu;
 
-public class Tmx2Tsv {
+public class Tmx2Text {
 
-	private static final Logger logger = LoggerFactory.getLogger(Tmx2Tsv.class);
+	private static final Logger logger = LoggerFactory.getLogger(Tmx2Text.class);
 	private static final String NEW_LINE = "\n";
 	private static final String TAB_SEPARATOR = "\t";
 	private static final String SPACE_SEPARATOR = " ";
@@ -25,6 +26,40 @@ public class Tmx2Tsv {
 	private final static String LENGTHRATIO = "lengthRatio";
 	private final static String INFO = "info";
 
+	
+	public static void main(String[] args) throws IOException {
+		File tmxFile = new File(args[0]);
+		String l1=args[1];
+		String l2=args[2];
+		tmx2textfiles(tmxFile, l1,l2);
+		
+	}
+	
+	private static void tmx2textfiles(File tmxFile, String l1, String l2) throws IOException {
+		List<Tu> tus = TMXHandlerUtils.getTUs(tmxFile);
+		List<String> l1segs = new ArrayList<String>();
+		List<String> l2segs = new ArrayList<String>();
+		for (Tu tu : tus) {
+			l1segs.add(StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l1), SPACE_SEPARATOR));
+			l2segs.add(StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l2), SPACE_SEPARATOR));
+		}
+		FileUtils.writeLines(new File(tmxFile.getAbsolutePath()+"."+l1), "UTF-8", l1segs);
+		FileUtils.writeLines(new File(tmxFile.getAbsolutePath()+"."+l2), "UTF-8", l2segs);
+	}
+
+	public static void main1(String[] args) throws IOException {
+		File tmxFile = new File(args[0]);
+		File evalFile = new File(args[1]);
+		String l1=args[2];
+		String l2=args[3];
+		logger.info("Reading " + tmxFile.getAbsolutePath());
+		logger.info("Languages: " + l1 + " " + l2 + " ");
+		tmx2Tsv(tmxFile, evalFile, l1, l2);
+		logger.info("Done writing to " + evalFile.getAbsolutePath());
+		
+	}
+	
+	
 	public static void tmx2Tsv(File tmxFile, File evalFile, String l1, String l2) throws IOException  {
 		List<Tu> tus = TMXHandlerUtils.getTUs(tmxFile);
 		List<String> outLines = new ArrayList<String>();
@@ -55,18 +90,6 @@ public class Tmx2Tsv {
 		}
 		FileUtils.write (evalFile, StringUtils.join(new String[] {"id", l1, l2, "alignerScore", "lengthRatio", "info" }, TAB_SEPARATOR)+NEW_LINE, false);
 		FileUtils.writeLines(evalFile, outLines, true);
-	}
-	
-	public static void main(String[] args) throws IOException {
-		File tmxFile = new File(args[0]);
-		File evalFile = new File(args[1]);
-		String l1=args[2];
-		String l2=args[3];
-		logger.info("Reading " + tmxFile.getAbsolutePath());
-		logger.info("Languages: " + l1 + " " + l2 + " ");
-		tmx2Tsv(tmxFile, evalFile, l1, l2);
-		logger.info("Done writing to " + evalFile.getAbsolutePath());
-		
 	}
 	
 }
