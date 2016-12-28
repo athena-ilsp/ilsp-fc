@@ -3,6 +3,7 @@ package gr.ilsp.fc.monomerge;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +16,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -40,13 +43,13 @@ public class MonoMerger {
 	private static String language, domain, corpuslevel;
 	//private static boolean oxslt=false;
 	private static boolean cc=false;
+	private static List<String> sites;
 	private static final int min_char_num=5;
 	private static final int min_tok_num=5;
 	private static final double max_word_length=25;
 	private static final double max_median_word_length=15;
 	private static final double min_median_word_length=3;
 	
-
 	private static SentenceSplitter sentenceSplitter;
 	private static final String UNDERSCORE_STR="_";
 
@@ -61,6 +64,7 @@ public class MonoMerger {
 	//private final static String UTF_8 = "UTF-8";
 	//private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
 	private static final String P_ELE = "p";
+	private static final String EADDRESS = "eAddress";
 	private static final String ooi_crawlinfo = "crawlinfo";
 	private String creationDescription = "The ILSP Focused Crawler was used for the acquisition "
 			+ "of monolingual data from websites, and for the normalization, cleaning, (near)deduplication on document level.";
@@ -85,6 +89,7 @@ public class MonoMerger {
 		mm.setSentenceSplitter(sentenceSplitterFactory.getSentenceSplitter(options.getLanguage()));
 		mm.setBaseName(options.getBaseName());
 		mm.setCorpusLevel(options.getCorpusLevel());
+		mm.setSites(options.getSites());
 		mm.merge();
 	}
 
@@ -113,7 +118,8 @@ public class MonoMerger {
 
 		List<File> xmlfiles = new ArrayList<File>();
 		if (inputFile.isDirectory()){
-			xmlfiles = FcFileUtils.listFiles(inputFile, filter,true);
+			//xmlfiles = FcFileUtils.listFiles(inputFile, filter,true);
+			xmlfiles = (List<File>) FileUtils.listFiles(inputFile, (IOFileFilter) filter, TrueFileFilter.INSTANCE ); //.listFiles(inputFile, filter,true);
 			if (xmlfiles.isEmpty()){
 				FilenameFilter filter1 = new FilenameFilter() {			
 					public boolean accept(File arg0, String arg1) {
@@ -198,6 +204,9 @@ public class MonoMerger {
 		List<String> stokens = new ArrayList<String>();
 		int[] sizes = new int[5]; //docs, paragraphs, sentences, tokens, words
 		for (File xmlfile:xmlfiles){
+			String docurl = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
+			if (!inSites(docurl,sites))
+				continue;
 			paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\n"));
 			if (paragraphs.isEmpty())
 				continue;
@@ -255,6 +264,9 @@ public class MonoMerger {
 		int filecounter=0;
 		Set<String> words = new HashSet<String>();
 		for (File xmlfile:xmlfiles){
+			String docurl = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
+			if (!inSites(docurl,sites))
+				continue;
 			paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\n"));
 			if (paragraphs.isEmpty())
 				continue;
@@ -307,6 +319,9 @@ public class MonoMerger {
 		int filecounter=0;
 		Set<String> words = new HashSet<String>();
 		for (File xmlfile:xmlfiles){
+			String dochost = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
+			if (!inSites(dochost,sites))
+				continue;
 			paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\n"));
 			if (paragraphs.isEmpty())
 				continue;
@@ -331,6 +346,20 @@ public class MonoMerger {
 		sizes[3] = totalTokens;
 		sizes[4] = words.size();
 		return sizes;
+	}
+
+	
+	private static boolean inSites(String webpage1, List<String> sites) {
+		if (!sites.isEmpty()){
+			try {
+				if (!sites.contains(new URL(webpage1).getHost()))
+					return false;
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return true;
 	}
 
 	private List<String> pars2sents(List<String> paragraphs) {
@@ -457,6 +486,10 @@ public class MonoMerger {
 		MonoMerger.domain  = domain;
 	}
 
+	public void setSites(List<String> sites) {
+		MonoMerger.sites  = sites;
+	}
+	
 	public void setCorpusLevel(String level) {
 		MonoMerger.corpuslevel  = level;
 	}
