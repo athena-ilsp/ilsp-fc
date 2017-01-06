@@ -1,7 +1,6 @@
 package gr.ilsp.fc.utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils;
+import gr.ilsp.fc.utils.sentencesplitters.MorphAdornerSentenceSplitter;
 import net.loomchild.maligna.util.bind.tmx.Prop;
 import net.loomchild.maligna.util.bind.tmx.Tu;
 
@@ -27,14 +27,66 @@ public class Tmx2Text {
 	private final static String INFO = "info";
 
 	
+	
+	public static void main2(String[] args) throws IOException {
+		File inFile = new File(args[0]);
+		String l1=args[1];
+		//String l2=args[2];
+		List<String> segs = FileUtils.readLines(inFile, "UTF-8");
+		MorphAdornerSentenceSplitter splitter  = new MorphAdornerSentenceSplitter(l1);
+		List<String> toks = getTokenizedSentences(segs, splitter);
+		FileUtils.writeLines(new File(inFile.getAbsolutePath()+".tok."+l1), "UTF-8", toks);
+	}
+	
+	
 	public static void main(String[] args) throws IOException {
 		File tmxFile = new File(args[0]);
 		String l1=args[1];
 		String l2=args[2];
+		//tmx2Toktextfiles(tmxFile, l1,l2);
 		tmx2textfiles(tmxFile, l1,l2);
-		
 	}
 	
+	private static void tmx2Toktextfiles(File tmxFile, String l1, String l2) throws IOException {
+		List<Tu> tus = TMXHandlerUtils.getTUs(tmxFile);
+		List<String> l1segs = new ArrayList<String>();
+		List<String> l2segs = new ArrayList<String>();
+		
+		for (Tu tu : tus) {
+			l1segs.add(StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l1), SPACE_SEPARATOR));
+			l2segs.add(StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l2), SPACE_SEPARATOR));
+		}
+		
+		MorphAdornerSentenceSplitter splitter  = new MorphAdornerSentenceSplitter(l1);
+		List<String> l1toksegs = getTokenizedSentences(l1segs, splitter);
+		splitter  = new MorphAdornerSentenceSplitter(l2);
+		List<String> l2toksegs = getTokenizedSentences(l2segs, splitter);
+		
+		FileUtils.writeLines(new File(tmxFile.getAbsolutePath()+".tok."+l1), "UTF-8", l1toksegs);
+		FileUtils.writeLines(new File(tmxFile.getAbsolutePath()+".tok."+l2), "UTF-8", l2toksegs);
+		
+	}
+
+	private static List<String> getTokenizedSentences(List<String> segs, MorphAdornerSentenceSplitter splitter) {
+		List<String> toksegs = new ArrayList<String>();
+		for (String seg : segs) {
+			try {
+				List<List<String>> splitterTokSents = splitter.getTokens(seg);
+				for (List<String> tokseg : splitterTokSents) {
+					String temp="";
+					for (String tok : tokseg) {
+						temp = temp+ " "+tok;
+					}
+					toksegs.add(temp.trim());
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return toksegs;
+	}
+
 	private static void tmx2textfiles(File tmxFile, String l1, String l2) throws IOException {
 		List<Tu> tus = TMXHandlerUtils.getTUs(tmxFile);
 		List<String> l1segs = new ArrayList<String>();
