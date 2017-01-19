@@ -73,7 +73,7 @@ public class ExporterOptions {
 		options.addOption( OptionBuilder.withLongOpt( "topic" )
 				.withDescription( "Path to topic file" )	
 				.hasArg()
-				.create("t") );
+				.create("tc") );
 		options.addOption( OptionBuilder.withLongOpt( "targeted_domain" )
 				.withDescription( "user targeted domain " )	
 				.hasArg()
@@ -149,8 +149,8 @@ public class ExporterOptions {
 				_offlineXSLT  = true;
 			if(line.hasOption( "lang")) 
 				_targetlanguages = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true).split(QUEST_SEPAR);
-			if(line.hasOption( "t")) {
-				_topic = new File(line.getOptionValue("t"));
+			if(line.hasOption( "tc")) {
+				_topic = new File(line.getOptionValue("tc"));
 				_topic = new File(_topic.getAbsolutePath());
 			}
 			if(line.hasOption( "dom")) {
@@ -192,10 +192,13 @@ public class ExporterOptions {
 			if(line.hasOption( "o")) {
 				_outputdir = new File(line.getOptionValue("o"));
 				_outputdir = new File(_outputdir.getAbsolutePath());
-			} else help();						
-			if(line.hasOption( "bs")) {
+			} 
+			if(line.hasOption( "bs")) 
 				_outBaseName = new File(line.getOptionValue("bs"));
-			} else help();				
+			else{
+				LOGGER.error("BaseName for outfiles is required");
+				help();				
+			}
 			if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
 				if (_paths_repl.endsWith("/"))

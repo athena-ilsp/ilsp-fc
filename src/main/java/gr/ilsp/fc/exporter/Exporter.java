@@ -37,7 +37,6 @@ import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.CrawlConfig;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
-import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.PrettyPrintHandler;
 import gr.ilsp.fc.utils.TempUtils;
 import gr.ilsp.fc.utils.TopicTools;
@@ -129,11 +128,13 @@ public class Exporter {
 	private static final String text_tag_en = "</text>";
 	private static final String boiler_tag = "<boiler>";
 	private static final String boiler_st = "<boiler";
+	//private static final String EXPORT = "_export";
 	private static final String XMLlist = ".xmllist.txt";
 	private static final String CSV = ".csv";
 	private static final String XMLHTMLlist = ".xmllist.html";
 	private static final String pdfmime = "pdf";
 	private static final String docmime = "word";
+	private static final String[] ext = {xml_type};
 
 	private static String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
 
@@ -174,7 +175,6 @@ public class Exporter {
 	private static String genre="";
 	private static String format = "";	
 	private static String subdomains = "";
-	//private static String contentEncoding = "";
 	private static String author ="";
 	private static String licenseURL="";
 	private static String extfilename="";
@@ -239,45 +239,29 @@ public class Exporter {
 		long start = System.currentTimeMillis();
 		LOGGER.info("------------Exporting cesDoc Files------------");
 		for (int ii=0;ii<targetlanguages.length;ii++){
-			targetlanguages[ii] = ISOLangCodes.get3LetterCode(targetlanguages[ii]);
 			langnumMap.put(targetlanguages[ii], 0);
 		}
 		outputFile = new File(outBaseName.getAbsolutePath()+XMLlist);
+		//outputFile = new File(outBaseName.getAbsolutePath()+EXPORT+XMLlist);
 		if (applyOfflineXSLT)
 			outputFileHTML = new File(outBaseName.getAbsolutePath()+XMLHTMLlist);
-		//get array of forbidden words
-		List<String> neg_words = null ;
-		if (getNegWordsFile() != null) {
-			try {
-				neg_words = FileUtils.readLines(getNegWordsFile());
-			} catch (IOException e) {
-				LOGGER.info("problem in reading file with negative words");
-				e.printStackTrace();
-			}
-		}
-		//URL genreFile = getGenres();
-		//genres_keys = GenreClassifier.Genres_keywords(genreFile);	
-		File topicFile = getTopic();
-		ArrayList<String[]> topic = null;
-		if (topicFile!=null)
-			topic=TopicTools.analyzeTopic(topicFile,targetlanguages); 
-		String[] ext = {xml_type}; 
-
+			//outputFileHTML = new File(outBaseName.getAbsolutePath()+EXPORT+XMLHTMLlist);
+		
+		List<String> neg_words = getNegWordsList() ;
+		//HashMap<String, String> genres_keys = GenreClassifier.Genres_keywords(genres);
+		ArrayList<String[]> topicTerms = TopicTools.analyzeTopic(topic,targetlanguages);
+		
 		if (offline)// OFFLINE PROCESS SHOULD BE FIXED
-			offlineExport(neg_words, ext, topic);
+			offlineExport(neg_words, ext, topicTerms);
 		else{
 			if (!new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).exists())
 				LOGGER.info("No pdf files fetched");
-			else{
-				File[] files = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).listFiles();
-				LOGGER.info(files.length + " pdf files fetched");
-			}
+			else				
+				LOGGER.info(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).listFiles().length + " pdf files fetched");
 			if (!new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),doc_type)).exists())
 				LOGGER.info("No doc files fetched");
-			else{
-				File[] files = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),doc_type)).listFiles();
-				LOGGER.info(files.length + " doc files fetched");
-			}
+			else
+				LOGGER.info(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),doc_type)).listFiles().length + " doc files fetched");
 			try {
 				JobConf conf = new JobConf();
 				Path crawlDirPath = new Path(crawlDirName.getAbsolutePath());
@@ -294,7 +278,7 @@ public class Exporter {
 				int id = 1;
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
 					LOGGER.info("current rundir: " +curDirPath);
-					id = exportToXml(conf,curDirPath, id,topic,targeteddomain, urlsToIds, neg_words);
+					id = exportToXml(conf,curDirPath, id,topicTerms,targeteddomain, urlsToIds, neg_words);
 					LOGGER.debug("Current loop path in xml export is " + curDirPath );
 					int curLoop = CrawlDirUtils.extractLoopNumber(curDirPath);
 					if (curLoop != prevLoop + 1) 
@@ -303,7 +287,6 @@ public class Exporter {
 					//if (curLoop>depth)
 					//	break;
 				}
-				//xmlFiles = FcFileUtils.getFilesList(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type)), "", appXMLext);
 				File tf = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type));
 				if (!tf.exists())
 					tf.mkdir();
@@ -327,6 +310,24 @@ public class Exporter {
 			}
 		}
 		return langnumMap;
+	}
+
+	/**
+	 * get list of forbidden words
+	 * @return
+	 */
+	private List<String> getNegWordsList() {
+		List<String> neg_words =new ArrayList<String>();
+		if (negWordsFile!= null) {
+			try {
+				neg_words = FileUtils.readLines(getNegWordsFile());
+			} catch (IOException e) {
+				LOGGER.info("problem in reading file with negative words");
+				e.printStackTrace();
+			}
+		}else
+			return null;
+		return neg_words;
 	}
 
 	public static void generateCSV(File file, Map<String, Integer> map) {
@@ -1249,7 +1250,7 @@ public class Exporter {
 		se.setRunOffLine(options.getRunOffLine());
 		se.setMIN_TOKENS_PER_PARAGRAPH(options.get_length());
 		se.setMIN_TOKENS_NUMBER(options.get_minTokenslength());
-		se.setCrawlDirName (options.get_inputdir());
+		se.setCrawlDirName(options.get_inputdir());
 		se.setBaseName(options.getBaseName());
 		se.setTargetLanguages(options.get_language());
 		se.setTopic(options.get_topic());
@@ -1277,7 +1278,7 @@ public class Exporter {
 	 */
 	private static CompositeConfiguration getConfig(String confFile) {
 		config = new CompositeConfiguration();
-		URL default_config = Crawl.class.getClassLoader().getResource("FBC_config.xml");;
+		URL default_config = Crawl.class.getClassLoader().getResource("FBC_config.xml");
 
 		if (confFile!=null){
 			String custom_config = confFile;
