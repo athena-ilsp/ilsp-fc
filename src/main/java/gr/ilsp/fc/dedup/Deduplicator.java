@@ -19,6 +19,7 @@ public class Deduplicator {
 	private static double IntersectionThr;
 	private static int MIN_PAR_LEN;
 	private static int MIN_TOK_LEN;
+	//private static final String DEDUP = "_dedup";
 	private static final String XMLlist = ".xmllist.txt";
 	private static final String XMLHTMLlist = ".xmllist.html";
 	
@@ -41,9 +42,11 @@ public class Deduplicator {
 	 * apply near Deduplication
 	 */
 	public void nearDedup(){
+		//outTextList = new File(outBaseName.getAbsolutePath()+DEDUP+XMLlist);
 		outTextList = new File(outBaseName.getAbsolutePath()+XMLlist);
 		if (applyOfflineXSLT)
 			outHTMLList = new File(outBaseName.getAbsolutePath()+XMLHTMLlist);
+			//outHTMLList = new File(outBaseName.getAbsolutePath()+DEDUP+XMLHTMLlist);
 		if (method.equals("1")){
 			LOGGER.info("------------Deduplication by using lists and MD5 method.------------");
 			DedupMD5.dedup(targetDir, excludeSetFiles, outTextList,outHTMLList,applyOfflineXSLT, MIN_TOK_LEN,inputType);
