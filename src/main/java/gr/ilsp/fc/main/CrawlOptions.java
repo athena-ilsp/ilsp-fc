@@ -44,7 +44,7 @@ public class CrawlOptions {
 	private Options options;
 
 	private String _domain=null, _maindomain=null, _descr=null, _filter=null, _storefilter=null, _paths_repl=null, _loggingAppender = null;
-	private String _type="m", _operation="", _agentName, _language, _urls, _aligner=null, _dict=null, _dictpath=null, _config, ws_dir, _methods = "aupdihml", defaultSegType="1:1";
+	private String _type="m", _operation="", _agentName, _language, _aligner=null, _dict=null, _dictpath=null, _config, ws_dir, _methods = "aupdihml", defaultSegType="1:1";
 	private String[] _langKeys, _targetedLangs;
 	private List<String[]> _linkAttrs;
 	private HashMap<String, String> _mapLangs;
@@ -52,6 +52,7 @@ public class CrawlOptions {
 	//private String default_genrefile="genres_keys.txt";
 	private URL _genre;
 	private String[][] _urls_repls=null;
+	private File _urls;
 	private File _outputDir, _inputDir, _outBaseName, _outputFile, _outputFileHTML, _outputFileTMX, _outputFileHTMLTMX;
 	private File _outputFile_mergedTMX, _outputFile_mergedTMXHTML, _o1 , _o2, _topic=null;
 	private  int _threads = 10, _numLoops = 0, _crawlDuration = 10, _minTokensNumber = 100, _minTuvLen = 0, _level = 100, _depth = 10000, _length = 3;
@@ -519,9 +520,8 @@ public class CrawlOptions {
 			help();
 		}
 		if (line.hasOption("u")) {
-			_urls = line.getOptionValue("u");
-			File f = new File(_urls);
-			if (f.exists()==false){
+			_urls = new File(line.getOptionValue("u"));
+			if (_urls.exists()==false){
 				LOGGER.error("The seed file does not exist.");
 				help();
 			}
@@ -954,7 +954,7 @@ public class CrawlOptions {
 	public  int getCrawlDuration() {
 		return _crawlDuration;
 	}
-	public String getUrls() {
+	public File getUrls() {
 		return _urls;
 	}
 	public boolean keepBoiler() {

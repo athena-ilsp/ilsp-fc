@@ -5,37 +5,30 @@ import gr.ilsp.fc.aligner.factory.AlignerFactory;
 import gr.ilsp.fc.bitext.BitextUtils;
 import gr.ilsp.fc.bitext.BitextsTranslationLinks;
 import gr.ilsp.fc.bitext.PairDetector;
-import gr.ilsp.fc.datums.CrawlDbDatum;
+//import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.dedup.Deduplicator;
 import gr.ilsp.fc.exporter.Exporter;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.monomerge.MonoMerger;
-import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.parser.LevelUrlFilter;
 import gr.ilsp.fc.parser.DomainUrlFilter;
 import gr.ilsp.fc.tmxhandler.TMXHandler;
 //import gr.ilsp.fc.tmxhandler.TMXHandlerOptions;
 import gr.ilsp.fc.utils.CrawlConfig;
 import gr.ilsp.fc.utils.DirUtils;
-import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
-import gr.ilsp.fc.utils.Statistics;
 import gr.ilsp.fc.utils.TopicTools;
 import gr.ilsp.fc.workflows.CrawlWorkflow;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+//import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLDecoder;
+//import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -53,23 +46,23 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.log4j.FileAppender;
+//import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+//import org.apache.log4j.PatternLayout;
 
 import bixo.config.FetcherPolicy;
 import bixo.config.FetcherPolicy.FetcherMode;
 import bixo.config.FetcherPolicy.RedirectMode;
 import bixo.config.UserAgent;
-import bixo.datum.UrlStatus;
+//import bixo.datum.UrlStatus;
 import bixo.urls.BaseUrlFilter;
 import bixo.utils.CrawlDirUtils;
 import cascading.flow.Flow;
 import cascading.flow.PlannerException;
-import cascading.scheme.SequenceFile;
-import cascading.tap.Hfs;
-import cascading.tap.Tap;
-import cascading.tuple.TupleEntryCollector;
+//import cascading.scheme.SequenceFile;
+//import cascading.tap.Hfs;
+//import cascading.tap.Tap;
+//import cascading.tuple.TupleEntryCollector;
 
 /**
  * JDBCCrawlTool is an example of using Bixo to write a simple crawl tool.
@@ -96,7 +89,7 @@ public class Crawl {
 	private static final String p_type = "p";
 	private static final String m_type = "m";
 	private static final String q_type = "q";
-	private static final String CSV = ".csv";
+
 	//parameters for operations
 	private static final String CRAWL_operation = "crawl";
 	private static final String EXPORT_operation = "export";
@@ -129,7 +122,7 @@ public class Crawl {
 	//parameters for (near)deduplication
 	private static double intersection_thres = 0.7;
 
-	private static int max_requests_per_run = 100000;
+	private static int max_requests_per_run = 10000;
 	private static int MIN_TOK_LEN = 3;
 	private static int MIN_PAR_LEN = 3;
 	private static String dedup_method ="0";
@@ -137,128 +130,6 @@ public class Crawl {
 	//private static String detectpair_methods ="aupdih"; //i.e. href,url,images,digits, structure
 	private static int[] thres = new int[] { 10, 10, 10, 10, 10, 10, 10, 10}; //maximum numbers of 0:1 segments in a TMX per pair detection method
 
-	/**
-	 * @param outputDirName to store the downloaded HTML, the created cesDoc or/and cesAling XML files 
-	 * @return Create log output file in loop directory.. 
-	 */
-	private static String setLoopLoggerFile(String outputDirName, int loopNumber) {
-		Logger rootLogger = Logger.getRootLogger();
-		//LOGGER.info(outputDirName);
-		String loopLogFile = String.format("%s/%d-JDBCCrawlTool.log", outputDirName, loopNumber);
-		//LOGGER.info(filename);
-		FileAppender appender = (FileAppender) rootLogger.getAppender("loop-logger");
-		if (appender == null) {
-			appender = new FileAppender();
-			appender.setName("loop-logger");
-			appender.setLayout(new PatternLayout("%d{yy/MM/dd HH:mm:ss} %p %c{2}:%L - %m%n"));
-			// We have to do this before calling addAppender, as otherwise Log4J warns us.
-			appender.setFile(loopLogFile);
-			appender.activateOptions();
-			rootLogger.addAppender(appender);
-		} else {
-			appender.setFile(loopLogFile);
-			appender.activateOptions();
-		}
-		return loopLogFile;
-	}
-
-	/**
-	 * @param targetDomain:crawler will stay in this web domain, crawlDbPath: path for loops' results, conf:crawler's configuration
-	 * @return initialize the frontier with the seed URL list which contains only one URL (crawler will stay in this web domain). 
-	 */
-	private static void importOneDomain(String targetDomain, Path crawlDbPath, JobConf conf) throws IOException {
-		try {
-			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
-			TupleEntryCollector writer = urlSink.openForWrite(conf);			
-			//SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
-			ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
-			CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize("http://" + targetDomain), 0, 0, UrlStatus.UNFETCHED, 0,0.0);
-
-			writer.add(datum.getTuple());
-			writer.close();
-			LOGGER.info("Added domain: " + datum.getUrl());
-		} catch (IOException e) {
-			throw e;
-		}
-	}
-
-	/**
-	 * @param urls:crawler will start from these URLS, crawlDbPath: path for loops' results, conf:crawler's configuration
-	 * @return initialize the frontier with the seed URL list. 
-	 */
-	private static void importUrlList(String urls, Path crawlDbPath, JobConf conf) throws IOException {		        
-		try {
-			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
-			TupleEntryCollector writer = urlSink.openForWrite(conf);
-			//SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
-			ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
-			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
-			String line = "";
-			List<String> seedUrls = new ArrayList<String>();
-			int linecounter=0;
-			while ((line=rdr.readLine())!=null){
-				linecounter++;
-				if (skipLineM.reset(line).matches()) 
-					continue;
-				if (linecounter==1)
-					line = ReadResources.checkBOM(line);
-				//FIXME put these checks in a checker for valid/useful URLs
-				if (line.startsWith("ftp") || line.equals("http://"))
-					continue;
-				line = normalizer.normalize(line);
-				if (seedUrls.contains(line))
-					continue;
-				seedUrls.add(line);
-				CrawlDbDatum datum = new CrawlDbDatum(line, 0, 0, UrlStatus.UNFETCHED, 0,0.0);
-				writer.add(datum.getTuple());
-			}
-			LOGGER.info("Starting from "+ seedUrls.size()+ " URLs");
-			rdr.close();
-			writer.close();
-		} catch (IOException e) {
-			throw e;
-		}
-	}
-
-	/**
-	 * @param urls:crawler will stay in this web domain, crawlDbPath: path for loops' results, conf:crawler's configuration
-	 * @return initialize the frontier with the seed URL. Crawler will stay in this web domain. 
-	 */
-	private static void importURLOneDomain(String urls, Path crawlDbPath, JobConf conf) throws IOException {
-		try {
-			Tap urlSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString(), true);
-			TupleEntryCollector writer = urlSink.openForWrite(conf);			
-			//SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
-			ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
-			//CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize("http://" + targetDomain), 0, 0, UrlStatus.UNFETCHED, 0,0.0);
-			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
-			String line = "";
-			//UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
-			List<String> seedUrls = new ArrayList<String>();
-			int linecounter=0;
-			while ((line=rdr.readLine())!=null){
-				linecounter++;
-				if (skipLineM.reset(line).matches()) 
-					continue;
-				if (linecounter==1) 
-					line = ReadResources.checkBOM(line);
-				if ( line.startsWith("ftp") || line.equals("http://"))
-					continue;	
-				line = normalizer.normalize(line);
-				if (seedUrls.contains(line)) 
-					continue;
-				seedUrls.add(line);
-				//if (!urlValidator.isValid(line)&& !line.contains("#")) continue;
-				CrawlDbDatum datum = new CrawlDbDatum(line, 0, 0, UrlStatus.UNFETCHED, 0,0.0);
-				writer.add(datum.getTuple());
-			}
-			LOGGER.info("Starting from "+ seedUrls.size()+ " URL(s)");
-			rdr.close();
-			writer.close();
-		} catch (IOException e) {
-			throw e;
-		}
-	}	
 
 	/**
 	 * Checks for operation help|crawl|export|dedup|config|align|pairdetect|tmxmerge
@@ -308,7 +179,7 @@ public class Crawl {
 		String operation = options.getOperation();
 		FileSystem fs;
 		String domain = options.getDomain();
-		String urls = null;
+		File urls = null;
 		boolean isDomainFile = true;
 		Path dompath = null;
 		if (domain==null) {
@@ -332,7 +203,7 @@ public class Crawl {
 		}	
 
 		LangDetectUtils.loadCybozuLangIdentifier();
-		//check if there is an available aligner (if needed) for the targeted language pairs  
+		//check if there is an available aligner (if needed) for the targeted language pairs
 		LOGGER.info("language profiles loaded");
 		Aligner aligner = null; 
 		if (operation.contains(ALIGN_operation)){
@@ -344,7 +215,7 @@ public class Crawl {
 				}
 			}
 		}
-		
+
 		//outputDir
 		File outputDirName = options.getOutputDir();
 		//value for tunneling
@@ -383,7 +254,7 @@ public class Crawl {
 				fs.delete(outputPath);
 			}
 			//If the outputPath does not exist, it is created. Seed URL list (or domain) is imported into the hfs.
-			importURLs(fs, outputPath, domain, isDomainFile, urls);
+			importURLs(fs, outputPath, domain, isDomainFile, urls.getAbsolutePath());
 
 			//The last run folder is detected (in case we are resuming a previous crawl)
 			Path inputPath = CrawlDirUtils.findLatestLoopDir(fs, outputPath);
@@ -411,7 +282,7 @@ public class Crawl {
 				defaultPolicy.setMaxRequestsPerConnection(max_requests_per_run);
 			else
 				defaultPolicy.setMaxRequestsPerConnection(config.getInt("fetcher.max_requests_per_run.value"));
-			
+
 			defaultPolicy.setMaxConnectionsPerHost(config.getInt("fetcher.max_connections_per_host.value"));
 			defaultPolicy.setMinResponseRate(config.getInt("fetcher.min_response_rate.value"));
 			defaultPolicy.setMaxRedirects(config.getInt("fetcher.max_redirects.value"));
@@ -457,7 +328,7 @@ public class Crawl {
 						endLoop = curLoop + 1; //If duration is not reached, endLoop is increased to run the next loop
 				}
 				//checking if nums of stored/visited have changed. If not, crawling is terminated.
-				if (check_evol(stor_vis)){
+				if (CrawlUtils.check_evol(stor_vis)){
 					if (stor_vis.size()==1){
 						LOGGER.info("No seed page was visited. So no new links to follow");
 						System.exit(64);
@@ -471,8 +342,8 @@ public class Crawl {
 				//current loop, the crawl db directory, the policy for the Fetcher, the URL filter, the
 				//topic and classes arrays, the term threshold and the crawl options
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, curLoop);
-				String curLoopDirName = path2str(curLoopDir);
-				String loopLogFile = setLoopLoggerFile(curLoopDirName, curLoop);	
+				String curLoopDirName = CrawlUtils.path2str(curLoopDir);
+				String loopLogFile = CrawlUtils.setLoopLoggerFile(curLoopDirName, curLoop);	
 				for(int il =0; il<conf.getLocalDirs().length;il++) 
 					LOGGER.debug(conf.getLocalDirs()[il]);
 
@@ -664,7 +535,7 @@ public class Crawl {
 					List<File> outputFiles =  new ArrayList<File>();
 					outputFiles.add(options.getOutputFile());
 					outputFiles.add(options.getOutputFileHTML());
-					String topDirName = getTopNDir(options.getOutputDir(), default_dirdepth).replace("\\","/");
+					String topDirName = CrawlUtils.getTopNDir(options.getOutputDir(), default_dirdepth).replace("\\","/");
 					if (options.getType().equals(p_type)){
 						outputFiles.add(options.getOutputFileHTMLTMX());
 						outputFiles.add(options.getOutputFileTMX());
@@ -675,7 +546,7 @@ public class Crawl {
 				}
 			}
 			if (options.upToDepth()<10000)
-				createCSV(options, langnumMap, logpair);
+				CrawlUtils.createCSV(options, langnumMap, logpair);
 			System.exit(0);
 		} catch (PlannerException e) {
 			//LOGGER.debug(conf.get("hadoop.tmp.dir"));			
@@ -697,76 +568,6 @@ public class Crawl {
 		}
 	}
 
-	private static void createCSV(CrawlOptions options, Map<String, Integer> langnumMap, String logpair) {
-		File csvfile = new File(options.getBaseName()+UNDERSCORE_STR+"depthIs"+options.upToDepth()+UNDERSCORE_STR+CSV);
-		String csvtext="";
-		String webdomains = options.getFilter();
-		if (webdomains.isEmpty())
-			webdomains = options.getDomain()+"\t"+options.getMainDomain();
-		csvtext = "targeted domain:\t"+webdomains+"\n";
-		csvtext = csvtext+"crawled up to depth:\t"+options.upToDepth()+"\n";
-		csvtext = csvtext+"minimum length of text of accepted webpages:\t"+options.getminTokenslength()+"\n";
-		//csvtext = csvtext+"staring from";
-		//csvtext = addSeeds(csvtext, new File(options.getUrls()));
-		String[][] sortlangs = Statistics.sort2darray(FCStringUtils.map2array(langnumMap),2,"d");
-		for (int kk=0;kk<sortlangs.length;kk++){
-			if (!sortlangs[kk][1].equals("0"))
-				csvtext = csvtext+"number of pages in "+sortlangs[kk][0]+"\t"+sortlangs[kk][1]+"\n";
-		}
-		csvtext = csvtext+logpair;
-		try {
-			FileUtils.writeStringToFile(csvfile, csvtext);
-		} catch (IOException e) {
-			LOGGER.error("problem in writing the file "+csvfile.getAbsolutePath());
-			e.printStackTrace();
-		}
-	}
-
-	private static String addSeeds(String csvtext, File seedFile) {
-		List<String> urlLines;
-		try {
-			urlLines = FileUtils.readLines(seedFile);
-			for (String urlLine:urlLines){
-				if (skipLineM.reset(urlLine).matches()) 
-					continue;
-				csvtext = csvtext+"\t"+urlLine+"\n";
-			}
-		} catch (IOException e) {
-			LOGGER.error("Problem in reading "+seedFile.getAbsolutePath());
-			e.printStackTrace();
-		}
-		return csvtext;
-	}
-
-	private static String path2str(Path curLoopDir) {
-		String curLoopDirName = curLoopDir.toUri().toString();
-		if (curLoopDirName.startsWith("file:/")){
-			if (filesepar.equals("\\"))
-				curLoopDirName = curLoopDirName.substring(6); 
-			else
-				curLoopDirName = curLoopDirName.substring(5);
-		}
-		return curLoopDirName;
-	}
-
-	private static String getTopNDir(File file, int n) {
-		List<String> dirs = new ArrayList<String>();
-		String temp="";
-		while (temp!=null){
-			temp = FilenameUtils.getBaseName(file.getAbsolutePath());
-			if (temp.isEmpty())
-				break;
-			dirs.add(temp);
-			file = file.getParentFile();
-		}
-
-		String res=file.getAbsolutePath();
-		for (int ii=dirs.size()-1;ii>dirs.size()-n;ii--){
-			res = FilenameUtils.concat(res, dirs.get(ii));
-		}
-		return res;
-	}
-
 	/**
 	 * Loads Aligner, (if alignment is asked) and checks segmenters for targeted languages, if there is no available aligner, returns null.
 	 * NOTE: It is initialized by the first two languages 
@@ -782,7 +583,7 @@ public class Crawl {
 		if (aligner!= null) {
 			Properties properties = new Properties();
 			if (toAlign.matches("hunalign")){
-				String hunpath=getRunningJarPath();
+				String hunpath=CrawlUtils.getRunningJarPath();
 				String prop=System.getProperty("os.name").toLowerCase();
 				String aligner_runnable_path = null;
 				if (prop.equals("linux")) {
@@ -880,7 +681,7 @@ public class Crawl {
 			if (!fs.exists(outputPath)) {
 				//FIXME convert Path to String (file protocol should be removed)
 				//System.out.println(outputPath.toUri().getPath());
-				LOGGER.info("Creating directory: " +path2str(outputPath));
+				LOGGER.info("Creating directory: " +CrawlUtils.path2str(outputPath));
 
 				fs.mkdirs(outputPath);
 				Path curLoopDir = CrawlDirUtils.makeLoopDir(fs, outputPath, 0);
@@ -890,16 +691,16 @@ public class Crawl {
 				pdf_dir =new Path(FilenameUtils.concat(outputPath.toString(),resultDOCDir));  
 				if (!fs.exists(pdf_dir))
 					fs.mkdirs(pdf_dir);
-				String curLoopDirName = path2str(curLoopDir);
-				setLoopLoggerFile(curLoopDirName, 0);
+				String curLoopDirName = CrawlUtils.path2str(curLoopDir);
+				CrawlUtils.setLoopLoggerFile(curLoopDirName, 0);
 				Path crawlDbPath = new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME);
 				if (domain!=null && !isDomainFile){
 					if (urls!=null)
-						importURLOneDomain(urls,crawlDbPath , conf);
+						CrawlUtils.importURLOneDomain(urls,crawlDbPath , conf);
 					else
-						importOneDomain(domain,crawlDbPath , conf);
+						CrawlUtils.importOneDomain(domain,crawlDbPath , conf);
 				}else
-					importUrlList(urls,crawlDbPath, conf);
+					CrawlUtils.importUrlList(urls,crawlDbPath, conf);
 			}
 		} catch (IOException e) {
 			LOGGER.error("Problem in importing the URLs in HFS");
@@ -1002,37 +803,6 @@ public class Crawl {
 		}
 	}
 
-	/**
-	 * Returns the dirPath of the running jar
-	 * @return
-	 */
-	public static String getRunningJarPath() {
-		String runpath="";
-		String path = Crawl.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-		try {
-			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
-			runpath= decodedPath.getParent();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return runpath;
-	}
-
-	/**
-	 * Checks if stored/visited pages of the current crawl cycle is different from the previous crawl cycle,
-	 * @param stor_vis Array of stored and visited pages per run
-	 * @return true if no new links to follow exist and crawl has to stop. 
-	 */
-	private static boolean check_evol(ArrayList<int[]> stor_vis) {
-		boolean stop_crawl = false;
-		int runs = stor_vis.size();
-		if (runs>1){ //two runs at least 
-			if (stor_vis.get(runs-1)[1]==stor_vis.get(runs-2)[1])
-				stop_crawl=true;
-		}
-		return stop_crawl;
-	}
 
 	/**
 	 * Provides info about stored/visited pages up to this crawl
@@ -1051,69 +821,40 @@ public class Crawl {
 		LOGGER.info("Average run time: " + avg + " milliseconds.");	
 	}
 
-	public static void incrementPagesStored() {
+	/**
+	 * Returns the dirPath of the running jar
+	 * @return
+	 *//*
+	public static String getRunningJarPath() {
+		String runpath="";
+		String path = Crawler.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		try {
+			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
+			runpath= decodedPath.getParent();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return runpath;
+	}*/
+
+	public static void incrementPagesStored1() {
 		PAGES_STORED++;
 	}
 
-	public static void incrementPagesVisited() {
+	public static void incrementPagesVisited1() {
 		PAGES_VISITED++;
 	}
 
-	public static int incrementTokensStored(Double len) {
+	public static int incrementTokensStored1(Double len) {
 		TOKENS_STORED=(int) (TOKENS_STORED+len);
 		return TOKENS_STORED;
 	}
 
-	public static void incrementPagesCutByClassifier() {
+	public static void incrementPagesCutByClassifier1() {
 		PAGES_FAILED_CLASSIFICATION++;
 	}
 
-	/**
-	 * In case of bilingual crawl, checks if there are enough files for pair detection and calculates tokens per language (before pairing)
-	 * @param lang
-	 * @param props
-	 * @param outputFile
-	 * @return
-	 */
-	public static boolean check_crawl_stats(String[] lang,	HashMap<String, String[]> props, String outputFile) {
-		if (props.size()<2){
-			LOGGER.info("Less than 2 files found. Detection of pairs is stopped.");
-			File out_temp=new File(outputFile);
-			if (out_temp.exists())
-				out_temp.delete();
-			return false;
-		}
-		int l1=0, l2=0;
-		Set<String> files_keys=props.keySet();
-		Iterator<String> files_it = files_keys.iterator();
-		String key;
-		while (files_it.hasNext()){
-			key = files_it.next();
-			String[] file_props=props.get(key);
-			if (file_props[1].equals(lang[0]))
-				l1++;
-			else{
-				if (file_props[1].equals(lang[1]))
-					l2++;
-			}
-		}
-		LOGGER.info(l1 + " documents in "+lang[0]+ " . "+ l2 +" documents in "+lang[1]+ " .");
-		if (l1==0){
-			LOGGER.info("No file found in " + lang[0]+"; Detection of pairs is stopped.");
-			File out_temp=new File(outputFile);
-			if (out_temp.exists())
-				out_temp.delete();
-			return false;
-		}
-		if (l2==0){
-			LOGGER.info("No file found in " + lang[1]+"; Detection of pairs is stopped.");
-			File out_temp=new File(outputFile);
-			if (out_temp.exists())
-				out_temp.delete();
-			return false;
-		}
-		return true;
-	}
 
 	//System.out.println("Mirroring site ...");
 	//File newdir=Bitexts.mirrorsite(options.getOutputDir()+"/xml");
