@@ -165,7 +165,7 @@ public class LangDetectUtils {
 
 	/*//LanguageIdentifier initialization	
 	if (loadProfile){
-		URL urldir = Crawl.class.getResource("/profiles");
+		URL urldir = Crawler.class.getResource("/profiles");
 		LOGGER.debug(urldir );
 		if (urldir.getProtocol()=="jar"){
 			File tempDir = DirUtils.createTempDir();
