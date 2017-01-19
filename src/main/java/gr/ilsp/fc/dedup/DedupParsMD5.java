@@ -54,19 +54,6 @@ public class DedupParsMD5 {
 			System.exit(64);
 		}
 		out_textfile =outputfilename;
-		//FilenameFilter filter = new FilenameFilter() {			
-		//	public boolean accept(File arg0, String arg1) {
-		//		return (arg1.substring(arg1.length()-(input_type.length()+1)).equals("."+input_type) && !arg1.contains(UNDERSCORE_STR));
-		//	}
-		//};
-		//File[] files=input.listFiles(filter);
-		/*File[] allfiles=input.listFiles();
-		List<File> files = new ArrayList<File>();
-		for (File file:allfiles){
-			if (file.getName().contains(UNDERSCORE_STR) || !file.getName().endsWith(input_type))
-				continue;
-			files.add(file);
-		}*/
 		List<File> files = DedupUtils.getTargetFiles(input,UNDERSCORE_STR, input_type);
 		if (files.size()<2){
 			LOGGER.info("The input list contains less than 2 files.");
@@ -185,11 +172,6 @@ public class DedupParsMD5 {
 				LOGGER.info("more than "+ cents*1000+" files have been checked.");
 			}
 		}
-		/*files=input.listFiles(filter);
-		List<File> remFiles =new ArrayList<File>(); 
-		for (File file:files){
-			remFiles.add(file); 
-		}*/
 		String[] extensions=  {input_type};
 		List<File> remFiles = (List<File>) FileUtils.listFiles(input, extensions, false);
 		WriteResources.WriteTextList(remFiles, out_textfile);
