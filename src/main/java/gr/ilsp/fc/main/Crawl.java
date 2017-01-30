@@ -838,20 +838,20 @@ public class Crawl {
 		return runpath;
 	}*/
 
-	public static void incrementPagesStored1() {
+	public static void incrementPagesStored() {
 		PAGES_STORED++;
 	}
 
-	public static void incrementPagesVisited1() {
+	public static void incrementPagesVisited() {
 		PAGES_VISITED++;
 	}
 
-	public static int incrementTokensStored1(Double len) {
+	public static int incrementTokensStored(Double len) {
 		TOKENS_STORED=(int) (TOKENS_STORED+len);
 		return TOKENS_STORED;
 	}
 
-	public static void incrementPagesCutByClassifier1() {
+	public static void incrementPagesCutByClassifier() {
 		PAGES_FAILED_CLASSIFICATION++;
 	}
 
