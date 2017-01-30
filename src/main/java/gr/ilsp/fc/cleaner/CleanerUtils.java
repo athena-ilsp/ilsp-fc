@@ -412,7 +412,7 @@ List<TextBlock> blocks =textDocument.getTextBlocks();
 	 * @return
 	 */
 
-	public static HashMap<String, ParsAttr> getParsAttrs(ArrayList<File> files, String attr, String val, boolean has) {
+	public static HashMap<String, ParsAttr> getParsAttrs(List<File> files, String attr, String val, boolean has) {
 		String paragraph;
 		HashMap<String, ParsAttr> pars_attrs  =new HashMap<String, ParsAttr>();
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
