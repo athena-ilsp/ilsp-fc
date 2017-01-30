@@ -79,11 +79,20 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 		return segmentationRules;
 	}
 
+	//@Override
+	public List<List<String>> getTokens(String text)	throws IOException {
+		
+		List<List<String>> splitterSents = splitter.extractSentences(text, tokenizer);
+		return splitterSents;
+	}
+	
+	
 	@Override
 	public List<String> getSentences(String text, int paragraphMode)
 			throws IOException {
 		
 		List<List<String>> splitterSents = splitter.extractSentences(text, tokenizer);
+		logger.debug(splitterSents.toString());
 		List<String> paraSents = new ArrayList<String>();
 
 		// No need to bother looking for offsets if sentsize = 1
