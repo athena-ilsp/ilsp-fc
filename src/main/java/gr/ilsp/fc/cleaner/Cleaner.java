@@ -5,28 +5,39 @@ import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.Statistics;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+//import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 public class Cleaner {
 	private static final Logger LOGGER = Logger.getLogger(Cleaner.class);
 	private static double thr_persent = 0.2; 
 	private static double thr_std = 2;
-
+	private static final String UNDERSCORE_STR="_";
+	private static final String XMLEXT = ".xml";
+	
 	public static void main(String[] args) {
 		File xmlDirName = new File(args[0]);	// cesDoc files to be examined are in this directory
 		//int limit = 10;
 		//if (args.length>1){
 		//	limit = Integer.parseInt(args[1]);	//pars that occur in more than (1/limit) files are examined
 		//}
-
-		ArrayList<File> files=FcFileUtils.getCesDocFiles(xmlDirName);  //all CesDocFiles
+		//ArrayList<File> files=FcFileUtils.getCesDocFiles(xmlDirName);  //all CesDocFiles
+		
+		FilenameFilter filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.endsWith(XMLEXT) &!arg1.contains(UNDERSCORE_STR) );
+			}
+		};
+		List<File> files = FcFileUtils.listFiles(xmlDirName, filter,true);
+				
+		
 //Set<String> boilerpars = CleanerUtils.getBoilerPars(files); //all boilerplate pars according to BoilerPipe
 		HashMap<String, ParsAttr> boilerpars_attrs = CleanerUtils.getParsAttrs(files, "crawlinfo", "boilerplate", true);
 		Set<String> temp = boilerpars_attrs.keySet();
@@ -113,14 +124,14 @@ public class Cleaner {
 		}*/
 	}
 
-	private static void updateParsAttrs(File xmlDirName, ParsAttr tempAttr) {
+	/*private static void updateParsAttrs(File xmlDirName, ParsAttr tempAttr) {
 		List<String> filenames = tempAttr.filenames;
 		
 		
 		
-	}
+	}*/
 
-	private static Set<String> checkUncommonPars(Set<String> set1,	Set<String> set2) {
+	/*private static Set<String> checkUncommonPars(Set<String> set1,	Set<String> set2) {
 		Set<String> setdif = new HashSet<String>();
 		Iterator<String> it_par = set1.iterator();
 		String par_key;
@@ -136,7 +147,7 @@ public class Cleaner {
 			}
 		}
 		return setdif;
-	}
+	}*/
 
 	/**
 	 * returns paragraphs that occur more than thr times in the collection AND their position (in these documents of the collection) are almost constant
@@ -203,7 +214,7 @@ public class Cleaner {
 	 * @param allpars_freqs
 	 * @param boilerpars
 	 * @param  
-	 */
+	 *//*
 
 	private static void checkCommonPars(HashMap<String, ParsAttr> allpars_freqs, Set<String> boilerpars, int limit) {
 		String par_key;
@@ -228,6 +239,6 @@ public class Cleaner {
 				}
 			}
 		}
-	}
+	}*/
 
 }
