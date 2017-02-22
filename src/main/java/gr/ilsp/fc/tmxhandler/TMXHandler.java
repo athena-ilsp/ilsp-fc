@@ -250,8 +250,20 @@ public class TMXHandler {
 
 		creationDescription = creationDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
 		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
-		if (domains.isEmpty())
-			domains.add(targeteddomain); 
+		//if (domains.isEmpty())
+		//	domains.add(targeteddomain); 
+		if (domains.isEmpty()){
+			if (!StringUtils.isBlank(targeteddomain))
+				domains.add(targeteddomain);
+		}else{
+			if (!StringUtils.isBlank(targeteddomain)){
+				if (!domains.contains(targeteddomain)){
+					LOGGER.warn("User-defined topic is different from the identified topic(s). All will be added");
+					domains.add(targeteddomain);
+				}
+			}
+		}	
+		
 		List<String> domainEurovocIds=getEurovocId(domains);
 		//FIXME shall we integrate JRC?
 		String domain = StringUtils.join(domains, ',');
