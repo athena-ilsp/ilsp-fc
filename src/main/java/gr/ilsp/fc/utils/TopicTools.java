@@ -4,7 +4,7 @@ import gr.ilsp.fc.langdetect.LangDetectUtils;
 //import gr.ilsp.fc.main.WriteResources;
 
 
-import gr.ilsp.fc.readwrite.ReadResources;
+import gr.ilsp.fc.main.ReadResources;
 
 import java.io.BufferedReader;
 import java.io.File;
