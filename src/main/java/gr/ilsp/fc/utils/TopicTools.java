@@ -1,7 +1,10 @@
 package gr.ilsp.fc.utils;
 
-import gr.ilsp.fc.main.ReadResources;
+import gr.ilsp.fc.langdetect.LangDetectUtils;
 //import gr.ilsp.fc.main.WriteResources;
+
+
+import gr.ilsp.fc.readwrite.ReadResources;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,7 +31,7 @@ public class TopicTools {
 	private static final Logger LOGGER = Logger.getLogger(TopicTools.class);
 	private static Analyzer analyzer = null;
 	private static AnalyzerFactory analyzerFactory = new AnalyzerFactory();
-	//private static int MAX_CONTENT_TERMS = Crawl.config.getInt("classifier.min_content_terms.value");
+	//private static int MAX_CONTENT_TERMS = Crawler.config.getInt("classifier.min_content_terms.value");
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	private static final String XML_EXTENSION = ".xml";
 	private static final String UNDERSCORE_STR = "_";
@@ -119,9 +122,9 @@ public class TopicTools {
 
 		Double[] temp=new Double[kk];
 		System.arraycopy(temp1.toArray(), 0, temp, 0, kk);
-		
+
 		result = MAX_CONTENT_TERMS * Statistics.getMedian(temp) ;
-		
+
 		/*Arrays.sort(temp);
 		if (temp.length % 2 == 1) {
 			result = temp[((temp.length+1)/2)-1];
@@ -164,7 +167,8 @@ public class TopicTools {
 		if (topic_terms==null || lang.isEmpty())
 			return found;
 
-		String[] tempstr = new String[1];		String term;
+		String[] tempstr = new String[1];	
+		String term;
 		ArrayList<String> stems =new ArrayList<String>();
 		try {
 			stems = getStems(text, lang);
@@ -249,9 +253,10 @@ public class TopicTools {
 	 */
 	public static ArrayList<String[]> analyzeTopic(File topicFile, String[] targetlanguages ) {		
 		ArrayList<String[]> topicterms = new ArrayList<String[]>();
-
+		if (topicFile==null)
+			return null;
 		if (!topicFile.exists())
-			return topicterms;
+			return null;
 
 		BufferedReader in;
 		try {
@@ -272,9 +277,9 @@ public class TopicTools {
 								" the language of term '"+str+"' is not defined. Modify the topic definition properly.");
 						System.exit(0);	
 					}
-					d=str.subSequence(ind+1, str.length()).toString().toLowerCase().trim();
+					d=LangDetectUtils.updateLanguages(str.subSequence(ind+1, str.length()).toString().toLowerCase().trim(),true);
 				}else{
-					d=targetlanguages[0].toString().trim();
+					d=LangDetectUtils.updateLanguages(targetlanguages[0].toString().trim(),true);
 				}
 				boolean match = false;
 				for (String tlang:targetlanguages){
@@ -284,8 +289,8 @@ public class TopicTools {
 					}
 				}
 				ArrayList<String> stems = new ArrayList<String>();
-				if (match);
-				stems = getStems(b, d); //FIXME Call Analyzer for each line!!
+				if (match)
+					stems = getStems(b, d); //FIXME Call Analyzer for each line!!
 				b="";
 				//concatenate stems
 				for (String s:stems){ b=b.concat(" "+s);}
@@ -304,11 +309,11 @@ public class TopicTools {
 						b_or=tempstr[4].trim();
 						flag=false;
 						topicterms.remove(jj);
-						topicterms.add(new String[] {a,b,c,d,b_or});
+						topicterms.add(new String[] {a,b,c,LangDetectUtils.updateLanguages(d,true),b_or});
 					}
 				}
 				if (flag)
-					topicterms.add(new String[] {a,b,c,d,b_or});
+					topicterms.add(new String[] {a,b,c,LangDetectUtils.updateLanguages(d,true),b_or});
 			}
 			in.close();
 		} catch (UnsupportedEncodingException e) {
@@ -323,7 +328,7 @@ public class TopicTools {
 		}
 		return topicterms;
 	}
-	
+
 	/*	*//**
 	 * Parses the topic definition file and  returns a list of terms with their properties i.e. weight, stemmed term, subclasses or class, language, original term  
 	 * @param topicFile
@@ -338,7 +343,7 @@ public class TopicTools {
 		ArrayList<String[]> topic = new ArrayList<String[]>();
 		Path p = new Path(topicFile.getAbsolutePath());
 		//JobConf conf = new JobConf();
-		conf.setJarByClass(Crawl.class);
+		conf.setJarByClass(Crawler.class);
 		//System.err.println(conf.get("hadoop.tmp.dir"));
 		//conf.set("hadoop.tmp.dir", "hadoop-temp");
 
