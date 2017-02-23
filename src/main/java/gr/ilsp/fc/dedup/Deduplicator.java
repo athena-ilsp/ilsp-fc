@@ -19,7 +19,6 @@ public class Deduplicator {
 	private static double IntersectionThr;
 	private static int MIN_PAR_LEN;
 	private static int MIN_TOK_LEN;
-	//private static final String DEDUP = "_dedup";
 	private static final String XMLlist = ".xmllist.txt";
 	private static final String XMLHTMLlist = ".xmllist.html";
 	
@@ -39,9 +38,11 @@ public class Deduplicator {
 		ded.nearDedup();
 	}
 	/**
-	 * apply near Deduplication
+	 * Goes through the targeted directory, processes the files of type inputType (e.g. xml, or txt), detects (near) duplicates and keeps only the longest of each group of duplicates 
+	 * Generates a text file (and its transformation to HTML if asked) with a list of paths of the remaining cesDoc files
 	 */
 	public void nearDedup(){
+		long startTime = System.currentTimeMillis();
 		//outTextList = new File(outBaseName.getAbsolutePath()+DEDUP+XMLlist);
 		outTextList = new File(outBaseName.getAbsolutePath()+XMLlist);
 		if (applyOfflineXSLT)
@@ -61,6 +62,7 @@ public class Deduplicator {
 			LOGGER.info("------------Deduplication based on common paragraphs.------------");
 			DedupParsMD5.dedup(targetDir, excludeSetFiles,  outTextList,outHTMLList,applyOfflineXSLT, MIN_PAR_LEN, IntersectionThr,inputType);
 		}
+		LOGGER.info("Completed in " + (System.currentTimeMillis()-startTime) + " milliseconds.");
 	}
 	/**
 	 * Method type for deduplication: 
@@ -80,28 +82,31 @@ public class Deduplicator {
 		Deduplicator.MIN_PAR_LEN = minParLen;
 	}
 	/**
-	 * Tokens with less than MIN_TOK_LEN (default is 3) are excluded from content
+	 * Tokens with less than MIN_TOK_LEN (default is 3) letters are excluded from content
 	 * @param min_tok_len
 	 */
 	public void setMIN_TOK_LEN(int min_tok_len) {
 		Deduplicator.MIN_TOK_LEN = min_tok_len;
 	}
 	/**
-	 * cesDocFiles in this directory will be examined
+	 * files in this directory will be examined
 	 * @param targetDir
 	 */
 	public void setTargetDir(File targetDir ){
 		Deduplicator.targetDir = targetDir;
 	}
+	public File getTargetDir( ){
+		return targetDir;
+	}
 	/**
-	 * outBaseName of output files
+	 * outBaseName of output files (list of paths, or/and links)
 	 * @param outBaseName
 	 */
 	public void setBaseName(File outBaseName) {
 		Deduplicator.outBaseName= outBaseName;
 	}
 	/**
-	 * cesDocFiles to be excluded for deduplication
+	 * files to be excluded for deduplication
 	 * @param excludeFiles
 	 */
 	public void setExcludeSetFiles(Set<String> excludeFiles){
@@ -109,7 +114,7 @@ public class Deduplicator {
 	}
 	/**
 	 * Documents for which the ratio between the number of common paragraphs and the shortest
-	 *  of these documents is more than this threshold, are considered duplicates"
+	 *  of these documents is more than this threshold, are considered "duplicates"
 	 * @param interThr
 	 */
 	public void setIntersectionThr(double interThr){
@@ -122,6 +127,10 @@ public class Deduplicator {
 	public void setApplyOfflineXSLT(boolean applyXSLT){
 		Deduplicator.applyOfflineXSLT = applyXSLT;
 	}
+	/**
+	 * files with filename ending to inputType will be processed
+	 * @param inputType
+	 */
 	public void setInputType(String inputType ){
 		Deduplicator.inputType = inputType;
 	}

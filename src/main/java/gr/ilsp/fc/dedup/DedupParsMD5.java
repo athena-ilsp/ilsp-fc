@@ -2,7 +2,7 @@ package gr.ilsp.fc.dedup;
 
 import gr.ilsp.fc.dedup.DedupUtils.TextParsAttr;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
-import gr.ilsp.fc.main.WriteResources;
+import gr.ilsp.fc.readwrite.WriteResources;
 
 import java.io.File;
 //import java.io.FilenameFilter;

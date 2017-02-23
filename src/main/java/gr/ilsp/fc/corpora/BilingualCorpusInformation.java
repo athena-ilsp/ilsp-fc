@@ -16,18 +16,22 @@ public class BilingualCorpusInformation extends CorpusInformation {
 	private int zeroToOneAlignmentsSize;
 	private int l1SegmentsSize;
 	private int l2SegmentsSize;
-	private int l1TokensSize, cleanl1TokensSize;
-	private int l2TokensSize, cleanl2TokensSize;
+	//private int l1TokensSize ;//, cleanl1TokensSize;
+	//private int l2TokensSize ; //;, cleanl2TokensSize;
 	private List<File> tmxFiles;
 	
 	private List<ILSPAlignment> alignmentList;
 	private int alignmentsSize;
 
 	private double alignMeanScore, alignStdScore;
+	private double ratioMeanScore, ratioStdScore;
+	private double alignMeanScoreNo, alignStdScoreNo;
+	private double ratioMeanScoreNo, ratioStdScoreNo;
+	
 	private String l1;
 	private String l2;
 
-	private int lenInTUs, cleanlenInTUs;
+	private int cleanlenInTUs; //lenInTUs
 	private int lenInWordsL1, lenInWordsL2;
 	private int vocSizeInL1, vocSizeInL2;
 	private int cleanlenInWordsL1, cleanlenInWordsL2;
@@ -38,9 +42,11 @@ public class BilingualCorpusInformation extends CorpusInformation {
 	//#As a post-processing serging/filtering of segment pairs has also been applied.";
 	
 	public BilingualCorpusInformation(String name, String l1, String l2, 
-			List<ILSPAlignment> alignmentList, int lenInTUs, int cleanlenInTUs,
+			List<ILSPAlignment> alignmentList, int alignmentsSize, int cleanlenInTUs,
 			int lenInWordsL1, int lenInWordsL2, int vocSizeInL1, int vocSizeInL2,
-			int cleanlenInWordsL1, int cleanlenInWordsL2, int cleanvocSizeInL1, int cleanvocSizeInL2, double alignmeanscore, double alignstdscore,
+			int cleanlenInWordsL1, int cleanlenInWordsL2, int cleanvocSizeInL1, int cleanvocSizeInL2, 
+			double alignmeanscore, double alignstdscore, double ratiomeanscore, double ratiostdscore,
+			double alignmeanscoreNo, double alignstdscoreNo, double ratiomeanscoreNo, double ratiostdscoreNo,
 			String domain, String domainId,
 			String availability, String creationDescription,
 			String projectId, String projectURL,
@@ -52,7 +58,7 @@ public class BilingualCorpusInformation extends CorpusInformation {
 		this.l2 = l2;
 		this.alignmentList = alignmentList;
 		this.domain = domain;
-		this.lenInTUs = lenInTUs;
+		this.alignmentsSize = alignmentsSize;
 		this.cleanlenInTUs = cleanlenInTUs;
 		this.lenInWordsL1 = lenInWordsL1;
 		this.lenInWordsL2 = lenInWordsL2;
@@ -62,8 +68,17 @@ public class BilingualCorpusInformation extends CorpusInformation {
 		this.vocSizeInL2 = vocSizeInL2;
 		this.cleanvocSizeInL1 = cleanvocSizeInL1;
 		this.cleanvocSizeInL2 = cleanvocSizeInL2;
+		
 		this.alignMeanScore = alignmeanscore;
 		this.alignStdScore = alignstdscore;
+		this.ratioMeanScore = ratiomeanscore;
+		this.ratioStdScore = ratiostdscore;
+		
+		this.alignMeanScoreNo = alignmeanscoreNo;
+		this.alignStdScoreNo = alignstdscoreNo;
+		this.ratioMeanScoreNo = ratiomeanscoreNo;
+		this.ratioStdScoreNo = ratiostdscoreNo;
+		
 		this.availability = availability;
 		this.domainId = domainId;
 		this.domain = domain;
@@ -74,9 +89,9 @@ public class BilingualCorpusInformation extends CorpusInformation {
 		this.projectURL = 	projectURL;
 		this.organization = organization;
 		this.organizationURL = organizationURL;
-		this.description = "Parallel (" + l1 + "-" + l2 + ") " + "corpus of " +lenInTUs  + " translation units in the " + domain + " domain. ";
+		this.description = "Parallel (" + l1 + "-" + l2 + ") " + "corpus of " +alignmentsSize  + " translation units in the " + domain + " domain. ";
 		if (StringUtils.isBlank(domain)) 
-			this.description = "Parallel (" + l1 + "-" + l2 + ") " + "corpus of " + lenInTUs  + " translation units.";
+			this.description = "Parallel (" + l1 + "-" + l2 + ") " + "corpus of " + alignmentsSize  + " translation units.";
 		this.name = name;
 	}
 	
@@ -96,78 +111,78 @@ public class BilingualCorpusInformation extends CorpusInformation {
 	public void setAlignmentsSize(int alignmentsSize) {
 		this.alignmentsSize = alignmentsSize;
 	}
-	/**
+/*	*//**
 	 * @return the l1SegmentsSize
-	 */
+	 *//*
 	public int getL1SegmentsSize() {
 		return l1SegmentsSize;
 	}
-	/**
+	*//**
 	 * @param l1SegmentsSize the l1SegmentsSize to set
-	 */
+	 *//*
 	public void setL1SegmentsSize(int l1SegmentsSize) {
 		this.l1SegmentsSize = l1SegmentsSize;
 	}
-	/**
+	*//**
 	 * @return the l2SegmentsSize
-	 */
+	 *//*
 	public int getL2SegmentsSize() {
 		return l2SegmentsSize;
 	}
-	/**
+	*//**
 	 * @param l2SegmentsSize the l2SegmentsSize to set
-	 */
+	 *//*
 	public void setL2SegmentsSize(int l2SegmentsSize) {
 		this.l2SegmentsSize = l2SegmentsSize;
-	}
+	}*/
 	/**
 	 * @return the l1TokensSize
-	 */
+	 *//*
 	public int getL1TokensSize() {
 		return l1TokensSize;
 	}
-	/**
+	*//**
 	 * @param l1TokensSize the l1TokensSize to set
-	 */
+	 *//*
 	public void setL1TokensSize(int l1TokensSize) {
 		this.l1TokensSize = l1TokensSize;
-	}
-	/**
+	}*/
+/*	*//**
 	 * @return the cleanl1TokensSize
-	 */
+	 *//*
 	public int getCleanL1TokensSize() {
 		return cleanl1TokensSize;
 	}
-	/**
+	*//**
 	 * @param cleanl1TokensSize the cleanl1TokensSize to set
-	 */
+	 *//*
 	public void setCleanL1TokensSize(int cleanl1TokensSize) {
 		this.cleanl1TokensSize = cleanl1TokensSize;
-	}
+	}*/
 	/**
 	 * @return the l2TokensSize
-	 */
+	 *//*
 	public int getL2TokensSize() {
 		return l2TokensSize;
 	}
-	/**
+	*//**
 	 * @param l2TokensSize the l2TokensSize to set
-	 */
+	 *//*
 	public void setL2TokensSize(int l2TokensSize) {
 		this.l2TokensSize = l2TokensSize;
-	}
+	}*/
 	/**
 	 * @return the cleanl2TokensSize
-	 */
+	 *//*
 	public int getCleanL2TokensSize() {
 		return cleanl2TokensSize;
 	}
-	/**
+	*//**
 	 * @param cleanl2TokensSize the cleanl2TokensSize to set
-	 */
+	 *//*
 	public void setCleanL2TokensSize(int cleanl2TokensSize) {
 		this.cleanl2TokensSize = cleanl2TokensSize;
-	}
+	}*/
 	/**
 	 * @return the tmxFiles
 	 */
@@ -232,18 +247,60 @@ public class BilingualCorpusInformation extends CorpusInformation {
 	}
 	
 	
+	public double getStdRatioScore() {
+		return ratioStdScore;
+	}
+	public void setStdRatioScore(double stdRatioScore) {
+		this.ratioStdScore = stdRatioScore;
+	}
+	
+	public double getMeanRatioScore() {
+		return ratioMeanScore;
+	}
+	public void setMeanRatioScore(double meanRatioScore) {
+		this.ratioMeanScore = meanRatioScore;
+	}
+	
+	public double getStdAlignScoreNo() {
+		return alignStdScoreNo;
+	}
+	public void setStdAlignScoreNo(double stdAlignScoreNo) {
+		this.alignStdScoreNo = stdAlignScoreNo;
+	}
+	
+	public double getMeanAlignScoreNo() {
+		return alignMeanScoreNo;
+	}
+	public void setMeanAlignScoreNo(double meanAlignScoreNo) {
+		this.alignMeanScoreNo = meanAlignScoreNo;
+	}
+	
+	public double getStdRatioScoreNo() {
+		return ratioStdScoreNo;
+	}
+	public void setStdRatioScoreNo(double stdRatioScoreNo) {
+		this.ratioStdScoreNo = stdRatioScoreNo;
+	}
+	
+	public double getMeanRatioScoreNo() {
+		return ratioMeanScoreNo;
+	}
+	public void setMeanRatioScoreNo(double meanRatioScoreNo) {
+		this.ratioMeanScoreNo = meanRatioScoreNo;
+	}
+	
 	/**
 	 * @return the lenInTUs
-	 */
+	 *//*
 	public int getLenInTUs() {
 		return lenInTUs;
 	}
-	/**
+	*//**
 	 * @param lenInTUs the lenInTUs to set
-	 */
+	 *//*
 	public void setLenInTUs(int lenInTUs) {
 		this.lenInTUs = lenInTUs;
-	}
+	}*/
 	
 	/**
 	 * @return the cleanlenInTUs
@@ -399,8 +456,8 @@ public class BilingualCorpusInformation extends CorpusInformation {
 	public String toString() {
 		return "BilingualCorpusInformation [alignmentsSize=" + alignmentsSize
 				+ ", l1SegmentsSize=" + l1SegmentsSize + ", l2SegmentsSize="
-				+ l2SegmentsSize + ", l1TokensSize=" + l1TokensSize
-				+ ", l2TokensSize=" + l2TokensSize + ", "
+				+ l2SegmentsSize + ", l1TokensSize=" + lenInWordsL1
+				+ ", l2TokensSize=" + lenInWordsL2 + ", "
 				//+ (l1Files != null ? "l1Files=" + l1Files.size() + ", " : "")
 				//+ (l2Files != null ? "l2Files=" + l2Files.size() + ", " : "")
 				+ (tmxFiles != null ? "tmxFiles=" + tmxFiles.size() + ", " : "")

@@ -1,13 +1,13 @@
 package gr.ilsp.fc.workflows;
 
-//import gr.ilsp.fc.attic.SimpleCrawlWorkflow;
+import gr.ilsp.fc.attic.CrawlConfig;
 import gr.ilsp.fc.classifier.Classifier;
+import gr.ilsp.fc.crawl.Crawler;
+import gr.ilsp.fc.crawl.CrawlerO;
 import gr.ilsp.fc.datums.ClassifierDatum;
 import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.datums.ExtendedUrlDatum;
-import gr.ilsp.fc.main.Crawl;
-import gr.ilsp.fc.main.CrawlOptions;
 import gr.ilsp.fc.operations.CreateCrawlDbDatumFromUrlFunction;
 import gr.ilsp.fc.operations.CreateUrlDatumFromCrawlDbFunction;
 import gr.ilsp.fc.operations.CreateUrlDatumFromStatusFunction;
@@ -20,21 +20,17 @@ import gr.ilsp.fc.parser.RobotRulesParser;
 import gr.ilsp.fc.parser.SimpleNoLinksParser;
 import gr.ilsp.fc.pipes.ClassifierPipe;
 import gr.ilsp.fc.pipes.ExtendedParsePipe;
-import gr.ilsp.fc.utils.CrawlConfig;
 
-//import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-//import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -43,8 +39,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 
 import bixo.config.DefaultFetchJobPolicy;
-import bixo.config.FetcherPolicy;
-import bixo.config.UserAgent;
 import bixo.datum.FetchedDatum;
 import bixo.datum.StatusDatum;
 import bixo.datum.UrlStatus;
@@ -54,7 +48,6 @@ import bixo.operations.BaseScoreGenerator;
 import bixo.operations.FixedScoreGenerator;
 import bixo.pipes.FetchPipe;
 import bixo.robots.RobotUtils;
-import bixo.urls.BaseUrlFilter;
 import cascading.flow.Flow;
 import cascading.flow.FlowConnector;
 import cascading.pipe.CoGroup;
@@ -76,25 +69,23 @@ import com.bixolabs.cascading.SplitterAssembly;
 
 
 @SuppressWarnings("deprecation")
-public class CrawlWorkflow {
+public class CrawlerWorkflow {
+	//private static CompositeConfiguration _configuration;
 	//private static final Logger LOGGER = Logger.getLogger(CrawlWorkflow.class);
 	//BUFFER_SIZE represents maximum number of URLs per run
-	//private static final int BUFFER_SIZE = Crawl.config.getInt("fetcher.fetch_buffer_size.value");
-	private static int BUFFER_SIZE = Crawl.config.getInt("fetcher.fetch_buffer_size.value");
+	//private static final int BUFFER_SIZE = Crawler.config.getInt("fetcher.fetch_buffer_size.value");
+	private static int BUFFER_SIZE = Crawler.configuration.getInt("fetcher.fetch_buffer_size.value");
 	private static final String type_p="p";
 	//_numSelected is used as a counter for URLs selected for this run
 	private static long _numSelected = 0;
-	private static int _level;
-	private static int _max_depth;
 	private static int _upToDepth;
+	
 	private static String _urlfilterstr;
-	private static String _storeFilter;
 	private static String _inithost;
 	private static String _mainhost;
-	private static String _targlang;
+	private static String[] _targetedLangs;
 	private static String _type;
-	
-	//private static int _minTokensNumber;
+		
 	//hostsMap and newHostsMap represent the pairs of hosts-occurences globally and per-run respectively
 	private static HashMap<Integer,Integer> hostsMap = new HashMap<Integer,Integer>();
 	private static HashMap<Integer,Integer> hostsIpMap = new HashMap<Integer,Integer>();
@@ -113,9 +104,9 @@ public class CrawlWorkflow {
 	//This method basically selects the BUFFER_SIZE number of URLs to be visited in this run
 	private static class SplitFetchedUnfetchedCrawlDatums extends BaseSplitter {		
 		private static final long serialVersionUID = -5255131937144107833L;
-		private static final int urlsPerServer = Crawl.config.getInt("fetcher.max_fetched_per_host.value"); 
-		//private static final int urlsPerServerPerRun = Crawl.config.getInt("fetcher.max_requests_per_host_per_run.value"); 
-		private static int urlsPerServerPerRun = Crawl.config.getInt("fetcher.max_requests_per_host_per_run.value");
+		private static final int urlsPerServer = Crawler.configuration.getInt("fetcher.max_fetched_per_host.value"); 
+		//private static final int urlsPerServerPerRun = Crawler.config.getInt("fetcher.max_requests_per_host_per_run.value"); 
+		private static int urlsPerServerPerRun = Crawler.configuration.getInt("fetcher.max_requests_per_host_per_run.value");
 
 		@Override
 		public String getLHSName() {
@@ -154,17 +145,16 @@ public class CrawlWorkflow {
 							if (temp1.startsWith("www"))
 								temp1=temp1.substring(4);
 						}
-					
+
 						int ind2=temp1.toString().indexOf(_inithost);
 						int ind3=temp1.toString().indexOf(_mainhost);
 						//if (ind2>3 || ind3<0 || ind3>23)  //FIXME It was (3 instead of 23) in order to allow olny URLS like langcode.mainhost to be visited
 						//	return false;
 						if (ind2>0 && ind2==ind3){
 							String temp2=temp1.substring(0, ind2);
-							String[] langs=_targlang.split(";");
 							boolean match=false;
-							for (int mm=0;mm<langs.length;mm++){
-								if (temp2.equals(langs[mm])){
+							for (int mm=0;mm<_targetedLangs.length;mm++){
+								if (temp2.equals(_targetedLangs[mm])){
 									match=true;
 									break;
 								}
@@ -272,58 +262,48 @@ public class CrawlWorkflow {
 			else return 0;
 		}		
 	}*/
-	
-	
-	public static Flow createFlow(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
-			BaseUrlFilter urlDomainFilter, BaseUrlFilter urlDepthFilter, HashMap<String, String> maplangs, 
-			String[] targeted_langs, List<String[]> tranlistAttrs, String[] classes, ArrayList<String[]> topic, 
-			double abs_thres, double rel_thres, int min_uniq_terms,int max_depth,CrawlOptions options, boolean extractLinks) throws Throwable {
 
-		return createFlow071(curWorkingDirPath, crawlDbPath, userAgent, fetcherPolicy,
-				urlDomainFilter, urlDepthFilter, maplangs, targeted_langs, tranlistAttrs,
-				classes, topic, abs_thres, rel_thres, min_uniq_terms, max_depth, options, extractLinks);				
-	}
-
-
-	public static Flow createFlow071(Path curWorkingDirPath, Path crawlDbPath, UserAgent userAgent, FetcherPolicy fetcherPolicy,
-			BaseUrlFilter urlDomainFilter, BaseUrlFilter urlDepthFilter, HashMap<String, String> maplangs, 
-			String[] targeted_langs, List<String[]> tranlistAttrs, String[] classes, ArrayList<String[]> topic, double abs_thres,
-			double rel_thres, int min_uniq_terms,int max_depth, CrawlOptions options, boolean extractLinks) throws Throwable {
-		int maxThreads = options.getThreads();
-		boolean debug = options.isDebug();
-		boolean keepBoiler = options.keepBoiler();
+	public static Flow createFlowN(Path curLoopDir, CrawlerO cr, boolean extractLinks)   throws IOException, InterruptedException {
 		
-		String subfilter = options.getFilter();
-		String initial_host = options.getDomain();
-		int minTokensNumber = options.getTokensNumber();
-		_urlfilterstr=subfilter;
-		_inithost = initial_host;
-		_mainhost=options.getMainDomain();
-		_level = options.getCrawlLevel();
-		//String language = options.getLanguage();
-		_targlang = options.getLanguage() ;//targeted_langs;
-		_type =options.getType();
-		String[] langKeys = options.getLangKeys();
-		_storeFilter = options.getStoreFilter();
-		_max_depth = max_depth;
-		_upToDepth = options.upToDepth();
-		JobConf conf = Crawl.conf;
+		_targetedLangs = cr.getTargetlangs();	
+		_urlfilterstr=cr.getFilter();
+		_inithost =  cr.getWebDomain();
+		_mainhost=cr.getWebMainDomain();
+		_type =cr.getType();
+		_upToDepth = cr.getDepth(); 
+		JobConf _conf = cr.getJobconf();
+
 		//System.err.println(conf.get("hadoop.tmp.dir"));
 
-		//conf.setJarByClass(Crawl.class);
+		//conf.setJarByClass(Crawler.class);
 		//conf.setQuietMode(true);
 		//conf.set("hadoop.tmp.dir", "hadoop-temp");
-		int numReducers = conf.getNumReduceTasks() * HadoopUtils.getTaskTrackers(conf);
-		Properties props = HadoopUtils.getDefaultProperties(CrawlWorkflow.class, debug, conf);
+		int numReducers=0;
+		try {
+			numReducers = _conf.getNumReduceTasks() * HadoopUtils.getTaskTrackers(_conf);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Properties props = HadoopUtils.getDefaultProperties(CrawlerWorkflow.class, cr.isIsdegub(), _conf);
 
-		FileSystem fs = curWorkingDirPath.getFileSystem(conf);
+		FileSystem fs;
+		try {
+			fs = curLoopDir.getFileSystem(_conf);
+			if (!fs.exists(cr.getCrawlDbPath())) {
+				throw new IllegalStateException(String.format("Input directory %s doesn't exist", cr.getCrawlDbPath()));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//System.err.println(conf.get("hadoop.tmp.dir"));
 
-		if (!fs.exists(crawlDbPath)) {
-			throw new IllegalStateException(String.format("Input directory %s doesn't exist", crawlDbPath));
-		}
 		//Setting up the input source and the input pipe
-		Tap inputSource = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toString());
+		Tap inputSource = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), cr.getCrawlDbPath().toString());
 		//The import pipe contains ALL the urls that the crawler has processed since it started
 		//(fetched, unfetched, links etc). Using the custom comparators, these are grouped and sorted
 		//first by their STATUS (all fetched URLs will be first in order for the occurencies hashmaps
@@ -351,26 +331,26 @@ public class CrawlWorkflow {
 		urlsToFetchPipe = new Each(urlsToFetchPipe, new CreateUrlDatumFromCrawlDbFunction()); 
 		//Setting up all the sinks (each pipe that will write data is connected to a sink, a "path"
 		//for writing data in hadoop terms.
-		Path outCrawlDbPath = new Path(curWorkingDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+		Path outCrawlDbPath = new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME);
 		Tap loopCrawldbSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), outCrawlDbPath.toString());
-		Path contentDirPath = new Path(curWorkingDirPath, CrawlConfig.CONTENT_SUBDIR_NAME);
+		Path contentDirPath = new Path(curLoopDir, CrawlConfig.CONTENT_SUBDIR_NAME);
 		Tap contentSink = new Hfs(new SequenceFile(FetchedDatum.FIELDS), contentDirPath.toString());
-		Path parseDirPath = new Path(curWorkingDirPath, CrawlConfig.PARSE_SUBDIR_NAME);
+		Path parseDirPath = new Path(curLoopDir, CrawlConfig.PARSE_SUBDIR_NAME);
 		Tap parseSink = new Hfs(new SequenceFile(ExtendedParsedDatum.FIELDS), parseDirPath.toString());
-		Path classifierDirPath = new Path(curWorkingDirPath, CrawlConfig.CLASSIFIER_SUBDIR_NAME);
+		Path classifierDirPath = new Path(curLoopDir, CrawlConfig.CLASSIFIER_SUBDIR_NAME);
 		Tap classifierSink = new Hfs(new SequenceFile(ClassifierDatum.FIELDS), classifierDirPath.toString());
 
 		// Create the sub-assembly that runs the fetch job                
-		BaseFetcher fetcher = new SimpleHttpFetcher(maxThreads, fetcherPolicy, userAgent);
+		BaseFetcher fetcher = new SimpleHttpFetcher(cr.getThreads(), cr.getPolicy(), cr.getUserAgent());
 
-		((SimpleHttpFetcher) fetcher).setConnectionTimeout(Crawl.config.getInt("fetcher.connection_timeout.value"));
-		((SimpleHttpFetcher) fetcher).setSocketTimeout(Crawl.config.getInt("fetcher.socket_timeout.value"));
-		((SimpleHttpFetcher) fetcher).setMaxRetryCount(Crawl.config.getInt("fetcher.max_retry_count.value"));
+		((SimpleHttpFetcher) fetcher).setConnectionTimeout(cr.getConfiguration().getInt("fetcher.connection_timeout.value"));
+		((SimpleHttpFetcher) fetcher).setSocketTimeout(cr.getConfiguration().getInt("fetcher.socket_timeout.value"));
+		((SimpleHttpFetcher) fetcher).setMaxRetryCount(cr.getConfiguration().getInt("fetcher.max_retry_count.value"));
 		BaseScoreGenerator scorer = new FixedScoreGenerator();
 		FetchPipe fetchPipe = new FetchPipe(urlsToFetchPipe, scorer, fetcher, RobotUtils.createFetcher(fetcher),
-				new RobotRulesParser(), new DefaultFetchJobPolicy(fetcherPolicy.getMaxRequestsPerConnection(), 
-						Crawl.config.getInt("fetcher.max_requests_per_host_per_run.value"), 
-						fetcherPolicy.getCrawlDelay()), numReducers);        
+				new RobotRulesParser(), new DefaultFetchJobPolicy(cr.getPolicy().getMaxRequestsPerConnection(), 
+						cr.getConfiguration().getInt("fetcher.max_requests_per_host_per_run.value"), 
+						cr.getPolicy().getCrawlDelay()), numReducers);        
 		//The fetch pipe returns data in 2 different pipes, one contains the content
 		//of downloaded pages and one that contains the status of all the URLs that
 		//were fed to the fetcher. contentPipe will handle the content of the fetched pages.
@@ -378,17 +358,17 @@ public class CrawlWorkflow {
 
 		//contentPipe is parsed. Metadata, content and links are extracted. Content is
 		//cleaned using Boilerpipe.
-		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler, 
-				curWorkingDirPath.getParent().toString(),	maplangs, tranlistAttrs, targeted_langs, _urlfilterstr, extractLinks));
+		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(cr.isKeepboiler(), 
+				curLoopDir.getParent().toString(),	cr.getMapLangs(), cr.getLinkAttrs(), cr.getTargetlangs(), _urlfilterstr, extractLinks));
 		//The results from the parser are forwarded to the classifier. The classifier
 		//will score the content of each fetched page. It will also score all links
 		//based on the score of the page they came from, the anchor text and the surrounding
 		//text.
 		//ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(),new Classifier(language,classes, topic, thres,keepBoiler,min_uniq_terms, max_depth ));
-		
+
 		ClassifierPipe classifyPipe = new ClassifierPipe(parsePipe.getTailPipe(), 
-				new Classifier(langKeys,targeted_langs,classes, topic, abs_thres,rel_thres, keepBoiler,
-						min_uniq_terms, max_depth,minTokensNumber, _storeFilter));
+				new Classifier( cr.getLangKeys(),cr.getTargetlangs(),cr.getClasses(), cr.getTopic(), cr.getAbs_thres(),cr.getRel_thres(), cr.isKeepboiler(),
+						cr.getMin_uniq_terms(), cr.getMaxTunnelingDepth(),cr.getMinDocLen(), cr.getStorefilter()));
 		Pipe urlsFromClassifier = new Pipe("urls from classifier", classifyPipe.getClassifierTailPipe());
 		urlsFromClassifier = new Each(urlsFromClassifier, new SelectUrlOnlyFunction());
 
@@ -414,7 +394,7 @@ public class CrawlWorkflow {
 		//The links scored by the classifier are handled be the urlFromOutlinksPipe
 		Pipe urlFromOutlinksPipe = new Pipe("url from outlinks", classifyPipe.getScoredLinksTailPipe());
 		//Outlinks are filtered and normalized
-		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(urlDomainFilter, urlDepthFilter, _mainhost,_level));
+		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedUrlFilter(cr.getUrlDomainFilter(), cr.getUrlLevelFilter(), _mainhost,cr.getLevel()));
 		//urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedNormalizeUrlFunction(new ILSPFCUrlNormalizer()));
 		urlFromOutlinksPipe = new Each(urlFromOutlinksPipe, new ExtendedNormalizeUrlFunction(new ILSPFCUrlNormalizer()));
 
@@ -474,6 +454,5 @@ public class CrawlWorkflow {
 
 		return flow;
 	}
-
 
 }

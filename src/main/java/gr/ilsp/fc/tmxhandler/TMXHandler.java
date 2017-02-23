@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URL;
+//import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,21 +24,24 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+//import org.apache.commons.configuration.ConfigurationException;
+//import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 //import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils;
+import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsNumStats;
+import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsRatioStats;
+import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsScoreStats;
 //import gr.ilsp.fc.aligner.factory.BilingualScoredTmxFormatter;
 import gr.ilsp.fc.aligner.factory.BilingualScoredTmxFormatterILSP;
 import gr.ilsp.fc.aligner.factory.ILSPAlignment;
 import gr.ilsp.fc.corpora.BilingualCorpusInformation;
 import gr.ilsp.fc.corpora.BilingualTmxMetashareDescriptor;
-import gr.ilsp.fc.exporter.XSLTransformer;
-import gr.ilsp.fc.main.Crawl;
-import gr.ilsp.fc.main.ReadResources;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.Eurovoc;
@@ -46,6 +50,7 @@ import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.Statistics;
 import gr.ilsp.fc.utils.ValidateUtils;
+import gr.ilsp.fc.utils.XSLTransformer;
 
 public class TMXHandler {
 	private static final Logger LOGGER = Logger.getLogger(TMXHandler.class);
@@ -56,12 +61,12 @@ public class TMXHandler {
 	private static File outHTML = null;
 	private static File o1 = null;
 	private static File o2 = null;
-	private static List<String> sites;
+	private static List<String> targ_sites=new ArrayList<String>();
 	private static final String DEFAULT_BI_CONFIG_FILE = "FBC_config.xml";
 	private static CompositeConfiguration config;
 	private static String[] languages;
-	private static String targeteddomain;
-	private static int[] thres = { 10,10,10,10,10,10,10};
+	private static String usertopic;
+	private static int[] thres = { 100,100,100,100,100,100,100};
 	private static boolean oxslt=false;
 	private static boolean iso6393=false;
 	private static boolean cc=false;
@@ -69,15 +74,15 @@ public class TMXHandler {
 	private static boolean keepiden = false;
 	private static boolean keepdup = false;
 	private static boolean clean = false;
-	//private static boolean metadata=true;
 	private static boolean keepsn=false;
 	private static int minTuvLen=0;
+	private static int maxSize=1000000000;
 	private static double minPerce01Align=1;
 	private static double minTuLenRatio = 0;
 	private static double maxTuLenRatio = 100;
 	private static final double median_word_length=18;
 	private static final double max_word_length=25;
-	private static String doctypes;// = "aupidhml";
+	private static String doctypes="aupidh";// = "aupidhml";
 	private static List<String> segtypes;
 	private static Set<String> segs = new HashSet<String>() ;
 	static Matcher twitterHandleMatcher = Pattern.compile("(^|[^@\\w])@(\\w{1,15})\\b").matcher("");
@@ -85,10 +90,10 @@ public class TMXHandler {
 	private static final String SEMICOLON_STR=";";
 	private static final String HYPHEN_STR="-";
 	//private final static String PUNCT = ".";
-	//private final static String SEP = "-";
-	//private final static String UNDERSCORE = "_";
 	private final static String UNKNOWN_STR ="unknown";
 	private static final String HTML =".html";
+	private static final String SITES =".sites.txt";
+	private static final String SITESN =".sitesn.txt";
 	private static final String TMXEXT = ".tmx";
 	private final static String MetadataExt = ".md.xml";
 	private final static String domainNode = "domain";
@@ -122,12 +127,12 @@ public class TMXHandler {
 
 	private String alignerStr = "Maligna";
 
+	private String creationModeDescription = "";
 	private String creationDescription = "";
 	private String filter6 = " Alignments in which different digits appear in each TUV were kept and annotated.";
 	private String filter7 = " Alignments with identical TUVs (after normalization) were removed.";
 	private String filter8 = " Alignments with only non-letters in at least one of their TUVs were removed";
-	private String filter9 = " Duplicate alignments were discarded.";
-
+	private String filter9 = " Duplicate alignments were discarded";
 
 	public static void main(String[] args) {
 		TMXHandler tm = new TMXHandler();
@@ -138,6 +143,7 @@ public class TMXHandler {
 		tm.setDocTypes(options.getDocTypes());
 		tm.setThres(options.getThres());
 		tm.setSegTypes(options.getSegTypes());
+		tm.setMaxSize(options.getMaxSize());
 		tm.setApplyOfflineXSLT(options.getXSLTransform());
 		tm.setLanguage(options.getLanguage());
 		tm.useISO6393(options.useISO6393());
@@ -154,8 +160,8 @@ public class TMXHandler {
 		tm.setSites(options.getSites());
 		tm.setO1(options.getO1());
 		tm.setO2(options.getO2());
-		tm.setTargetedDomain(options.getTargetedDomain());
-		
+		tm.setUserTopic(options.getTargetedDomain());
+
 		String[] languages = options.getLanguage().split(SEMICOLON_STR);
 		List<String> lang_pairs = new ArrayList<String>();
 		if (languages.length>1){
@@ -175,7 +181,7 @@ public class TMXHandler {
 	}
 
 	/**
-	 * Gets selected TMXs from a directory and adds selected segments of these TMXs in a new TMX file.
+	 * Gets selected TMXs from the targeted directory and its sub directories a directory and adds selected segments of these TMXs in a new TMX file.
 	 * The selected TMXs should be extracted from document pairs which have been identified by the methods defined in DocTypes.
 	 * The selected TMXs should include less than X% segment pairs of type "0:1", where X is the threshold provided by the user (default is 15) 
 	 * The selected segments (to be added) should be of type identified in SegTypes. 
@@ -183,7 +189,8 @@ public class TMXHandler {
 	 */
 	public void mergeTMXs() {
 		LOGGER.info("------------Merging of generated TMXs for "+languages[0]+"-"+languages[1] +" language pair.------------");
-		creationDescription = "The ILSP Focused Crawler was used for the acquisition "
+	
+		creationModeDescription = "The ILSP Focused Crawler was used for the acquisition "
 				+ "of bilingual data from multilingual websites, and for the normalization, cleaning, (near) de-duplication and identification of parallel documents. "
 				+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
 				+ "As a post-processing step, alignments were merged into one TMX file. "
@@ -205,8 +212,7 @@ public class TMXHandler {
 			filter8=" Alignments with only non-letters in at least one of their TUVs were discarded/annotated";
 		if (keepdup)
 			filter9=" Duplicate alignments were kept and were discarded/annotated";
-		//LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
-
+		
 		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
@@ -224,6 +230,7 @@ public class TMXHandler {
 		for (int ii=0;ii<doctypes.length();ii++){
 			types[ii] = UNDERSCORE_STR+Character.toString(doctypes.charAt(ii))+TMXEXT;
 		}
+		
 		List<File> tmxfiles = new ArrayList<File>();
 		if (inputFile.isDirectory()){
 			List<File> tfs = FcFileUtils.listFiles(inputFile, filter,true);
@@ -247,75 +254,113 @@ public class TMXHandler {
 			return;
 		}else
 			LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
-
-		creationDescription = creationDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
-		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
+		creationModeDescription = creationModeDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
 		
+		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
 		if (domains.isEmpty()){
-			if (!StringUtils.isBlank(targeteddomain))
-				domains.add(targeteddomain);
+			if (!StringUtils.isBlank(usertopic))
+				domains.add(usertopic);
 		}else{
-			if (!StringUtils.isBlank(targeteddomain)){
-				if (!domains.contains(targeteddomain)){
+			if (!StringUtils.isBlank(usertopic)){
+				if (!domains.contains(usertopic)){
 					LOGGER.warn("User-defined topic is different from the identified topic(s). All will be added");
-					domains.add(targeteddomain);
+					domains.add(usertopic);
 				}
 			}
 		}
-		
-		//if (domains.isEmpty())
-		//	domains.add(targeteddomain); 
 		List<String> domainEurovocIds=getEurovocId(domains);
-		//FIXME shall we integrate JRC?
+		//FIXME shall we integrate JRX Eurovoc Indexer?
 		String domain = StringUtils.join(domains, ',');
 		String domainEurovocId = StringUtils.join(domainEurovocIds, ',');
-		
+
 		HashMap<String, List<File>> tmxTypeFiles =FcFileUtils.clusterfiles(tmxfiles,doctypes);
 		for (int ii=0;ii<doctypes.length();ii++){
 			String m= Character.toString(doctypes.charAt(ii));
-			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, keepsn, clean, cc,sites);
+			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, keepsn, clean, cc,targ_sites, maxSize);
 		}
 		if (!alignmentList.isEmpty()){
-			int[] stats1 = TMXHandlerUtils.countWordsInTMX(alignmentList, 1, true);
-			int[] stats2 = TMXHandlerUtils.countWordsInTMX(alignmentList, 2, true);
-			double[] scores = TMXHandlerUtils.scorestats(alignmentList);
+			TUsScoreStats scores = TMXHandlerUtils.scorestats(alignmentList, true);
+			TUsRatioStats ratios = TMXHandlerUtils.ratiostats(alignmentList, true);
+			TUsNumStats stats1 = TMXHandlerUtils.numstats(alignmentList, 1, true);
+			TUsNumStats stats2 = TMXHandlerUtils.numstats(alignmentList, 2, true);
+			List<String> sites_all = TMXHandlerUtils.getSites(alignmentList, false);
+			List<String> sites_noannot = TMXHandlerUtils.getSites(alignmentList, true);
+			creationModeDescription = creationModeDescription + 
+					".\nThe mean value of aligner's scores is "+ scores.meanscore_all+ ", the std value is "+ scores.stdscore_all +
+					". The mean value of length (in terms of characters) ratios is "+ ratios.meanratio_all+ " and the std value is "+ ratios.stdratio_all + "." +
+					"\nThere are "+ stats1.tus_noan +" TUs with no annotation,"+
+					" containing "+ stats1.tokens_noan +" words and "+ stats1.words_noan +" lexical types in "+ TMXHandler.languages[0] + 
+					" and "+ stats2.tokens_noan +" words and "+ stats2.words_noan+" lexical types in "+ TMXHandler.languages[1] +
+					". The mean value of aligner's scores is "+ scores.meanscore_noan+ ", the std value is "+ scores.stdscore_noan +
+					". The mean value of length (in terms of characters) ratios is "+ ratios.meanratio_noan + " and the std value is "+ ratios.stdratio_noan + "." ;
 			
-			String organization = config.getString("resourceCreator.organization");
-			String organizationURL = config.getString("resourceCreator.organizationURL"); 
-			String projectId = config.getString("fundingProject.projectId"); 
-			String projectURL = config.getString("fundingProject.projectURL"); 
+			creationDescription = "Parallel ("+ languages[0] + HYPHEN_STR + languages[0] +") corpus of "+
+									alignmentList.size()+ " (" +stats1.tus_noan +" not-annotated) translation units";
+			if (!StringUtils.isEmpty(domain))
+				creationDescription = creationDescription + " in the "+	domain+" domain)";
+			
+			BilingualCorpusInformation bilingualCorpusInfo = new BilingualCorpusInformation();
+			bilingualCorpusInfo.setName(FilenameUtils.getBaseName(outTMX.getAbsolutePath()));
+			bilingualCorpusInfo.setL1(TMXHandler.languages[0]);
+			bilingualCorpusInfo.setL2(TMXHandler.languages[1]);
+			bilingualCorpusInfo.setAlignmentList(alignmentList);
 
-			creationDescription = creationDescription + " There are "+ stats1[5] +" TUs with no annotation,"+
-					" containing "+ stats1[2] +" words and "+ stats1[3] +" lexical types in "+ TMXHandler.languages[0] + 
-					" and "+ stats2[2] +" words and "+ stats2[3]+" lexical types in "+ TMXHandler.languages[1] +
-					". The mean value of aligner's scores is "+ scores[0]+ ", the std value is "+ scores[1];
+			bilingualCorpusInfo.setAlignmentsSize(alignmentList.size());
+			bilingualCorpusInfo.setLenInWordsL1(stats1.tokens_all);
+			bilingualCorpusInfo.setLenInWordsL2(stats2.tokens_all);
+			bilingualCorpusInfo.setVocSizeInL1(stats1.words_all);
+			bilingualCorpusInfo.setVocSizeInL2(stats2.words_all);
 
-			BilingualCorpusInformation bilingualCorpusInfo;
-			if (cc) {
-				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), TMXHandler.languages[0], TMXHandler.languages[1], 
-						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0], stats1[1], stats2[1], stats1[2], stats2[2], stats1[3], stats2[3], scores[0], scores[1],
-						domain, domainEurovocId, FREE_STR, creationDescription,
-						projectId, projectURL, organization, organizationURL);
-			} else {
-				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), TMXHandler.languages[0], TMXHandler.languages[1], 
-						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0], stats1[1], stats2[1], stats1[2], stats2[2], stats1[3], stats2[3], scores[0], scores[1], 
-						domain, domainEurovocId, UNKNOWN_STR, creationDescription,
-						projectId, projectURL, organization, organizationURL);
-			}
+			bilingualCorpusInfo.setCleanLenInTUs(stats1.tus_noan);
+			bilingualCorpusInfo.setCleanVocSizeInL1(stats1.words_noan);
+			bilingualCorpusInfo.setCleanVocSizeInL2(stats2.words_noan);
+			bilingualCorpusInfo.setCleanLenInWordsL1(stats1.words_noan);
+			bilingualCorpusInfo.setCleanLenInWordsL2(stats2.words_noan);
+
+			bilingualCorpusInfo.setMeanAlignScore(scores.meanscore_all);
+			bilingualCorpusInfo.setMeanAlignScoreNo(scores.meanscore_noan);
+			bilingualCorpusInfo.setStdAlignScore(scores.stdscore_all);
+			bilingualCorpusInfo.setStdAlignScoreNo(scores.stdscore_noan);
+
+			bilingualCorpusInfo.setMeanRatioScore(ratios.meanratio_all);
+			bilingualCorpusInfo.setMeanRatioScoreNo(ratios.meanratio_noan);
+			bilingualCorpusInfo.setStdRatioScore(ratios.stdratio_all);
+			bilingualCorpusInfo.setStdRatioScoreNo(ratios.stdratio_noan);
+
+			bilingualCorpusInfo.setDomain(domain);
+			bilingualCorpusInfo.setDomainId(domainEurovocId);
+			bilingualCorpusInfo.setCreationDescription(creationModeDescription);
+			bilingualCorpusInfo.setDescription(creationDescription);
+			bilingualCorpusInfo.setProjectId(config.getString("fundingProject.projectId"));
+			bilingualCorpusInfo.setProjectURL(config.getString("fundingProject.projectURL"));
+			bilingualCorpusInfo.setOrganization(config.getString("resourceCreator.organization"));
+			bilingualCorpusInfo.setOrganizationURL(config.getString("resourceCreator.organizationURL"));
+			if (cc) 
+				bilingualCorpusInfo.setAvailability(FREE_STR);
+			else
+				bilingualCorpusInfo.setAvailability(UNKNOWN_STR);
 			if (oxslt) 
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
 
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
+			
+			try {
+				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITES), sites_all);
+				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITESN), sites_noannot);
+			} catch (IOException e1) {
+				LOGGER.error("problem in writing lists of sites");
+				e1.printStackTrace();
+			}
 
 			BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
 			File metadataFile = new File(baseName.getAbsolutePath()+ MetadataExt);
 			LOGGER.info("Generating metadata descriptor " + metadataFile);
 			bilingualTmxMetashareDescriptor.setOutFile(metadataFile);
-			if (iso6393) {
+			if (iso6393)
 				bilingualTmxMetashareDescriptor.setMetadataLang("eng");
-			} else {
+			else 
 				bilingualTmxMetashareDescriptor.setMetadataLang("en");
-			}
+
 			bilingualTmxMetashareDescriptor.run();
 			if (o1!=null){
 				try {
@@ -349,7 +394,6 @@ public class TMXHandler {
 			did = eurovoc.getIdentifier(d);
 			if (did!=null)
 				domainEurovocIds.add(did);
-
 		}
 		return domainEurovocIds;
 	}
@@ -419,12 +463,13 @@ public class TMXHandler {
 	 * @param keepdup
 	 * @param cc
 	 * @param sites 
+	 * @param maxSize 
 	 * @param cc2 
 	 * @return
 	 */
 
 	private List<ILSPAlignment> addTMXs(List<File> tmxFiles, List<ILSPAlignment> alignmentList, String type,
-			boolean keepem, boolean keepiden, boolean keepdup, boolean ksn, boolean clean, boolean cc, List<String> sites) {
+			boolean keepem, boolean keepiden, boolean keepdup, boolean ksn, boolean clean, boolean cc, List<String> sites, int maxSize) {
 		LOGGER.info("Examining docpairs of type "+ type);
 		int thr = thres[doctypes.indexOf(type)];
 		if (tmxFiles==null)
@@ -432,6 +477,8 @@ public class TMXHandler {
 		if (tmxFiles.isEmpty())
 			return alignmentList;
 		for (File tmxFile : tmxFiles) {
+			if (alignmentList.size()>maxSize)
+				return alignmentList;
 			List<SegPair> segpairs = TMXHandlerUtils.getTUsFromTMX(tmxFile,thr, minPerce01Align, languages[0], languages[1], cc,sites);
 			if (segpairs==null){
 				LOGGER.info("Cut due to many 0:1 alignments: " +tmxFile.getAbsolutePath());
@@ -452,22 +499,22 @@ public class TMXHandler {
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
 				if ( normS.isEmpty() || normT.isEmpty()){
-					if (clean)
-						continue;
+					//if (clean)
+					//	continue;
 					if (!keepem)
 						continue;
 					info =  mes1;
 				}
 				if (normS.equals(normT)){
-					if (clean)
-						continue;
+					//if (clean)
+					//	continue;
 					if (!keepiden)
 						continue;
 					if (info.isEmpty()){	info =  mes2;}		else{	info =  info + " | "+mes2;}	
 				}
 				if (ValidateUtils.isValidEmailAddress(segpair.seg1) || ValidateUtils.isValidEmailAddress(segpair.seg2)){
-					if (clean)
-						continue;
+					//if (clean)
+					//	continue;
 					if (!keepem)
 						continue;
 					if (info.isEmpty()){	info =  mes8;}		else{	info =  info + " | "+mes8;}	
@@ -506,19 +553,20 @@ public class TMXHandler {
 				String num1=segpair.seg1.replaceAll("\\D+","");
 				String num2=segpair.seg2.replaceAll("\\D+","");
 				if (!num1.equals(num2)){
-					if (clean)
-						continue;
+					//if (clean)
+					//	continue;
 					if (ksn)
 						continue;
 					if (info.isEmpty()){	info =  mes6;}		else{	info =  info + " | "+mes6;}	
 				}
 				String temp = normS+TAB+normT;
 				if (segs.contains(temp)){
-					if (clean)
-						continue;
-					if (info.isEmpty()){	info =  mes7;}		else{	info =  info + " | "+mes7;}
 					if (!keepdup)
 						continue;
+					//if (clean)
+					//	continue;
+					if (info.isEmpty()){	info =  mes7;}		else{	info =  info + " | "+mes7;}
+
 				}else
 					segs.add(temp);
 				ILSPAlignment alignment = new ILSPAlignment();
@@ -576,42 +624,58 @@ public class TMXHandler {
 	public void setApplyOfflineXSLT(boolean offlineXSLT) {
 		TMXHandler.oxslt  = offlineXSLT;
 	}
-
+	/**
+	 * only TUs coming from CC licensed documents are kept
+	 * @param cc
+	 */
 	public void setCC(boolean cc) {
 		TMXHandler.cc  = cc;
 	}
-	//public void setMetadata(boolean metadata) {
-	//	TMXHandler.metadata  = metadata;
-	//}
 
+	/**
+	 * TUs with different number in TUVs are annotated
+	 * @param keep
+	 */
 	public void KeepTuSameNum(boolean keep){
 		TMXHandler.keepsn=keep;
 	}
-
+	/**
+	 * TUs with a TUV with no letters are annotated
+	 * @param keepem
+	 */
 	public void setKeepEmpty(boolean keepem){
 		TMXHandler.keepem=keepem;
 	}
-
+	/**
+	 * TUs with identical TUVs are annotated
+	 * @param keepiden
+	 */
 	public void setKeepIdentical(boolean keepiden){
 		TMXHandler.keepiden=keepiden;
 	}
-
+	/**
+	 * duplicate TUs are annotated
+	 * @param keepdup
+	 */
 	public void setKeepDuplicates(boolean keepdup){
 		TMXHandler.keepdup=keepdup;
 	}
-
+	/**
+	 * TUs with annotation are excluded
+	 * @param clean
+	 */
 	public void setClean(boolean clean){
 		TMXHandler.clean=clean;
 	}
 	/**
-	 * types of TMXs to be merged, i.e. method by which the documents have been paired (and then aligned), default "auidhml" 
+	 * types of TMXs to be merged, i.e. method by which the documents have been paired (and then aligned), default "aupidh" 
 	 * @param docTypes
 	 */
 	public void setDocTypes(String docTypes) {
 		TMXHandler.doctypes=docTypes;
 	}
 	/**
-	 * maximum number of 0:1 segment pairs that could exist in a TMX in order to be selected.
+	 * maximum absolute number of 0:1 segment pairs that could exist in a TMX in order to be selected.
 	 * a threshold for each pair detection method, default is "100;100;100;100;100;100;100"
 	 * @param thres
 	 */
@@ -625,21 +689,40 @@ public class TMXHandler {
 	public void setSegTypes(List<String> list) {
 		TMXHandler.segtypes=list;
 	}
-
+	/**
+	 * TUs with a TUV with length (in tokens) less than minTuvLen (default is 0) are annotated
+	 * @param minTuvLen
+	 */
 	public void setMinTuvLen(int minTuvLen) {
 		TMXHandler.minTuvLen = minTuvLen;
 	}
+	/**
+	 * tmx files with ratio (number of 0:1 TUs /total number of TUs) more than minPerce01align (default is 1, i.e. all in) are annotated
+	 * @param minPerce01align
+	 */
 	public void setMinPerce01Align(double minPerce01align) {
 		TMXHandler.minPerce01Align = minPerce01align;
 	}
+	/**
+	 * TUs with length (in characters) ratio of TUVs less than minTuLenRatio (default is 0, i.e all in) are annotated 
+	 * @param minTuLenRatio
+	 */
 	public void setMinTuLenRatio(double minTuLenRatio) {
 		TMXHandler.minTuLenRatio = minTuLenRatio;
 	}
+	/**
+	 * TUs with length (in characters) ratio of TUVs less than maxTuLenRatio (default is 100, i.e all in) are annotated
+	 * @param maxTuLenRatio
+	 */
 	public void setMaxTuLenRatio(double maxTuLenRatio) {
 		TMXHandler.maxTuLenRatio = maxTuLenRatio;
 	}
-	public void setTargetedDomain(String targeteddomain){
-		TMXHandler.targeteddomain = targeteddomain;
+	/**
+	 * sets the user defined name of the targeted topic
+	 * @param targeteddomain
+	 */
+	public void setUserTopic(String targeteddomain){
+		TMXHandler.usertopic = targeteddomain;
 	}
 	/**
 	 * Loads the default configuration file and checks if user supplied a custom one.
@@ -649,7 +732,7 @@ public class TMXHandler {
 	 */
 	public static CompositeConfiguration getConfig( String confFile) {
 		config = new CompositeConfiguration();
-		URL default_config = Crawl.class.getClassLoader().getResource(DEFAULT_BI_CONFIG_FILE);
+		URL default_config = TMXHandler.class.getClassLoader().getResource(DEFAULT_BI_CONFIG_FILE);
 		if (confFile!=null){
 			String custom_config = confFile;
 			try {
@@ -669,7 +752,7 @@ public class TMXHandler {
 		return config;
 	}
 	public void setSites(List<String> sites) {
-		TMXHandler.sites  = sites;
+		TMXHandler.targ_sites  = sites;
 	}
 	public void setO1(File o1) {
 		TMXHandler.o1 = o1;
@@ -677,4 +760,8 @@ public class TMXHandler {
 	public void setO2(File o2) {
 		TMXHandler.o2 = o2;
 	}
+	public void setMaxSize(int maxSize) {
+		TMXHandler.maxSize = maxSize;
+	}
+
 }

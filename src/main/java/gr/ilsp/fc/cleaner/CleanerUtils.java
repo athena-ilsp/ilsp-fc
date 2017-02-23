@@ -1,6 +1,6 @@
 package gr.ilsp.fc.cleaner;
 
-import gr.ilsp.fc.main.ReadResources;
+import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
 
 import java.io.BufferedReader;

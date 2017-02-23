@@ -6,7 +6,7 @@ import gr.ilsp.fc.bitext.Bitexts.DocVector;
 import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.cleaner.CleanerUtils.ParsAttr;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
-import gr.ilsp.fc.main.ReadResources;
+import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
 
@@ -65,6 +65,10 @@ public class TempUtils {
 	private static final List<String> rights_links= Arrays.asList("privacy statement", "οροι χρησης", "προστασία προσωπικών δεδομένων",
 			"terms of use", "privacy policy" , "disclaimer");
 
+
+	private static final String en_line = "<tuv xml:lang=\"EN-GB\">";
+	private static final String sl_line = "<tuv xml:lang=\"SL\">";
+
 	enum Sort { ASCENDING, DESCENDING; }
 
 	enum Field {
@@ -84,7 +88,19 @@ public class TempUtils {
 
 
 	public static void main(String[] args) throws IOException {
-		
+
+		processSL_NAP();
+		System.exit(0);
+
+		List<String> ll1 = FileUtils.readLines(new File("C:/Users/vpapa/JRX-Resources/JREeurovoc/en-eurovoc-1.0/resources/ThesaurusStructure/desc_en_original.xml"));
+		List<String> ll2 = FileUtils.readLines(new File("C:/Users/vpapa/JRX-Resources/JREeurovoc/en-eurovoc-1.0/resources/ThesaurusStructure/desc_en.xml"));
+		for (String t:ll1){
+			if (!ll2.contains(t))
+				System.out.println(t);
+		}
+
+		System.exit(0);
+
 		File in10 = new File ("C:/Users/vpapa/test/depth/polinst/polinst-hu_20161122_202939/6227940e-3987-4fe4-abad-75b13faa45d3/xml");
 		String lang11 = "eng";
 		String lang22 = "hun";
@@ -102,8 +118,8 @@ public class TempUtils {
 			}
 		}
 		System.exit(0);
-		
-		
+
+
 		File inn= new File("C:/Users/vpapa/test/depth/audi/outputs");
 		String langs = "af;ar;bg;bn;ca;cs;cy;da;de;el;en;es;et;eu;fa;fi;fr;ga;gl;gu;he;hi;hr;hu;id;it;ja;kn;ko;lt;lv;mk;ml;mr;mt;ne;nl;no;pa;pl;pt;ro;ru;sk;sl;so;sq;sv;sw;ta;te;th;tl;tr;uk;ur;vi;zh-cn;zh-tw";
 		String[] ls = LangDetectUtils.updateLanguages(langs,true).split(";");
@@ -111,7 +127,7 @@ public class TempUtils {
 		resu.put("site", "");		resu.put("depth", "");		resu.put("minlen", "");		for (int ii=0;ii<ls.length;ii++){resu.put(ls[ii], "");}
 		File[] outputs= inn.listFiles();
 		File resi = new File(inn.getAbsolutePath()+"_res");
-				
+
 		for (File file:outputs){
 			List<String> lines= FileUtils.readLines(file) ;
 			List<String> found = new ArrayList<String>();
@@ -365,7 +381,7 @@ public class TempUtils {
 		String lang1 = "ell", lang2="eng";
 		double tr=0.18;
 
-		List<SegPair> segpairs = TMXHandlerUtils.getBestTUsFromTMX(tmxFile, lang1, lang2);
+		List<SegPair> segpairs = TMXHandlerUtils.getTUsFromTMX(tmxFile, false, lang1, lang2);
 		for (SegPair segpair:segpairs){
 			System.out.println(segpair.seg1+"\t"+segpair.seg2);
 		}
@@ -763,6 +779,253 @@ public class TempUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+/**
+ * process two TMX files EN-SL and SL-EN given by the SL NAP
+ * checks for duplicates between files
+ * generates two files containing only the unique TUs
+ * @throws IOException
+ */
+	private static void processSL_NAP() throws IOException {
+		File en_sl = new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL.tmx");
+		File sl_en = new File("C:/Users/vpapa/ELRC/naps/SL/SL-EN.tmx");
+		List<String> en_sl_pairs = pseudoparseTMX(en_sl, "UTF-16LE");
+		LOGGER.info("number of EN-SL TUs in "+ en_sl.getName() + " is : " + en_sl_pairs.size());
+		List<String> sl_en_pairs = pseudoparseTMX(sl_en, "UTF-16LE");
+		LOGGER.info("number of SL-EN TUs in "+ sl_en.getName() + " is : " + sl_en_pairs.size());
+		
+		List<String> all_pairs = new ArrayList<String>();
+		all_pairs.addAll(en_sl_pairs);
+		all_pairs.addAll(sl_en_pairs);
+		LOGGER.info("number of all TUs is "+ all_pairs.size());
+		
+		List<String> uniquepairs = new ArrayList<String>();
+		for (String pair:all_pairs){
+			if (!uniquepairs.contains(pair))
+				uniquepairs.add(pair);
+		}
+		LOGGER.info("number of unique TUs is "+ uniquepairs.size());
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/naps/SL/unique_EN-SL_pairs.txt"), uniquepairs);
+		
+		int newsize1 =  7*uniquepairs.size()/15;
+		int newsize2 =  8*uniquepairs.size()/15;
+		LOGGER.info("Two files will be generated.");
+		LOGGER.info("The first will include	about "+ newsize1 + " TUs.");
+		LOGGER.info("The second will include about "+ newsize2 + " TUs.");
+		uniquepairs.clear();
+		all_pairs.clear();
+				
+		int comcounter_en=0, comcounter_sl=0;
+		for (String pair:en_sl_pairs){
+			if (sl_en_pairs.contains(pair))
+				comcounter_en++;
+			//else
+			//	LOGGER.info(pair);
+		}
+		for (String pair:sl_en_pairs){
+			if (en_sl_pairs.contains(pair))
+				comcounter_sl++;
+			//else
+			//	LOGGER.info(pair);
+		}
+		
+		LOGGER.info("number of TUS from EN-SL which are in SL-EN : " + comcounter_en);
+		double inters1 = 100 *(double) comcounter_en/ (double) en_sl_pairs.size();
+		LOGGER.info(inters1 + "% of EN_SL");
+		double inters2 = 100 * (double) comcounter_en/ (double) sl_en_pairs.size();
+		LOGGER.info(inters2 + "% of SL-EN");
+		
+		LOGGER.info("number of TUS from SL-EN which are in EN-SL : " + comcounter_sl);
+		inters1 = 100 *(double) comcounter_sl/ (double) en_sl_pairs.size();
+		LOGGER.info(inters1 + "% of EN_SL");
+		inters2 = 100 * (double) comcounter_sl/ (double) sl_en_pairs.size();
+		LOGGER.info(inters2 + "% of SL-EN");
+		
+		sl_en_pairs.clear();
+
+		List<String> en_sl_lines = FileUtils.readLines(en_sl, "UTF-16LE");
+		List<String> en_sl_lines_new = new ArrayList<String>();
+		List<String> en_sl_lines_newRest = new ArrayList<String>();
+
+		int paircounter = 0;
+		for (String line:en_sl_lines){
+			if (paircounter<newsize1)
+				en_sl_lines_new.add(line);
+			else{
+				en_sl_lines_newRest.add(line);
+				continue;
+			}
+			if (line.equals("</tu>"))
+				paircounter++;
+		}
+		en_sl_lines_new.add("");
+		en_sl_lines_new.add("</body>");
+		en_sl_lines_new.add("</tmx>");
+		File en_sl_new1 = new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL_new1.tmx");
+		FileUtils.writeLines(en_sl_new1, "UTF-16LE", en_sl_lines_new);
+		List<String> en_sl_pairs_new = pseudoparseTMX(en_sl_new1, "UTF-16LE");
+		int words=0;
+		for (String pair:en_sl_pairs_new){
+			pair = pair.replaceAll("<seg>", "");
+			pair = pair.replaceAll("</seg>", "");
+			pair = pair.replaceAll("\t", " ");
+			words = words + FCStringUtils.getTokens(pair).size();
+		}
+		LOGGER.info("Number of words (space separated) in "+ en_sl_new1.getName()+ " is: "+ words);
+		
+		System.out.println(en_sl_pairs_new.size());
+		System.out.println(en_sl_pairs_new.get(0));
+		en_sl_lines.clear();
+		en_sl_lines_new.clear();
+		//FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL_new1.tmx"), "UTF-16LE", en_sl_lines_newRest);		
+		
+		List<String> sl_en_lines = FileUtils.readLines(sl_en, "UTF-16LE");
+		System.out.println(sl_en_lines.size());
+		sl_en_lines.addAll(en_sl_lines_newRest);
+		System.out.println(sl_en_lines.size());
+		
+		List<String> sl_en_lines_new =new ArrayList<String>();
+		List<String> temp = new ArrayList<String>();
+		boolean intu = false;
+		String ttt = "";
+		paircounter = 0;
+		for (String line:sl_en_lines){
+			if (line.startsWith("<tu creationdate=")){
+				temp.add(line);
+				intu= true;
+				continue;
+			}
+			if (!intu){
+				sl_en_lines_new.add(line);
+				continue;
+			}
+			temp.add(line);
+			if (line.startsWith("<seg>")){
+				if (ttt.isEmpty())
+					ttt = ttt+line;
+				else
+					ttt = line+"\t"+ttt;
+				continue;
+			}
+			if (line.startsWith("</tu>") && ttt.contains("\t")){
+				temp = changeOrder(temp);
+				ttt = getSegs(temp);
+				if (en_sl_pairs_new.contains(ttt)){
+					//System.out.println(ttt);
+					intu=false;
+					temp.clear();
+					ttt="";
+					continue;
+				}else{
+					sl_en_lines_new.addAll(temp);
+					paircounter++;
+					en_sl_pairs_new.add(ttt);
+					temp.clear();
+					ttt="";
+					//System.out.println(paircounter);
+				}
+			}	
+		}
+		File en_sl_new2 = new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL_new2.tmx");
+		FileUtils.writeLines(en_sl_new2, "UTF-16LE", sl_en_lines_new);	
+		List<String> en_sl_pairs_new2 = pseudoparseTMX(en_sl_new2, "UTF-16LE");
+		
+		words=0;
+		for (String pair:en_sl_pairs_new2){
+			words = words + FCStringUtils.getTokens(pair).size();
+		}
+		LOGGER.info("Number of words (space separated) in "+ en_sl_new2.getName()+ " is: "+ words);
+		
+	}
+
+
+	private static String getSegs(List<String> list) {
+		String res="";
+		for (String a:list){
+			if (a.startsWith("<seg>"))
+				res = res+"\t"+a;
+		}
+		return res.trim();
+	}
+
+
+	private static List<String> changeOrder(List<String> list) {
+		List<String> new_list = new ArrayList<String>();
+		boolean found1 = false, found2 = false;
+		String text1 = "", text2 = "";
+		for (String a:list){
+			if (a.startsWith("<tuv xml:lang=\"SL\">")){
+				found1 = true;
+				continue;
+			}
+			if (found1){
+				text1 = a;
+				found1=false;
+				continue;
+			}
+			if (a.startsWith("<tuv xml:lang=\"EN-GB\">")){
+				found2 = true;
+				continue;
+			}
+			if (found2){
+				text2 = a;
+				found2=false;
+				continue;
+			}
+			if (!text1.isEmpty() && !text2.isEmpty()){
+				new_list.add("<tuv xml:lang=\"EN-GB\">");
+				new_list.add(text2);
+				new_list.add("</tuv>");
+				new_list.add("<tuv xml:lang=\"SL\">");
+				new_list.add(text1);
+				new_list.add("</tuv>");
+				new_list.add("</tu>");
+				return new_list;
+			}
+			if (!text1.isEmpty() || !text2.isEmpty())
+				continue;
+			new_list.add(a);
+		}
+
+		return new_list;
+	}
+
+
+	private static List<String> pseudoparseTMX(File file, String encoding) throws IOException {
+		List<String> en_sl_lines = FileUtils.readLines(file, encoding);
+		//System.out.println(en_sl_lines.size());
+		String en_text = "";
+		String sl_text = "";
+		boolean found_en = false;
+		boolean found_sl = false;
+		List<String> en_sl_pairs = new ArrayList<String>();
+		for (String line:en_sl_lines){
+			if (line.startsWith(en_line)){
+				found_en=true;
+				continue;
+			}
+			if (found_en){
+				en_text= line;
+				found_en=false;
+				continue;
+			}
+			if (line.startsWith(sl_line)){
+				found_sl=true;
+				continue;
+			}
+			if (found_sl){
+				sl_text= line;
+				found_sl=false;
+				continue;
+			}
+			if (!en_text.isEmpty() && !sl_text.isEmpty()){
+				en_sl_pairs.add(en_text+"\t"+sl_text);
+				en_text="";
+				sl_text="";
+			}
+		}
+		return en_sl_pairs;
 	}
 
 
@@ -1608,7 +1871,7 @@ public class TempUtils {
 				//FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[0]+appXMLHTMLext),
 				//		FilenameUtils.concat(temppairNEW.getParent(),tempitems[0]+appXMLHTMLext));
 
-				
+
 				//tempitem = new File(temppair.getParent()+"\\"+tempitems[0]+appHTMLext);
 				//tempitemNEW = new File(tempitemNEW.getParent()+"\\"+tempitems[0]+appHTMLext);
 				//FcFileUtils.copyFile(tempitem, tempitemNEW);
@@ -1624,7 +1887,7 @@ public class TempUtils {
 						new File(FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appXMLext)));
 				//FcFileUtils.copy(FilenameUtils.concat(temppair.getParent(),tempitems[1]+appXMLext),
 				//		FilenameUtils.concat(temppairNEW.getParent(),tempitems[1]+appXMLext));
-				
+
 				//tempitem = new File(temppair.getParent()+"\\"+tempitems[1]+appXMLHTMLext);
 				//tempitemNEW = new File(temppairNEW.getParent()+"\\"+tempitems[1]+appXMLHTMLext);
 				//FcFileUtils.copyFile(tempitem, tempitemNEW);

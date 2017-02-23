@@ -1,11 +1,15 @@
-package gr.ilsp.fc.utils;
+package gr.ilsp.fc.tmxhandler;
 
 import gr.ilsp.fc.aligner.factory.ILSPAlignment;
 import gr.ilsp.fc.corpora.BilingualCorpusInformation;
 import gr.ilsp.fc.corpora.BilingualTmxMetashareDescriptor;
-import gr.ilsp.fc.tmxhandler.TMXHandler;
-import gr.ilsp.fc.tmxhandler.TMXHandlerUtils;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
+import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsNumStats;
+import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsRatioStats;
+import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsScoreStats;
+import gr.ilsp.fc.utils.ContentNormalizer;
+import gr.ilsp.fc.utils.FCStringUtils;
+import gr.ilsp.fc.utils.Statistics;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -48,6 +52,8 @@ public class GetTMXsubset {
 	private final static String SEGMENTTYPE = "type"; 
 	private final static String L1URL = "l1-ulr";
 	private final static String L2URL = "l2-url";
+	private final static String RATIO = "lengthRatio";
+	private final static String INFO = "info";
 	private static boolean iso6393=false;
 	private static boolean oxslt=false;
 	private static boolean cc=true;
@@ -135,10 +141,10 @@ public class GetTMXsubset {
 		alignmentList = getSegs(segpairs,alignmentList, keepem, keepiden, keepdup, keepsn, cc);
 
 		if (!alignmentList.isEmpty()){
-			int[] stats1 =TMXHandlerUtils.countWordsInTMX(alignmentList, 1, true);
-			int[] stats2 =TMXHandlerUtils.countWordsInTMX(alignmentList, 2, true);
-			double[] scores = TMXHandlerUtils.scorestats(alignmentList);
-			
+			TUsNumStats stats1 =TMXHandlerUtils.numstats(alignmentList, 1, true);
+			TUsNumStats stats2 =TMXHandlerUtils.numstats(alignmentList, 2, true);
+			TUsScoreStats scores = TMXHandlerUtils.scorestats(alignmentList, true);
+			TUsRatioStats ratios = TMXHandlerUtils.ratiostats(alignmentList, true);
 			String organization = "ILSP";
 			String organizationURL = "http://www.ilsp.gr"; 
 			String projectId= "ELRC"; 
@@ -149,12 +155,20 @@ public class GetTMXsubset {
 			BilingualCorpusInformation bilingualCorpusInfo;
 			if (cc) {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), l1, l2, 
-						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0],stats1[1], stats2[1], stats1[2], stats2[2],stats1[3], stats2[3], scores[0], scores[1], 
+						alignmentList, alignmentList.size(), stats1.tus_noan,
+						stats1.tokens_all, stats2.tokens_all, stats1.words_all, stats2.words_all, 
+						stats1.tokens_noan, stats2.tokens_noan, stats1.words_noan, stats2.words_noan, 
+						scores.meanscore_all, scores.stdscore_all, ratios.meanratio_all, ratios.stdratio_all,
+						scores.meanscore_noan, scores.stdscore_noan, ratios.meanratio_noan, ratios.stdratio_noan,
 						domain, domainEurovocId, FREE_STR, creationDescription,
 						projectId, projectURL, organization, organizationURL);
 			} else {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), l1, l2, 
-						alignmentList, alignmentList.size(), stats1[5], stats1[0], stats2[0],stats1[1], stats2[1], stats1[2], stats2[2],stats1[3], stats2[3], scores[0], scores[1],
+						alignmentList, alignmentList.size(), stats1.tus_noan,
+						stats1.tokens_all, stats2.tokens_all, stats1.words_all, stats2.words_all, 
+						stats1.tokens_noan, stats2.tokens_noan, stats1.words_noan, stats2.words_noan, 
+						scores.meanscore_all, scores.stdscore_all, ratios.meanratio_all, ratios.stdratio_all,
+						scores.meanscore_noan, scores.stdscore_noan, ratios.meanratio_noan, ratios.stdratio_noan,
 						domain, domainEurovocId, UNKNOWN_STR, creationDescription,
 						projectId, projectURL, organization, organizationURL);
 			}
@@ -197,13 +211,14 @@ public class GetTMXsubset {
 			for (Tu tu: tus) {
 				alignments = alignments+1;
 				List<Object> tuProps = tu.getNoteOrProp();
-				String type="", site="", license="", other = "", l1url="", l2url="";
-				double score = 0;
+				String type="", site="", license="", other = "", l1url="", l2url="", annot="";
+				double score = 0, ratio=0;
 				for (Object obProp : tuProps) {
 					Prop prop = (Prop) obProp;
 					if (prop.getType().equals(SCORE)) {
-						//meanAlignmentScore = meanAlignmentScore + Double.parseDouble(prop.getContent().get(0));
 						score = Double.parseDouble(prop.getContent().get(0));
+					} else if (prop.getType().equals(RATIO)) {
+						ratio = Double.parseDouble(prop.getContent().get(0));
 					} else if (prop.getType().equals(SEGMENTTYPE)) {
 						type = prop.getContent().get(0);
 						String[] segs = StringUtils.split(prop.getContent().get(0), ":");
@@ -223,11 +238,13 @@ public class GetTMXsubset {
 						l1url = prop.getContent().get(0);
 					}else if(prop.getType().equals(L2URL)){
 						l2url = prop.getContent().get(0);
+					}else if(prop.getType().equals(INFO)){
+						annot = prop.getContent().get(0);
 					}
 				}
 				segpairs.add(new SegPair(StringUtils.join(TMXHandlerUtils.createSegmentList(tu, lang1), SPACE_SEPARATOR), 
 						StringUtils.join(TMXHandlerUtils.createSegmentList(tu, lang2), SPACE_SEPARATOR),
-						score, type, "",l1url, l2url, license, other));
+						score, type, "",l1url, l2url, license, other,ratio,annot));
 			}
 			logger.debug("Examining " + tmxFile.getAbsolutePath() + SPACE_SEPARATOR + tus.size());
 		} catch (FileNotFoundException e) {

@@ -284,7 +284,7 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 		
 		Prop LengthInTUsProperty = new Prop();
 		LengthInTUsProperty.setType(LENGTH_IN_TUs);
-		LengthInTUsProperty.getContent().add(Integer.toString(corpusinfo.getLenInTUs()));
+		LengthInTUsProperty.getContent().add(Integer.toString(corpusinfo.getAlignmentsSize()));
 		header.getNoteOrPropOrUde().add(LengthInTUsProperty);
 		//tmx.setHeader(header);
 		

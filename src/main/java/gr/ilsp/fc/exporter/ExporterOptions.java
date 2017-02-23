@@ -12,6 +12,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.io.FilenameUtils;
 //import org.apache.hadoop.mapred.JobConf;
 import org.apache.log4j.Logger;
 
@@ -19,32 +21,35 @@ import org.apache.log4j.Logger;
 public class ExporterOptions {
 	private static final Logger LOGGER = Logger.getLogger(ExporterOptions.class);
 	private static final String QUEST_SEPAR = ";";
-	
+	private static final String UNDERSCORE_STR = "_";
+	private static final String xml_type="xml";
 	private String APPNAME = "Export";
 	private Options options;
-	
-	private File _inputdir;
-	private File _outputdir;
-	private File _topic;
-	private File _negwords;
+
+	private File _inputDir;
+	private File _outputDir;
+	private File _topicFile;
+	private File _negwordsFile;
 	private File _outBaseName;
-		
+
 	private String[] _targetlanguages;
-		
-	private int _length=3;
+
+	private int _MinParLen=3;
 	private int _depth=10000;
-	private int _minTokensNumber=100;
-	
+	private int _MinDocLen=80;
+
 	private boolean _textexport=false;
-	private boolean _offline=false;
+	private boolean _runoffline=false;
 	private boolean _offlineXSLT=false;
-	private boolean _httrack=false;
-	private String _paths_repl="";
-	private String _targetDomain="";
-	
+	//private boolean _httrack=false;
+	//private String _paths_repl="";
+	private String _usertopic="";
+
 	private URL _genre;
 	private String _config;
-	
+	private String _agentName="ILSP-FC";
+	private CompositeConfiguration _configuration ;  
+
 	public ExporterOptions() {
 		createOptions();
 	}
@@ -58,8 +63,8 @@ public class ExporterOptions {
 				.hasArg()
 				.create("cfg") );
 		options.addOption( OptionBuilder.withLongOpt( "offline" )
-				.withDescription( "cleaning and normalization will be applied, i.e. HTML will be processed, other info will be extracted from RUN dirs")
-				.create("off") );
+				.withDescription( "input does not come from crawl")
+				.create("offline") );
 		options.addOption( OptionBuilder.withLongOpt( "inputdir" )
 				.withDescription( "Directory containing crawled data" )
 				.hasArg()
@@ -98,6 +103,10 @@ public class ExporterOptions {
 				.withDescription( "output directory" )
 				.hasArg()
 				.create("o") );	
+		options.addOption( OptionBuilder.withLongOpt( "agentname" )
+				.withDescription( "Agent name to identify the person or the organization responsible for the task" )
+				.hasArg()
+				.create("a") );
 		options.addOption( OptionBuilder.withLongOpt( "basename" )
 				.withDescription( "Basename to be used in generating all output files for easier content navigation" )
 				.isRequired()
@@ -109,9 +118,9 @@ public class ExporterOptions {
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
 				.create("help") );
-		options.addOption( OptionBuilder.withLongOpt( "webpages_by_httrack" )
-				.withDescription( "Httrack website copier has been used to download html pages" )
-				.create("httrack") );
+		//options.addOption( OptionBuilder.withLongOpt( "webpages_by_httrack" )
+		//		.withDescription( "Httrack website copier has been used to download html pages" )
+		//		.create("httrack") );
 		options.addOption( OptionBuilder.withLongOpt( "offline_xslt" )
 				.withDescription( "Apply an xsl transformation to generate html files during exporting.")
 				.create("oxslt") );
@@ -136,32 +145,29 @@ public class ExporterOptions {
 				help();
 			if(line.hasOption( "cfg"))
 				_config = line.getOptionValue("cfg");
-			if(line.hasOption( "i")) {
-				_inputdir = new File(line.getOptionValue("i"));
-				_inputdir = new File(_inputdir.getAbsolutePath());
-			}
-			else help();
-			if(line.hasOption( "off")) 
-				_offline=true;
-			if(line.hasOption( "httrack")) 
-				_httrack=true;
+			if(line.hasOption( "i")) 
+				_inputDir = new File(line.getOptionValue("i")).getAbsoluteFile();				//_inputDir = new File(_inputDir.getAbsolutePath());
+			else
+				help();
+			if(line.hasOption( "offline")) 
+				_runoffline=true;
+			//if(line.hasOption( "httrack")) 
+			//	_httrack=true;
 			if(line.hasOption( "oxslt")) 
 				_offlineXSLT  = true;
 			if(line.hasOption( "lang")) 
 				_targetlanguages = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true).split(QUEST_SEPAR);
-			if(line.hasOption( "tc")) {
-				_topic = new File(line.getOptionValue("tc"));
-				_topic = new File(_topic.getAbsolutePath());
-			}
+			if(line.hasOption( "tc")) 
+				_topicFile = new File(line.getOptionValue("tc")).getAbsoluteFile();				//_topicFile = new File(_topicFile.getAbsolutePath());
 			if(line.hasOption( "dom")) {
-				if (_topic==null){
+				if (_topicFile==null){
 					LOGGER.warn("The targeted domain is defined but a topic definition is not applied. " +
 							"So, the domain will be used as provided, i.e. it will not be identified.");
 					//help();
 				}else
-					_targetDomain = line.getOptionValue("dom");
+					_usertopic = line.getOptionValue("dom");
 			}else{
-				if (_topic!=null){
+				if (_topicFile!=null){
 					LOGGER.error("Even though a topic definition is applied the targeted domain is not defined. Define a domain name ");
 					help();
 				}
@@ -178,39 +184,42 @@ public class ExporterOptions {
 				LOGGER.info("Genre types and keywrods are included in file: " + _genre);
 			}*/
 			if(line.hasOption( "len")) 
-				_length = Integer.parseInt(line.getOptionValue("len"));
+				_MinParLen = Integer.parseInt(line.getOptionValue("len"));
 			if(line.hasOption( "mtlen"))
-				_minTokensNumber = Integer.parseInt(line.getOptionValue("mtlen"));
+				_MinDocLen = Integer.parseInt(line.getOptionValue("mtlen"));
 			if(line.hasOption( "depth"))
 				_depth = Integer.parseInt(line.getOptionValue("depth"));
-			if(line.hasOption( "neg")) {
-				_negwords = new File(line.getOptionValue("n"));
-				_negwords = new File(_negwords.getAbsolutePath());
-			} 
+			if(line.hasOption( "neg")) 
+				_negwordsFile = new File(line.getOptionValue("neg")).getAbsoluteFile();
+			//_negwordsFile = new File(_negwordsFile.getAbsolutePath());
 			if(line.hasOption( "te"))
 				_textexport = true;
-			if(line.hasOption( "o")) {
-				_outputdir = new File(line.getOptionValue("o"));
-				_outputdir = new File(_outputdir.getAbsolutePath());
-			} 
-			if(line.hasOption( "bs")) 
-				_outBaseName = new File(line.getOptionValue("bs"));
+			if(line.hasOption( "o")) 
+				_outputDir = new File(line.getOptionValue("o")).getAbsoluteFile();
+			else
+				_outputDir = new File(FilenameUtils.concat(_inputDir.getAbsolutePath(), xml_type));
+			//if(line.hasOption( "bs")) 
+			//	_outBaseName = new File(line.getOptionValue("bs")).getAbsoluteFile();
+			if(line.hasOption( "a"))
+				_agentName = line.getOptionValue("a").replace(" ", "_");
+			if (line.hasOption( "bs")) 
+				_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName).getAbsoluteFile();
 			else{
 				LOGGER.error("BaseName for outfiles is required");
 				help();				
 			}
-			if(line.hasOption( "p_r")) {
+			/*if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
 				if (_paths_repl.endsWith("/"))
 					_paths_repl=_paths_repl.substring(0, _paths_repl.length()-1);
-			}
+			}*/
 		} catch( ParseException exp ) {
 			// oops, something went wrong
 			System.err.println( "Parsing options failed.  Reason: " + exp.getMessage() );			
 			System.exit(64);
 		}
 	}
-	
+
 	public  void help(){
 		printHelp( APPNAME  , options );
 		System.exit(0);
@@ -220,60 +229,69 @@ public class ExporterOptions {
 		formatter.printHelp( program, options );
 	}
 
-	public File get_inputdir() {
-		return _inputdir;
-	}
-
 	public String[] get_language() {
 		return _targetlanguages;
 	}
-
-	public File get_topic() {
-		return _topic;
+	public File getTopicFile() {
+		return _topicFile;
 	}
-
-	public File get_negwords() {
-		return _negwords;
+	public File getNegwordsFile() {
+		return _negwordsFile;
 	}
-
-	public File get_outputdir() {
-		return _outputdir;
+	public File getOutputDir() {
+		return _outputDir;
 	}
-
-	public int get_length() {
-		return _length;
+	public File getInputDir() {
+		return _inputDir;
+	}
+	public int getMinParLen() {
+		return _MinParLen;
+	}
+	public int getMinDocLen() {
+		return _MinDocLen;
 	}
 	public int get_depth() {
 		return _depth;
-	}
-	public int get_minTokenslength() {
-		return _minTokensNumber;
 	}
 	public boolean get_textexport(){
 		return _textexport;
 	}
 	public boolean getRunOffLine(){
-		return _offline;
+		return _runoffline;
 	}
 	public boolean applyOfflineXSLT(){
 		return _offlineXSLT;
 	}
-	public boolean usedHttrack(){
+	/*public boolean usedHttrack(){
 		return _httrack;
-	}
+	}*/
 	public  File getBaseName() {
 		return _outBaseName;
 	}
-	public  String getTargetDomain() {
-		return _targetDomain;
+	public  String getUserTopic() {
+		return _usertopic;
 	}
+	/*public String get_paths_repl() {
+		return _paths_repl;
+	}*/
+
 	public URL getGenre(){
 		return _genre;
 	}
+
 	public String getConfig(){
 		return _config;
 	}
-	public boolean runOffLine(){
-		return _offline;
+	//	public boolean runOffLine(){
+	//		return _runoffline;
+	//	}
+
+	public CompositeConfiguration getConfiguration(){
+		return _configuration;
 	}
+
+	public String getAgentName() {
+		return _agentName;
+	}
+
 }

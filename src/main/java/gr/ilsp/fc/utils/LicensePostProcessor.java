@@ -1,6 +1,6 @@
 package gr.ilsp.fc.utils;
 
-import gr.ilsp.fc.main.WriteResources;
+import gr.ilsp.fc.readwrite.WriteResources;
 
 import java.io.File;
 import java.io.FileNotFoundException;

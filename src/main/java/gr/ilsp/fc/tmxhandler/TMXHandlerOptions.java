@@ -23,7 +23,7 @@ public class TMXHandlerOptions {
 	
 	private static final Logger LOGGER = Logger.getLogger(TMXHandlerOptions.class);
 	private static final String QUEST_SEPAR = ";";
-	private List<String>_sites ;
+	private List<String> _sites ;
 	private File _targetDir = null;
 	private File _baseName=null;
 	private File _o1=null;
@@ -40,13 +40,13 @@ public class TMXHandlerOptions {
 	private boolean _keepem = false;
 	private boolean _keepiden = false;
 	private boolean _keepdup = false;
-	//private boolean _metadata=true;
 	private List<String> _segtypes=new ArrayList<String>();
-	private int[] _thres={ 10, 10, 10, 10, 10, 10, 10, 10};
+	private int[] _thres={ 100, 100, 100, 100, 100, 100, 100, 100};
 /*	private int _minTuvLen = 5;
 	private double _minPerce01Align = 0.15;
 	private  double _minTULenRatio = 0.6;
 	private  double _maxTULenRatio = 1.6;*/
+	private int _maxsize = 1000000000;
 	private  int _minTuvLen = 0;
 	private  double _minPerce01Align = 1;
 	private  double _minTULenRatio = 0;
@@ -101,13 +101,14 @@ public class TMXHandlerOptions {
 				.withDescription( "If exist, only document pairs for which"
 						+ " a license has been detected will be selected in merged TMX.")
 				.create("cc") );
-		//options.addOption( OptionBuilder.withLongOpt( "export_collection_metadata" )
-		//		.withDescription( "If exist, metadata of the collection (i.e. the merged TMX file), will be exported")
-		//		.create("metadata") );
 		options.addOption( OptionBuilder.withLongOpt( "Min_TUV_Length" )
 				.withDescription( "minimum length of an acceptable TUV")
 				.hasArg()
 				.create("mtuvl") );
+		options.addOption( OptionBuilder.withLongOpt( "Max_TUs" )
+				.withDescription( "maximum number of TUs")
+				.hasArg()
+				.create("size") );
 		options.addOption( OptionBuilder.withLongOpt( "MinPerce01Align" )
 				.withDescription( "minimum percentage of 0:1 alignments in a TMX, to be accepted ")
 				.hasArg()
@@ -231,6 +232,8 @@ public class TMXHandlerOptions {
 					_segtypes.add(str);
 				}
 			}
+			if(line.hasOption( "size"))
+				_maxsize = Integer.parseInt(line.getOptionValue("size")); 
 			if(line.hasOption( "sites")){
 				try {
 					_sites = FileUtils.readLines(new File(line.getOptionValue("sites")));
@@ -275,9 +278,6 @@ public class TMXHandlerOptions {
 	public boolean getCC() {
 		return _cc;
 	}
-	//public boolean getMetadata() {
-	//	return _metadata;
-	//}
 	public boolean keepTuSameNum() {
 		return _keepsn;
 	}
@@ -310,6 +310,9 @@ public class TMXHandlerOptions {
 	}
 	public int getMinTuvLen() {
 		return _minTuvLen;
+	}
+	public int getMaxSize() {
+		return _maxsize;
 	}
 	public double getMinPerce01Align() {
 		return _minPerce01Align;

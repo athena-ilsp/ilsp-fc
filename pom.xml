@@ -339,7 +339,7 @@
 							</descriptorRefs>
 							<archive>
 								<manifest>
-									<mainClass>gr.ilsp.fc.main.Crawl</mainClass>
+									<mainClass>gr.ilsp.fc.main.Run</mainClass>
 								</manifest>
 							</archive>
 						</configuration>

@@ -2,7 +2,8 @@ package gr.ilsp.fc.langdetect;
 
 //import org.apache.tika.language.LanguageIdentifier;
 
-import gr.ilsp.fc.main.Crawl;
+//import gr.ilsp.fc.main.Crawl;
+import gr.ilsp.fc.main.Run;
 import gr.ilsp.fc.utils.DirUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.JarUtils;
@@ -96,7 +97,7 @@ public class LangDetectUtils {
 	 * Loads Cybozu Language Detector
 	 */
 	public static void loadCybozuLangIdentifier() {
-		URL urldir = Crawl.class.getResource("/profiles");
+		URL urldir = Run.class.getResource("/profiles");
 		LOGGER.info("Loading language profiles for Cybozu language identifier");
 		if (urldir.getProtocol()=="jar"){
 			File tempDir = DirUtils.createTempDir();

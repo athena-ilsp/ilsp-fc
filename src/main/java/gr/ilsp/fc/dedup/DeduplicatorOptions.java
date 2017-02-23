@@ -16,7 +16,8 @@ public class DeduplicatorOptions {
 
 	private Options options;
 	private String APPNAME = "(Near) Deduplication";
-	private static String QUEST_SEPAR = ";";
+	private static final String SEMICOLON_STR = ";";
+	private static final String UNDERSCORE_STR = "_";
 	
 	private String _method="0";
 	private static double inter_thr=0.7; //intersection of common paragraphs
@@ -25,8 +26,9 @@ public class DeduplicatorOptions {
 	private static boolean _applyOfflineXSLT= false;
 	private File _targetDir = null;
 	private File _outBaseName = null;
+	private String _agentName = "ILSP-FC";
 	private String _inputType = "xml";
-	private Set<String> _exludefiles=null;
+	private Set<String> _excludefiles=null;
 		
 	public DeduplicatorOptions() {
 		createOptions();
@@ -42,28 +44,28 @@ public class DeduplicatorOptions {
 						+ "2 for Deduplication based on common paragraphs."
 						+ "0 for applying both methods." )
 				.hasArg()
-				.create("m") );
+				.create("dedup_meth") );
 		options.addOption( OptionBuilder.withLongOpt( "min_tok_len" )
 				.withDescription( "Tokens with less than MIN_TOK_LEN (default is 3) are excluded from content" )
 				.hasArg()
-				.create("mtl") );
+				.create("dedup_mtl") );
 		options.addOption( OptionBuilder.withLongOpt( "min_par_len_in_toks" )
 				.withDescription( "Paragraphs with less than MIN_PAR_LEN (default is 3) tokens are excluded from content" )	
 				.hasArg()
-				.create("mpl") );
+				.create("dedup_mpl") );
 		options.addOption( OptionBuilder.withLongOpt( "intersectionThr_paragraphs" )
 				.withDescription( "Documents for which the ratio the common paragraphs"
 						+ " with the shortest of them is more than this threshold are considered duplicates")	
 				.hasArg()
-				.create("ithr") );
+				.create("dedup_ithr") );
 		options.addOption( OptionBuilder.withLongOpt( "targetdir" )
 				.withDescription( "cesDocFiles in this directory will be examined" )
 				.hasArg()
-				.create("o") );	
+				.create("i") );	
 		options.addOption( OptionBuilder.withLongOpt( "inputType" )
 				.withDescription( "type of input files, default is xml, also supports txt" )
 				.hasArg()
-				.create("int") );
+				.create("dedup_intype") );
 		options.addOption( OptionBuilder.withLongOpt( "baseName" )
 				.withDescription( "baseName to be used for outfiles (textfile or HTML file with list of paths of the remained cesDocFiles)" )
 				.hasArg()
@@ -71,10 +73,14 @@ public class DeduplicatorOptions {
 		options.addOption( OptionBuilder.withLongOpt( "exclude_files" )
 				.withDescription( "cesDocFiles to be excluded for deduplication separated by \";\"" )	
 				.hasArg()
-				.create("ex") );
+				.create("dedup_ex") );
 		options.addOption( OptionBuilder.withLongOpt( "offlineXslt" )
 				.withDescription( "cesDocFiles have been XSLT transformed" )				
 				.create("oxslt") );
+		options.addOption( OptionBuilder.withLongOpt( "agentname" )
+				.withDescription( "Agent name to identify the person or the organization responsible for the task" )
+				.hasArg()
+				.create("a") );
 		options.addOption( OptionBuilder.withLongOpt( "help" )
 				.withDescription( "Help" )
 				.create("h") );
@@ -88,26 +94,26 @@ public class DeduplicatorOptions {
 			CommandLine line = clParser.parse( options, args );
 			if(line.hasOption( "h")) 
 				help();
-			if(line.hasOption( "m")) 
+			if(line.hasOption( "dedupmeth")) 
 				_method = line.getOptionValue("mt");
-			if(line.hasOption( "mtl")) 
-				MIN_TOK_LEN = Integer.parseInt(line.getOptionValue("mtl"));
-			if(line.hasOption( "mpl")) 
-				MIN_PAR_LEN = Integer.parseInt(line.getOptionValue("mpl"));
-			if(line.hasOption( "ithr")) 
-				inter_thr = Integer.parseInt(line.getOptionValue("ithr"));
-			if(line.hasOption( "o")) {
-				_targetDir = new File(line.getOptionValue("o"));
-				_targetDir = new File(_targetDir.getAbsolutePath());
-			}
+			if(line.hasOption( "dedup_mtl")) 
+				MIN_TOK_LEN = Integer.parseInt(line.getOptionValue("dedup_mtl"));
+			if(line.hasOption( "dedup_mpl")) 
+				MIN_PAR_LEN = Integer.parseInt(line.getOptionValue("dedup_mpl"));
+			if(line.hasOption( "dedup_ithr")) 
+				inter_thr = Double.parseDouble(line.getOptionValue("dedup_ithr"));
+			if(line.hasOption( "i")) 
+				_targetDir = new File(line.getOptionValue("i")).getAbsoluteFile();
 			if(line.hasOption( "bs"))
-				_outBaseName = new File(line.getOptionValue("bs"));
-			if(line.hasOption( "int"))
-				_inputType = line.getOptionValue("int");
-			if(line.hasOption( "exf")){ 
-				String[] temp= line.getOptionValue("exf").split(QUEST_SEPAR);
+				_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName).getAbsoluteFile();
+			if(line.hasOption("a"))
+				_agentName= line.getOptionValue("a").replace(" ", "_");
+			if(line.hasOption( "dedup_intype"))
+				_inputType = line.getOptionValue("dedup_intype");
+			if(line.hasOption( "dedup_exf")){ 
+				String[] temp= line.getOptionValue("dedup_exf").split(SEMICOLON_STR);
 				for (int ii=0;ii<temp.length;ii++){
-					_exludefiles.add(FilenameUtils.concat(_targetDir.getAbsolutePath(), temp[ii]));
+					_excludefiles.add(FilenameUtils.concat(_targetDir.getAbsolutePath(), temp[ii]));
 				}
 			}
 			if(line.hasOption( "oxslt"))
@@ -145,7 +151,7 @@ public class DeduplicatorOptions {
 		return _outBaseName;
 	}
 	public Set<String> getListExcludeFiles(){
-		return _exludefiles;
+		return _excludefiles;
 	}
 	public boolean applyOfflineXSLT(){
 		return _applyOfflineXSLT;

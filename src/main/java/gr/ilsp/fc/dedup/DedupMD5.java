@@ -1,7 +1,7 @@
 package gr.ilsp.fc.dedup;
 
 import gr.ilsp.fc.dedup.DedupUtils.TextAttr;
-import gr.ilsp.fc.main.WriteResources;
+import gr.ilsp.fc.readwrite.WriteResources;
 
 import java.io.File;
 //import java.io.FilenameFilter;

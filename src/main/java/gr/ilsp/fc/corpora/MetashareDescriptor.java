@@ -5,7 +5,6 @@ import java.io.File;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.namespace.NamespaceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,8 +75,6 @@ public abstract class MetashareDescriptor {
 		
 		ObjectFactory objectFactory = new ObjectFactory();
 		ResourceInfoType resourceInfoType = objectFactory.createResourceInfoType();
-		
-		
 		//
 		IdentificationInfoType identificationInfoType = objectFactory.createIdentificationInfoType();
 		IdentificationInfoType.ResourceName resourceNameEle = new IdentificationInfoType.ResourceName();
@@ -88,7 +85,6 @@ public abstract class MetashareDescriptor {
 		description.setLang(getMetadataLang());
 		description.setValue(getDescription());
 		identificationInfoType.getDescription().add(description);
-	
 		// 
 		DistributionInfo distributionInfo = objectFactory.createDistributionInfo();
 		LicenceInfo licenseInfo = objectFactory.createLicenceInfo();
@@ -168,6 +164,8 @@ public abstract class MetashareDescriptor {
 		resourceInfoType.setIdentificationInfo(identificationInfoType);
 		resourceInfoType.setDistributionInfo(distributionInfo);
 		
+		//createQualityIndicatorsInfo(objectFactory, corpusTextInfo);
+		
 		logger.debug("Starting creating metashare descriptor ");
 
 		try {
@@ -186,8 +184,10 @@ public abstract class MetashareDescriptor {
 
 	public abstract void createDomainInfo(ObjectFactory objectFactory,  CorpusTextInfo corpusTextInfo) ;
 
-	public abstract void createCorpusSizeInfo(ObjectFactory objectFactory, CorpusTextInfo corpusTextInfo) ;
+	//public abstract void createQualityIndicatorsInfo(ObjectFactory objectFactory, CorpusTextInfo corpusTextInfo) ;
 
+	public abstract void createCorpusSizeInfo(ObjectFactory objectFactory, CorpusTextInfo corpusTextInfo) ;
+	
 	protected abstract void createLingualityInfo(ObjectFactory objectFactory, CorpusTextInfo corpusTextInfo) ;
 
 	/**

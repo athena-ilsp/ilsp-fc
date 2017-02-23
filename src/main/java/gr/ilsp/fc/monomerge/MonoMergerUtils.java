@@ -1,7 +1,7 @@
 package gr.ilsp.fc.monomerge;
 
 import gr.ilsp.fc.aligner.factory.ILSPAlignment;
-import gr.ilsp.fc.main.ReadResources;
+import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 

@@ -24,9 +24,10 @@ package gr.ilsp.fc.pipes;
 
 import gr.ilsp.fc.classifier.Classifier;
 import gr.ilsp.fc.classifier.ClassifierCounters;
+import gr.ilsp.fc.crawl.Crawler;
 import gr.ilsp.fc.datums.ClassifierDatum;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
-import gr.ilsp.fc.main.Crawl;
+//import gr.ilsp.fc.main.Crawl;
 import gr.ilsp.fc.parser.ScoreLinks;
 
 import org.apache.log4j.Logger;
@@ -99,12 +100,16 @@ public class ClassifierPipe extends SubAssembly {
                 ClassifierDatum classifyResult = _classifier.classify(parsedDatum);
                 if (classifyResult==null) {
                 	_flowProcess.increment(ClassifierCounters.CLASSIFIER_DOCUMENTS_FAILED, 1);
-                	Crawl.incrementPagesCutByClassifier();
+                	//Crawl.incrementPagesCutByClassifier();
+                	Crawler.incrementPagesCutByClassifier();
                 }else {
 	                _flowProcess.increment(ClassifierCounters.CLASSIFIER_DOCUMENTS_PASSED, 1);                
 	                functionCall.getOutputCollector().add(classifyResult.getTuple());
-	                Crawl.incrementPagesStored();
-	                Crawl.incrementTokensStored(classifyResult.getLengthInTok());
+	                //Crawl.incrementPagesStored();
+	                //Crawl.incrementTokensStored(classifyResult.getLengthInTok());
+	                Crawler.incrementPagesStored();
+	                Crawler.incrementTokensStored(classifyResult.getLengthInTok());
+	                
                 }
             } catch (Exception e) {
                 LOGGER.info("CLASSIFIER_Error processing " + parsedDatum.getUrl(), e);

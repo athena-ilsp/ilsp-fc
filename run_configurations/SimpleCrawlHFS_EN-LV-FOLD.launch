@@ -11,9 +11,7 @@
 </mapAttribute>
 <stringAttribute key="org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE" value="/tmp/ilsp-fc.log"/>
 <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
-<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gr.ilsp.fc.main.SimpleCrawlHFS"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="crawlandexport -f -a fold_lv -type p -l1 en -l2 lv -u ${project_loc}/src/main/resources/seed_examples.txt  -dest &quot;/tmp/crawl_results/&quot; -k -n 1 -xslt -oxslt -of &quot;/tmp/crawl_results/output_fold_EN-LV.txt&quot; -ofh &quot;/tmp/crawl_results/output_demo_EN-LV.txt.html&quot; -oft &quot;/tmp/crawl_results/output_demo_EN-LV_tmx.txt&quot; -ofth &quot;/tmp/crawl_results/output_demo_EN-LV_tmx.html&quot; -align maligna"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="gr.ilsp.ilsp-fc-2.2.2"/>
-<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 </launchConfiguration>

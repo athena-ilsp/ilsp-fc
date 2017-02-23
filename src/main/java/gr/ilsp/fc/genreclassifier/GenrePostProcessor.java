@@ -1,7 +1,7 @@
 package gr.ilsp.fc.genreclassifier;
 
-import gr.ilsp.fc.main.ReadResources;
-import gr.ilsp.fc.main.WriteResources;
+import gr.ilsp.fc.readwrite.ReadResources;
+import gr.ilsp.fc.readwrite.WriteResources;
 import gr.ilsp.fc.utils.LicensePostProcessor;
 import gr.ilsp.fc.utils.TopicTools;
 

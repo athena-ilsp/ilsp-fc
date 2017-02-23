@@ -5,6 +5,8 @@ package gr.ilsp.fc.bitext;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -32,10 +34,11 @@ public class PairDetectorOptions {
 	private  File _groundTruth;
 	private String _methods="aupdih";
 	private String _language;
+	private List<String> _langPairs;
 	private boolean _keepimagefp=false;
 	private boolean offlineXSLT = false;
 	private static final Logger LOGGER = Logger.getLogger(PairDetectorOptions.class);
-	private static final String QUEST_SEPAR = ";";
+	private static final String SEMICOLON_STR = ";";
 	private static String DOUBLEQUEST_SEPAR = ";;";
 	private boolean _delFiles = false;
 	
@@ -120,14 +123,12 @@ public class PairDetectorOptions {
 				_loggingAppender = line.getOptionValue("l");
 			if(line.hasOption( "pdm")) 
 				_methods = line.getOptionValue("pdm");
-			if(line.hasOption( "i")) {
-				_inDir = new File(line.getOptionValue("i"));
-				_inDir = new File(_inDir.getAbsolutePath());
-			}
-			if(line.hasOption( "o")) {
-				_outputDir = new File(line.getOptionValue("o"));
-				_outputDir = new File(_outputDir.getAbsolutePath());
-			}
+			if(line.hasOption( "i"))
+				_inDir = new File(line.getOptionValue("i")).getAbsoluteFile();
+			if(line.hasOption( "o")) 
+				_outputDir = new File(line.getOptionValue("o")).getAbsoluteFile();
+			else
+				_outputDir = new File(_inDir.getAbsolutePath());
 			if(line.hasOption( "bs")) {
 				_outBaseName = new File(line.getOptionValue("bs"));
 				if(line.hasOption( "oxslt"))
@@ -135,10 +136,7 @@ public class PairDetectorOptions {
 			}
 			if(line.hasOption( "lang")) {
 				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(), true);
-				if (_language.split(QUEST_SEPAR).length!=2){
-					LOGGER.error("You should provide 2 languages.");
-					help();
-				}
+				_langPairs = findLangPairs(_language);
 			}else{
 				LOGGER.error("No languages have been defined.");
 				System.exit(0);
@@ -159,7 +157,7 @@ public class PairDetectorOptions {
 				String[] aa=temp.split(DOUBLEQUEST_SEPAR);
 				String[][] urls_repls =new String[aa.length][2];  
 				for (int ii=0;ii<aa.length;ii++){
-					String[] bb = aa[ii].split(QUEST_SEPAR);
+					String[] bb = aa[ii].split(SEMICOLON_STR);
 					if (bb.length<=1){
 						LOGGER.error("the argument for URL replacements is not correct." +
 								" Use ;; to seperate pairs and ; to separate the parts of each pair." +
@@ -226,4 +224,25 @@ public class PairDetectorOptions {
 	public boolean isOfflineXSLT() {
 		return offlineXSLT;
 	}
+	public List<String> getLangPairs() {
+		return _langPairs;
+	}
+	/**
+	 * gets a string with language iso codes separated by ";" and returns a list with all the possible language pairs.
+	 * @param language
+	 * @return
+	 */
+	private List<String> findLangPairs(String language) {
+		String[] langs = language.split(SEMICOLON_STR); 
+		List<String> lang_pairs = new ArrayList<String>();
+		if (langs.length>1){
+			for (int ii=0;ii<langs.length-1;ii++){
+				for (int jj=ii+1;jj<langs.length;jj++){
+					lang_pairs.add(langs[ii]+SEMICOLON_STR+langs[jj]);
+				}
+			}
+		}
+		return lang_pairs;
+	}
+	
 }

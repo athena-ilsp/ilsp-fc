@@ -1,8 +1,8 @@
 package gr.ilsp.fc.bitext;
 
+import gr.ilsp.fc.attic.CrawlConfig;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.parser.ExtendedOutlink;
-import gr.ilsp.fc.utils.CrawlConfig;
 import gr.ilsp.fc.utils.ISOLangCodes;
 
 import java.io.IOException;

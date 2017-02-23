@@ -1,7 +1,7 @@
 package gr.ilsp.fc.bitext;
 
-import gr.ilsp.fc.exporter.XSLTransformer;
 import gr.ilsp.fc.utils.PrettyPrintHandler;
+import gr.ilsp.fc.utils.XSLTransformer;
 
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;

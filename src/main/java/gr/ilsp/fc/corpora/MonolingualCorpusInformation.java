@@ -1,32 +1,34 @@
 package gr.ilsp.fc.corpora;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 public class MonolingualCorpusInformation extends CorpusInformation {
-	private int tokensSize;
-	private int sentenceSize;
+	private int tokensNum;
+	private int sentencesNum;
+	private int paragraphsNum;
+	private int filesNum;
 	private int vocSize;
 	private String lang;
-	private String DOCLEVEL = "_doc_";
-	//private String SENLEVEL = "_sen_";
-	//private String PARLEVEL = "_par_";
+	private String level;
 	
 	private static final Logger logger = LoggerFactory.getLogger(MonolingualCorpusInformation.class);
 
-	public MonolingualCorpusInformation(String name, String lang, 
-			int filesSize, int tokensSize, int vocSize, String domain, String domainId, String availability, String creationDescription,
+	public MonolingualCorpusInformation(String name, String lang, String level, 
+			int filesNum, int paragraphsNum, int sentencesNum, int tokensNum, int vocSize, 
+			String domain, String domainId, String availability, String description, String creationDescription,
 			String projectId, String projectURL, String organization, String organizationURL) {
 
 		logger.debug(domain);
 
 		this.lang = lang;
 		this.domain = domain;
-		this.filesSize = filesSize;
-		this.tokensSize = tokensSize;
-		//this.lenInSentences = sentenceSize;
+		this.level = level;
+		this.filesNum = filesNum;
+		this.tokensNum = tokensNum;
+		this.sentencesNum = sentencesNum;
+		this.paragraphsNum = paragraphsNum;
 		this.vocSize = vocSize;
 		this.availability = availability;
 		this.domainId = domainId;
@@ -37,14 +39,7 @@ public class MonolingualCorpusInformation extends CorpusInformation {
 		this.organization = organization;
 		this.organizationURL = organizationURL;
 		this.name = name;
-		this.description = "Monolingual (" + lang + ") " + "corpus";
-		if (name.contains(DOCLEVEL))
-			this.description = this.description + ". It consists of " + filesSize + " documents";
-		this.description = this.description +" containing " + tokensSize  + " tokens and "+ vocSize + " lexical types";
-		if (!StringUtils.isBlank(domain)) 
-			this.description = this.description + " in the " + domain + " domain.";
-		else
-			this.description = this.description + ".";
+		this.description = description;
 	}
 
 
@@ -53,52 +48,76 @@ public class MonolingualCorpusInformation extends CorpusInformation {
 
 
 	/**
-	 * @return the tokensSize
+	 * @return the paragraphsNum
 	 */
-	public int getTokensSize() {
-		return tokensSize;
+	public int getParagraphsNum() {
+		return paragraphsNum;
 	}
-
 
 	/**
-	 * @param tokensSize the tokensSize to set
+	 * @param paragraphsNum the paragraphsNum to set
 	 */
-	public void setTokensSize(int tokensSize) {
-		this.tokensSize = tokensSize;
+	public void setParagraphsNum(int paragraphsNum) {
+		this.paragraphsNum = paragraphsNum;
 	}
-
+	
+	
+	/**
+	 * @return the filesNum
+	 */
+	public int getFilesNum() {
+		return filesNum;
+	}
 
 	/**
-	 * @return the sentenceSize
+	 * @param filesNum the filesNum to set
 	 */
-	public int getSentenceSize() {
-		return sentenceSize;
+	public void setFilesNum(int filesNum) {
+		this.filesNum = filesNum;
 	}
-
+	
+	
+	/**
+	 * @return the tokensNum
+	 */
+	public int getTokensNum() {
+		return tokensNum;
+	}
 
 	/**
-	 * @param sentenceSize the sentenceSize to set
+	 * @param tokensNum the tokensNum to set
 	 */
-	public void setSentenceSize(int sentenceSize) {
-		this.sentenceSize = sentenceSize;
+	public void setTokensNum(int tokensNum) {
+		this.tokensNum = tokensNum;
 	}
 
+	/**
+	 * @return the sentencesNum
+	 */
+	public int getSentenceNum() {
+		return sentencesNum;
+	}
+
+	/**
+	 * @param sentencesNum the sentencesNum to set
+	 */
+	public void setSentenceNum(int sentencesNum) {
+		this.sentencesNum = sentencesNum;
+	}
 
 	/**
 	 * @return the vocSize
 	 */
-	public int getVocSize() {
+	public int getLexTypesNum() {
 		return vocSize;
 	}
-
 
 	/**
 	 * @param vocSize the vocSize to set
 	 */
-	public void setVocSize(int vocSize) {
+	public void setLexTypesNum(int vocSize) {
 		this.vocSize = vocSize;
 	}
-
 
 	/**
 	 * @return the lang
@@ -107,7 +126,6 @@ public class MonolingualCorpusInformation extends CorpusInformation {
 		return lang;
 	}
 
-
 	/**
 	 * @param lang the lang to set
 	 */
@@ -115,14 +133,26 @@ public class MonolingualCorpusInformation extends CorpusInformation {
 		this.lang = lang;
 	}
 
+	
+	/**
+	 * @return the level
+	 */
+	public String getLevel() {
+		return level;
+	}
 
+	/**
+	 * @param level the level to set
+	 */
+	public void setLevel(String level) {
+		this.level = level;
+	}
+	
+	
 	/**
 	 * @return the logger
 	 */
 	public static Logger getLogger() {
 		return logger;
 	}
-
-
-
 }

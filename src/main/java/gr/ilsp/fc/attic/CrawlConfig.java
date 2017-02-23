@@ -1,4 +1,4 @@
-package gr.ilsp.fc.utils;
+package gr.ilsp.fc.attic;
 
 
 public class CrawlConfig {

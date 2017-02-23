@@ -1,9 +1,8 @@
-package gr.ilsp.fc.main;
+package gr.ilsp.fc.crawl;
 
 import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
-import gr.ilsp.fc.utils.FCStringUtils;
-import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.fc.readwrite.ReadResources;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,14 +10,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
@@ -32,17 +32,18 @@ import cascading.tap.Hfs;
 import cascading.tap.Tap;
 import cascading.tuple.TupleEntryCollector;
 
-public class CrawlUtils {
-	private static final Logger LOGGER = Logger.getLogger(CrawlUtils.class);
+public class CrawlerUtils {
+	private static final Logger LOGGER = Logger.getLogger(CrawlerUtils.class);
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
-	private static final String UNDERSCORE_STR = "_";
-	private static final String CSV = ".csv";
+	private static final String QUEST_SEPAR = ";";
+
+	private static final String LANG_KEYS_RESOURCE = "langKeys.txt" ;
 	protected static String filesepar = System.getProperty("file.separator");
-	
-	
-	
+
+
+
 	/**
-	 * @param outputDirName to store the downloaded HTML, the created cesDoc or/and cesAling XML files 
+	 * @param 
 	 * @return Create log output file in loop directory.. 
 	 */
 	public static String setLoopLoggerFile(String outputDirName, int loopNumber) {
@@ -65,7 +66,7 @@ public class CrawlUtils {
 		}
 		return loopLogFile;
 	}
-	
+
 	/**
 	 * @param urls:crawler will start from these URLS, crawlDbPath: path for loops' results, conf:crawler's configuration
 	 * @return initialize the frontier with the seed URL list. 
@@ -166,7 +167,7 @@ public class CrawlUtils {
 		}
 	}	
 
-	
+
 	/**
 	 * Checks if stored/visited pages of the current crawl cycle is different from the previous crawl cycle,
 	 * @param stor_vis Array of stored and visited pages per run
@@ -182,8 +183,8 @@ public class CrawlUtils {
 		return stop_crawl;
 	}
 
-	
-	public static void createCSV(CrawlOptions options, Map<String, Integer> langnumMap, String logpair) {
+
+	/*public static void createCSV(CrawlerOptions options, Map<String, Integer> langnumMap, String logpair) {
 		File csvfile = new File(options.getBaseName()+UNDERSCORE_STR+"depthIs"+options.upToDepth()+UNDERSCORE_STR+CSV);
 		String csvtext="";
 		String webdomains = options.getFilter();
@@ -191,7 +192,7 @@ public class CrawlUtils {
 			webdomains = options.getDomain()+"\t"+options.getMainDomain();
 		csvtext = "targeted domain:\t"+webdomains+"\n";
 		csvtext = csvtext+"crawled up to depth:\t"+options.upToDepth()+"\n";
-		csvtext = csvtext+"minimum length of text of accepted webpages:\t"+options.getminTokenslength()+"\n";
+		csvtext = csvtext+"minimum length of text of accepted webpages:\t"+options.getMinDocLen()+"\n";
 		//csvtext = csvtext+"staring from";
 		//csvtext = addSeeds(csvtext, new File(options.getUrls()));
 		String[][] sortlangs = Statistics.sort2darray(FCStringUtils.map2array(langnumMap),2,"d");
@@ -206,9 +207,9 @@ public class CrawlUtils {
 			LOGGER.error("problem in writing the file "+csvfile.getAbsolutePath());
 			e.printStackTrace();
 		}
-	}
+	}*/
 
-	private static String addSeeds(String csvtext, File seedFile) {
+	/*private static String addSeeds(String csvtext, File seedFile) {
 		List<String> urlLines;
 		try {
 			urlLines = FileUtils.readLines(seedFile);
@@ -222,7 +223,7 @@ public class CrawlUtils {
 			e.printStackTrace();
 		}
 		return csvtext;
-	}
+	}*/
 
 	public static String path2str(Path curLoopDir) {
 		String curLoopDirName = curLoopDir.toUri().toString();
@@ -252,15 +253,15 @@ public class CrawlUtils {
 		}
 		return res;
 	}
-	
-	
+
+
 	/**
 	 * Returns the dirPath of the running jar
 	 * @return
 	 */
 	public static String getRunningJarPath() {
 		String runpath="";
-		String path = CrawlUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		String path = CrawlerUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		try {
 			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
 			runpath= decodedPath.getParent();
@@ -270,6 +271,29 @@ public class CrawlUtils {
 		}
 		return runpath;
 	}
-	
+
+
+	public static String getSupportedLanguages() {
+		String supportedlangs = "";
+		try {
+			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
+			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
+			String str;
+			while ((str = in.readLine()) != null) {
+				supportedlangs=supportedlangs+QUEST_SEPAR+str.subSequence(0, str.indexOf(">")).toString();
+			}
+			in.close();
+		} catch (IOException e) {
+			LOGGER.error("Problem in reading the file for langKeys.");
+		}
+		return supportedlangs.substring(1);
+	}
+
+	public static Set<String> array2Set(String[] mimes) {
+		Set<String> validMimeTypes = new HashSet<String>();
+		for (String s: mimes) validMimeTypes.add(s);
+		return validMimeTypes;
+	}
+
 
 }

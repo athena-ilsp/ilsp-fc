@@ -1,5 +1,7 @@
 package gr.ilsp.fc.utils;
 
+import gr.ilsp.fc.attic.CrawlConfig;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;

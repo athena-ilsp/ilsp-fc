@@ -43,7 +43,12 @@ public class MSO2text {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/**
+	 * Text and metadata extraction from Microsoft Office Document 
+	 * @param infile
+	 * @return
+	 */
 	public static Map<String, String> run1(File infile) {
 		Map<String, String> docdata =new HashMap<String, String>();
 		InputStream in;
@@ -85,7 +90,7 @@ public class MSO2text {
 		docdata.put("title", "");
 		docdata.put("publisher", "");
 		docdata.put("keywords",  "");
-				
+
 		String[] pars = content.split("\n");
 		String cleancontent = "";
 		for (String par:pars){

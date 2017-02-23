@@ -1,5 +1,7 @@
 package gr.ilsp.fc.extractors;
 
+import gr.ilsp.fc.cleaner.CleanerUtils;
+import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.Statistics;
 
@@ -12,6 +14,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -24,7 +28,13 @@ import org.apache.pdfbox.pdmodel.common.PDStream;
 
 public class Pdf2text {
 	private static final Logger LOGGER = Logger.getLogger(Pdf2text.class);
-	//private static String fs = System.getProperty("file.separator");
+	private static final String TXT_EXT = ".txt";
+	private static final String PDF_EXT = ".pdf";
+	private static final String AUTHOR ="author";
+	private static final String TITLE = "title"; 
+	private static final String PUBLISHER = "publisher"; 
+	private static final String  KEYWORDS = "keywords";
+	private static final List<String> FORBIDLIST = Arrays.asList( "πξ", "ξπ", "νξ", "ξν", "ζξ", "ξζ","νλ", "σξ" );
 	private static ArrayList<PrintTextLocations.CharAttr> chardata=new ArrayList<PrintTextLocations.CharAttr>();
 
 	private static ArrayList<LineAttr> linedata = new ArrayList<LineAttr>();
@@ -41,45 +51,48 @@ public class Pdf2text {
 	private static double align_thr_fully = 0.6;
 	private static double caps_thr = 0.75;
 	private static boolean sort_sections=false;// false;
-	//private static int window=15;
+	
+		//private static int window=15;
 	//private static double w1=2* (double) window;
 	//private static double w2= (double) window / 2;
 	//private static ArrayList<String> lastchars=new ArrayList<String>(Arrays.asList(".", "!", "?", ";")); 
 
 	public static void main( String[] args ) throws IOException	{
 		String path=args[0];
-		//String path="C:/Users/vpapa/p_61/xaris/Vouli/1994-1996 ΟΛΟΚΛΗΡΩΜΕΝΑ/0020216291/no_stamp/test_4"; ///Image00004_p.jpg.search.pdf
-		String files;
+		String file;
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles();
 		String content="";
+		LangDetectUtils.loadCybozuLangIdentifier();
 		for (int i = 0; i < listOfFiles.length; i++){
 			if (listOfFiles[i].isFile()) {
-				files = listOfFiles[i].getAbsolutePath();
-				if (files.endsWith(".pdf") || files.endsWith(".PDF")){
-					File input = new File(files);
+				file = listOfFiles[i].getAbsolutePath();
+				if (file.toLowerCase().endsWith(PDF_EXT)){
+					File input = new File(file);
 					String filename=input.getName();
-					LOGGER.info("---------------------------------------FILE:"+ filename);
+					//LOGGER.info("---------------------------------------FILE:"+ filename);
 					docprops.clear();
 					Map<String, String> data = run1(input, sort_sections);
 					content="";
 					content = data.get("content");
-					if (content.isEmpty()){
-						System.out.println(filename);
-					}else{
-						//WriteResources.writetextfile(input.getAbsolutePath()+".txt", content);
-						FileUtils.writeStringToFile(new File(input.getAbsolutePath()+".txt"), content);
-					}
-					//System.out.println(content);
-					LOGGER.info("done");
+					if (content.isEmpty())
+						LOGGER.info("No valid text from "+ filename);
+					else
+						FileUtils.writeStringToFile(new File(input.getAbsolutePath()+TXT_EXT), content);
+
+					LOGGER.debug("done");
 				}
 			}
 		}		
 	}
 
 	@SuppressWarnings("unchecked")
-	//public static String run1(File input, boolean sort_sections)  { 
-
+	/**
+	 * Text and metadata extraction from pdf 
+	 * @param input
+	 * @param sort_sections
+	 * @return
+	 */
 	public static Map<String, String> run1(File input, boolean sort_sections)  { 
 		Map<String, String> data = new HashMap<String, String>();
 		String content="";
@@ -100,10 +113,10 @@ public class Pdf2text {
 
 			PDDocumentInformation pdDocInfo=new PDDocumentInformation();
 			pdDocInfo=document.getDocumentInformation();
-			data.put("author", ContentNormalizer.normalizeText(pdDocInfo.getAuthor()));
-			data.put("title", ContentNormalizer.normalizeText(pdDocInfo.getTitle()));
-			data.put("publisher", ContentNormalizer.normalizeText(pdDocInfo.getProducer()));
-			data.put("keywords",  pdDocInfo.getKeywords());
+			data.put(AUTHOR, ContentNormalizer.normalizeText(pdDocInfo.getAuthor()));
+			data.put(TITLE, ContentNormalizer.normalizeText(pdDocInfo.getTitle()));
+			data.put(PUBLISHER, ContentNormalizer.normalizeText(pdDocInfo.getProducer()));
+			data.put(KEYWORDS,  pdDocInfo.getKeywords());
 
 			PrintTextLocations printer = new PrintTextLocations();
 			List<PDPage> allPages = document.getDocumentCatalog().getAllPages();
@@ -166,6 +179,12 @@ public class Pdf2text {
 			if (document != null) {
 				try {
 					document.close();
+					String t = CleanerUtils.cleanContent(content);
+					String lang = LangDetectUtils.detectLanguage(t);
+					if (checkValidity(t,lang)) 	
+						data.put("language", lang);
+					else
+						data.put("content", "");
 					return data;
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -173,7 +192,24 @@ public class Pdf2text {
 				}
 			}
 		}
+		
 		return data;
+	}
+
+	private static boolean checkValidity(String text, String lang) {
+		boolean valid = true;
+		if (lang.equals("ell")){
+			int counter = 0;
+			for (String st:FORBIDLIST){
+				Pattern p = Pattern.compile(st);
+				Matcher m = p.matcher(text.toLowerCase());
+				while (m.find())
+					counter++;
+			}
+			if (counter>20)
+				return false;
+		}
+		return valid;
 	}
 
 	public static String getText(HashMap<String, ArrayList<LineAttr>> docprops2) {

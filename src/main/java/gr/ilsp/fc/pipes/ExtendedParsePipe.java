@@ -24,8 +24,9 @@ package gr.ilsp.fc.pipes;
 
 
 
+import gr.ilsp.fc.crawl.Crawler;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
-import gr.ilsp.fc.main.Crawl;
+//import gr.ilsp.fc.main.Crawl;
 import gr.ilsp.fc.parser.SimpleNoLinksParser;
 
 import org.apache.log4j.Logger;
@@ -98,7 +99,8 @@ public class ExtendedParsePipe extends SubAssembly {
             	ExtendedParsedDatum parseResult = _parser.parse(fetchedDatum);            	
                 _flowProcess.increment(ExtendedParserCounters.PARSER_DOCUMENTS_PARSED, 1);
                 functionCall.getOutputCollector().add(parseResult.getTuple());
-                Crawl.incrementPagesVisited();
+                //Crawl.incrementPagesVisited();
+                Crawler.incrementPagesVisited();
             } catch (Exception e) {
             	//e.printStackTrace();
                 LOGGER.warn("PARSER_Error processing " + fetchedDatum.getUrl());

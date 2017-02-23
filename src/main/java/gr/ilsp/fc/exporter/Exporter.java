@@ -22,29 +22,33 @@
  */
 package gr.ilsp.fc.exporter;
 
+import gr.ilsp.fc.attic.CrawlConfig;
 import gr.ilsp.fc.classifier.Classifier;
 import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.datums.ClassifierDatum;
-import gr.ilsp.fc.datums.CrawlDbDatum;
+//import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.extractors.MSO2text;
 import gr.ilsp.fc.extractors.Pdf2text;
+import gr.ilsp.fc.extractors.PlainText2text;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
-import gr.ilsp.fc.main.Crawl;
-import gr.ilsp.fc.main.WriteResources;
+//import gr.ilsp.fc.main.Crawl;
+import gr.ilsp.fc.readwrite.WriteResources;
 import gr.ilsp.fc.utils.AnalyzerFactory;
 import gr.ilsp.fc.utils.ContentNormalizer;
-import gr.ilsp.fc.utils.CrawlConfig;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.PrettyPrintHandler;
-import gr.ilsp.fc.utils.TempUtils;
 import gr.ilsp.fc.utils.TopicTools;
 //import gr.ilsp.fc.genreclassifier.GenreClassifier;
+
+
+import gr.ilsp.fc.utils.XSLTransformer;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -81,9 +85,15 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.html.HtmlParser;
+import org.apache.tika.sax.BodyContentHandler;
 import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamWriter2;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 import bixo.datum.FetchedDatum;
 import bixo.utils.CrawlDirUtils;
@@ -102,7 +112,6 @@ public class Exporter {
 	private static final String cesNameSpace = "http://www.w3.org/1999/xlink";
 	private static final String cesNameSpace1 = "http://www.xces.org/schema/2003";
 	private static final String cesNameSpace2 = "http://www.w3.org/2001/XMLSchema-instance";
-	//private static final String XMLlist = ".xmllist.txt";
 
 	private static final String xml_type="xml";
 	private static final String pdf_type="pdf";
@@ -110,7 +119,11 @@ public class Exporter {
 	private static final String tag_type="type";
 	private static final String tag_crawlinfo="crawlinfo";
 	private static final String attr_boilerplateV = "boilerplate";
+	private static final String attr_authorV = "author";
+	private static final String attr_publisherV = "publisher";
+	private static final String attr_keywordsV = "keywords";
 	private static final String attr_titleV = "title";
+	private static final String attr_contentV = "content";
 	private static final String attr_lengthV = "ooi-length";
 	private static final String attr_langV = "ooi-lang";
 	private static final String attr_negV = "ooi-neg";
@@ -118,8 +131,9 @@ public class Exporter {
 	private static final String appHTMLext=".html";
 	private static final String appPDFext=".pdf";
 	private static final String appDOCext =".doc";
-	private static final String separator = ";";
-	private static final String HYPHEN="-";
+	private static final String appTXText =".txt";
+	private static final String SEMICOLON_STR = ";";
+	private static final String HYPHEN_STR="-";
 	private static final String p_type = "p";
 	private static final String morethan = ">" ; 
 	private static final String lessthan = "<" ; 
@@ -128,25 +142,25 @@ public class Exporter {
 	private static final String text_tag_en = "</text>";
 	private static final String boiler_tag = "<boiler>";
 	private static final String boiler_st = "<boiler";
-	//private static final String EXPORT = "_export";
 	private static final String XMLlist = ".xmllist.txt";
 	private static final String CSV = ".csv";
 	private static final String XMLHTMLlist = ".xmllist.html";
 	private static final String pdfmime = "pdf";
 	private static final String docmime = "word";
+	private static final String txtmime = "plain";
 	private static final String[] ext = {xml_type};
 
 	private static String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
 
-	private static int MIN_TOKENS_PER_PARAGRAPH;
+	private static int MinParLen;
 	private static int depth=10000;
-	private static int MIN_TOKENS_NUMBER;
+	private static int MinDocLen;
 	private static String[] targetlanguages;
 
-	public static CompositeConfiguration config;
+	public static CompositeConfiguration configuration;
 	private static File negWordsFile;
-	private static File crawlDirName;
-	private static File topic;
+	private static File inputDir;
+	private static File topicFile;
 	private static File outputDir=null;
 	private static File outBaseName = null;
 	private static File outputFile = null;
@@ -154,11 +168,12 @@ public class Exporter {
 	private static boolean textExport = false;
 
 	private static boolean applyOfflineXSLT = false;
+	//private static boolean runOffline = false;
 	public static XSLTransformer xslTransformer = null;
 	private static boolean offline = false;
-	private static boolean httrack = false;
+	//private static boolean httrack = false;
 	private static String[] mimetypes;
-	private static String targeteddomain;
+	private static String usertopic;
 	private static URL genres;
 	private static ExporterOptions options = null;
 	static Analyzer analyzer = null;
@@ -166,7 +181,7 @@ public class Exporter {
 	//private static HashMap<String, String> genres_keys = null;
 	private static List<File> xmlFiles = new ArrayList<File>();
 
-	private static String researchProject = "ILSP";
+	private static String researchProject = "ILSP-FC";
 
 	private static String identifiedlanguage;
 	private static String title = "";
@@ -180,15 +195,18 @@ public class Exporter {
 	private static String extfilename="";
 	private static String publisher="";
 	private static String url = "";
+	//private static String config="";
+	//private static String paths_repl;
 	private static double relscore;
 
 	private static boolean _sort_type = false;
 	private static ArrayList<String> terms = null;
 	private static Map<String,String> meta = null;
-	private Map<String, String> urlsToIds;
+	private static Map<String, String> urlsToIds= new HashMap<String , String>();
+
 	private static Map<String, Integer> langnumMap = new HashMap<String, Integer>(); 
 
-	private static void processCrawlDb(JobConf conf, Path curDirPath, boolean exportDb) throws IOException {
+	/*	private static void processCrawlDb(JobConf conf, Path curDirPath, boolean exportDb) throws IOException {
 		//TupleEntryIterator iter;
 		int totalEntries;
 		Path crawlDbPath = new Path(curDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
@@ -233,43 +251,53 @@ public class Exporter {
 			LOGGER.info("");
 		}
 		//fs.close();
-	}
+	}*/
 
+	/**
+	 * Parses the "crawl directory" and generates CesDoc Files (and threir transformation to HTML if asked) in "crawl directory/xml" for each stored (during crawling) web document
+	 * In case the input does not come from crawls (i.e. offline), extract text and metadata from the files in the input directory
+	 * Generates a text file (and its transformation to HTML if asked) with a list  of paths of the generates cesDoc files
+	 * @param loadProfile
+	 * @return
+	 */
 	public Map<String,Integer> export(boolean loadProfile) {
-		long start = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 		LOGGER.info("------------Exporting cesDoc Files------------");
 		for (int ii=0;ii<targetlanguages.length;ii++){
 			langnumMap.put(targetlanguages[ii], 0);
 		}
-		outputFile = new File(outBaseName.getAbsolutePath()+XMLlist);
-		//outputFile = new File(outBaseName.getAbsolutePath()+EXPORT+XMLlist);
+		outputFile = new File(outBaseName.getAbsolutePath()+XMLlist);		//outputFile = new File(outBaseName.getAbsolutePath()+EXPORT+XMLlist);
 		if (applyOfflineXSLT)
-			outputFileHTML = new File(outBaseName.getAbsolutePath()+XMLHTMLlist);
-			//outputFileHTML = new File(outBaseName.getAbsolutePath()+EXPORT+XMLHTMLlist);
-		
+			outputFileHTML = new File(outBaseName.getAbsolutePath()+XMLHTMLlist);		//outputFileHTML = new File(outBaseName.getAbsolutePath()+EXPORT+XMLHTMLlist);
+		if (outputDir==null)
+			outputDir =  new File(FilenameUtils.concat(inputDir.getAbsolutePath(), xml_type)).getAbsoluteFile();
+		if (!outputDir.exists())
+			outputDir.mkdirs();
 		List<String> neg_words = getNegWordsList() ;
 		//HashMap<String, String> genres_keys = GenreClassifier.Genres_keywords(genres);
-		ArrayList<String[]> topicTerms = TopicTools.analyzeTopic(topic,targetlanguages);
-		
+		ArrayList<String[]> topicTerms=new ArrayList<String[]>();
+		if (topicFile!=null)
+			topicTerms = TopicTools.analyzeTopic(topicFile,targetlanguages);
 		if (offline)// OFFLINE PROCESS SHOULD BE FIXED
 			offlineExport(neg_words, ext, topicTerms);
 		else{
-			if (!new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).exists())
+			if (!new File(FilenameUtils.concat(inputDir.getAbsolutePath(),pdf_type)).exists())
 				LOGGER.info("No pdf files fetched");
 			else				
-				LOGGER.info(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),pdf_type)).listFiles().length + " pdf files fetched");
-			if (!new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),doc_type)).exists())
+				LOGGER.info(new File(FilenameUtils.concat(inputDir.getAbsolutePath(),pdf_type)).listFiles().length + " pdf files fetched");
+			if (!new File(FilenameUtils.concat(inputDir.getAbsolutePath(),doc_type)).exists())
 				LOGGER.info("No doc files fetched");
 			else
-				LOGGER.info(new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),doc_type)).listFiles().length + " doc files fetched");
+				LOGGER.info(new File(FilenameUtils.concat(inputDir.getAbsolutePath(),doc_type)).listFiles().length + " doc files fetched");
 			try {
 				JobConf conf = new JobConf();
-				Path crawlDirPath = new Path(crawlDirName.getAbsolutePath());
+				Path crawlDirPath = new Path(inputDir.getAbsolutePath());
 				FileSystem fs = crawlDirPath.getFileSystem(conf);
 				if (!fs.exists(crawlDirPath)) {
-					LOGGER.error("Prior crawl output directory does not exist: " + crawlDirName);
+					LOGGER.error("Prior crawl output directory does not exist: " + inputDir.getAbsolutePath());
 					System.exit(-1);
 				}
+				Path outputDirPath = new Path(outputDir.getAbsolutePath());
 				// Skip Hadoop/Cascading DEBUG messages.
 				Logger.getRootLogger().setLevel(Level.INFO);
 				//Exporting
@@ -278,19 +306,19 @@ public class Exporter {
 				int id = 1;
 				while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath, prevLoop)) != null) {
 					LOGGER.info("current rundir: " +curDirPath);
-					id = exportToXml(conf,curDirPath, id,topicTerms,targeteddomain, urlsToIds, neg_words);
+					id = exportToXml(conf,curDirPath, outputDirPath, id,topicTerms,usertopic, neg_words);
 					LOGGER.debug("Current loop path in xml export is " + curDirPath );
 					int curLoop = CrawlDirUtils.extractLoopNumber(curDirPath);
 					if (curLoop != prevLoop + 1) 
 						LOGGER.warn(String.format("Missing directories between %d and %d", prevLoop, curLoop));
 					prevLoop = curLoop;
-					//if (curLoop>depth)
-					//	break;
+					if (curLoop>depth)
+						break;
 				}
-				File tf = new File(FilenameUtils.concat(crawlDirName.getAbsolutePath(),xml_type));
+				/*File tf = new File(FilenameUtils.concat(inputDir.getAbsolutePath(),xml_type));
 				if (!tf.exists())
-					tf.mkdir();
-				xmlFiles =  (List<File>) FileUtils.listFiles(tf, ext, true);
+					tf.mkdir();*/
+				xmlFiles =  (List<File>) FileUtils.listFiles(outputDir, ext, true);
 				//Path latestCrawlDirPath = CrawlDirUtils.findLatestLoopDir(fs, crawlDirPath);
 				//processCrawlDb(conf, latestCrawlDirPath, true);	//exportDb
 				//fs.close();
@@ -299,8 +327,12 @@ public class Exporter {
 				System.exit(-1);
 			}
 		}
+		if (!offline){
+			if (xmlFiles.size()!=urlsToIds.keySet().size())
+				LOGGER.warn("number of generated cesDoc should be equal to the number of extracted URLs, but it is not!");
+		}
 		LOGGER.info("CesDoc files generated: "+ xmlFiles.size());
-		LOGGER.info("Completed in " + (System.currentTimeMillis()-start) + " milliseconds.");
+		LOGGER.info("Completed in " + (System.currentTimeMillis()-startTime) + " milliseconds.");
 		if (outputFile!=null){
 			WriteResources.WriteTextList(xmlFiles, outputFile);
 			LOGGER.info("Created list of cesDoc in "+ outputFile.getAbsolutePath());
@@ -308,6 +340,12 @@ public class Exporter {
 				WriteResources.WriteHTMLList(xmlFiles, new File(outputFileHTML.getAbsolutePath()));
 				LOGGER.info("Created list of rendered cesDoc in "+ outputFileHTML.getAbsolutePath());
 			}
+		}
+		Set<String> langs = langnumMap.keySet();
+		Iterator<String> lang = langs.iterator();
+		while (lang.hasNext()){
+			String key = lang.next();
+			LOGGER.info(langnumMap.get(key) + " documents in " + key);		
 		}
 		return langnumMap;
 	}
@@ -346,8 +384,14 @@ public class Exporter {
 		}
 	}
 
+	/**
+	 * Input does not come from crawl. Each file in the input directory is processed and its text and metadata are extracted to generate the corresponding CesDoc
+	 * @param neg_words
+	 * @param ext
+	 * @param topic
+	 */
 	private void offlineExport(List<String> neg_words, String[] ext, ArrayList<String[]> topic) {
-		String[] mimes = config.getStringArray("fetcher.valid_mime_types.mime_type[@value]");			
+		String[] mimes = configuration.getStringArray("fetcher.valid_mime_types.mime_type[@value]");			
 		Set<String> validMimeTypes = new HashSet<String>();
 		for (String s: mimes) validMimeTypes.add(s);
 
@@ -355,24 +399,32 @@ public class Exporter {
 			outputDir.mkdirs();
 
 		int id=0;
-		if (!crawlDirName.exists()){
-			LOGGER.error("The directory " +crawlDirName.getAbsolutePath() + " does not exist.");
+		if (!inputDir.exists()){
+			LOGGER.error("The directory " +inputDir.getAbsolutePath() + " does not exist.");
 			System.exit(0);
 		}
 		boolean keepBoiler=true;
-		List<File> files = (List<File>) FileUtils.listFiles(crawlDirName, null, false);
+		List<File> files = (List<File>) FileUtils.listFiles(inputDir, null, false);
 		for (File file:files){
 			String maincontent="";
+			title="";
+			url = file.getName();
+			author="";
+			publisher="";
+			licenseURL="";
 			format =  getValidFormat(FcFileUtils.MimeDetect(file.getAbsolutePath()));
 			if (!validMimeTypes.contains(format))
 				continue;
-			if (format.contains(pdfmime) || format.contains(docmime)){
+			if (format.contains(pdfmime) || format.contains(docmime) || format.contains(txtmime)){
 				Map<String, String> data = new HashMap<String, String>();
 				if (format.contains(pdfmime))
 					data = Pdf2text.run1(file, _sort_type);
 				if (format.contains(docmime))
 					data = MSO2text.run1(file);
-				cleanText = data.get("content");
+				if (format.contains(txtmime))
+					data = PlainText2text.run1(file);
+
+				cleanText = data.get(attr_contentV);
 				if (StringUtils.isBlank(cleanText)){
 					LOGGER.info("No text extracted from " + file.getAbsolutePath());
 					continue;
@@ -388,54 +440,96 @@ public class Exporter {
 				}
 				int length_in_tok=FCStringUtils.countTokens(maincontent, identifiedlanguage);
 				//int length_in_tok=maincontent.length();
-				if (length_in_tok<MIN_TOKENS_NUMBER){
+				if (length_in_tok<MinDocLen){
 					LOGGER.info("very short text extracted from " + file.getAbsolutePath());
 					continue;		
 				}
 				LOGGER.debug(file.getAbsolutePath()+ " processed.");
-				//LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN+ id + "\t" + url);
-				author = data.get("author");
-				title = data.get("title");
-				publisher = data.get("publisher");
-				String termsArray = data.get("keywords");
+				author = data.get(attr_authorV);
+				title = data.get(attr_titleV);
+				publisher = data.get(attr_publisherV);
+				String termsArray = data.get(attr_keywordsV);
 				terms = new ArrayList<String>();
 				if (termsArray!=null){
 					for (String s: termsArray.split(",|;|:"))
 						terms.add(s.trim());
 				}
-				if (topic!=null){//check domainess //FIXME terms.toString()
+				if (!topic.isEmpty()){//check domainess //FIXME terms.toString()
 					if (Classifier.classifyText(title, terms.toString(), "", maincontent, identifiedlanguage, url, length_in_tok)==null)
 						continue;
 				}
 				htmlText =""; 
-				url = file.getName();
-			}else{
+			}else{ //it implies that other "acceptable formats" are only HTML
 				try {
 					byte[] array = FileUtils.readFileToByteArray(file);
 					InputStream input = new ByteArrayInputStream(array);
 					cleanText = CleanerUtils.getContent(input, keepBoiler);
-					String identifiedlanguage = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(cleanText));
+					maincontent = CleanerUtils.cleanContent(cleanText);
+					identifiedlanguage = LangDetectUtils.detectLanguage(maincontent);
 					if (!LangDetectUtils.istargetedlang(identifiedlanguage,targetlanguages))
 						continue;
-					if (httrack){//FIXME
-						input.reset();
-						url = TempUtils.handleCopiedSite(input);
+					int length_in_tok=FCStringUtils.countTokens(maincontent, identifiedlanguage);
+					if (length_in_tok<MinDocLen){
+						LOGGER.info("very short text extracted from " + file.getAbsolutePath());
+						continue;		
 					}
+					ContentHandler handler = new BodyContentHandler(array.length);
+					Metadata metadata = new Metadata();
+					FileInputStream inputstream = new FileInputStream(file);
+					HtmlParser htmlparser = new HtmlParser();
+					htmlparser.parse(inputstream, handler, metadata,new ParseContext());
+					//String[] metadataNames = metadata.names();
+					//author = metadata.get(property);
+					//for(String name : metadataNames)
+					//	System.out.println(name + ":   " + metadata.get(name));  
+					author = metadata.get(attr_authorV);				if (author==null)	{ author="";}
+					title = metadata.get(attr_titleV);					if (title==null)	{ title="";}
+					publisher = metadata.get(attr_publisherV);			if (publisher==null){ publisher="";}
+					String termsArray = metadata.get(attr_keywordsV);	
+					terms = new ArrayList<String>();
+					if (termsArray!=null){
+						for (String s: termsArray.split(",|;|:"))
+							terms.add(s.trim());
+					}
+					if (!topic.isEmpty()){//check domainess //FIXME terms.toString()
+						if (Classifier.classifyText(title, terms.toString(), "", maincontent, identifiedlanguage, url, length_in_tok)==null)
+							continue;
+					}
+					//if (httrack){//FIXME
+					//	input.reset();
+					//	url = TempUtils.handleCopiedSite(input);
+					//}
 				} catch (IOException e1) {
 					LOGGER.error("problem in getting byte[] for file "+ file.getAbsolutePath());
 					e1.printStackTrace();
+				} catch (SAXException e) {
+					LOGGER.error("problem in parsing "+ file.getAbsolutePath());
+					e.printStackTrace();
+				} catch (TikaException e) {
+					LOGGER.error("problem in parsing "+ file.getAbsolutePath());
+					e.printStackTrace();
 				}
 			}
-			XMLExporter(new File(FilenameUtils.concat(outputDir.getAbsolutePath(),identifiedlanguage+"-"+id)), format, title, url, targetlanguages,
-					identifiedlanguage, cleanText, "", author, publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,
-					relscore, extfilename);
+			if (textExport){
+				try {
+					FileUtils.writeStringToFile(new File(FilenameUtils.concat(outputDir.getAbsolutePath(),identifiedlanguage+"-"+id)), cleanText);
+				} catch (IOException e) {
+					LOGGER.warn("problem in writing text file for " + file.getAbsolutePath());
+					e.printStackTrace();
+				}
+			}else	
+				XMLExporter(new File(FilenameUtils.concat(outputDir.getAbsolutePath(),identifiedlanguage+"-"+id)), format, title, url, targetlanguages,
+						identifiedlanguage, cleanText, "", author, publisher, usertopic, subdomains, terms, topic, neg_words, licenseURL, genre,
+						relscore, extfilename);
+			if (langnumMap.containsKey(identifiedlanguage))
+				langnumMap.put(identifiedlanguage, langnumMap.get(identifiedlanguage)+1);
 			id++;
 		}
 		//xmlFiles =(List<File>) FileUtils.listFiles(crawlDirName, ext, false);
 		xmlFiles =(List<File>) FileUtils.listFiles(outputDir, ext, false);
 	}
 
-	private static int exportToXml(JobConf conf, Path curDirPath,  int id, ArrayList<String[]> topic, String targeteddomain, Map<String, String> urlsToIds, List<String> neg_words) throws IOException {
+	private static int exportToXml(JobConf conf, Path curDirPath,  Path outputDirPath, int id, ArrayList<String[]> topic, String targeteddomain,  List<String> neg_words) throws IOException {
 		TupleEntryIterator iter;
 		initValues();
 		//List<String> urls = new ArrayList<String>();
@@ -463,15 +557,14 @@ public class Exporter {
 			}
 		}*/
 
-		Path xmlPath = null; //FIXME PUT IT OUT OF THE LOOP
-		if (outputDir==null)
-			xmlPath = new Path(curDirPath.getParent(), CrawlConfig.XML_SUBDIR_NAME);
-		else 
-			xmlPath = new Path(outputDir.getAbsolutePath());
-
-		FileSystem fs = xmlPath.getFileSystem(conf);
-		if (!fs.exists(xmlPath))
-			fs.mkdirs(xmlPath);
+		//Path xmlPath = null; //FIXME PUT IT OUT OF THE LOOP
+		//if (outputDir==null)
+		//	xmlPath = new Path(curDirPath.getParent(), CrawlConfig.XML_SUBDIR_NAME);
+		//else 
+		//Path xmlPath = new Path(outputDir.getAbsolutePath());
+		//FileSystem fs = xmlPath.getFileSystem(conf);
+		//if (!fs.exists(xmlPath))
+		//	fs.mkdirs(xmlPath);
 		TupleEntryIterator contentIter = contentDbTap.openForRead(conf);
 		iter = parseDbTap.openForRead(conf);
 
@@ -505,15 +598,14 @@ public class Exporter {
 			if (langnumMap.containsKey(identifiedlanguage))
 				langnumMap.put(identifiedlanguage, langnumMap.get(identifiedlanguage)+1);
 
-			if (XMLExporter(xmlPath,format, title, url, targetlanguages, identifiedlanguage, htmlText, cleanText,id, "", author,
+			if (XMLExporter(outputDirPath,format, title, url, targetlanguages, identifiedlanguage, htmlText, cleanText,id, "", author,
 					publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, extfilename)){
-				if (urlsToIds!=null)
-					urlsToIds.put(datum.getUrl(), identifiedlanguage+HYPHEN+id);
+				urlsToIds.put(datum.getUrl(), identifiedlanguage+HYPHEN_STR+id);
 			}
 			id++;
 			//LOGGER.info("EXPORTED:\t"+url+"\t"+identifiedlanguage);
 			LOGGER.debug("EXPORTED:\t"+url+"\t"+identifiedlanguage);
-			if (textExport) TextExporter(xmlPath,cleanText,id-1, identifiedlanguage);
+			if (textExport) TextExporter(outputDirPath,cleanText,id-1, identifiedlanguage);
 		}
 		iter.close();
 		classIter.close();
@@ -552,10 +644,10 @@ public class Exporter {
 			return false;
 		int length_in_tok=FCStringUtils.countTokens(maincontent, identifiedlanguage);
 		//int length_in_tok=maincontent.length();
-		if (length_in_tok<MIN_TOKENS_NUMBER)
+		if (length_in_tok<MinDocLen)
 			return false;
 		LOGGER.debug(extfilename+ " processed.");
-		LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN+ id + "\t" + url);
+		LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN_STR+ id + "\t" + url);
 
 		author = data.get("author");
 		title = data.get("title");
@@ -566,7 +658,7 @@ public class Exporter {
 			for (String s: termsArray.split(",|;|:"))
 				terms.add(s.trim());
 		}
-		if (topic!=null)//check domainess //FIXME terms.toString()
+		if (topicFile!=null)//check domainess //FIXME terms.toString()
 			Classifier.classifyText(title, terms.toString(), "", maincontent, identifiedlanguage, url, length_in_tok); 
 
 		return done;
@@ -699,7 +791,7 @@ public class Exporter {
 	private static void getHTMLInfo(ExtendedParsedDatum datum, Map<String, String> meta2, int id, Path curDirPath, TupleEntryIterator classIter, TupleEntryIterator classIter1, TupleEntryIterator contentIter) {
 
 		identifiedlanguage = datum.getLanguage();
-		LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN+ id + "\t" + url);
+		LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN_STR+ id + "\t" + url);
 		title = datum.getTitle();
 		if (title==null) title = "";
 		cleanText = datum.getParsedText();
@@ -726,7 +818,7 @@ public class Exporter {
 	 * @param identifiedlanguage
 	 */
 	public static void TextExporter(Path outpath, String text, int id, String identifiedlanguage){
-		Path txt_file = new Path(outpath,identifiedlanguage+HYPHEN+id+".txt");
+		Path txt_file = new Path(outpath,identifiedlanguage+HYPHEN_STR+id+appTXText);
 		try {
 			BufferedWriter wrt = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txt_file.toUri().getPath()),"UTF-8"));
 			text = text.replaceAll("<boiler>.*</boiler>\r\n", "");
@@ -743,7 +835,7 @@ public class Exporter {
 	}
 
 
-	public static Boolean XMLExporter(Path outputdir, String format, String title, String eAddress,
+	public static Boolean XMLExporter(Path outputdirPath, String format, String title, String eAddress,
 			String[] langs, String identifiedlanguage, String html_text, String cleaned_text, int id, String pubDate, String author,String publisher,  
 			String domain, String subdomain, ArrayList<String> terms, ArrayList<String[]> topic,
 			List<String> neg_words, String licenseURL, String genre,
@@ -759,22 +851,22 @@ public class Exporter {
 		String html_filename="";
 
 		if (format.contains(pdfmime) ){
-			html_filename = identifiedlanguage+HYPHEN+temp_id + appPDFext;			html_text = cleaned_text;
+			html_filename = identifiedlanguage+HYPHEN_STR+temp_id + appPDFext;			html_text = cleaned_text;
 		}else{
 			if (format.contains(docmime) ){
-				html_filename = identifiedlanguage+HYPHEN+temp_id + appDOCext;		html_text = cleaned_text;
+				html_filename = identifiedlanguage+HYPHEN_STR+temp_id + appDOCext;		html_text = cleaned_text;
 			}else
-				html_filename = identifiedlanguage+HYPHEN+temp_id + appHTMLext;
+				html_filename = identifiedlanguage+HYPHEN_STR+temp_id + appHTMLext;
 		}
 
 		Path xml_file = new Path("file", "",
-				(FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appXMLext )));
+				(FilenameUtils.concat(outputdirPath.toUri().getPath(),  identifiedlanguage+HYPHEN_STR+temp_id + appXMLext )));
 
-		Path annotation = new Path(outputdir,html_filename);
+		Path annotation = new Path(outputdirPath,html_filename);
 		if (format.contains(pdfmime)){
 			try {
 				//FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appPDFext));
-				FileUtils.copyFile(new File(pdfname), new File(FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appPDFext)));
+				FileUtils.copyFile(new File(pdfname), new File(FilenameUtils.concat(outputdirPath.toUri().getPath(),  identifiedlanguage+HYPHEN_STR+temp_id + appPDFext)));
 			} catch (IOException e) {
 				LOGGER.info("source PDF file is not stored.");
 				e.printStackTrace();
@@ -783,7 +875,7 @@ public class Exporter {
 			if (format.contains(docmime)){
 				try {
 					//FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appDOCext));
-					FileUtils.copyFile(new File(pdfname), new File(FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appDOCext)));	
+					FileUtils.copyFile(new File(pdfname), new File(FilenameUtils.concat(outputdirPath.toUri().getPath(),  identifiedlanguage+HYPHEN_STR+temp_id + appDOCext)));	
 				} catch (IOException e) {
 					LOGGER.info("source DOC file is not stored.");
 					e.printStackTrace();
@@ -875,7 +967,7 @@ public class Exporter {
 					}else if (line.substring(0, 5).equals(text_st)){
 						if (line.substring(0,6).equals(text_tag)) {
 							line = line.substring(6, line.length()-7).trim();
-							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH))
+							if (!FCStringUtils.isLong(line,MinParLen))
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 							else if (langs.length>0){
 								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
@@ -891,7 +983,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='t")) {
 							line = line.substring(19, line.length()-7).trim();
-							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MinParLen)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,attr_titleV);
 							}
@@ -915,7 +1007,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='l")) {
 							line = line.substring(22, line.length()-7).trim();
-							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MinParLen)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,"listitem");
 							}
@@ -939,7 +1031,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='h")) {
 							line = line.substring(21, line.length()-7).trim();
-							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MinParLen)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,"heading");
 							}
@@ -965,7 +1057,7 @@ public class Exporter {
 					}else {
 						if (line.trim().length()<=1) continue;
 
-						if (!FCStringUtils.isLong(line, MIN_TOKENS_PER_PARAGRAPH )) {
+						if (!FCStringUtils.isLong(line, MinParLen )) {
 							xtw.writeAttribute(tag_type,"length");
 						}else {
 							identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
@@ -1092,7 +1184,7 @@ public class Exporter {
 		xtw.writeCharacters("Crawling and normalization");
 		xtw.writeEndElement();
 		xtw.writeStartElement("name");
-		xtw.writeCharacters("ILSP");
+		xtw.writeCharacters("ILSP-FC");
 		xtw.writeEndElement();
 		xtw.writeEndElement();
 		xtw.writeEndElement();
@@ -1112,7 +1204,7 @@ public class Exporter {
 			xtw.writeStartElement("license");
 		} else {
 			xtw.writeStartElement("license");
-			String[] t1 =  licenseURL.split(separator);
+			String[] t1 =  licenseURL.split(SEMICOLON_STR);
 			if (t1.length>1)
 				xtw.writeAttribute("target", t1[1]);
 			xtw.writeCharacters(t1[0]);
@@ -1161,7 +1253,7 @@ public class Exporter {
 		} else {
 			xtw.writeStartElement("availability");
 			xtw.writeStartElement("license");
-			String[] t1 =  licenseURL.split(separator);
+			String[] t1 =  licenseURL.split(SEMICOLON_STR);
 			if (t1.length>1)
 				xtw.writeAttribute("target", t1[1]);
 			xtw.writeCharacters(t1[0]);
@@ -1248,20 +1340,21 @@ public class Exporter {
 		options = new ExporterOptions();
 		options.parseOptions(args);
 		se.setRunOffLine(options.getRunOffLine());
-		se.setMIN_TOKENS_PER_PARAGRAPH(options.get_length());
-		se.setMIN_TOKENS_NUMBER(options.get_minTokenslength());
-		se.setCrawlDirName(options.get_inputdir());
+		se.setMinParLen(options.getMinParLen());
+		se.setMinDocLen(options.getMinDocLen());
+		se.setInputDir(options.getInputDir());
 		se.setBaseName(options.getBaseName());
 		se.setTargetLanguages(options.get_language());
-		se.setTopic(options.get_topic());
-		se.setTargetedDomain(options.getTargetDomain());
-		se.setNegWordsFile(options.get_negwords());
-		se.setOutputDir(options.get_outputdir());
+		se.setTopicFile(options.getTopicFile());
+		se.setUserTopic(options.getUserTopic());
+		se.setNegWordsFile(options.getNegwordsFile());
+		se.setOutputDir(options.getOutputDir());
 		se.setTextExport(options.get_textexport());
 		se.setApplyOfflineXSLT(options.applyOfflineXSLT());
-		se.setUsedHttrack(options.usedHttrack());
-		config = getConfig(options.getConfig());
-		mimetypes = config.getStringArray("fetcher.valid_mime_types.mime_type[@value]");	
+		//se.setAgentName(options.getAgentName());
+		//se.setUsedHttrack(options.usedHttrack());
+		configuration = getConfig(options.getConfig());
+		mimetypes = configuration.getStringArray("fetcher.valid_mime_types.mime_type[@value]");	
 		se.setAcceptedMimeTypes(mimetypes);
 		LangDetectUtils.loadCybozuLangIdentifier();
 		langnumMap = se.export(true);
@@ -1269,34 +1362,33 @@ public class Exporter {
 			generateCSV(new File(outBaseName.getAbsolutePath()+CSV), langnumMap);
 	}
 
-
 	/**
 	 * Loads the default configuration file and checks if user supplied a custom one.
 	 * @param type
 	 * @param confFile
 	 * @return
 	 */
-	private static CompositeConfiguration getConfig(String confFile) {
-		config = new CompositeConfiguration();
-		URL default_config = Crawl.class.getClassLoader().getResource("FBC_config.xml");
+	public static CompositeConfiguration getConfig(String confFile) {
+		configuration = new CompositeConfiguration();
+		URL default_config = Exporter.class.getClassLoader().getResource("FBC_config.xml");
 
 		if (confFile!=null){
 			String custom_config = confFile;
 			try {
 				XMLConfiguration xml_custom_config = new XMLConfiguration(custom_config);
 				xml_custom_config.setValidating(true);
-				config.addConfiguration(xml_custom_config);
+				configuration.addConfiguration(xml_custom_config);
 			} catch (ConfigurationException e) {
 				LOGGER.error("Invalid configuration file: " + custom_config);
 			}
 		}
 		try {			
-			config.addConfiguration(new XMLConfiguration(default_config));				
+			configuration.addConfiguration(new XMLConfiguration(default_config));				
 		} catch (ConfigurationException e1) {
 			// Shouldn't happen
 			LOGGER.error("Problem with default configuration file.");
 		}
-		return config;
+		return configuration;
 	}
 
 	private static double getRelscore(String url, Path curDirPath,
@@ -1340,21 +1432,35 @@ public class Exporter {
 	private static String getValidFormat(String format){
 		String result = format;
 		if (format.contains(";")){
-			result = format.split(separator)[0];
+			result = format.split(SEMICOLON_STR)[0];
 		}
 		return result;
 	}
-	public void setMIN_TOKENS_PER_PARAGRAPH(int mIN_TOKENS_PER_PARAGRAPH) {
-		MIN_TOKENS_PER_PARAGRAPH = mIN_TOKENS_PER_PARAGRAPH;
+	/**
+	 * sets the minimum accepted length (in terms of tokens) of a paragraph, default is 3
+	 * @param mIN_TOKENS_PER_PARAGRAPH
+	 */
+	public void setMinParLen(int mIN_TOKENS_PER_PARAGRAPH) {
+		MinParLen = mIN_TOKENS_PER_PARAGRAPH;
 	}
-	public void setMIN_TOKENS_NUMBER(int mIN_TOKENS_NUMBER) {
-		MIN_TOKENS_NUMBER = mIN_TOKENS_NUMBER;
+	/**
+	 * sets the minimum accepted length (in terms of tokens) of the clean content of a document, default is 80
+	 * @param mIN_TOKENS_NUMBER
+	 */
+	public void setMinDocLen(int mIN_TOKENS_NUMBER) {
+		MinDocLen = mIN_TOKENS_NUMBER;
 	}
+	/**
+	 * sets the NumId of the last crawlDir (i.e. number of runs) from which the acquired data will be exported,
+	 * default is 10000 (i.e. a very large numbers of cycles which implies the whole crawled content) 
+	 * @param d
+	 */
 	public void setDepth(int d) {
 		depth = d;
 	}
-	public static File getCrawlDirName() {
-		return crawlDirName;
+
+	public static File getInputDir() {
+		return inputDir;
 	}
 	public static boolean getRunOffLine1(){
 		return offline;
@@ -1362,11 +1468,15 @@ public class Exporter {
 	public void setRunOffLine(boolean offline){
 		Exporter.offline = offline;
 	}
-	public void setUsedHttrack(boolean httrack){
-		Exporter.httrack = httrack;
-	}
-	public void setCrawlDirName(File crawlDirName) {
-		Exporter.crawlDirName = crawlDirName;
+	//public void setUsedHttrack(boolean httrack){
+	//	Exporter.httrack = httrack;
+	//}
+	/**
+	 * sets the inputDir, it should be the parent of the runDirs of the already done crawl.
+	 * @param crawlDirName
+	 */
+	public void setInputDir(File crawlDirName) {
+		Exporter.inputDir = crawlDirName;
 	}
 
 	public void setTargetLanguages(String[] targetlanguages) {
@@ -1375,35 +1485,91 @@ public class Exporter {
 	public static String[] getLanguage() {
 		return targetlanguages;
 	}
-	public static File getTopic() {
-		return topic;
+	/**
+	 * gets the Topic File (including the topic definition)
+	 * @return
+	 */
+	public static File getTopicFile() {
+		return topicFile;
 	}
-	public void setTopic(File topic) {
-		Exporter.topic = topic;
+	/**
+	 * sets the Topic File (including the topic definition)
+	 * @param topic
+	 */
+	public void setTopicFile(File topic) {
+		Exporter.topicFile = topic;
 	}
 	public static File getNegWordsFile() {
 		return negWordsFile;
 	}
+	/**
+	 * sets a file with a list of words which will be "detected" in the content of the exported data
+	 * paragraphs containing these words will be annotated with "ooi-neg".
+	 * (note that these words do not affect the topicness)
+	 * @param topic
+	 */
 	public void setNegWordsFile(File file) {
 		Exporter.negWordsFile = file;
 	}
+	/**
+	 * returns the basename of all output files (lists) 
+	 * @param outBaseName
+	 */
 	public void setBaseName(File outBaseName) {
 		Exporter.outBaseName  = outBaseName;
 	}
 	public void setOutputDir(File outputDir) {
 		Exporter.outputDir = outputDir;
 	}
+	/**
+	 * @return the outputDir
+	 */
+	public File getOutputDir() {
+		return outputDir;
+	}
+	/**
+	 * if TRUE, text files instead of CesDoc will be generated. Use it  very carefully
+	 * @param textexport
+	 */
 	public void setTextExport(boolean textexport){
 		Exporter.textExport = textexport;
 	}
-	public void setAcceptedMimeTypes(String[] mimes){
-		Exporter.mimetypes = mimes;
+	public void setAcceptedMimeTypes(String[] strs){
+		Exporter.mimetypes = strs;
 	}
-	public void setTargetedDomain(String targeteddomain){
-		Exporter.targeteddomain = targeteddomain;
+	/**
+	 * returns the user defined name of the targeted topic
+	 * @param targeteddomain
+	 */
+	public void setUserTopic(String targeteddomain){
+		Exporter.usertopic = targeteddomain;
 	}
-	public void setGenres(URL url){
+	public void setGenre(URL url){
 		Exporter.genres = url;
+	}
+
+	/**
+	 * @param _config the _config to set
+	 *//*
+	public void set_config(String _config) {
+		this.config = _config;
+	}*/
+
+	public CompositeConfiguration getConfiguration() {
+		return configuration;
+	}
+
+	/*private void setAgentName(String agentName) {
+		this.agentName = agentName;
+	}*/
+
+
+	/**
+	 * Sets the CompositeConfiguration for the task. It is required to get the accepted mimetypes and the topic classification criteria if asked
+	 * @param _configuration
+	 */
+	public void setConfiguration(CompositeConfiguration _configuration) {
+		Exporter.configuration = _configuration;
 	}
 	public static URL getGenres() {
 		return genres;
@@ -1414,15 +1580,26 @@ public class Exporter {
 	public static void setResearchProject(String researchProject) {
 		Exporter.researchProject = researchProject;
 	}
-	public void setUrlsToIds(Map<String, String> urlsToIds) {
+	/*public void setUrlsToIds(Map<String, String> urlsToIds) {
 		this.urlsToIds = urlsToIds;
-	}
+	}*/
+	/**
+	 * returns the url and the id(fileName) of each exported webdocument
+	 * @return
+	 */
 	public Map<String, String> getUrlsToIds() {
 		return urlsToIds;
 	}
+
 	public boolean isApplyOfflineXSLT() {
 		return applyOfflineXSLT;
 	}
+
+	/**
+	 * Apply an xsl transformation to generate html files during exporting.
+	 * @param applyOfflineXSLT
+	 */
+
 	public void setApplyOfflineXSLT(boolean applyOfflineXSLT) {
 		Exporter.applyOfflineXSLT = applyOfflineXSLT;
 		if (applyOfflineXSLT==true) {
@@ -1445,6 +1622,37 @@ public class Exporter {
 		}
 	}
 
+
+	/*	*//**
+	 * @param _paths_repl the _paths_repl to set
+	 *//*
+	public void set_paths_repl(String _paths_repl) {
+		this.paths_repl = _paths_repl;
+	}*/
+
+	/**
+	 * generates a CesDoc file for each input file
+	 * @param file
+	 * @param format
+	 * @param title
+	 * @param eAddress
+	 * @param langs
+	 * @param identifiedlanguage
+	 * @param cleaned_text
+	 * @param pubDate
+	 * @param author
+	 * @param publisher
+	 * @param domain
+	 * @param subdomain
+	 * @param terms
+	 * @param topic
+	 * @param neg_words
+	 * @param licenseURL
+	 * @param genre
+	 * @param domain_confidence
+	 * @param pdfname
+	 * @return
+	 */
 	public static Boolean XMLExporter(File file, String format, String title, String eAddress,
 			String[] langs, String identifiedlanguage, String cleaned_text, String pubDate, String author,String publisher,  
 			String domain, String subdomain, ArrayList<String> terms, ArrayList<String[]> topic, List<String> neg_words, String licenseURL, String genre,
@@ -1516,7 +1724,7 @@ public class Exporter {
 					}else if (line.substring(0, 5).equals(text_st)){
 						if (line.substring(0,6).equals(text_tag)) {
 							line = line.substring(6, line.length()-7).trim();
-							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH))
+							if (!FCStringUtils.isLong(line,MinParLen))
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 							else if (langs.length>0){
 								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
@@ -1532,7 +1740,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='t")) {
 							line = line.substring(19, line.length()-7).trim();
-							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MinParLen)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,attr_titleV);
 							}
@@ -1556,7 +1764,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='l")) {
 							line = line.substring(22, line.length()-7).trim();
-							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MinParLen)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,"listitem");
 							}
@@ -1580,7 +1788,7 @@ public class Exporter {
 							}
 						}else if (line.substring(0,13).equals("<text type='h")) {
 							line = line.substring(21, line.length()-7).trim();
-							if (!FCStringUtils.isLong(line,MIN_TOKENS_PER_PARAGRAPH)){
+							if (!FCStringUtils.isLong(line,MinParLen)){
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 								xtw.writeAttribute(tag_type,"heading");
 							}
@@ -1606,7 +1814,7 @@ public class Exporter {
 					}else {
 						if (line.trim().length()<=1) continue;
 
-						if (!FCStringUtils.isLong(line, MIN_TOKENS_PER_PARAGRAPH )) {
+						if (!FCStringUtils.isLong(line, MinParLen )) {
 							xtw.writeAttribute(tag_type,"length");
 						}else {
 							identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());

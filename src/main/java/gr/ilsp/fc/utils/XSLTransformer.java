@@ -1,6 +1,6 @@
-package gr.ilsp.fc.exporter;
+package gr.ilsp.fc.utils;
 
-import gr.ilsp.fc.main.Crawl;
+//import gr.ilsp.fc.main.Crawl;
 
 import java.io.File;
 import java.io.IOException;

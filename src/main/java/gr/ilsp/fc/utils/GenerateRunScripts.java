@@ -1,6 +1,6 @@
 package gr.ilsp.fc.utils;
 
-import gr.ilsp.fc.main.ReadResources;
+import gr.ilsp.fc.readwrite.ReadResources;
 
 import java.io.BufferedReader;
 import java.io.File;

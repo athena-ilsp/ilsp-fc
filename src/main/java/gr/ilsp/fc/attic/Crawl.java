@@ -1,4 +1,4 @@
-package gr.ilsp.fc.main;
+package gr.ilsp.fc.attic;
 
 import gr.ilsp.fc.aligner.factory.Aligner;
 import gr.ilsp.fc.aligner.factory.AlignerFactory;
@@ -12,13 +12,13 @@ import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.monomerge.MonoMerger;
 import gr.ilsp.fc.parser.LevelUrlFilter;
 import gr.ilsp.fc.parser.DomainUrlFilter;
+import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.tmxhandler.TMXHandler;
 //import gr.ilsp.fc.tmxhandler.TMXHandlerOptions;
-import gr.ilsp.fc.utils.CrawlConfig;
 import gr.ilsp.fc.utils.DirUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.TopicTools;
-import gr.ilsp.fc.workflows.CrawlWorkflow;
+import gr.ilsp.fc.attic.CrawlWorkflow;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +49,9 @@ import org.apache.hadoop.mapred.JobConf;
 //import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
 //import org.apache.log4j.PatternLayout;
+
+
+
 
 import bixo.config.FetcherPolicy;
 import bixo.config.FetcherPolicy.FetcherMode;
@@ -228,7 +231,7 @@ public class Crawl {
 		if (domain!=null) 
 			urls = options.getUrls();
 
-		parseTopicDefinition(options.getTopic(), options.getTargetedLangs());
+		parseTopicDefinition(options.getTopicFile(), options.getTargetedLangs());
 
 		if (options.isDebug()) 
 			System.setProperty("fc.root.level", "DEBUG");            
@@ -352,8 +355,10 @@ public class Crawl {
 				if (options.upToDepth()-curLoop<0)
 					extractliks = false;
 
-				Flow flow = CrawlWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlDomainFilter, urlLevelFilter, options.getMapLangs(),
+				/*Flow flow = CrawlWorkflow.createFlow(curLoopDir, crawlDbPath, userAgent, defaultPolicy, urlDomainFilter, urlLevelFilter, options.getMapLangs(),
 						options.getTargetedLangs(), options.getTransLinksAttrs(), classes, topic, abs_thres,rel_thres, min_uniq_terms,max_depth,options, extractliks);							
+				flow.complete();*/
+				Flow flow = null;							
 				flow.complete();
 				//defaultPolicy.setRedirectMode(RedirectMode.FOLLOW_TEMP);
 
@@ -388,19 +393,19 @@ public class Crawl {
 
 			if (operation.contains(EXPORT_operation)) {
 				Exporter se = new Exporter();
-				se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
-				se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
+				se.setMinParLen(options.getMinParLen());
+				se.setMinDocLen(options.getMinDocLen());
 				se.setDepth(options.upToDepth());
 				se.setTargetLanguages(options.getTargetedLangs());
-				se.setCrawlDirName(outputDirName);
-				se.setTopic(options.getTopic());
+				se.setInputDir(outputDirName);
+				se.setTopicFile(options.getTopicFile());
 				se.setRunOffLine(false);
 				se.setApplyOfflineXSLT(options.isOfflineXSLT());
 				se.setBaseName(options.getBaseName());
 				se.setAcceptedMimeTypes(mimes);
-				se.setTargetedDomain(options.getTargetedDomain());
-				se.setGenres(options.getGenre());
-				se.setUrlsToIds(urlsToIds);
+				se.setUserTopic(options.getTargetedDomain());
+				se.setGenre(options.getGenre());
+				//se.setUrlsToIds(urlsToIds);
 				langnumMap = se.export(false);
 			}else{
 				LOGGER.info("Crawl ended");
@@ -458,7 +463,7 @@ public class Crawl {
 						if (aligner!=null){
 							String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
 							File outTextList = new File(options.getBaseName()+lang+XMLlist);
-							aligner.processCesAlignList(outTextList, options.isOfflineXSLT(), options.useISO6393());
+							aligner.processCesAlignList(outTextList, options.getBaseName().getAbsolutePath(), options.isOfflineXSLT(), options.useISO6393());
 						}
 					}
 				}
@@ -466,7 +471,7 @@ public class Crawl {
 				if (operation.contains(TMXMERGE_operation)){
 					TMXHandler ha = new TMXHandler();
 					ha.setTargetDir(xmldir);
-					ha.setConfig(config);
+					//ha.setConfig(config);
 					ha.setApplyOfflineXSLT(options.isOfflineXSLT());
 					ha.setDocTypes(options.getDocTypes());
 					ha.setThres( thres);
@@ -484,7 +489,7 @@ public class Crawl {
 					ha.setKeepDuplicates(options.getKeepDuplicates());
 					ha.setO1(options.getO1());
 					ha.setO2(options.getO2());
-					ha.setTargetedDomain(options.getTargetedDomain());
+					ha.setUserTopic(options.getTargetedDomain());
 					for (String lang_pair:options.getLangPairs()){
 						ha.setLanguage(lang_pair);
 						String[] temp_langs = lang_pair.split(SEMICOLON_STR);
@@ -517,7 +522,7 @@ public class Crawl {
 					mm.setTargetDir(xmldir);
 					mm.setCC(options.getCC());
 					//mm.setApplyOfflineXSLT(options.isOfflineXSLT());
-					mm.setdomain(options.getDomain());
+					mm.setUserTopic(options.getDomain());
 					mm.setCorpusLevel("doc");
 					for (String lang:options.getTargetedLangs()){
 						mm.setLanguage(lang);
@@ -838,22 +843,23 @@ public class Crawl {
 		return runpath;
 	}*/
 
-	public static void incrementPagesStored() {
+	public static void incrementPagesStored1() {
 		PAGES_STORED++;
 	}
 
-	public static void incrementPagesVisited() {
+	public static void incrementPagesVisited1() {
 		PAGES_VISITED++;
 	}
 
-	public static int incrementTokensStored(Double len) {
+	public static int incrementTokensStored1(Double len) {
 		TOKENS_STORED=(int) (TOKENS_STORED+len);
 		return TOKENS_STORED;
 	}
 
-	public static void incrementPagesCutByClassifier() {
+	public static void incrementPagesCutByClassifier1() {
 		PAGES_FAILED_CLASSIFICATION++;
 	}
+
 
 
 	//System.out.println("Mirroring site ...");

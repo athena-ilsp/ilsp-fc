@@ -1,9 +1,10 @@
 package gr.ilsp.fc.aligner.factory;
 
+import gr.ilsp.fc.attic.CrawlUtils;
 import gr.ilsp.fc.bitext.BitextUtils;
-import gr.ilsp.fc.exporter.XSLTransformer;
-import gr.ilsp.fc.main.WriteResources;
+import gr.ilsp.fc.readwrite.WriteResources;
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.fc.utils.XSLTransformer;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitter;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitterFactory;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +60,7 @@ public abstract class Aligner {
 	private static final String appTMXext = ".tmx";
 	private static final String appTMXHTMLext = ".tmx.html";
 	private static final String UNDERSCORE_STR = "_";
+	private static final String HYPHEN_STR = "-";
 	private static final String tmx_xsl= "http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl";
 	protected boolean useBoilerplateParagraphs = false;
 	protected boolean useOoiLang = true;
@@ -87,7 +90,7 @@ public abstract class Aligner {
 	 * @param l2
 	 * @return a list of tmxfiles
 	 */
-	public List<File> processl1L2Files(List<Pair<File, File>> l1L2Files, String l1, String l2)  {
+	public List<File> processL1L2Files(List<Pair<File, File>> l1L2Files, String l1, String l2)  {
 		int id = 1;
 		List<File> tmxFiles = new ArrayList<File>();
 		for (Pair<File, File> filePair : l1L2Files) {
@@ -109,8 +112,8 @@ public abstract class Aligner {
 	}
 
 
-	public void processCesAlignList(File cesAlignList, boolean oxslt, boolean iso6393)  {
-		logger.info("------------Alignment of segments in the detected document pairs.------------");
+	public void processCesAlignList(File cesAlignList, String outputbaseName, boolean oxslt, boolean iso6393)  {
+		logger.debug("------------Alignment of segments in the detected document pairs.------------");
 		List<String> lines=new ArrayList<String>();
 		if (cesAlignList.isDirectory()){
 			File[] docpairs= cesAlignList.listFiles();
@@ -212,13 +215,11 @@ public abstract class Aligner {
 				logger.warn( "Problem in generating TMX files: \n"+ ex.getMessage());
 			}
 		}
-		String tempparent = cesAlignList.getParent();
-		String tempname =  FilenameUtils.getBaseName(FilenameUtils.getBaseName(cesAlignList.getName()));
-		File outputTMXList = new File(FilenameUtils.concat(tempparent, tempname)+TMXlist);
 		File outputHTMLTMXList = null;
+		File outputTMXList = new File(outputbaseName + UNDERSCORE_STR + ISOLangCodes.get3LetterCode(this.sourceLang) + HYPHEN_STR+ISOLangCodes.get3LetterCode(this.targetLang)+TMXlist);
 		if (oxslt)
-			outputHTMLTMXList = new File(FilenameUtils.concat(tempparent, tempname)+TMXHTMLlist);
-
+			outputHTMLTMXList = new File(outputbaseName + UNDERSCORE_STR + ISOLangCodes.get3LetterCode(this.sourceLang) + HYPHEN_STR+ISOLangCodes.get3LetterCode(this.targetLang)+TMXHTMLlist);
+		
 		generateTmxListFiles(outputTMXList, outputHTMLTMXList, lines, tmxFiles,
 				htmlTmxFiles, alignmentsPerFile, alignmentsMap, sourceSentsMap,
 				targetSentsMap);
@@ -279,6 +280,17 @@ public abstract class Aligner {
 		logger.info("Created list of tmx in " + outputTMXList.getAbsolutePath());
 	}
 
+	public List<String> getCesAlignPaths(File indir, String[] langs) {
+		List<String> cesAlignFiles = new ArrayList<String>();
+		File[] files = indir.listFiles();
+		for (File file:files){
+			String filename =file.getName(); 
+			if (filename.endsWith(appXMLext) && filename.contains(UNDERSCORE_STR) && filename.contains(langs[0]) && filename.contains(langs[1]))
+				cesAlignFiles.add(file.getAbsolutePath());
+		}
+		return cesAlignFiles;
+	}
+	
 	public void initialize (String sourceLang, String targetLang) {
 		logger.debug("Inititalizing aligner with " + sourceLang +  " " + targetLang + " " + this.toString());
 		setSourceLang(sourceLang);
@@ -382,7 +394,22 @@ public abstract class Aligner {
 		return false;
 	}
 
-
+	/**
+	 * Returns the dirPath of the running jar
+	 * @return
+	 */
+	public static String getRunningJarPath() {
+		String runpath="";
+		String path = CrawlUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		try {
+			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
+			runpath= decodedPath.getParent();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return runpath;
+	}
 
 
 

@@ -23,8 +23,10 @@ public class MonolingualMetashareDescriptor extends MetashareDescriptor {
 	private String lang;
 	private List<SizeInfoType> langSizeInfoTypes = new ArrayList<SizeInfoType>();
 	
-
 	private static final String LINGUALITY = "monolingual";
+	private static final String DOCUMENTS = "files";
+	private static final String SENTENCES = "sentences";
+	private static final String PARAGRAPHS = "paragraphs";
 	
 	private static final Logger logger = LoggerFactory.getLogger(MonolingualMetashareDescriptor.class);
 	
@@ -47,17 +49,23 @@ public class MonolingualMetashareDescriptor extends MetashareDescriptor {
 		this.setCreationDescription(monolingualCorpusInformation.getCreationDescription());
 
 		SizeInfoType docSizeInfoType = new SizeInfoType();
-		docSizeInfoType.setSize(Integer.toString(monolingualCorpusInformation.getFilesSize()));
-		docSizeInfoType.setSizeUnit("files");
+		if (monolingualCorpusInformation.getLevel().equals(DOCUMENTS))
+			docSizeInfoType.setSize(Integer.toString(monolingualCorpusInformation.getFilesNum()));
+		if (monolingualCorpusInformation.getLevel().equals(PARAGRAPHS))
+			docSizeInfoType.setSize(Integer.toString(monolingualCorpusInformation.getParagraphsNum()));
+		if (monolingualCorpusInformation.getLevel().equals(SENTENCES))
+			docSizeInfoType.setSize(Integer.toString(monolingualCorpusInformation.getSentenceNum()));
+		docSizeInfoType.setSizeUnit(monolingualCorpusInformation.getLevel());		//docSizeInfoType.setSizeUnit("files");
+		
 		langSizeInfoTypes.add(docSizeInfoType);
 
 		SizeInfoType wordsSizeInfoType = new SizeInfoType();
-		wordsSizeInfoType.setSize(Integer.toString(monolingualCorpusInformation.getTokensSize()));
+		wordsSizeInfoType.setSize(Integer.toString(monolingualCorpusInformation.getTokensNum()));
 		wordsSizeInfoType.setSizeUnit("words");
 		langSizeInfoTypes.add(wordsSizeInfoType);
 
 		SizeInfoType vocSizeInfoType = new SizeInfoType();
-		vocSizeInfoType.setSize(Integer.toString(monolingualCorpusInformation.getVocSize()));
+		vocSizeInfoType.setSize(Integer.toString(monolingualCorpusInformation.getLexTypesNum()));
 		vocSizeInfoType.setSizeUnit("lexicalTypes");
 		langSizeInfoTypes.add(vocSizeInfoType);
 		

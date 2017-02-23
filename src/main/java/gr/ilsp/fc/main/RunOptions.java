@@ -11,10 +11,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 //import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,54 +29,115 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.configuration.CompositeConfiguration;
+//import org.apache.commons.configuration.ConfigurationException;
+//import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.InternetDomainName;
 
+
+
+
+
+
+//import gr.ilsp.fc.crawl.Crawler;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
+import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.AnalyzerFactory;
 import gr.ilsp.fc.utils.FCStringUtils;
 
-public class CrawlOptions {
+public class RunOptions {
 	public static int NO_CRAWL_DURATION = 0;
 	private  final String APPNAME = "ILSP Focused Crawler";
-	private Options options;
+	private static final Logger LOGGER = Logger.getLogger(RunOptions.class);
+	private boolean _debug = false;
+	private String _loggingAppender = null;
 
-	private String _domain=null, _maindomain=null, _descr=null, _filter=null, _storefilter=null, _paths_repl=null, _loggingAppender = null;
-	private String _type="m", _operation="", _agentName, _language, _aligner=null, _dict=null, _dictpath=null, _config, ws_dir, _methods = "aupdihml", defaultSegType="1:1";
-	private String[] _langKeys, _targetedLangs;
-	private List<String[]> _linkAttrs;
-	private HashMap<String, String> _mapLangs;
-	private List<String> _langPairs;
+	private Options options;
+	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
+
+	private static final String XMLlist = ".xmllist.txt", XMLHTMLlist = ".xmllist.html", TMXlist = ".tmxlist.txt", xml_type ="xml";
+	private static final String TMXHTMLlist = ".tmxlist.html", TMXEXT = ".tmx", HTMLEXT = ".html", UNDERSCORE_STR = "_";
+	private static final String DIESIS="#", QUEST_SEPAR = ";", COLON_SEPAR = ":", DOUBLESEMICOLON_SEPAR = ";;";
+
+	//operations
+	private static final String CRAWL_operation = "crawl", EXPORT_operation = "export", DEDUP_operation = "dedup", PAIRDETECT_operation = "pairdetect";
+	private static final String ALIGN_operation = "align", TMX_MERGE_operation = "tmxmerge", MONO_MERGE_operation = "monomerge";
+	private static final String type_p = "p", type_q = "q", type_m = "m";
+	private String _operation="";
+
+	//resources (integrated or user provided)
+	private static final String LANG_KEYS_RESOURCE = "langKeys.txt" ;
+	private static final String TRANS_LINKS_ATTRS = "crossLinksAttrs.txt";
+	//private static final String DEFAULT_MONO_CONFIG_FILE = "FMC_config.xml";
+	//private static final String DEFAULT_BI_CONFIG_FILE = "FBC_config.xml";
 	//private String default_genrefile="genres_keys.txt";
 	private URL _genre;
-	private String[][] _urls_repls=null;
-	private File _urls;
-	private File _outputDir, _inputDir, _outBaseName, _outputFile, _outputFileHTML, _outputFileTMX, _outputFileHTMLTMX;
-	private File _outputFile_mergedTMX, _outputFile_mergedTMXHTML, _o1 , _o2, _topic=null;
-	private  int _threads = 10, _numLoops = 0, _crawlDuration = 10, _minTokensNumber = 100, _minTuvLen = 0, _level = 100, _depth = 10000, _length = 3;
-	private  double _minPerce01Align = 1, _minTULenRatio = 0, _maxTULenRatio = 100;
-	private boolean _debug = false,	 _del=false, _keepBoiler = true, _keepsn = false, _keepimagefp=false, _iso6393 = false; 
-	private boolean _cc = false, _keepem = false, _keepiden = false, _keepdup = false, _clean =false, _force = false,  _offlineXSLT = false;
-	//private boolean _metadata = true;
-	private static final String XMLlist = ".xmllist.txt", XMLHTMLlist = ".xmllist.html", TMXlist = ".tmxlist.txt";
-	private static final String TMXHTMLlist = ".tmxlist.html", TMXEXT = ".tmx", HTMLEXT = ".html", UNDERSCORE_STR = "_";
-	private static final Logger LOGGER = Logger.getLogger(CrawlOptions.class);
-	private static final String type_p = "p", type_q = "q", type_m = "m";
-	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
-	private static final String DIESIS="#", QUEST_SEPAR = ";", COLON_SEPAR = ":", DOUBLEQUEST_SEPAR = ";;";
-	//private static final String PUNCT = ".";
-	private static String _selectDocs = "aupdihml", default_aligner="maligna";
-	private static List<String> _selectSegs = new ArrayList<String>();
-	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
-	private static final String CRAWL_operation = "crawl", EXPORT_operation = "export", DEDUP_operation = "dedup", PAIRDETECT_operation = "pairdetect";
-	private static final String ALIGN_operation = "align", TMX_MERGE_operation = "tmxmerge", LANG_KEYS_RESOURCE = "langKeys.txt" ;
-	private static final String TRANS_LINKS_ATTRS = "crossLinksAttrs.txt";
+	private File _topicFile=null, _negwordsFile;
+	private String _usertopic="",  _config;
 
-	public CrawlOptions() {
+	// linguality params
+	private String[] _langKeys, _targetedLangs;
+	private HashMap<String, String> _mapLangs;
+	private List<String> _langPairs;
+	private String _language;
+	private boolean _iso6393 = false;
+
+	//crawl params
+	private String _webdomain=null, _webmaindomain=null,  _filter=null, _storefilter=null;
+	private String _type="m", _agentName="ILSP-FC", ws_dir;
+	private List<String[]> _linkAttrs;
+	private  int _threads = 10, _numLoops = 0, _crawlDuration = 10, _MinDocLen = 100, _minTuvLen = 0, _level = 100, _depth = 10000, _MinParLen = 3;
+	private boolean _keepBoiler = true, _force = false;
+	private File _seedFile;
+
+	//export params
+	private File _outputDir, _inputDir, _outBaseName, _outputFile, _outputFileHTML;
+	private File _o1 , _o2;
+	private String[][] _urls_repls=null;
+	private boolean  _runoffline=false, _textexport=false;
+
+	//pairdetect params
+	private  double _minPerce01Align = 1, _minTULenRatio = 0, _maxTULenRatio = 100;
+	private String _methods = "aupdih";
+	private boolean _del=false,  _keepimagefp=false;
+	private  int _maxSize=1000000000;
+
+	//tmxmerge params
+	private boolean _cc = false, _keepem = false, _keepiden = false, _keepdup = false, _clean =false, _keepsn = false;
+	private String defaultSegType="1:1";
+	private File _outputFile_mergedTMX, _outputFile_mergedTMXHTML;
+	private static String _selectDocs = "aupdih";
+	private static List<String> _selectSegs = new ArrayList<String>();
+
+	//monomerge params
+	private String _corpuslevel="doc";
+
+	//alignment params
+	private List<String> alignerIds = Arrays.asList(new String[] {"hunalign","maligna"});
+	private static String default_aligner="maligna";
+	private File _outputFileTMX, _outputFileHTMLTMX;
+	private String _aligner=null, _dict=null, _dictpath=null;
+
+	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
+
+	private static CompositeConfiguration _configuration;
+	private boolean  _offlineXSLT = false;
+
+	//deduplication params
+	private static double _dedupinter_thr=0.7; //intersection of common paragraphs
+	private static int _dedupMIN_TOK_LEN = 3; //tokens with less that MIN_TOK_LEN letters are excluded
+	private static int _dedupMIN_PAR_LEN = 3; //paragraphs with less than MIN_PAR_LEN tokens are excluded
+	private static String _dedupmethod="0";	  //"1" on document level, "2" on paragraph level, "0" both  
+	private static String _dedupInputType = "xml";
+	private static Set<String> _dedupExcludefiles=null;
+
+	public RunOptions() {
 		createOptions();
 	}
 	@SuppressWarnings("static-access")
@@ -91,10 +154,8 @@ public class CrawlOptions {
 				.withDescription( "Logging appender (console, DRFA) to use")
 				.hasArg()
 				.create("l") );
-		options.addOption( OptionBuilder.withLongOpt( "config" )
-				.withDescription( "Path to the XML configuration file" )
-				.hasArg()
-				.create("cfg") );
+
+		//operations
 		options.addOption( OptionBuilder.withLongOpt("crawl")
 				.withDescription( "Start or continue a crawl" )				
 				.create("crawl") );
@@ -114,35 +175,103 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt("tmxmerge")
 				.withDescription( "Merge aligned segments from each document pair into one tmx file" )				
 				.create("tmxmerge") );
-		options.addOption( OptionBuilder.withLongOpt("pdm")
-				.withDescription( "When creating a merged TMX file, only use sentence alignments from document pairs that have been identified by specific methods, e.g. auidh. See the pdm option." )	
-				.hasArg()
-				.create("pdm") );
-		options.addOption( OptionBuilder.withLongOpt("segtypes")
-				.withDescription( "When creating a merged TMX file, only use sentence alignments of specific types, ie. 1:1" )	
-				.hasArg()
-				.create("segtypes") );
+		options.addOption( OptionBuilder.withLongOpt("monomerge")
+				.withDescription( "Construct a monolingual collection by merging the already exported cesDoc files" )				
+				.create("monomerge") );
 
-		/*	options.addOption( OptionBuilder.withLongOpt( "dictionary for aligning sentences" )
-				.withDescription( "This dictionary will be used for the sentence alignment" +
-						"If has no argument the default dictionary of the aligner will be used if exists" )
-						.hasOptionalArg()
-						.create("dict") );*/
-		options.addOption( OptionBuilder.withLongOpt( "topic" )
+		//linguality
+		options.addOption( OptionBuilder.withLongOpt( "languages" )
+				.withDescription( "Two or three letter ISO code(s) of target language(s), e.g. el (for a monolingual crawl for Greek content) or en;el (for a bilingual crawl)" )
+				.hasArg()
+				.create("lang") );
+		options.addOption( OptionBuilder.withLongOpt( "lang_code" )
+				.withDescription( "if exists iso6393 language codes are used.")
+				.create("iso6393") );
+
+		//resources (integrated or user provided)
+		options.addOption( OptionBuilder.withLongOpt( "config" )
+				.withDescription( "Path to the XML configuration file" )
+				.hasArg()
+				.create("cfg") );
+		options.addOption( OptionBuilder.withLongOpt( "topicFile" )
 				.withDescription( "Path to a file with the topic definition" )
 				.hasArg()
 				.create("tc") );
-		options.addOption( OptionBuilder.withLongOpt( "domain" )
+		options.addOption( OptionBuilder.withLongOpt( "UserTopic" )
 				.withDescription( "A descriptive title for the targeted domain" )
 				.hasArg()
 				.create("dom") );
-		//options.addOption( OptionBuilder.withLongOpt("stay_in_webdomain")
-		//		.withDescription( "Force the monolingual crawler to stay in a specific web domain" )				
-		//		.create("d") );
+		options.addOption( OptionBuilder.withLongOpt( "negwords" )
+				.withDescription( "Path to file containing negative words")
+				.hasArg()
+				.create("neg") );
+		//options.addOption( OptionBuilder.withLongOpt( "genre" )
+		//		.withDescription( "text file with genre types and keywords for each type." )
+		//		.hasArg()
+		//		.create("gnr") );
+		/*	options.addOption( OptionBuilder.withLongOpt( "dictionary for aligning sentences" )
+		.withDescription( "This dictionary will be used for the sentence alignment" +
+				"If has no argument the default dictionary of the aligner will be used if exists" )
+				.hasOptionalArg()
+				.create("dict") );*/
+
+		//crawl params
 		options.addOption( OptionBuilder.withLongOpt( "urls" )
 				.withDescription( "File with seed urls used to initialize the crawl" )
 				.hasArg()
 				.create("u") );
+		options.addOption( OptionBuilder.withLongOpt( "agentname" )
+				.withDescription( "Agent name to identify the person or the organization responsible for the crawl" )
+				.hasArg()
+				.create("a") );
+		options.addOption( OptionBuilder.withLongOpt( "threads" )
+				.withDescription( "Maximum number of fetcher threads to use" )
+				.hasArg()
+				.create("t") );		
+		options.addOption( OptionBuilder.withLongOpt( "CrawlDurationLoops" )
+				.withDescription( "Crawl Duration in Loops" )
+				.hasArg()
+				.create("cdl") );		
+		options.addOption( OptionBuilder.withLongOpt( "CrawlDurationMinutes" )
+				.withDescription( "Crawl Duration in Minutes" )
+				.hasArg()
+				.create("cdm") );
+		options.addOption( OptionBuilder.withLongOpt( "keepboiler" )
+				.withDescription( "Keep and annotate boilerplate content in parsed text" )				
+				.create("k") );
+		options.addOption( OptionBuilder.withLongOpt( "crawlUpToDepth" )
+				.withDescription( "Links will be extracted only from webpages which have been visited up to this number of cycles" )	
+				.hasArg()
+				.create("depth") );
+		options.addOption( OptionBuilder.withLongOpt( "levelfilter" )
+				.withDescription( "Use this option to force the crawler visit only urls that are up to a specific level of a webdomain webdomains." )	
+				.hasArg()
+				.create("level") );
+		options.addOption( OptionBuilder.withLongOpt( "force" )
+				.withDescription( "Force a new crawl. Caution: This will remove any previously crawled data" )				
+				.create("f") );
+		options.addOption( OptionBuilder.withLongOpt( "minlength" )
+				.withDescription( "Minimum number of tokens in crawled documents (after boilerplate detection). Shorter documents will be discarded.")
+				.hasArg()
+				.create("mtlen") );
+		options.addOption( OptionBuilder.withLongOpt( "type" )
+				.withDescription("Crawl type: m (monolingual) or  p (parallel)" )
+				.hasArg()
+				.create("type") );
+		options.addOption( OptionBuilder.withLongOpt( "fetchfilter" )
+				.withDescription( "Use this regex to force the crawler to crawl only in specific sub webdomains. Webpages with urls that do not match this regex will not be fetched." )	
+				.hasArg()
+				.create("filter") );
+		options.addOption( OptionBuilder.withLongOpt( "storefilter" )
+				.withDescription( "Use this regex to force the crawler to store only webpages with urls that match this regex." )	
+				.hasArg()
+				.create("storefilter") );
+		//options.addOption( OptionBuilder.withLongOpt("stay_in_webdomain")
+		//		.withDescription( "Force the monolingual crawler to stay in a specific web domain" )				
+		//		.create("d") );
+
+
+		//input/output params 
 		options.addOption( OptionBuilder.withLongOpt( "inputdir" )
 				.withDescription( "Input directory for deduplication, pairdetection, or alignment" )
 				.hasArg()
@@ -155,46 +284,15 @@ public class CrawlOptions {
 				.withDescription( "Basename to be used in generating all output files for easier content navigation" )
 				.hasArg()
 				.create("bs") );
-		options.addOption( OptionBuilder.withLongOpt( "agentname" )
-				.withDescription( "Agent name to identify the person or the organization responsible for the crawl" )
+		options.addOption( OptionBuilder.withLongOpt( "destination" )
+				.withDescription( "Path to a directory where the acquired/generated resources will be stored")
 				.hasArg()
-				.create("a") );
-		options.addOption( OptionBuilder.withLongOpt( "threads" )
-				.withDescription( "Maximum number of fetcher threads to use" )
-				.hasArg()
-				.create("t") );		
-		options.addOption( OptionBuilder.withLongOpt( "numloops" )
-				.withDescription( "Maximum number of fetch/update loops" )
-				.hasArg()
-				.create("n") );		
-		options.addOption( OptionBuilder.withLongOpt( "crawlduration" )
-				.withDescription( "Maximum crawl duration in minutes" )
-				.hasArg()
-				.create("c") );
-		//options.addOption( OptionBuilder.withLongOpt( "genre" )
-		//		.withDescription( "text file with genre types and keywords for each type." )
-		//		.hasArg()
-		//		.create("gnr") );
-		options.addOption( OptionBuilder.withLongOpt( "keepboiler" )
-				.withDescription( "Keep and annotate boilerplate content in parsed text" )				
-				.create("k") );
-		options.addOption( OptionBuilder.withLongOpt( "crawlUpToDepth" )
-				.withDescription( "Links will not be extracted only from webpages which have been visited up to this number of cycles" )	
-				.hasArg()
-				.create("depth") );
-		options.addOption( OptionBuilder.withLongOpt( "delete_redundant_files" )
-				.withDescription( "Delete redundant crawled documents that have not been detected as members of a document pair" )				
-				.create("del") );
-		options.addOption( OptionBuilder.withLongOpt( "image_urls" )
-				.withDescription( "Full image URLs (and not only their basenames) will be used in pair detection with common images")				
-				.create("ifp") );
-		options.addOption( OptionBuilder.withLongOpt( "force" )
-				.withDescription( "Force a new crawl. Caution: This will remove any previously crawled data" )				
-				.create("f") );		
-		options.addOption( OptionBuilder.withLongOpt( "length" )
-				.withDescription( "Μinimum number of tokens per text block. Shorter text blocks will be annoteted as \"ooi-length\"" )	
-				.hasArg()
-				.create("len") );
+				.create("dest") );
+		options.addOption( OptionBuilder.withLongOpt( "offline_xslt" )
+				.withDescription( "Apply an xsl transformation to generate html files during exporting.")
+				.create("oxslt") );
+
+		//tmxmerge params
 		options.addOption( OptionBuilder.withLongOpt( "Min_TUV_Length" )
 				.withDescription( "minimum length in tokens of an acceptable TUV")
 				.hasArg()
@@ -226,62 +324,45 @@ public class CrawlOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepDuplicates" )
 				.withDescription( "keeps duplicate TUs")
 				.create("keepdup") );
-		options.addOption( OptionBuilder.withLongOpt( "minlength" )
-				.withDescription( "Minimum number of tokens in crawled documents (after boilerplate detection). Shorter documents will be discarded.")
+		options.addOption( OptionBuilder.withLongOpt("segtypes")
+				.withDescription( "When creating a merged TMX file, only use sentence alignments of specific types, ie. 1:1" )	
 				.hasArg()
-				.create("mtlen") );
-		options.addOption( OptionBuilder.withLongOpt( "type" )
-				.withDescription("Crawl type: m (monolingual) or  p (parallel)" )
+				.create("segtypes") );
+		options.addOption( OptionBuilder.withLongOpt( "creative_commons" )
+				.withDescription( "Force the tmxmerging process to generate a merged TMX with sentence alignments only from document pairs for which an open content license has been detected.")
+				.create("cc") );
+		options.addOption( OptionBuilder.withLongOpt( "Max_TUs" )
+				.withDescription( "maximum number of TUs")
 				.hasArg()
-				.create("type") );
-		options.addOption( OptionBuilder.withLongOpt( "levelfilter" )
-				.withDescription( "Use this option to force the crawler visit only urls that are up to a specific level of a webdomain webdomains." )	
-				.hasArg()
-				.create("level") );
-		options.addOption( OptionBuilder.withLongOpt( "fetchfilter" )
-				.withDescription( "Use this regex to force the crawler to crawl only in specific sub webdomains. Webpages with urls that do not match this regex will not be fetched." )	
-				.hasArg()
-				.create("filter") );
-		options.addOption( OptionBuilder.withLongOpt( "storefilter" )
-				.withDescription( "Use this regex to force the crawler to store only webpages with urls that match this regex." )	
-				.hasArg()
-				.create("storefilter") );
-		options.addOption( OptionBuilder.withLongOpt( "languages" )
-				.withDescription( "Two or three letter ISO code(s) of target language(s), e.g. el (for a monolingual crawl for Greek content) or en;el (for a bilingual crawl)" )
-				.hasArg()
-				.create("lang") );
-		options.addOption( OptionBuilder.withLongOpt( "lang_code" )
-				.withDescription( "if exists iso6393 language codes are used.")
-				.create("iso6393") );
-		options.addOption( OptionBuilder.withLongOpt( "offline_xslt" )
-				.withDescription( "Apply an xsl transformation to generate html files during exporting.")
-				.create("oxslt") );
-		options.addOption( OptionBuilder.withLongOpt( "destination" )
-				.withDescription( "Path to a directory where the acquired/generated resources will be stored")
-				.hasArg()
-				.create("dest") );
+				.create("size") );
+		
+		//pair detect params
 		options.addOption( OptionBuilder.withLongOpt( "url_replacements" )
 				.withDescription( "A string to be replaced, separated by ';'.")
 				.hasArg()
 				.create("u_r") );
 		options.addOption( OptionBuilder.withLongOpt( ""
-				+ "pair_detection_methods" )
+				+ "pair_detection_methods to apply and/or docpairs to select for merging" )
 				.withDescription( "Α string forcing the crawler to detect pairs using one or more specific methods: "
 						+ "a (links between documents), "
 						+ "u (patterns in urls), "
 						+ "p (common images and similar digit sequences),"
 						+ "i (common images), "
 						+ "d (similar digit sequences), "
-						+ "s (similar html structure)")
+						+ "u (high similarity of html structure)"
+						+ "m (medium similarity of html structure)"
+						+ "l (low similarity of html structure)"
+						+ "When creating a merged TMX file, only use sentence alignments from document pairs that have been identified by specific methods.")
 						.hasArg()
 						.create("pdm") );
-		options.addOption( OptionBuilder.withLongOpt( "path_replacements" )
-				.withDescription( "Put the strings to be replaced, separated by ';'. This might be useful for crawling via the web service")
-				.hasArg()
-				.create("p_r") );
-		options.addOption( OptionBuilder.withLongOpt( "creative_commons" )
-				.withDescription( "Force the alignment process to generate a merged TMX with sentence alignments only from document pairs for which an open content license has been detected.")
-				.create("cc") );
+		options.addOption( OptionBuilder.withLongOpt( "delete_redundant_files" )
+				.withDescription( "Delete redundant crawled documents that have not been detected as members of a document pair" )				
+				.create("del") );
+		options.addOption( OptionBuilder.withLongOpt( "image_urls" )
+				.withDescription( "Full image URLs (and not only their basenames) will be used in pair detection with common images")				
+				.create("ifp") );
+
+		//export params
 		options.addOption( OptionBuilder.withLongOpt( "specific_output1" )
 				.withDescription( "Not used (Specific outout1)")
 				.hasArg()
@@ -290,9 +371,57 @@ public class CrawlOptions {
 				.withDescription( "Not used (Specific outout2)")
 				.hasArg()
 				.create("o2") );
-		//options.addOption( OptionBuilder.withLongOpt( "metadata" )
-		//		.withDescription( "Generate a metadata description with information for a resource created with the crawler")
-		//		.create("metadata") );
+		options.addOption( OptionBuilder.withLongOpt( "textexport" )
+				.withDescription( "Export raw txt files" )				
+				.create("te") );
+		options.addOption( OptionBuilder.withLongOpt( "offlineExport" )
+				.withDescription( "Export files not coming from crawls" )				
+				.create("offline") );
+		options.addOption( OptionBuilder.withLongOpt( "path_replacements" )
+				.withDescription( "Put the strings to be replaced, separated by ';'.")
+				.hasArg()
+				.create("p_r") );
+		options.addOption( OptionBuilder.withLongOpt( "length" )
+				.withDescription( "Μinimum number of tokens per text block. Shorter text blocks will be annoteted as \"ooi-length\"" )	
+				.hasArg()
+				.create("len") );
+
+		//deduplication parameters
+		options.addOption( OptionBuilder.withLongOpt( "DedupMethod" )
+				.withDescription( "Method type for deduplication: "
+						+ "1 for Deduplication by using lists and MD5 method."
+						+ "2 for Deduplication based on common paragraphs."
+						+ "0 for applying both methods." )
+						.hasArg()
+						.create("dedup_meth") );
+		options.addOption( OptionBuilder.withLongOpt( "dedup_minTokLen" )
+				.withDescription( "Tokens with less than MIN_TOK_LEN (default is 3) are excluded from content" )
+				.hasArg()
+				.create("dedup_mtl") );
+		options.addOption( OptionBuilder.withLongOpt( "dedup_minParLen_inToks" )
+				.withDescription( "Paragraphs with less than MIN_PAR_LEN (default is 3) tokens are excluded from content" )	
+				.hasArg()
+				.create("dedup_mpl") );
+		options.addOption( OptionBuilder.withLongOpt( "dedup_intersectionThr_paragraphs" )
+				.withDescription( "Documents for which the ratio the common paragraphs"
+						+ " with the shortest of them is more than this threshold are considered duplicates")	
+						.hasArg()
+						.create("dedup_ithr") );
+		options.addOption( OptionBuilder.withLongOpt( "dedup_inputType" )
+				.withDescription( "type of input files, default is xml, also supports txt" )
+				.hasArg()
+				.create("dedup_intype") );
+		options.addOption( OptionBuilder.withLongOpt( "dedupexclude_files" )
+				.withDescription( "cesDocFiles to be excluded for deduplication separated by \";\"" )	
+				.hasArg()
+				.create("dedup_ex") );
+
+		//monomerging options
+		options.addOption( OptionBuilder.withLongOpt( "level of corpus' item" )
+				.withDescription( "corpus consists of txt documents (default), or paragraphs, or sentences")
+				.hasArg()
+				.create("corpuslevel") );
+
 		return options;
 	}
 
@@ -309,12 +438,24 @@ public class CrawlOptions {
 			if(line.hasOption( "l"))	{	_loggingAppender = line.getOptionValue("l");	}
 
 			//get operations to be applied
-			if(line.hasOption( CRAWL_operation)) 		{	_operation=_operation+CRAWL_operation;			}
-			if(line.hasOption( EXPORT_operation)) 		{	_operation=_operation+EXPORT_operation;			}
-			if(line.hasOption( DEDUP_operation)) 		{	_operation=_operation+DEDUP_operation;			}
-			if(line.hasOption( PAIRDETECT_operation)) 	{	_operation=_operation+PAIRDETECT_operation;		}
-			if(line.hasOption( ALIGN_operation)) 		{	_operation=_operation+ALIGN_operation;			}
-			if(line.hasOption( TMX_MERGE_operation)) 	{	_operation=_operation+TMX_MERGE_operation;		}
+			if(line.hasOption( CRAWL_operation)) 
+				_operation=_operation+CRAWL_operation;	
+			if(line.hasOption( EXPORT_operation)) 
+				_operation=_operation+EXPORT_operation;	
+			if(line.hasOption( DEDUP_operation)) 
+				_operation=_operation+DEDUP_operation;	
+			if(line.hasOption( PAIRDETECT_operation)) 
+				_operation=_operation+PAIRDETECT_operation;	
+			if(line.hasOption( ALIGN_operation)) 	
+				_operation=_operation+ALIGN_operation;	
+			if(line.hasOption( TMX_MERGE_operation)) 
+				_operation=_operation+TMX_MERGE_operation;	
+			if(line.hasOption( MONO_MERGE_operation)) 
+				_operation=_operation+MONO_MERGE_operation;
+			if (!isValidOperationsSequence(_operation)){
+				LOGGER.info("The sequence of asked operations is not valid!");
+				System.exit(0);
+			}
 
 			//get parameters concerning languages
 			if(line.hasOption( "lang")) {
@@ -329,99 +470,163 @@ public class CrawlOptions {
 				_linkAttrs = findTransLinks();
 				checkAnalyzers(_language);
 			}else{
-				if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation) || _operation.contains(PAIRDETECT_operation) 
-						|| _operation.contains(ALIGN_operation) ||  _operation.contains(TMX_MERGE_operation)){
+				if (!_operation.contains(DEDUP_operation)){ //for all tasks but deduplication, language(s) is required
 					LOGGER.error("No languages have been defined.");
 					System.exit(0);
 				}
 			}
-
-			if(line.hasOption( "i"))			{	_inputDir = new File(line.getOptionValue("i"));			}
-			if(line.hasOption( "o"))			{	_outputDir = new File(line.getOptionValue("o"));		}
-
-			if (_operation.contains(CRAWL_operation)){
-				getParams4Crawl(line);
-			}
 			if(line.hasOption( "a"))
 				_agentName = line.getOptionValue("a").replace(" ", "_");
-			else
-				_agentName="A";
-			
-			if (line.hasOption( "bs")) {
-				_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName);			_outBaseName = _outBaseName.getAbsoluteFile();
-				_outputFile = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLlist);	_outputFile = _outputFile.getAbsoluteFile();
-				if(line.hasOption( "oxslt")) {
-					_outputFileHTML = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLHTMLlist);
-					_outputFileHTML = _outputFileHTML.getAbsoluteFile();
-				} 
-			}else{
-				if (_operation.contains(EXPORT_operation) || _operation.contains(DEDUP_operation) || _operation.contains(PAIRDETECT_operation) || _operation.contains(ALIGN_operation) ||  _operation.contains(TMX_MERGE_operation)){
-					LOGGER.error("Outputfile required ");
+
+			if (_operation.contains(CRAWL_operation))
+				getParams4Crawl(line);
+			if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation)){
+				getParams4Topicness(line);
+				getParams4ContentProps(line);
+				if(line.hasOption( "neg")) 
+					_negwordsFile = new File(line.getOptionValue("neg")).getAbsoluteFile();
+				if(line.hasOption( "offline"))
+					_runoffline = true;
+			}
+			if (_operation.contains(DEDUP_operation))
+				getParams4Dedup(line);
+
+			if (_operation.contains(EXPORT_operation) || _operation.contains(DEDUP_operation) 
+					|| _operation.contains(PAIRDETECT_operation) || _operation.contains(ALIGN_operation)
+					|| _operation.contains(TMX_MERGE_operation) ||  _operation.contains(MONO_MERGE_operation)){
+				if (line.hasOption( "bs")) {
+					_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName).getAbsoluteFile();
+					_outputFile = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLlist).getAbsoluteFile();
+					if(line.hasOption( "oxslt")) 
+						_offlineXSLT  = true;
+					if(line.hasOption( "oxslt")) 
+						_outputFileHTML = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLHTMLlist).getAbsoluteFile();
+				}else{
+					LOGGER.error("Outputfile baseName required ");
 					System.exit(0);
 				}
+				if(line.hasOption( "i"))	
+					_inputDir = new File(line.getOptionValue("i")).getAbsoluteFile();		
+				if(line.hasOption( "o"))
+					_outputDir = new File(line.getOptionValue("o")).getAbsoluteFile();		
+				else{
+					if (_operation.equals(EXPORT_operation))
+						_outputDir =  new File(FilenameUtils.concat(_inputDir.getAbsolutePath(), xml_type)).getAbsoluteFile();
+				}
+				if (_operation.equals(EXPORT_operation)){
+					if (line.hasOption("te"))
+						_textexport = true;		
+				}
+					
 			}
 			if (_operation.contains(ALIGN_operation) || _operation.contains(TMX_MERGE_operation)){
 				if(line.hasOption("iso6393"))
 					_iso6393=true;
 			}
-			if (_operation.contains(TMX_MERGE_operation) ){
+			if (_operation.contains(TMX_MERGE_operation) )
 				getParams4MergingAlignments(line);
-			}
-			if (_operation.contains(ALIGN_operation)){
+			if (_operation.contains(ALIGN_operation))
 				getParams4Align(line);
-			}
-			if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation) || _operation.contains(TMX_MERGE_operation)){
-				getParams4Topicness(line);
-				getParams4ContentProps(line);
-			}
-			if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation) ||  _operation.contains(ALIGN_operation) ||  _operation.contains(TMX_MERGE_operation) ){
-				if(line.hasOption( "cfg")) {
-					_config = line.getOptionValue("cfg");
-				}	
-			}
-			if (_operation.contains(PAIRDETECT_operation)){
-				if(line.hasOption( "ifp")) 
-					_keepimagefp  = true;
-				if(line.hasOption( "pdm"))
-					_methods = line.getOptionValue("pdm");
-				if(line.hasOption( "del")) 		
-					_del  = true;
-				String temp= line.getOptionValue("u_r");
-				if (temp!=null){
-					String[] aa=temp.split(DOUBLEQUEST_SEPAR);
-					String[][] urls_repls =new String[aa.length][2];  
-					for (int ii=0;ii<aa.length;ii++){
-						String[] bb = aa[ii].split(QUEST_SEPAR);
-						if (bb.length<1){
-							LOGGER.error("the argument for URL replacements is not correct." +
-									" Use ;; to seperate pairs and ; to separate the parts of each pair." +
-									"Check that none of the parts is empty.");
-							help();
-						}else{
-							if (bb.length==1){
-								urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = "";
-							}else{
-								urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = bb[1];
-							}
-						}
-					}
-					_urls_repls=urls_repls;
-				}
-			}
-			if(line.hasOption( "p_r")) {
+			//if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation) || _operation.contains(TMX_MERGE_operation))
+			//	getParams4ContentProps(line);
+			if(line.hasOption( "cfg")) 
+				_config = line.getOptionValue("cfg");
+
+			if (_operation.contains(PAIRDETECT_operation))
+				getPairDetectionParams(line);
+
+			if (_operation.contains(MONO_MERGE_operation))
+				getMonoMergeParams(line);
+
+			/*if(line.hasOption( "p_r")) {
 				_paths_repl= line.getOptionValue("p_r").trim();
 				if (_paths_repl.endsWith("/")){
 					_paths_repl=_paths_repl.substring(0, _paths_repl.length()-1);
 				}
-			}
-			if(line.hasOption( "oxslt")) 
-				_offlineXSLT  = true;
+			}*/
+
 		} catch( ParseException exp ) {
 			// oops, something went wrong
 			System.err.println( "Parsing options failed.  Reason: " + exp.getMessage() );			
 			System.exit(64);
 		}
 	}
+
+	private void getMonoMergeParams(CommandLine line) {
+		_corpuslevel =  line.getOptionValue("corpuslevel");
+	}
+
+	private boolean isValidOperationsSequence(String operation) {
+		if (StringUtils.isBlank(operation)){
+			LOGGER.info("No operation asked");
+			return false;
+		}
+		if (!operation.equals(CRAWL_operation)){
+			if (operation.contains(CRAWL_operation) && !operation.contains(EXPORT_operation)){
+				LOGGER.info("Exporting is required after crawling");
+				return false;
+			}
+		}
+		if (operation.contains(EXPORT_operation+ALIGN_operation) || operation.contains(EXPORT_operation+TMX_MERGE_operation) || 
+				operation.contains(DEDUP_operation+ALIGN_operation) || operation.contains(DEDUP_operation+TMX_MERGE_operation)){
+			LOGGER.info("Pair detection is required before alignment of merging TMXs");
+			return false;
+		}
+		if (operation.contains(PAIRDETECT_operation+TMX_MERGE_operation)){
+			LOGGER.info("Alignemnt is required before merging TMXs");
+			return false;
+		}
+		return true;
+	}
+
+	private void getPairDetectionParams(CommandLine line) {
+		if(line.hasOption( "ifp")) 
+			_keepimagefp  = true;
+		if(line.hasOption( "pdm"))
+			_methods = line.getOptionValue("pdm");
+		if(line.hasOption( "del")) 		
+			_del  = true;
+		String temp= line.getOptionValue("u_r");
+		if (temp!=null){
+			String[] aa=temp.split(DOUBLESEMICOLON_SEPAR);
+			String[][] urls_repls =new String[aa.length][2];  
+			for (int ii=0;ii<aa.length;ii++){
+				String[] bb = aa[ii].split(QUEST_SEPAR);
+				if (bb.length<1){
+					LOGGER.error("the argument for URL replacements is not correct." +
+							" Use ;; to seperate pairs and ; to separate the parts of each pair." );
+					help();
+				}else{
+					if (bb.length==1){
+						urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = "";
+					}else{
+						urls_repls[ii][0] = bb[0]; urls_repls[ii][1] = bb[1];
+					}
+				}
+			}
+			_urls_repls=urls_repls;
+		}
+	}
+
+	private void getParams4Dedup(CommandLine line) {
+		if(line.hasOption( "dedup_meth")) 
+			_dedupmethod = line.getOptionValue("dedup_meth");
+		if(line.hasOption( "dedup_mtl")) 
+			_dedupMIN_TOK_LEN = Integer.parseInt(line.getOptionValue("dedup_mtl"));
+		if(line.hasOption( "dedup_mpl")) 
+			_dedupMIN_PAR_LEN = Integer.parseInt(line.getOptionValue("dedup_mpl"));
+		if(line.hasOption( "dedup_ithr")) 
+			_dedupinter_thr = Double.parseDouble(line.getOptionValue("dedup_ithr"));	
+		if(line.hasOption( "dedup_intype"))
+			_dedupInputType = line.getOptionValue("dedup_intype");
+		if(line.hasOption( "dedup_exf")){ 
+			String[] temp= line.getOptionValue("exf").split(QUEST_SEPAR);
+			for (int ii=0;ii<temp.length;ii++){
+				_dedupExcludefiles.add(FilenameUtils.concat(_outputDir.getAbsolutePath(), temp[ii]));
+			}
+		}
+	}
+
 	private List<String[]> findTransLinks() {
 		List<String[]> res = new ArrayList<String[]>();
 		try {
@@ -457,28 +662,25 @@ public class CrawlOptions {
 	 * @param line
 	 */
 	private void getParams4ContentProps(CommandLine line) {
-		if(line.hasOption( "k")) 		{	_keepBoiler  = true;				}
 		if(line.hasOption( "del")) 		{	_del  = true;				}
-		if(line.hasOption( "len")) 		{	_length = Integer.parseInt(line.getOptionValue("len"));				} 
-		if(line.hasOption( "mtlen")) 	{	_minTokensNumber = Integer.parseInt(line.getOptionValue("mtlen"));	} 
+		if(line.hasOption( "len")) 		{	_MinParLen = Integer.parseInt(line.getOptionValue("len"));		} 
+		if(line.hasOption( "mtlen")) 	{	_MinDocLen = Integer.parseInt(line.getOptionValue("mtlen"));	} 
 	}
 	/**
 	 * parses the command Line and gets _topic (file with terms, etc) and _descr (topicName)
 	 * @param line
 	 */
 	private void getParams4Topicness(CommandLine line) {
-		if(line.hasOption( "tc")) {
-			_topic = new File(line.getOptionValue("tc"));
-		}
+		if(line.hasOption( "tc")) 
+			_topicFile = new File(line.getOptionValue("tc"));
 		if(line.hasOption( "dom")) {
-			if (_topic==null){
+			if (_topicFile==null){
 				LOGGER.info("The targeted domain is defined but a topic definition is not applied. " +
 						"So, the domain will be used as provided, i.e. it will not be identified.");
-				//help();
 			}
-			_descr = line.getOptionValue("dom");
+			_usertopic = line.getOptionValue("dom");
 		}else{
-			if (_topic!=null){
+			if (_topicFile!=null){
 				LOGGER.error("Even though a topic definition is applied " +
 						"the targeted domain is not defined. "+
 						"Regarding Topic definition and targeted domain," +
@@ -507,12 +709,6 @@ public class CrawlOptions {
 	 * @param line
 	 */
 	private void getParams4Crawl(CommandLine line) {
-		if(line.hasOption( "a")){
-			_agentName = line.getOptionValue("a").replace(" ", "_");
-		}else{
-			LOGGER.error("option -a is required");
-			help();
-		}
 		if (line.hasOption("type"))
 			_type = line.getOptionValue("type");
 		else{
@@ -520,36 +716,46 @@ public class CrawlOptions {
 			help();
 		}
 		if (line.hasOption("u")) {
-			_urls = new File(line.getOptionValue("u"));
-			if (_urls.exists()==false){
+			_seedFile = new File(line.getOptionValue("u")).getAbsoluteFile();
+			if (_seedFile.exists()==false){
 				LOGGER.error("The seed file does not exist.");
 				help();
 			}
 		}
-		if(line.hasOption("t")) 			{	_threads = Integer.parseInt(line.getOptionValue("t"));	}							
-		if(line.hasOption("n")) 			{	_numLoops = Integer.parseInt(line.getOptionValue("n"));	_crawlDuration=0;	}
-		if(line.hasOption("c")) 			{	_crawlDuration = Integer.parseInt(line.getOptionValue("c"));	}
-		if(line.hasOption("f"))				{	_force   = true;	}
+		if(line.hasOption("t")) 
+			_threads = Integer.parseInt(line.getOptionValue("t"));	
+		if(line.hasOption("cdl"))	{
+			_numLoops = Integer.parseInt(line.getOptionValue("cdl"));
+			_crawlDuration=0;
+		}
+		if(line.hasOption("cdm")) 
+			_crawlDuration = Integer.parseInt(line.getOptionValue("cdm"));
+		if(line.hasOption("f"))	
+			_force   = true;
+		if(line.hasOption( "k"))
+			_keepBoiler  = true;
 		if (line.hasOption("filter"))		{	
 			_filter = line.getOptionValue("filter");	
 			try{
 				Pattern.compile(_filter);
 			}catch (PatternSyntaxException exception) {
-	            System.err.println(_filter +" is not a valid regex. See parameter -filter");
-	            System.exit(0);
-	        }
+				System.err.println(_filter +" is not a valid regex. See parameter -filter");
+				System.exit(0);
+			}
 		}
 		if (line.hasOption("storefilter"))	{
 			_storefilter = line.getOptionValue("storefilter");
 			try{
 				Pattern.compile(_storefilter);
 			}catch (PatternSyntaxException exception) {
-	            System.err.println(_storefilter +" is not a valid regex. See parameter -storefilter");
-	            System.exit(0);
-	        }
+				System.err.println(_storefilter +" is not a valid regex. See parameter -storefilter");
+				System.exit(0);
+			}
 		}
-		if(line.hasOption("level")) 		{	_level = Integer.parseInt(line.getOptionValue("level"));	}
-		if(line.hasOption("depth")) 		{	_depth = Integer.parseInt(line.getOptionValue("depth"));	}
+		if(line.hasOption("level")) 
+			_level = Integer.parseInt(line.getOptionValue("level"));	
+		if(line.hasOption("depth")) 
+			_depth = Integer.parseInt(line.getOptionValue("depth"));
 
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 		if (line.hasOption( "dest")) 
@@ -581,8 +787,8 @@ public class CrawlOptions {
 					if (seed_list.size()==1){
 						try {
 							url = new URL(normalizer.normalize(seed_list.get(0)));
-							_domain = FCStringUtils.removeWWW(url.getHost());				//LOGGER.debug("Examining web domain : " + _domain);
-							_maindomain = FCStringUtils.removeWWW(processhost(_domain));	//LOGGER.debug("Examining second domain : " + _maindomain);
+							_webdomain = FCStringUtils.removeWWW(url.getHost());				//LOGGER.debug("Examining web domain : " + _domain);
+							_webmaindomain = FCStringUtils.removeWWW(processhost(_webdomain));	//LOGGER.debug("Examining second domain : " + _maindomain);
 							//_domain = PUNCT+_domain;
 						} catch (MalformedURLException e) {
 							LOGGER.error("Seed URL is not valid: "+seed_list.get(0));
@@ -603,11 +809,11 @@ public class CrawlOptions {
 										System.exit(0);				
 									}
 									else{
-										_domain=null;
-										_maindomain=null;
+										_webdomain=null;
+										_webmaindomain=null;
 									}
 								}else{
-									_domain = FCStringUtils.removeWWW(host);
+									_webdomain = FCStringUtils.removeWWW(host);
 									String mainhost="";
 									char c = host.charAt(0);
 									if (Character.isDigit(c)){
@@ -615,7 +821,7 @@ public class CrawlOptions {
 									}else{
 										mainhost=processhost(host);
 									}
-									_maindomain = FCStringUtils.removeWWW(mainhost);
+									_webmaindomain = FCStringUtils.removeWWW(mainhost);
 								}
 							}catch (MalformedURLException e) {
 								LOGGER.error("Seed URL is not valid:"+seed_list.get(ii));
@@ -626,12 +832,12 @@ public class CrawlOptions {
 					LOGGER.error("There is no valid seed URL.");
 					help();
 				}
-				String t = _domain.replace(".", "\\.");
+				String t = _webdomain.replace(".", "\\.");
 				//_filter = ".*"+t+".*";
 				_filter = "^[^/]*\\."+t+".*";
 			}else{
-				_domain=null;
-				_maindomain=null;
+				_webdomain=null;
+				_webmaindomain=null;
 				_filter = line.getOptionValue("filter");
 			}
 		}
@@ -645,7 +851,7 @@ public class CrawlOptions {
 		ArrayList<String> seed_list = new ArrayList<String>();
 		BufferedReader rdr;
 		try {
-			rdr = new BufferedReader(new InputStreamReader(new FileInputStream(_urls),"utf8"));
+			rdr = new BufferedReader(new InputStreamReader(new FileInputStream(_seedFile),"utf8"));
 			String cur_line="";
 			while ((cur_line=rdr.readLine())!=null){
 				if (skipLineM.reset(cur_line).matches()) 
@@ -677,8 +883,12 @@ public class CrawlOptions {
 	 * @param line
 	 */
 	private void getParams4Align(CommandLine line) {
-		_aligner = line.getOptionValue("align");
-		if (_aligner==null)
+		String tt =  line.getOptionValue("align");
+		if (tt!=null)
+			_aligner = line.getOptionValue("align").toLowerCase();
+		else
+			_aligner = null;
+		if ((_aligner==null) || !alignerIds.contains(_aligner)) 
 			_aligner = default_aligner;
 		if (line.hasOption( "dict")) {
 			_dict = line.getOptionValue("dict");
@@ -734,15 +944,19 @@ public class CrawlOptions {
 			for (String str:temp){
 				_selectSegs.add(str);
 			}
-		}else{
+		}else
 			_selectSegs.add(defaultSegType);
-		}
+
 		if (line.hasOption("cc"))
 			_cc=true;
 		if (line.hasOption("o1"))
 			_o1=new File(line.getOptionValue("o1"));
 		if (line.hasOption("o2"))
 			_o2=new File(line.getOptionValue("o2"));
+		if (line.hasOption("dom"))
+			_usertopic = line.getOptionValue("dom");
+		if(line.hasOption( "size"))
+			_maxSize = Integer.parseInt(line.getOptionValue("size"));
 	}
 
 	/**
@@ -766,9 +980,8 @@ public class CrawlOptions {
 		String finalhost="";
 		InternetDomainName domainname = InternetDomainName.from(host);
 		InternetDomainName ps = domainname.publicSuffix();
-		if (ps==null){
+		if (ps==null)
 			return host;
-		}
 		int ind1=0, ind2=0;
 		String temp1 = "";
 		while (ind1>-1){
@@ -780,9 +993,8 @@ public class CrawlOptions {
 		ImmutableList<String> domainparts=domainname1.parts();
 		for (int kk=0;kk<domainparts.size();kk++){
 			InternetDomainName temp = InternetDomainName.from(domainparts.get(kk));
-			if (!temp.isPublicSuffix()){
+			if (!temp.isPublicSuffix())
 				finalhost=finalhost+domainparts.get(kk)+".";
-			}
 		}
 		return finalhost;
 	}
@@ -804,9 +1016,8 @@ public class CrawlOptions {
 			while ((str = in.readLine()) != null) {
 				b=str.subSequence(0, str.indexOf(">")).toString();
 				for (String lang:langs){
-					if (b.equals(lang)){
+					if (b.equals(lang))
 						langKeys.add(str.subSequence(str.indexOf(">")+1, str.length()).toString());
-					}
 				}
 				if (langKeys.size()==langs.length)
 					break;
@@ -894,20 +1105,24 @@ public class CrawlOptions {
 	public HashMap<String,String> getMapLangs() {
 		return _mapLangs;
 	}
+	/**
+	 * returns the language pairs as combinations of the targeted languages
+	 * @return
+	 */
 	public List<String> getLangPairs() {
 		return _langPairs;
 	}
 	public List<String[]> getTransLinksAttrs() {
 		return _linkAttrs;
 	}
-	public File getTopic() {
-		return _topic;
+	public File getTopicFile() {
+		return _topicFile;
 	}
-	public  String getDomain() {
-		return _domain;
+	public  String getWebDomain() {
+		return _webdomain;
 	}
-	public  String getMainDomain() {
-		return _maindomain;
+	public  String getWebMainDomain() {
+		return _webmaindomain;
 	}
 	public  boolean isDebug() {
 		return _debug;
@@ -939,6 +1154,10 @@ public class CrawlOptions {
 	public  File getMergedTMXHTML() {
 		return _outputFile_mergedTMXHTML;
 	}
+	/**
+	 * returns the basename of all output files (lists) 
+	 * @return
+	 */
 	public  File getBaseName() {
 		return _outBaseName;
 	}
@@ -954,12 +1173,16 @@ public class CrawlOptions {
 	public  int getCrawlDuration() {
 		return _crawlDuration;
 	}
-	public File getUrls() {
-		return _urls;
+	public File getSeedFile() {
+		return _seedFile;
 	}
 	public boolean keepBoiler() {
 		return _keepBoiler;
 	}
+	/**
+	 * returns methods for pair detection
+	 * @return
+	 */
 	public String getPairMethods() {
 		return _methods;
 	}
@@ -981,8 +1204,19 @@ public class CrawlOptions {
 	public URL getGenre(){
 		return _genre;
 	}
-	public int getlength() {
-		return _length;
+	/**
+	 * returns the minimum accepted length (in terms of tokens) of a paragraph, default is 3
+	 * @return
+	 */
+	public int getMinParLen() {
+		return _MinParLen;
+	}
+	/**
+	 * returns the minimum accepted length (in terms of tokens) of the clean content of a document, default is 80
+	 * @return
+	 */
+	public int getMinDocLen() {
+		return _MinDocLen;
 	}
 	public int getMinTuvLen() {
 		return _minTuvLen;
@@ -999,14 +1233,15 @@ public class CrawlOptions {
 	public boolean keepTuSameNum() {
 		return _keepsn;
 	}
-	public int getTokensNumber() {
-		return _minTokensNumber;
-	}
 	public String getType() {
 		return _type;
 	}
-	public String getTargetedDomain() {
-		return _descr;
+	/**
+	 * returns the user defined name of the targeted topic
+	 * @return
+	 */
+	public String getUserTopic() {
+		return _usertopic;
 	}
 	public String getFilter() {
 		return _filter;
@@ -1014,36 +1249,47 @@ public class CrawlOptions {
 	public String getStoreFilter() {
 		return _storefilter;
 	}
+	/**
+	 * Special pairs of patterns to match URLs of candidate translations (webpages).
+	 * @return
+	 */
 	public String[][] getUrlReplaces() {
 		return _urls_repls;
 	}
-	public String getPathReplace() {
+	/*public String getPathReplace() {
 		return _paths_repl;
-	}
-	//public String getDesc() {
-	//	return _descr;
-	//}
+	}*/
 	public List<String> getSegTypes() {
 		return _selectSegs;
 	}
 	public String getDocTypes() {
 		return _selectDocs;
 	}
+	/**
+	 * if true, full paths of images in HTML are extracted
+	 * if false, filenames of images in HTML are extracted 
+	 * @return
+	 */
 	public boolean getImpath() {
 		return _keepimagefp;
 	}
+	/**
+	 * Apply an xsl transformation to generate html files during exporting.
+	 * @return
+	 */
 	public boolean isOfflineXSLT() {
 		return _offlineXSLT;
 	}
 	public boolean useISO6393() {
 		return _iso6393;
 	}
-	public int getminTokenslength() {
-		return _minTokensNumber;
-	}
 	public int getCrawlLevel() {
 		return _level;
 	}
+	/**
+	 * sets the NumId of the last crawlDir (i.e. number of runs) from which the acquired data will be exported,
+	 * default is 10000 (i.e. a very large numbers of cycles which implies the whole crawled content) 
+	 */
 	public int upToDepth() {
 		return _depth;
 	}
@@ -1058,6 +1304,10 @@ public class CrawlOptions {
 		}
 		return false;
 	}
+	/**
+	 * Use it very carefully. If true, the documents that have not been involved into document pairs are deleted!  
+	 * @return
+	 */
 	public boolean getDel() {
 		return _del;
 	}
@@ -1082,4 +1332,102 @@ public class CrawlOptions {
 	public File getO2() {
 		return _o2;
 	}
+
+	public CompositeConfiguration getConfiguration() {
+		return _configuration;
+	}
+
+	public boolean getRunOffLine(){
+		return _runoffline;
+	}
+	public File getNegwordsFile() {
+		return _negwordsFile;
+	}
+	public boolean getTextExport(){
+		return _textexport;
+	}
+	/**
+	 * Method type for deduplication: 1 for Deduplication by using lists and MD5 method. 
+	 * 2 for Deduplication based on common paragraphs. 0 for applying both methods (default).
+	 * @return
+	 */
+	public String getDedupMethod() {
+		return _dedupmethod;
+	}
+	/**
+	 * Tokens with less than MIN_TOK_LEN (default is 3) letters are excluded from content
+	 * @return
+	 */
+	public int getDedupMinTokLen() {
+		return _dedupMIN_TOK_LEN;
+	}
+	/**
+	 * Paragraphs with less than MIN_PAR_LEN (default is 3) tokens are excluded from content
+	 * @return
+	 */
+	public int getDedupMinParLen() {
+		return _dedupMIN_PAR_LEN;
+	}
+	public double getDedupInterThr() {
+		return _dedupinter_thr;
+	}
+	public Set<String> getListExcludeFiles(){
+		return _dedupExcludefiles;
+	}
+	public String getInputType() {
+		return _dedupInputType;
+	}
+
+	public String getCorpusLevel() {
+		return _corpuslevel;
+	}
+	public int getMaxSize() {
+		return _maxSize;
+	}
+
+	/**
+	 * Loads the default configuration file and checks if user supplied a custom one.
+	 * @param type
+	 * @param confFile
+	 * @return
+	 *//*
+	private static CompositeConfiguration getConfig(String type, String confFile) {
+		CompositeConfiguration configuration = new CompositeConfiguration();
+		URL default_config = Crawler.class.getClassLoader().getResource(DEFAULT_MONO_CONFIG_FILE);
+		if (type.equals(p_type))
+			default_config = Crawler.class.getClassLoader().getResource(DEFAULT_BI_CONFIG_FILE);
+
+		if (confFile!=null){
+			String custom_config = confFile;
+			try {
+				XMLConfiguration xml_custom_config = new XMLConfiguration(custom_config);
+				xml_custom_config.setValidating(true);
+				configuration.addConfiguration(xml_custom_config);
+			} catch (ConfigurationException e) {
+				LOGGER.error("Invalid configuration file: " + custom_config);
+			}
+		}
+		try {			
+			configuration.addConfiguration(new XMLConfiguration(default_config));				
+		} catch (ConfigurationException e1) {
+			// Shouldn't happen
+			LOGGER.error("Problem with default configuration file.");
+		}
+		return configuration;
+	}*/
+
+	/**
+	 * @return the _paths_repl
+	 *//*
+	public String get_paths_repl() {
+		return _paths_repl;
+	}
+
+	  *//**
+	  * @param _paths_repl the _paths_repl to set
+	  *//*
+	public void set_paths_repl(String _paths_repl) {
+		this._paths_repl = _paths_repl;
+	}*/
+
 }

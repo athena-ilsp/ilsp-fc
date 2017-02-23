@@ -1,8 +1,9 @@
 package gr.ilsp.fc.bitext;
 
 import gr.ilsp.fc.bitext.Bitexts.DocVector;
-import gr.ilsp.fc.main.ReadResources;
 //import gr.ilsp.fc.utils.Statistics;
+
+import gr.ilsp.fc.readwrite.ReadResources;
 
 import java.io.BufferedReader;
 import java.io.File;

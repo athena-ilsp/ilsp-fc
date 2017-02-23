@@ -1,7 +1,7 @@
 package gr.ilsp.fc.dedup;
 
 import gr.ilsp.fc.langdetect.LangDetectUtils;
-import gr.ilsp.fc.main.ReadResources;
+import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.TopicTools;
 

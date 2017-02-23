@@ -24,15 +24,12 @@ public class MonoMergerOptions {
 	private static final Logger LOGGER = Logger.getLogger(MonoMergerOptions.class);
 	private File _targetDir = null;
 	private File _baseName=null;
-	private String _config;
-	private String _language, _domain="", _agent;
+	private String _language, _userTopic="", _config; //_agentName="ILSP-FC",
 	private List<String> _sites= new ArrayList<String>();
-	//private boolean _oxslt=false;
 	private boolean _cc=false;
 	private String _corpuslevel="doc";
 	private static final String CORPUS = "-corpus";
 	private static final String UNDERSCORE_STR="_";
-	private static final String SEMICOLON_STR=";";
 	
 	public MonoMergerOptions() {
 		createOptions();
@@ -41,36 +38,37 @@ public class MonoMergerOptions {
 	@SuppressWarnings("static-access")
 	private Options createOptions() {
 		options = new Options();
+		options.addOption( OptionBuilder.withLongOpt( "config" )
+				.withDescription( "Path to the XML configuration file" )
+				.hasArg()
+				.create("cfg") );
 		options.addOption( OptionBuilder.withLongOpt( "inputDir" )
 				.withDescription( "A directory or a text file with fullpaths of directories per textline. XML files in the directories will be examined" )
 				.isRequired()
 				.hasArg()
-				.create("dest") );
+				.create("i") );
 		options.addOption( OptionBuilder.withLongOpt( "baseName" )
 				.withDescription( "baseName to be used for outfiles" )
 				.isRequired()
 				.hasArg()
 				.create("bs") );
-		/*options.addOption( OptionBuilder.withLongOpt( "transform_TMX2HTML" )
-				.withDescription( "render the generated merged TMX file as HTML" )
-				.create("oxslt") );*/
 		options.addOption( OptionBuilder.withLongOpt( "language" )
 				.withDescription( "Target language" )
 				.hasArg()
 				.create("lang") );
-		options.addOption( OptionBuilder.withLongOpt( "agent" )
+		/*options.addOption( OptionBuilder.withLongOpt( "agentName" )
 				.withDescription( "agent/creator name" )
 				.hasArg()
-				.create("a") );
+				.create("a") );*/
 		options.addOption( OptionBuilder.withLongOpt( "licence_detected_in_documents" )
 				.withDescription( "If exist, only documents for which"
 						+ " a license has been detected will be selected in collection.")
 						.create("cc") );
 		options.addOption( OptionBuilder.withLongOpt( "level of corpus' item" )
-				.withDescription( "copus consists of txt documents (default), or paragraphs, or sentences")
+				.withDescription( "corpus consists of txt documents (default), or paragraphs, or sentences")
 				.hasArg()
-				.create("level") );
-		options.addOption( OptionBuilder.withLongOpt( "domain" )
+				.create("corpusLevel") );
+		options.addOption( OptionBuilder.withLongOpt( "uderTopic" )
 				.withDescription( "A descriptive title for the targeted domain" )
 				.hasArg()
 				.create("dom") );
@@ -90,37 +88,37 @@ public class MonoMergerOptions {
 		CommandLineParser clParser = new GnuParser();
 		try {
 			CommandLine line = clParser.parse( options, args );
-			if(line.hasOption( "dest")) {
-				_targetDir = new File(line.getOptionValue("dest"));
-				_targetDir = new File(_targetDir.getAbsolutePath());
+			if(line.hasOption( "cfg")) 
+				_config = line.getOptionValue("cfg");
+					
+			if(line.hasOption( "i")) {
+				_targetDir = new File(line.getOptionValue("i")).getAbsoluteFile();
 				if (!_targetDir.exists()){
 					LOGGER.error("input directory does not exist "+ _targetDir.getAbsolutePath());
 					System.exit(0);
 				}
 			}
-			//if (line.hasOption("oxslt"))
-			//	_oxslt=true;
 			if (line.hasOption("cc"))
 				_cc=true;
-			if (line.hasOption("level")){
-				_corpuslevel=line.getOptionValue("level");
+			if (line.hasOption("corpusLevel")){
+				_corpuslevel=line.getOptionValue("corpusLevel");
 				if (!(_corpuslevel.equals("doc") || _corpuslevel.equals("par") || _corpuslevel.equals("sen"))){
 					LOGGER.error("Value should be \"doc\" (default) or \"par\" or \"sen\".");
 					System.exit(0);
 				}
 			}
 			if (line.hasOption("dom"))
-				_domain = line.getOptionValue("dom");
-			if (line.hasOption("a"))
-				_agent = line.getOptionValue("a");
+				_userTopic = line.getOptionValue("dom");
+			//if (line.hasOption("a"))
+			//	_agentName = line.getOptionValue("a").replace(" ", "_");
 			if(line.hasOption( "lang")) 
-				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true).split(SEMICOLON_STR)[0];
+				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true);
 			else{
 				LOGGER.error("No language has been defined.");
 				System.exit(0);
 			}
-			if(line.hasOption( "bs"))
-				_baseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agent+CORPUS+UNDERSCORE_STR+_corpuslevel+UNDERSCORE_STR+_language);
+			if(line.hasOption( "bs")) //_baseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+CORPUS+UNDERSCORE_STR+_corpuslevel);
+				_baseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+CORPUS+UNDERSCORE_STR+_corpuslevel);
 			else
 				LOGGER.error("You should provide a baseName to be used for outfiles.");
 			
@@ -150,9 +148,6 @@ public class MonoMergerOptions {
 	public File getTargetDir() {
 		return _targetDir;
 	}
-	//	public boolean getXSLTransform() {
-	//		return _oxslt;
-	//	}
 	public boolean getCC() {
 		return _cc;
 	}
@@ -162,8 +157,8 @@ public class MonoMergerOptions {
 	public String getLanguage() { 
 		return _language;
 	}
-	public String getDomain() {
-		return _domain;
+	public String getUserTopic() {
+		return _userTopic;
 	}
 	public List<String> getSites() {
 		return _sites;
@@ -171,10 +166,10 @@ public class MonoMergerOptions {
 	public String getCorpusLevel() {
 		return _corpuslevel;
 	}
+	//public String getAgentName(){
+	//	return _agentName;
+	//}
 	public String getConfig(){
 		return _config;
-	}
-	public String getAgent(){
-		return _agent;
 	}
 }

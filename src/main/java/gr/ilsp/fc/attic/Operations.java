@@ -1,4 +1,4 @@
-package gr.ilsp.fc.main;
+package gr.ilsp.fc.attic;
 
 import gr.ilsp.fc.aligner.factory.Aligner;
 import gr.ilsp.fc.bitext.PairDetector;
@@ -11,9 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -98,20 +96,20 @@ public class Operations {
 		LOGGER.info("Running Exporter");
 		LangDetectUtils.loadCybozuLangIdentifier();
 		Exporter se = new Exporter();
-		se.setMIN_TOKENS_PER_PARAGRAPH(options.getlength());
-		se.setMIN_TOKENS_NUMBER(options.getminTokenslength());
+		se.setMinParLen(options.getMinParLen());
+		se.setMinDocLen(options.getMinDocLen());
 		se.setTargetLanguages(options.getTargetedLangs());
-		se.setTopic(options.getTopic());
-		se.setTargetedDomain(options.getTargetedDomain());
-		se.setCrawlDirName(options.getInputDir());
+		se.setTopicFile(options.getTopicFile());
+		se.setUserTopic(options.getTargetedDomain());
+		se.setInputDir(options.getInputDir());
 		se.setBaseName(options.getBaseName());	
 		//FIXME
 		se.setRunOffLine(false); 
 		se.setApplyOfflineXSLT(options.isOfflineXSLT());
 		se.setAcceptedMimeTypes( config.getStringArray("fetcher.valid_mime_types.mime_type[@value]"));
 		//se.setGenres(options.getGenre());
-		Map<String, String> urlsToIds_empty = new HashMap<String, String>();
-		se.setUrlsToIds(urlsToIds_empty);
+		//Map<String, String> urlsToIds_empty = new HashMap<String, String>();
+		//se.setUrlsToIds(urlsToIds_empty);
 		se.export(false);
 	}
 
@@ -141,7 +139,7 @@ public class Operations {
 				}
 				FileUtils.writeLines(docpairsFile, cesAlignList);
 				//aligner.processCesAlignList(docpairsFile, docpairsFile, options.getOutputFileHTMLTMX(),options.isOfflineXSLT(), options.useISO6393());
-				aligner.processCesAlignList(docpairsFile, options.isOfflineXSLT(), options.useISO6393());
+				aligner.processCesAlignList(docpairsFile, options.getBaseName().getAbsolutePath(), options.isOfflineXSLT(), options.useISO6393());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -189,7 +187,7 @@ public class Operations {
 	public static void tmxMerging(CrawlOptions options) {
 		LOGGER.info("Running TMXMerger");
 		TMXHandler ha = new TMXHandler();
-		ha.setConfig(TMXHandler.getConfig( options.getConfig()));
+		//ha.setConfig(TMXHandler.getConfig( options.getConfig()));
 		ha.setTargetDir(options.getInputDir());
 		ha.setApplyOfflineXSLT(options.isOfflineXSLT());
 		ha.setDocTypes(options.getDocTypes());
@@ -206,7 +204,7 @@ public class Operations {
 		ha.setKeepIdentical(options.getKeepIdentical());
 		ha.setKeepDuplicates(options.getKeepDuplicates());
 		ha.setClean(options.getClean());
-		ha.setTargetedDomain(options.getTargetedDomain());
+		ha.setUserTopic(options.getTargetedDomain());
 		for (String lang_pair:options.getLangPairs()){
 			ha.setLanguage(lang_pair);
 			String[] temp_langs = lang_pair.split(SEMICOLON_STR);
