@@ -53,7 +53,7 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 	
 	private static final String EMPTY_STR = "";
 	private static final String SPACE_STR = " ";
-	public static final String TMX_VERSION = "1.4b";
+	public static final String TMX_VERSION = "1.4";
 	public static final String TMX_ADMINLANG = "en";
 	private static final Logger logger = LoggerFactory.getLogger(BilingualScoredTmxFormatterILSP.class);
 	public static final String TMX_CREATIONTOOL = "mALIGNa";

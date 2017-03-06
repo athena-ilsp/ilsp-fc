@@ -43,7 +43,7 @@ public class BilingualScoredTmxFormatter implements Formatter  {
 
 	private static final String SPACE_STR = " ";
 
-	public static final String TMX_VERSION = "1.4b";
+	public static final String TMX_VERSION = "1.4";
 
 	public static final String TMX_ADMINLANG = "en";
 	private static final Logger logger = LoggerFactory.getLogger(BilingualScoredTmxFormatter.class);
