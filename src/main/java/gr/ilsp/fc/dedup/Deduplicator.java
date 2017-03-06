@@ -5,6 +5,12 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+/**
+ * NearDeduplicator examines the files in a directory for identifying (near)duplicates 
+ * and discards the shortest (in terms of tokens) file in a pair of near duplicates. 
+ * @author vpapa
+ *
+ */
 public class Deduplicator {
 	private static final Logger LOGGER = Logger.getLogger(Deduplicator.class);
 	private static String method;

@@ -12,6 +12,17 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+/**
+ * PairDetector detects pairs of parallel documents based on website graph, specific patterns in URLs,
+ * occurrences of common images, similarity of sequences of digits and similarity of structure.
+ * For each detected pair, a cesAlign and its xls transformation (if asked) are generated.
+ * The basename of a cesAling file consists of the basenames of the paired documents and the identifier of the method
+ * which provided this pair (e.g. eng-12_ell-18_x.xml, where x stands for a, u, p, i, d, and h denoting the method used to identify of the pair).
+ * This file holds references to the paired documents. It also creates a text file with a list of the fullpaths of the generated cesAlign files
+ * and (if asked) an HTML file with links pointing to the xls transformations is generated too.
+ * @author vpapa
+ *
+ */
 public class PairDetector {
 	private static final Logger LOGGER = Logger.getLogger(PairDetector.class);
 	private static PairDetectorOptions options = null;

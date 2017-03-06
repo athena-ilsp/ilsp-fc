@@ -103,6 +103,18 @@ import cascading.tap.Tap;
 import cascading.tuple.TupleEntry;
 import cascading.tuple.TupleEntryIterator;
 
+
+/**
+ * The Exporter module creates a directory named _xml_ next to the run directories, and at this location it stores downloaded files.
+ *  Then, it generates a cesDoc file and its xls transformation (if asked) for each stored web document. 
+ *  Each XML file contains metadata (e.g. language, domain, URL, etc.) about the corresponding document inside a header element.
+ *  Moreover, a \\body\\ element contains the content of the document segmented in paragraphs.
+ *  Apart from normalized text, each paragraph element \\p\\ is enriched with attributes providing more information about the process outcome.
+ *  It also creates a text file (based on the argument of option -bs) with a list of the fullpaths of the generated cesDoc files
+ *  and (if asked) an HTML file with links pointing to the xls transformations is generated too.
+ * @author vpapa
+ *
+ */
 @SuppressWarnings("deprecation")
 public class Exporter {
 	private static final Logger LOGGER = Logger.getLogger(Exporter.class);
@@ -263,9 +275,11 @@ public class Exporter {
 	public Map<String,Integer> export(boolean loadProfile) {
 		long startTime = System.currentTimeMillis();
 		LOGGER.info("------------Exporting cesDoc Files------------");
+		//if (targetlanguages!=null){
 		for (int ii=0;ii<targetlanguages.length;ii++){
 			langnumMap.put(targetlanguages[ii], 0);
 		}
+		//}
 		outputFile = new File(outBaseName.getAbsolutePath()+XMLlist);		//outputFile = new File(outBaseName.getAbsolutePath()+EXPORT+XMLlist);
 		if (applyOfflineXSLT)
 			outputFileHTML = new File(outBaseName.getAbsolutePath()+XMLHTMLlist);		//outputFileHTML = new File(outBaseName.getAbsolutePath()+EXPORT+XMLHTMLlist);
