@@ -335,7 +335,7 @@ public class RunOptions {
 				.withDescription( "maximum number of TUs")
 				.hasArg()
 				.create("size") );
-		
+
 		//pair detect params
 		options.addOption( OptionBuilder.withLongOpt( "url_replacements" )
 				.withDescription( "A string to be replaced, separated by ';'.")
@@ -456,10 +456,11 @@ public class RunOptions {
 				LOGGER.info("The sequence of asked operations is not valid!");
 				System.exit(0);
 			}
-
+			if(line.hasOption( "offline"))
+				_runoffline = true;
 			//get parameters concerning languages
 			if(line.hasOption( "lang")) {
-				String ll = line.getOptionValue("lang").toLowerCase();
+				String ll = line.getOptionValue("lang").toLowerCase();	
 				if (line.getOptionValue("lang").toLowerCase().equals("g"))
 					ll = getSupportedLanguages();
 				_language = LangDetectUtils.updateLanguages(ll,true);
@@ -471,7 +472,7 @@ public class RunOptions {
 				checkAnalyzers(_language);
 			}else{
 				if (!_operation.contains(DEDUP_operation)){ //for all tasks but deduplication, language(s) is required
-					LOGGER.error("No languages have been defined.");
+					LOGGER.error("No targeted languages have been defined.");
 					System.exit(0);
 				}
 			}
@@ -485,8 +486,7 @@ public class RunOptions {
 				getParams4ContentProps(line);
 				if(line.hasOption( "neg")) 
 					_negwordsFile = new File(line.getOptionValue("neg")).getAbsoluteFile();
-				if(line.hasOption( "offline"))
-					_runoffline = true;
+
 			}
 			if (_operation.contains(DEDUP_operation))
 				getParams4Dedup(line);
@@ -494,17 +494,6 @@ public class RunOptions {
 			if (_operation.contains(EXPORT_operation) || _operation.contains(DEDUP_operation) 
 					|| _operation.contains(PAIRDETECT_operation) || _operation.contains(ALIGN_operation)
 					|| _operation.contains(TMX_MERGE_operation) ||  _operation.contains(MONO_MERGE_operation)){
-				if (line.hasOption( "bs")) {
-					_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName).getAbsoluteFile();
-					_outputFile = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLlist).getAbsoluteFile();
-					if(line.hasOption( "oxslt")) 
-						_offlineXSLT  = true;
-					if(line.hasOption( "oxslt")) 
-						_outputFileHTML = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLHTMLlist).getAbsoluteFile();
-				}else{
-					LOGGER.error("Outputfile baseName required ");
-					System.exit(0);
-				}
 				if(line.hasOption( "i"))	
 					_inputDir = new File(line.getOptionValue("i")).getAbsoluteFile();		
 				if(line.hasOption( "o"))
@@ -517,7 +506,22 @@ public class RunOptions {
 					if (line.hasOption("te"))
 						_textexport = true;		
 				}
-					
+				if (line.hasOption( "bs")) {
+					_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName).getAbsoluteFile();
+					_outputFile = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLlist).getAbsoluteFile();
+					if(line.hasOption( "oxslt")){
+						_offlineXSLT  = true;
+						_outputFileHTML = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLHTMLlist).getAbsoluteFile();
+					}
+				}else{
+					if (!_runoffline){
+						LOGGER.error("Outputfile baseName required ");
+						System.exit(0);
+					}else
+						_outBaseName = new File(FilenameUtils.concat(_inputDir.getAbsolutePath(),_agentName)).getAbsoluteFile();
+				}
+				
+
 			}
 			if (_operation.contains(ALIGN_operation) || _operation.contains(TMX_MERGE_operation)){
 				if(line.hasOption("iso6393"))
