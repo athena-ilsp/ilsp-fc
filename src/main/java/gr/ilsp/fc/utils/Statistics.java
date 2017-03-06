@@ -1,6 +1,7 @@
 package gr.ilsp.fc.utils;
 
 
+import gr.ilsp.fc.aligner.factory.ILSPAlignment;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
 
 import java.io.IOException;
@@ -229,7 +230,7 @@ public class Statistics {
 		return arr;
 	}
 	
-	public static Set<SegPair> distinctRandomIntegers(List<SegPair> range, int samplesize){
+	public static Set<SegPair> distinctRandomSegPairs(List<SegPair> range, int samplesize){
 		Set<SegPair> sample = new HashSet<SegPair>();
 		List<Integer> index = new ArrayList<Integer>();
 		for (int ii=0;ii<range.size();ii++)
@@ -238,7 +239,28 @@ public class Statistics {
 		final Random random = new Random();
 	    for (int ii=0;ii<samplesize;ii++){
 	    	int sel = index.get(random.nextInt(index.size()));
-	    	System.out.println(sel);
+	    	//System.out.println(sel);
+	    	sample.add(range.get(sel));
+	    	index.remove(sel);
+	    	range.remove(sel);
+	    	index = new ArrayList<Integer>();
+	    	for (int jj=0;jj<range.size();jj++)
+				index.add(jj);
+	    	
+	    }
+		return sample;
+	}
+	
+	public static Set<ILSPAlignment> distinctRandomILSPAlignments(List<ILSPAlignment> range, int samplesize){
+		Set<ILSPAlignment> sample = new HashSet<ILSPAlignment>();
+		List<Integer> index = new ArrayList<Integer>();
+		for (int ii=0;ii<range.size();ii++)
+			index.add(ii);
+		
+		final Random random = new Random();
+	    for (int ii=0;ii<samplesize;ii++){
+	    	int sel = index.get(random.nextInt(index.size()));
+	    	//System.out.println(sel);
 	    	sample.add(range.get(sel));
 	    	index.remove(sel);
 	    	range.remove(sel);

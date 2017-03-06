@@ -349,7 +349,7 @@ public class TMXHandlerUtils {
 	public static List<String> getSampleSegs(List<SegPair> segs, int samplesize) {
 		List<String> res = new ArrayList<String>();
 		samplesize = Math.min(samplesize, segs.size());
-		Set<SegPair> selpairs = Statistics.distinctRandomIntegers(segs, samplesize);
+		Set<SegPair> selpairs = Statistics.distinctRandomSegPairs(segs, samplesize);
 		for (SegPair sg:selpairs){
 			res.add(sg.seg1+TAB_STR+ sg.seg2);
 		}
@@ -438,7 +438,7 @@ public class TMXHandlerUtils {
 	public static List<String> getSample(List<SegPair> inlist, int samplesize){
 		List<String> samplelist = new ArrayList<String>();
 		samplesize = Math.min(samplesize, inlist.size());
-		Set<SegPair> segpairs = Statistics.distinctRandomIntegers(inlist, samplesize);
+		Set<SegPair> segpairs = Statistics.distinctRandomSegPairs(inlist, samplesize);
 		for (SegPair sg:segpairs){
 			samplelist.add(sg.seg1+TAB_STR+ sg.seg2);
 		}
@@ -507,7 +507,7 @@ public class TMXHandlerUtils {
 	
 
 	/**
-	 * holds seg in lang1, seg in lang2, score, type of aligmnement, method of pair detection 
+	 * holds segs in lang1 and in lang2, and properties of a pair of segments 
 	 * @author 
 	 *
 	 */
