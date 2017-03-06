@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.pdfbox.exceptions.CryptographyException;
 //import org.apache.pdfbox.exceptions.InvalidPasswordException;
@@ -75,7 +76,7 @@ public class Pdf2text {
 					Map<String, String> data = run1(input, sort_sections);
 					content="";
 					content = data.get("content");
-					if (content.isEmpty())
+					if (StringUtils.isEmpty(content))
 						LOGGER.info("No valid text from "+ filename);
 					else
 						FileUtils.writeStringToFile(new File(input.getAbsolutePath()+TXT_EXT), content);
@@ -128,11 +129,10 @@ public class Pdf2text {
 					pagewidth = page.getMediaBox().getWidth();
 					LOGGER.debug("Processing page: " + i+" with height " +pageheight 
 							+ " and width "+ pagewidth);
-				}
-				else {/*FIXME since pageheight is unknown, it cannot be used for footer/header detection*/
-					LOGGER.error("PROBLEM in getMediaBox");
-					return null;
-				}
+				}//else {/*FIXME since pageheight is unknown, it cannot be used for footer/header detection*/
+				//	LOGGER.error("PROBLEM in getMediaBox");
+				//	return null;
+				//}
 				chardata.clear();
 				linedata.clear();
 				sectiondata.clear();
