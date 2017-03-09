@@ -49,7 +49,7 @@ public class MonoMerger {
 	private static final String SENTENCES = "sentences";
 	private static final String PARLEVEL = "par";
 	private static final String PARAGRAPHS = "paragraphs";
-	
+
 	private static CompositeConfiguration configuration;
 	private static String language, userTopic, corpuslevel;
 	private static boolean cc=false;
@@ -59,7 +59,7 @@ public class MonoMerger {
 	private static final double max_word_length = 25;
 	private static final double max_median_word_length = 18;
 	//private static final double min_median_word_length1 = 3;
-	
+
 	private static SentenceSplitter sentenceSplitter;
 	private static final String UNDERSCORE_STR="_";
 	private static final String SEMICOLON_STR=";";
@@ -67,12 +67,13 @@ public class MonoMerger {
 	private final static String UNKNOWN_STR ="unknown";
 	//private static final String HTML =".html";
 	//private static final String TXTEXT = ".txt";
-	
+
 	private final static String domainNode = "domain";
 	private final static String FREE_STR="free";
 	//private final static String UTF_8 = "UTF-8";
 	//private final static String XSL_TMX2HTML ="http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl";
 	private static final String P_ELE = "p";
+	//private static final String FORMAT_ELE = "format";
 	private static final String EADDRESS = "eAddress";
 	private static final String ooi_crawlinfo = "crawlinfo";
 	private String creationDescription = "The ILSP Focused Crawler was used for the acquisition "
@@ -121,10 +122,17 @@ public class MonoMerger {
 		}
 		if (corpuslevel.equals(PARLEVEL) || corpuslevel.equals(SENLEVEL))
 			corpusdoc = new File(corpusdoc.getAbsolutePath()+TXT_EXT);
-		
+
 		List<File> xmlfiles = selectCesDocFiles();
 		LOGGER.info("targeted files : "+ xmlfiles.size());
-
+		/*for (File xmlfile:xmlfiles){
+			if (ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), FORMAT_ELE).contains("pdf"))
+			//		continue;
+			//File sourcefile = new File(FilenameUtils.concat(xmlfile.getParent(), (FilenameUtils.removeExtension(xmlfile.getName())+HTML)));
+			//if (!sourcefile.exists())
+				xmlfiles.remove(xmlfile);
+		}
+		LOGGER.info("targeted files (originated from HTML files): "+ xmlfiles.size()); */
 		if (!xmlfiles.isEmpty()){
 			MonolingualCorpusInformation monlingualCorpusInfo =new MonolingualCorpusInformation();
 			monlingualCorpusInfo.setCreationDescription(creationDescription);
@@ -134,7 +142,7 @@ public class MonoMerger {
 			monlingualCorpusInfo.setOrganizationURL(configuration.getString("resourceCreator.organizationURL"));
 			monlingualCorpusInfo.setProjectId(configuration.getString("fundingProject.projectId"));
 			monlingualCorpusInfo.setProjectURL(configuration.getString("fundingProject.projectURL"));
-		
+
 			int[] sizes = new int[5]; //docs, pars, sents, tokens, words FIXME
 			String level="";
 			if (corpuslevel.equals(DOCLEVEL)){
@@ -156,7 +164,7 @@ public class MonoMerger {
 			monlingualCorpusInfo.setSentenceNum(sizes[2]);
 			monlingualCorpusInfo.setTokensNum(sizes[3]);
 			monlingualCorpusInfo.setLexTypesNum(sizes[4]);
-			
+
 			List<String> domains = ReadResources.extactValueFromCesDoc(xmlfiles, domainNode);
 			if (domains.isEmpty())
 				domains.add(userTopic); 
@@ -165,7 +173,7 @@ public class MonoMerger {
 			String domainEurovocId = StringUtils.join(domainEurovocIds, ',');
 			monlingualCorpusInfo.setDomain(domain);
 			monlingualCorpusInfo.setDomainId(domainEurovocId);
-			
+
 			String description = "Monolingual ("+ language + ") corpus. It consists of ";
 			if (corpuslevel.equals(DOCLEVEL))
 				description = description + monlingualCorpusInfo.getFilesNum() + " " + DOCUMENTS ;
@@ -179,12 +187,12 @@ public class MonoMerger {
 			else
 				description = description + ".";
 			monlingualCorpusInfo.setDescription(description);
-						
+
 			if (cc) 
 				monlingualCorpusInfo.setAvailability(FREE_STR); 
 			else 
 				monlingualCorpusInfo.setAvailability(UNKNOWN_STR); 
-			
+
 			LOGGER.info("size of corpus in documents:\t"+monlingualCorpusInfo.getFilesNum());
 			LOGGER.info("size of corpus in tokens:\t"+monlingualCorpusInfo.getTokensNum());
 			LOGGER.info("size of corpus in lexical types:\t"+monlingualCorpusInfo.getLexTypesNum());
@@ -206,7 +214,7 @@ public class MonoMerger {
 		}
 	}
 
-	
+
 	/**
 	 * Selects the cesDoc files (in the targeted language) in the targeted directory or the list of the targeted directories. 
 	 * @return
@@ -275,7 +283,7 @@ public class MonoMerger {
 				sentence = sentence.replaceAll("\n", "");
 				sentence = sentence.trim();
 				cleanSentence = ContentNormalizer.normtext(sentence);
-				
+
 				if (cleanSentence.length()<min_char_num)
 					continue;
 				stokens = FCStringUtils.getTokens(cleanSentence);
@@ -346,7 +354,7 @@ public class MonoMerger {
 				if (Statistics.getMax(stokenslen)>max_word_length 
 						|| Statistics.getMedian(stokenslen)>max_median_word_length )//|| Statistics.getMedian(stokenslen)<min_median_word_length)
 					continue;
-				
+
 				total_paragraphs.add(paragraph+TAB_STR+docurl+TAB_STR+xmlfile.getName());
 			}
 			filecounter++;
@@ -411,7 +419,7 @@ public class MonoMerger {
 		return sizes;
 	}
 
-	
+
 	private static boolean inSites(String webpage1, List<String> sites) {
 		if (!sites.isEmpty()){
 			try {
@@ -467,7 +475,7 @@ public class MonoMerger {
 	public File getBaseName() {
 		return baseName;
 	}
-	
+
 	public void setSentenceSplitter(SentenceSplitter sentenceSplitter) {
 		MonoMerger.sentenceSplitter = sentenceSplitter; 
 	}
@@ -510,7 +518,7 @@ public class MonoMerger {
 	public void setSites(List<String> sites) {
 		MonoMerger.sites  = sites;
 	}
-	
+
 	public void setCorpusLevel(String level) {
 		MonoMerger.corpuslevel  = level;
 	}
