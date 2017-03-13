@@ -499,8 +499,11 @@ public class RunOptions {
 				if(line.hasOption( "o"))
 					_outputDir = new File(line.getOptionValue("o")).getAbsoluteFile();		
 				else{
-					if (_operation.equals(EXPORT_operation))
+					if (_operation.equals(EXPORT_operation)){
 						_outputDir =  new File(FilenameUtils.concat(_inputDir.getAbsolutePath(), xml_type)).getAbsoluteFile();
+						if (_runoffline)
+							_outputDir = new File(line.getOptionValue("o")).getAbsoluteFile();
+					}
 				}
 				if (_operation.equals(EXPORT_operation)){
 					if (line.hasOption("te"))
@@ -520,7 +523,7 @@ public class RunOptions {
 					}else
 						_outBaseName = new File(FilenameUtils.concat(_inputDir.getAbsolutePath(),_agentName)).getAbsoluteFile();
 				}
-				
+
 
 			}
 			if (_operation.contains(ALIGN_operation) || _operation.contains(TMX_MERGE_operation)){
@@ -774,7 +777,7 @@ public class RunOptions {
 			if(line.hasOption( "filter")) 
 				_filter = line.getOptionValue("filter");
 			else
-				_filter = ".*";
+				_filter = ".*.*";
 		}
 		if (_type.equals(type_p) | _type.equals(type_q)){
 			if (!_language.contains(QUEST_SEPAR)){
