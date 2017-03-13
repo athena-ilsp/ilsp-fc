@@ -37,13 +37,13 @@ public class ReadResources {
 	private static final String UNDERSCORE = "_";
 	private static final String XML_EXTENSION = ".xml";
 		
-	public static String extractNodefromXML(String inputString, String ele_name) {
+	public static String extractNodefromXML(String infile, String ele_name) {
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
 		try {
 			db = dbf.newDocumentBuilder();
-			Document doc = db.parse(inputString);
+			Document doc = db.parse(infile);
 			doc.getDocumentElement().normalize();
 			NodeList nodeLstP = doc.getElementsByTagName(ele_name);
 			for(int s=0; s<nodeLstP.getLength() ; s++){
@@ -60,13 +60,13 @@ public class ReadResources {
 		return result;
 	}
 
-	public static String extractNodefromXML(String inputString, String ele_name,boolean hasattr) {
+	public static String extractNodefromXML(String infile, String ele_name,boolean hasattr) {
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
 		try {
 			db = dbf.newDocumentBuilder();
-			Document doc = db.parse(inputString);
+			Document doc = db.parse(infile);
 			doc.getDocumentElement().normalize();
 			NodeList nodeLstP = doc.getElementsByTagName(ele_name);
 			for(int s=0; s<nodeLstP.getLength() ; s++){
