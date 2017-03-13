@@ -59,10 +59,8 @@ public class Pdf2text {
 	//private static ArrayList<String> lastchars=new ArrayList<String>(Arrays.asList(".", "!", "?", ";")); 
 
 	public static void main( String[] args ) throws IOException	{
-		String path=args[0];
 		String file;
-		File folder = new File(path);
-		File[] listOfFiles = folder.listFiles();
+		File[] listOfFiles = new File(args[0]).listFiles();
 		String content="";
 		LangDetectUtils.loadCybozuLangIdentifier();
 		for (int i = 0; i < listOfFiles.length; i++){
