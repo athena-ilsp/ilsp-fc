@@ -409,10 +409,12 @@ public class Exporter {
 		Set<String> validMimeTypes = new HashSet<String>();
 		for (String s: mimes) validMimeTypes.add(s);
 
+		int id=0;
 		if (!outputDir.exists())
 			outputDir.mkdirs();
-
-		int id=0;
+		else
+			id = outputDir.listFiles().length+1;
+		
 		if (!inputDir.exists()){
 			LOGGER.error("The directory " +inputDir.getAbsolutePath() + " does not exist.");
 			System.exit(0);
