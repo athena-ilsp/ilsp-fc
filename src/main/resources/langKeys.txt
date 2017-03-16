@@ -37,6 +37,8 @@ mlt>mlt,Maltese,Malti,mt
 nep>nep
 nld>nld,nl,Dutch,dutch,Nederlands,Vlaams,dut
 nor>nor,no,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
+nno>nno,nn,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
+nob>nob,nb,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
 pan>pan
 pol>pol,PL,polski,(pl),polska wersja,język polski,polszczyzna,pols,Polsku
 por>por,PT,pt,Portuguese,Português,português,português [pt],português (pt)
