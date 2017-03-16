@@ -48,7 +48,9 @@ public class AnalyzerFactory {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyzerFactory.class);
 	
 	static String[] langs = { "deu", "ell", "eng", "spa", "fra", "ita", "por", "lav", "lit", "hrv", "srp", "hun", "jpn","zho", "vie", "tur", "ara", "hin","fas","isl",
-			"gle", "fin", "grc", "pol", "ron", "nor", "nld", "glg", "ces", "dan", "euq", "bul", "rus", "swe", "slv", "cat", "est", "mlt", "slk", "tha", "ind" };
+			"gle", "fin", "grc", "pol", "ron", 
+			"nob", "nno", "nor", // Should we remove nor?  FIXME
+			"nld", "glg", "ces", "dan", "euq", "bul", "rus", "swe", "slv", "cat", "est", "mlt", "slk", "tha", "ind" };
 	List<String> langsList = Arrays.asList(langs);
 	
 	
@@ -91,7 +93,7 @@ public class AnalyzerFactory {
 			return new PolishAnalyzer();
 		} else if (lang3.equals("ron")) {
 			return new RomanianAnalyzer();
-		} else if (lang3.equals("nor") || lang3.equals("isl")) {//FIXME Same analyzer for Norwegian and Icelandic !!!
+		} else if (lang3.equals("nob") || lang3.equals("nno") || lang3.equals("isl") || lang3.equals("nor")) {//FIXME Same analyzer for Norwegian and Icelandic !!! // FIXME: Should we remove nor?
 			return new NorwegianAnalyzer();
 		} else if (lang3.equals("nld")) {
 			return new DutchAnalyzer();
