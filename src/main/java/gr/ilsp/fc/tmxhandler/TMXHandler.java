@@ -81,7 +81,7 @@ public class TMXHandler {
 	private static double minTuLenRatio = 0;
 	private static double maxTuLenRatio = 100;
 	private static final double median_word_length=18;
-	private static final double max_word_length=25;
+	private static final double max_word_length=30;
 	private static String doctypes="aupidh";// = "aupidhml";
 	private static List<String> segtypes;
 	private static Set<String> segs = new HashSet<String>() ;
