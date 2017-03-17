@@ -2,6 +2,8 @@ package gr.ilsp.fc.utils;
 
 
 //import java.util.ArrayList;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -365,4 +367,10 @@ public static String normtext1(String text) {
 		return content;
 	}
 
+	public static String formatString(String s) {
+		s = s.toLowerCase();
+		s = Normalizer.normalize(s, Form.NFD); //Decompose
+		s= s.replaceAll("[\\p{M}]",""); //Remove diacritics
+		return s;
+	}
 }
