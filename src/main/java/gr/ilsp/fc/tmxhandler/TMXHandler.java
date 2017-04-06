@@ -294,7 +294,7 @@ public class TMXHandler {
 					". The mean value of aligner's scores is "+ scores.meanscore_noan+ ", the std value is "+ scores.stdscore_noan +
 					". The mean value of length (in terms of characters) ratios is "+ ratios.meanratio_noan + " and the std value is "+ ratios.stdratio_noan + "." ;
 			
-			creationDescription = "Parallel ("+ languages[0] + HYPHEN_STR + languages[0] +") corpus of "+
+			creationDescription = "Parallel ("+ languages[0] + HYPHEN_STR + languages[1] +") corpus of "+
 									alignmentList.size()+ " (" +stats1.tus_noan +" not-annotated) translation units";
 			if (!StringUtils.isEmpty(domain))
 				creationDescription = creationDescription + " in the "+	domain+" domain)";
@@ -605,7 +605,10 @@ public class TMXHandler {
 	public void setTargetDir(File inputFile) {
 		TMXHandler.inputFile  = inputFile;
 	}
-
+	public File getTargetDir() {
+		return inputFile ;
+	}
+	
 	/**
 	 * language iso codes separated by ";"
 	 * @param languages
