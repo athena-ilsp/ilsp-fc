@@ -64,9 +64,9 @@ public class Run {
 		PairDetector pd = new PairDetector();
 
 		TMXHandler tm = new TMXHandler();
-		
+
 		MonoMerger mm = new MonoMerger();
-		
+
 		//Parses CrawlerOprions, creates a Crawler Object, and runs the Crawl Job.
 		//Creates a specific file structure "user-defined directory/crawl directory/job directory" in which the data acquired in each crawl cycle is stored in directories.
 		if (operations.contains(CRAWL_operation)){
@@ -240,7 +240,7 @@ public class Run {
 			}
 			align = true;
 		}
-		
+
 		//constructs parallel corpora 
 		if (operations.contains(TMX_MERGE_operation)){
 			LOGGER.info("---------------------------------------------------");
@@ -269,14 +269,17 @@ public class Run {
 				tm.setTargetDir(pd.getTargetDir());
 			else
 				tm.setTargetDir(run_options.getInputDir());
-
-			List<String> langpairs = run_options.getLangPairs();
-			for (String langpair:langpairs){
-				tm.setLanguage(langpair);
-				String[] temp_langs = langpair.split(SEMICOLON_STR);
-				String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
-				tm.setBaseName(new File(run_options.getBaseName()+lang));
-				tm.mergeTMXs();
+			if (tm.getTargetDir()!=null){
+				List<String> langpairs = run_options.getLangPairs();
+				for (String langpair:langpairs){
+					tm.setLanguage(langpair);
+					String[] temp_langs = langpair.split(SEMICOLON_STR);
+					String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
+					tm.setBaseName(new File(run_options.getBaseName()+lang));
+					tm.mergeTMXs();
+				}
+			}else{
+				LOGGER.warn("No targeted directory");
 			}
 			tmxmerge=true;
 		}
@@ -306,7 +309,7 @@ public class Run {
 			monomerge=true;
 		}
 	}
-	
+
 	/**
 	 * checks if there are cesAlign files for a language pair
 	 * @param numInLangPairMap
@@ -388,7 +391,7 @@ public class Run {
 		return cr_options;
 	}
 
-	
+
 	/**
 	 * Loads Aligner, and checks segmenters for targeted languages, if there is no available aligner, returns null.
 	 * Supported aligners are "maligna" (default) and "hunalign"
@@ -412,7 +415,7 @@ public class Run {
 					aligner_runnable_path = FilenameUtils.concat(hunpath, configuration.getString("aligner.lin_align_path.value"));
 				else if(prop.startsWith("windows")) 
 					aligner_runnable_path = FilenameUtils.concat(hunpath, configuration.getString("aligner.win_align_path.value"));
-				
+
 				String usedict = useDict;
 				String dictalign_path=null;
 				if (toAlign.equals("hunalign")){
@@ -437,7 +440,7 @@ public class Run {
 		}
 		return aligner;
 	}
-*/
+	  */
 
 
 	/*	private static ExporterOptions getExporterOptions(RunOptions run_options) {
@@ -519,7 +522,7 @@ public class Run {
 	  */
 
 
-	
+
 	/**
 	 * extracts default configuration file and saves it in the user-defined location.  
 	 * @param args
@@ -542,8 +545,8 @@ public class Run {
 		}
 	}*/
 
-	
-	
+
+
 
 	/*if (operations.contains(TMX_MERGE_operation))
 		tmxMerging(options);*/
