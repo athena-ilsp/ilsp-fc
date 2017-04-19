@@ -34,8 +34,8 @@ public class GetTargetedSites {
 	
 		
 	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
-			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -f -k "
-			+ "-type p -n 100 -t 20 -len 0 -mtlen 100 -pdm \"aupdih\" -segtypes \"1:1\" "
+			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -monomerge -f -k "
+			+ "-type p -cdl 100 -t 20 -len 0 -mtlen 100 -pdm \"aupdih\" -segtypes \"1:1\" "
 			+ "-mtuvl 3 -mpa \"0.16\" -minlr \"0.6\" -maxlr \"1.6\" -keepem -keepdup -keepiden"; //-p_r \"http://nlp.ilsp.gr/elrc\"
 
 	private static final String JAR_CRAWL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
@@ -208,8 +208,8 @@ public class GetTargetedSites {
 		}
 		lang1 = args[1];
 		lang2 = args[2];
-		File urlSeedFile = new File(FilenameUtils.concat(sitesFile.getParent(), lang1+SEP+lang2+SEP+SEEDS));
-		File shellSiteFile = new File(FilenameUtils.concat(sitesFile.getParent(), lang1+SEP+lang2+SEP+COMMANDS));
+		File urlSeedFile = new File(FilenameUtils.concat(sitesFile.getParent(), "total_"+lang1+SEP+lang2+SEP+SEEDS));
+		File shellSiteFile = new File(FilenameUtils.concat(sitesFile.getParent(), "total "+lang1+SEP+lang2+SEP+COMMANDS));
 				
 		String commands = "";
 		Set<String> hosts=new HashSet<String>();

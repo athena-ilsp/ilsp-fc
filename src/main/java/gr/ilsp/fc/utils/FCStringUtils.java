@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.io.MD5Hash;
 import org.apache.log4j.Logger;
 
 public  class FCStringUtils {
@@ -206,4 +207,12 @@ public  class FCStringUtils {
 		return sb.toString();
 	}
 
+	public static String getHashKey(String string){
+		String string_key="";
+		byte[] texthashkey = MD5Hash.digest(string.toString()).getDigest();
+		for (int jj=0;jj<texthashkey.length;jj++) {
+			string_key += texthashkey[jj];
+		}
+		return string_key;
+	}
 }

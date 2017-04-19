@@ -4,6 +4,7 @@ import gr.ilsp.fc.aligner.factory.ILSPAlignment;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.fc.utils.Statistics;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -268,5 +269,26 @@ public class MonoMergerUtils {
 		return TmxMarshallerUnmarshaller.getInstance().unmarshal(new InputStreamReader(new FileInputStream(tmxFile))).getBody().getTu();
 	}
 
+	/**
+	 * examines if text's length and its tokens match heuristics concerning length (in chars and tokens)
+	 * @param text
+	 * @param min_char_num
+	 * @param min_tok_num
+	 * @param max_word_length
+	 * @param max_median_word_length
+	 * @return
+	 */
+	public static boolean isValuable(String text, int min_char_num, int min_tok_num, double max_word_length, double max_median_word_length){
+		if (text.length()<min_char_num)
+			return false;
+		List<String> stokens = FCStringUtils.getTokens(text);
+		if (stokens.size()<min_tok_num)
+			return false;
+		Double[] stokenslen = FCStringUtils.getTokensLength(stokens);
+		if (Statistics.getMax(stokenslen)>max_word_length 
+				|| Statistics.getMedian(stokenslen)>max_median_word_length )//|| Statistics.getMedian(stokenslen)<min_median_word_length)
+			return false;
+		return true;
+	}
 	
 }

@@ -1,8 +1,12 @@
 package gr.ilsp.fc.monomerge;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,15 +25,13 @@ import org.apache.log4j.Logger;
 
 import gr.ilsp.fc.corpora.MonolingualCorpusInformation;
 import gr.ilsp.fc.corpora.MonolingualMetashareDescriptor;
-//import gr.ilsp.fc.main.Crawl;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.Eurovoc;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
-import gr.ilsp.fc.utils.Statistics;
-import gr.ilsp.fc.utils.ZipUtils;
+//import gr.ilsp.fc.utils.ZipUtils;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitter;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitterFactory;
 
@@ -40,9 +42,10 @@ public class MonoMerger {
 	private static final String DEFAULT_M_CONFIG_FILE = "FMC_config.xml";
 	private static final String TAB_STR = "\t";
 	private static final String TXT_EXT = ".txt";
-	private static final String ZIP_EXT = ".zip";
+	//	private static final String ZIP_EXT = ".zip";
 	private static final String XML_EXT = ".xml";
 	private final static String Metadata_EXT = ".md.xml";
+	private static final String SITES = ".sites";
 	private static final String DOCLEVEL = "doc";
 	private static final String DOCUMENTS = "files";
 	private static final String SENLEVEL = "sen";
@@ -56,8 +59,8 @@ public class MonoMerger {
 	private static List<String> sites=new ArrayList<String>();
 	private static final int min_char_num = 5;
 	private static final int min_tok_num = 5;
-	private static final double max_word_length = 25;
-	private static final double max_median_word_length = 18;
+	private static final double max_word_length = 35;
+	private static final double max_median_word_length = 28;
 	//private static final double min_median_word_length1 = 3;
 
 	private static SentenceSplitter sentenceSplitter;
@@ -254,135 +257,189 @@ public class MonoMerger {
 		return xmlfiles;
 	}
 
+	@SuppressWarnings("resource")
 	private int[] generateSenLevelMonoCorpus(List<File> xmlfiles, File corpusdoc) {
-		int totalTokens=0;
+		int[] sizes = new int[5]; //docs, paragraphs, sentences, tokens, lexicaltypes
 		List<String> paragraphs = new ArrayList<String>();
 		List<String> tempSentences = new ArrayList<String>();
-		List<String> sentences = new ArrayList<String>();
-		Set<String> cleanSentences = new HashSet<String>();
+		List<String> sentences_keys = new ArrayList<String>();
 		Set<String> words = new HashSet<String>();
-		String cleanSentence="";
-		List<String> stokens = new ArrayList<String>();
-		int[] sizes = new int[5]; //docs, paragraphs, sentences, tokens, lexicaltypes
-		int counter=0, thous=0;
-		for (File xmlfile:xmlfiles){
-			String docurl = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
-			if (!inSites(docurl,sites))
-				continue;
-			paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\n"));
-			if (paragraphs.isEmpty())
-				continue;
-			sizes[0] = sizes[0] + 1;
-			sizes[1] = sizes[1] + paragraphs.size();
+		int totalTokens = 0 ;
+		int filecounter=0, paragraphcounter=0, thous=0, counter=0, sentencecounter=0;
 
-			tempSentences = pars2sents(paragraphs);
-			for (String sentence:tempSentences){
-				sentence= ContentNormalizer.normalizeText(sentence);
-				sentence = sentence.replaceAll("\t", " ");
-				sentence = sentence.replaceAll("\r\n", "");
-				sentence = sentence.replaceAll("\n", "");
-				sentence = sentence.trim();
-				cleanSentence = ContentNormalizer.normtext(sentence);
+		FileOutputStream fos;
+		try {
+			fos = new FileOutputStream(corpusdoc);
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+			for (File xmlfile:xmlfiles){
+				counter++;
+				if (counter/1000>thous){
+					LOGGER.info((thous*1000)+" files have been processed.");
+					thous++;
+				}
+				String docurl = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
+				try {
+					String dochost= new URL(docurl).getHost();
+					if (!inSites(dochost,sites))
+						continue;
+					if (!sites.contains(dochost))
+						sites.add(dochost);
+				} catch (MalformedURLException e) {
+					LOGGER.warn("not valid URL from file "+ xmlfile.getAbsolutePath());
+					//continue;
+				}
 
-				if (cleanSentence.length()<min_char_num)
+				paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\n"));
+				if (paragraphs.isEmpty())
 					continue;
-				stokens = FCStringUtils.getTokens(cleanSentence);
-				if (stokens.size()<min_tok_num)
+				List<String> targetedparagraphs = new ArrayList<String>();
+				String normP="";
+				for (String paragraph:paragraphs){
+					normP = ContentNormalizer.normtext(paragraph);
+					if (!MonoMergerUtils.isValuable(normP, min_char_num, min_tok_num, max_word_length, max_median_word_length))
+						continue;
+					targetedparagraphs.add(paragraph);
+					paragraphcounter++;
+				}
+				if (targetedparagraphs.isEmpty())
 					continue;
-				Double[] stokenslen= FCStringUtils.getTokensLength(stokens);
-				if (Statistics.getMax(stokenslen)>max_word_length 
-						|| Statistics.getMedian(stokenslen)>max_median_word_length )//|| Statistics.getMedian(stokenslen)<min_median_word_length)
-					continue;
+				filecounter++;
 
-				if (!cleanSentences.contains(cleanSentence)){
-					cleanSentences.add(cleanSentence);
-					sentences.add(sentence+TAB_STR+docurl+TAB_STR+xmlfile.getName());
-					List<String> toks = FCStringUtils.getWords(sentence); 
-					totalTokens =totalTokens +toks.size();
-					for (String tok:toks){
+				tempSentences = pars2sents(targetedparagraphs);
+				for (String sentence:tempSentences){
+					sentence= ContentNormalizer.normalizeText(sentence);
+					sentence = sentence.replaceAll("\r\n", "");
+					sentence = sentence.replaceAll("\n", "");
+					sentence = sentence.trim();
+					normP = ContentNormalizer.normtext(sentence);
+					if (!MonoMergerUtils.isValuable(normP, min_char_num, min_tok_num, max_word_length, max_median_word_length))
+						continue;
+					String sen_key = FCStringUtils.getHashKey(normP.toString());
+					if (sentences_keys.contains(sen_key))
+						continue;
+					sentences_keys.add(sen_key);
+					sentencecounter++;
+					List<String> temptokens = FCStringUtils.getTokens(sentence);
+					totalTokens =totalTokens +temptokens.size();
+					for (String tok:temptokens){
 						if (!words.contains(tok))
 							words.add(tok);
 					}
+					bw.write(sentence+TAB_STR+docurl+TAB_STR+xmlfile.getName());
+					bw.newLine();
 				}
 			}
-			counter++;
-			if (counter/1000>thous){
-				LOGGER.info((thous*1000)+" files have been processed.");
-				thous++;
-			}
-		}
-		LOGGER.info("Sentences:\t"+sentences.size());
-		LOGGER.info("Words:\t"+words.size());
-		LOGGER.info("Tokens:\t"+totalTokens);
-		//docs, paragraphs, sentences, tokens, words
-		sizes[2] = sentences.size();
-		sizes[3] = totalTokens;
-		sizes[4] = words.size();
-		try {
-			FileUtils.writeLines(corpusdoc, sentences);
+		}catch (FileNotFoundException e1) {
+			LOGGER.error("file "+ corpusdoc + " does not exist!");// TODO Auto-generated catch block
+			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			LOGGER.error("problem in writing file "+ corpusdoc);// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		File sitesFile = new File(corpusdoc.getAbsolutePath()+SITES);
+		try {
+			FileUtils.writeLines(sitesFile, sites);
+		} catch (IOException e) {
+			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//docs, paragraphs, sentences, tokens, words
+		sizes[0] = filecounter; sizes[1] = paragraphcounter; sizes[2] = sentencecounter;
+		sizes[3] = totalTokens;	sizes[4] = words.size();
 		return sizes;
 	}
 
+	@SuppressWarnings("resource")
 	private int[] generateParLevelMonoCorpus(List<File> xmlfiles, File corpuspar) {
 		int[] sizes = new int[5]; //docs, paragraphs, sentences, tokens, lexicaltypes
 		List<String> paragraphs = new ArrayList<String>();
-		List<String> total_paragraphs = new ArrayList<String>();
+		List<String> sites = new ArrayList<String>();
+		List<String> paragraphs_keys = new ArrayList<String>();
 		int totalTokens = 0 ;
-		int filecounter=0;
+		int filecounter=0, paragraphcounter = 0, counter=0, thous=0;
 		Set<String> words = new HashSet<String>();
-		for (File xmlfile:xmlfiles){
-			String docurl = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
-			if (!inSites(docurl,sites))
-				continue;
-			paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\n"));
-			if (paragraphs.isEmpty())
-				continue;
-			for (String paragraph:paragraphs){
-				if (total_paragraphs.contains(paragraph))
-					continue;
-				String normP = ContentNormalizer.normtext(paragraph);
-				if (normP.length()<min_char_num)
-					continue;
-				List<String> stokens = FCStringUtils.getTokens(normP);
-				if (stokens.size()<min_tok_num)
-					continue;
-				Double[] stokenslen = FCStringUtils.getTokensLength(stokens);
-				if (Statistics.getMax(stokenslen)>max_word_length 
-						|| Statistics.getMedian(stokenslen)>max_median_word_length )//|| Statistics.getMedian(stokenslen)<min_median_word_length)
-					continue;
-
-				total_paragraphs.add(paragraph+TAB_STR+docurl+TAB_STR+xmlfile.getName());
-			}
-			filecounter++;
-		}
+		FileOutputStream fos;
 		try {
-			FileUtils.writeLines(corpuspar, total_paragraphs);
+			fos = new FileOutputStream(corpuspar);
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+			for (File xmlfile:xmlfiles){
+				counter++;
+				if (counter/1000>thous){
+					LOGGER.info((thous*1000)+" files have been processed.");
+					thous++;
+				}
+				String docurl = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
+				try {
+					String dochost= new URL(docurl).getHost();
+					if (!inSites(dochost,sites))
+						continue;
+					if (!sites.contains(dochost))
+						sites.add(dochost);
+				} catch (MalformedURLException e) {
+					LOGGER.warn("not valid URL from file "+ xmlfile.getAbsolutePath());
+					//continue;
+				}
+
+				paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\n"));
+				if (paragraphs.isEmpty())
+					continue;
+				for (String paragraph:paragraphs){
+					String normP = ContentNormalizer.normtext(paragraph);
+					if (!MonoMergerUtils.isValuable(normP, min_char_num, min_tok_num, max_word_length, max_median_word_length))
+						continue;
+					String par_key = FCStringUtils.getHashKey(normP.toString());
+					if (paragraphs_keys.contains(par_key)){
+						System.out.println(paragraph);
+						continue;
+					}
+					paragraphs_keys.add(par_key);
+
+					paragraphcounter++;
+
+					List<String> temptokens = FCStringUtils.getTokens(paragraph);
+					totalTokens =totalTokens +temptokens.size();
+					for (String tok:temptokens){
+						if (!words.contains(tok))
+							words.add(tok);
+					}
+					bw.write(paragraph+TAB_STR+docurl+TAB_STR+xmlfile.getName());
+					bw.newLine();
+				}
+				filecounter++;
+			}
+		} catch (FileNotFoundException e1) {
+			LOGGER.error("file "+ corpuspar + " does not exist!");// TODO Auto-generated catch block
+			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			LOGGER.error("problem in writing file "+ corpuspar);// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		File sitesFile = new File(corpuspar.getAbsolutePath()+SITES);
+		try {
+			FileUtils.writeLines(sitesFile, sites);
+		} catch (IOException e) {
+			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		for (String paragraph:total_paragraphs){
-			List<String> temptokens = FCStringUtils.getTokens(paragraph);
-			totalTokens =totalTokens +temptokens.size();
-			for (String tok:temptokens){
-				if (!words.contains(tok))
-					words.add(tok);
-			}
-		}
-
 		sizes[0] = filecounter;
-		sizes[1] = total_paragraphs.size();
+		sizes[1] = paragraphcounter;
 		sizes[3] = totalTokens;
 		sizes[4] = words.size();
 		return sizes;
-
 	}
 
+	/**
+	 * gets a list of cesDoc files (xmlfiles) and
+	 * checks (for each one) if : a) the source eaddress is valid and its host is not included in a user-provided list with hosts to be excluded, and b) it is not empty
+	 * Each passed cesDoc is copied to a directory (corpusdoc) which will be the generated corpus.
+	 * It also generates a text file including the list with the host of passed cesDoc files.
+	 * It returns an array with statistics (number of files, paragraphs, tokens, unique lexical types) 
+	 * @param xmlfiles
+	 * @param corpusdoc
+	 * @return
+	 */
 	private int[] generateDocLevelMonoCorpus(List<File> xmlfiles, File corpusdoc) {
 		int[] sizes = new int[5]; //docs, paragraphs, sentences, tokens, lexicaltypes
 		List<String> paragraphs = new ArrayList<String>();
@@ -390,12 +447,24 @@ public class MonoMerger {
 		int filecounter=0;
 		Set<String> words = new HashSet<String>();
 		for (File xmlfile:xmlfiles){
-			String dochost = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
-			if (!inSites(dochost,sites))
-				continue;
+			String docurl = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
+			String dochost="";
+			try {
+				dochost= new URL(docurl).getHost();
+				if (!inSites(dochost,sites))
+					continue;
+			} catch (MalformedURLException e) {
+				LOGGER.warn("not valid URL from file "+ xmlfile.getAbsolutePath());
+				//continue;
+			}
 			paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\n"));
 			if (paragraphs.isEmpty())
 				continue;
+
+			if (!sites.contains(dochost))
+				sites.add(dochost);
+
+
 			sizes[1] = sizes[1] + paragraphs.size();
 			try {
 				FileUtils.copyFile(xmlfile, new File(FilenameUtils.concat(corpusdoc.getAbsolutePath(),filecounter+XML_EXT)));
@@ -413,6 +482,14 @@ public class MonoMerger {
 				}
 			}
 		}
+		File sitesFile = new File(corpusdoc.getAbsolutePath()+SITES);
+		try {
+			FileUtils.writeLines(sitesFile, sites);
+		} catch (IOException e) {
+			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		sizes[0] = filecounter;
 		sizes[3] = totalTokens;
 		sizes[4] = words.size();
@@ -464,6 +541,31 @@ public class MonoMerger {
 		}
 		return domainEurovocIds;
 	}
+
+
+	/*private static List<String> getSites(File indir){
+		String[] ext= new String[1]; ext[0]="xml";
+		List<File> files = (List<File>) FileUtils.listFiles(indir, ext, false);
+		List<String> sites = new ArrayList<String>();
+		int counter=0;
+		for (File file:files){
+			//System.out.println(file.getName());
+			URL aaa;
+			try {
+				aaa = new URL(ReadResources.extractNodefromXML(file.getAbsolutePath(), EADDRESS, false));
+				String temp = aaa.getHost();
+				counter++;
+				if (!sites.contains(temp)){
+					sites.add(temp);
+					System.out.println(temp);
+				}
+			} catch (MalformedURLException e) {
+				continue;
+			}
+		}
+		System.out.println(counter);
+		return sites;
+	}*/
 
 	/**
 	 * absolute path of the baseName for the outfiles  
