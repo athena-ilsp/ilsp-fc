@@ -4,6 +4,9 @@
 package gr.ilsp.fc.langdetect;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,27 @@ public class LangDetectorFactory {
 		}
 	}
 
+	public Map<String, LangDetector> geHyrbidLangDetector(Set<String> langDetectors) {
+		Map<String, LangDetector> langDetectorsMap = new HashMap<String, LangDetector>();
+		for (String langDetector: langDetectors) {
+			if (langDetector.equalsIgnoreCase("langdetect")) {
+				langDetectorsMap.put("langdetect", new CybozuLangDetector());
+			} else if (langDetector.equalsIgnoreCase("langid")) {
+				langDetectorsMap.put("langid", new LangIdDetector());
+			} else if (langDetector.equalsIgnoreCase("tika")) {
+				langDetectorsMap.put("tika",  new TikaLangDetector());
+			} else if (langDetector.equalsIgnoreCase("bs-hr-sr-nb")) {	
+				langDetectorsMap.put("bs-hr-sr-nb",  new NaiveBayesClassifier());
+			} else {
+				logger.warn("LangDetector " + langDetector + " not among known langDetectors: " + Arrays.toString(langDetectorIds));
+				logger.warn("Using default langDetector langdetect");
+				langDetectorsMap.put("langdetect", new CybozuLangDetector());
+			}
+		}
+		return langDetectorsMap;
+	}
+
+	
 	/**
 	 * @return the langDetectorIds
 	 */

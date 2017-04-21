@@ -1,5 +1,4 @@
 spa	El Gobierno de España es el órgano constitucional que encabeza el poder ejecutivo estatal y dirige la Administración General del Estado. El Gobierno depende políticamente del Congreso de los Diputados a través de la investidura o censura de su presidente, conforme a la forma de Gobierno parlamentarista establecida por la Constitución española de 1978.
-por	O Governo da Espanha tem seu regulamento principal no Título IV da Constituição Espanhola de 1978 e no Título V na lei do governo. A Espanha é uma Monarquia Constitucional, onde há o Rei: Don Felipe VI, e o Primeiro-Ministro: Mariano Rajoy Brey.
 cat	El govern d'Espanya és la representació de la prefectura de govern del cos executiu d'estat espanyol. És regulat per les disposicions de la Constitució Espanyola de 1978, en els Títols IV i V. El govern dirigeix la política exterior i interior, l'administració civil i militar i la defensa de l'Estat. Exerceix la funció executiva i la potestat reglamentària d'acord amb la Constitució i les lleis de l'Estat.
 eus	Espainiako botere betearazlearen ordezkaritza da. Hurrengoek osatzen dute Espainiako Gobernua:  Gobernuko presidentea; Gobernuko presidenteordeak. Kargu hauek egotea ez da beharrezkoa eta hauen funtzioak eta zereginak presidenteak aukeratzen eta banatzen ditu.; Ministroak. Presidenteak proposatzen ditu eta Erregeak izendatzen ditu. Bakoitzak alor bat edo gehiagoko ministerio bateko arduradunak dira. Hauek, Ministroen Kontseiluan batzen dira erabakiak hartzeko.
 glg	O Goberno Español ten o seu principal regulación na Constitución española de 1978, no seu Título IV (e o V respecto da súa relación coas Cortes Xerais). O Goberno dirixe a interior e exterior, a Administración civil e militar e a defensa do Estado. Exerce a función executiva e a potestade regulamentaria de acordo coa Constitución e as leis. O Goberno componse do Presidente, dun ou máis Vicepresidentes, dos Ministros e dos demais membros que estableza a lei. O Presidente dirixe a acción do Goberno e coordina as funcións dos demais membros do mesmo, sen prexuízo da competencia e responsabilidade directa destes na súa xestión. Os membros do Goberno non poderán exercer outras funcións representativas que as propias do mandato parlamentario, nin calquera outra función pública que non derive do seu cargo, nin actividade profesional ou mercantil algunha. O Presidente é elixido polo Congreso, a proposta do Rei. O resto de membros do Goberno, elíxeos o propio Presidente, nomeándoos o Rei. A actuación do Rei é simbólica.
@@ -19,3 +18,19 @@ nob	Og innen vi kom oss ut, var det langt over sovetid for hun lille.
 nob	Så vi puttet henne i vogna og lot akebrettet stå hjemme. 
 nob	Fant raskt en kafe, og satte oss. 
 nob	Så tok vi ingen bilder. For jeg smiler liksom ikke like pent med dårlig samvittighet.
+
+
+por	Na história do campeonato, por quatro vezes o Vitória extinguiu a chama do dragão no Porto, mas a mais recente foi há quase 28 anos. 
+por	A 7 de maio de 1989, na 36.ª jornada de 1988/89, o Vitória, orientado por Manuel Fernandes, saiu das Antas com um triunfo por 1-0 sobre os anfitriões, à época orientados por Artur Jorge; 
+por	e graças a um tento de Aparício, de cabeça, a centro do açoriano Carlos Freitas. «Nunca pensei que o Vitória estivesse quase 30 anos para voltar a ganhar lá! 
+por	Está mais do que na hora de matarem o borrego. Confio e acredito: o Vitória tem uma equipa fantástica, de jovens e aguerridos, que vai ao Dragão colocar o FC Porto em sentido», disse a A BOLA o antigo avançado, agora treinador dos juniores do seu clube do coração.
+por	Flutuação dos juros agrada instituições Bancos e financeiras receberam bem a resolução 2.071 do Conselho Monetário Nacional. 
+por	Baixada sexta-feira, ela cria a taxa de juro flutuante. Abre a perspectiva de aplicações por prazo mais longos. O juro flutante permite reavaliar periodicamente as taxas de juros das aplicações e empréstimos.
+
+#pt-br	As inscrições terão início no dia 3 de agosto e vão até dia 20. 
+#pt-br	Uma chuva de fogos marcou a data, assim como um desfile de moda dos lojistas. Afinal alguém que dá como feedback um "Você é massa!" Desde junho, o Paraguai está suspenso do Mercosul, pois os líderes do bloco discordaram da maneira como ocorreu a destituição do então presidente paraguaio Fernando Lugo do poder.
+#pt-br	Também será premiado um estabelecimento por categoria, somando a melhor média obtida nos seguintes quesitos: atendimento, ambiente, apresentação e sabor do prato.
+#pt-br	Ela está presa temporariamente no presídio feminino de Itapevi -- o prazo dessa ordem de prisão termina no dia 19. 
+#pt-br	Segundo a assessoria da CDL foram repassadas 20 perguntas para cada candidato. O governo federal lançou o "Pacto Nacional pela Alfabetização na Idade Certa". 
+#pt-br	Como você se sente ao ler este artigo? Entre lá na fanpage do Make1Up e veja quem já está no ar. Eu adoro andar de Rolex, usar bolsas caríssimas, mas pego na mão de qualquer um ", diz Mariana. De forma didática e bem humorada, o programa conta toda a história envolvendo o polêmico esquema de corrupção. 
+

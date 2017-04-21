@@ -5,6 +5,7 @@ package gr.ilsp.fc.langdetect;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -20,7 +21,7 @@ public abstract class LangDetector {
 	 * @throws Exception 
 	 */
 	public abstract void initialize() throws Exception;
-
+	Map<String, LangDetector> langDetectorsMap;
 	/**
 	 * @param text
 	 * @return ISO-639-3 code representing the language or null
@@ -31,5 +32,26 @@ public abstract class LangDetector {
 
 	public abstract void createNewLanguageProfile(String lang, File trainFile, File profileFile) throws Exception ;
 
+	public String detect(String text, String lang) {
+		if (langDetectorsMap.containsKey(lang)) {
+			return langDetectorsMap.get(lang).detect(text);
+		}
+		return lang;
+	}
 
+	/**
+	 * @return the langDetectorsMap
+	 */
+	public Map<String, LangDetector> getLangDetectorsMap() {
+		return langDetectorsMap;
+	}
+
+	/**
+	 * @param langDetectorsMap the langDetectorsMap to set
+	 */
+	public void setLangDetectorsMap(Map<String, LangDetector> langDetectorsMap) {
+		this.langDetectorsMap = langDetectorsMap;
+	}
+
+	
 }
