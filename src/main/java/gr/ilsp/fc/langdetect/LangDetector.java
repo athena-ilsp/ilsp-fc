@@ -13,6 +13,10 @@ import java.util.Map;
  *
  */
 
+/**
+ * @author prokopis
+ *
+ */
 public abstract class LangDetector {
 
 	/**
@@ -32,6 +36,13 @@ public abstract class LangDetector {
 
 	public abstract void createNewLanguageProfile(String lang, File trainFile, File profileFile) throws Exception ;
 
+	
+	
+	/**
+	 * @param text
+	 * @param lang
+	 * @return a new lang for this string, if a better language detector has been initialized and declared for this language
+	 */
 	public String detect(String text, String lang) {
 		if (langDetectorsMap.containsKey(lang)) {
 			return langDetectorsMap.get(lang).detect(text);
