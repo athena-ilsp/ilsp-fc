@@ -92,9 +92,6 @@
 		<!-- <artifactId>maligna-ui</artifactId> -->
 		<!-- <version>3.0.0</version> -->
 		<!-- </dependency> -->
-
-
-
 		<dependency>
 			<groupId>net.sf.cssbox</groupId>
 			<artifactId>cssbox</artifactId>
@@ -235,6 +232,11 @@
 			<groupId>gr.ilsp</groupId>
 			<artifactId>ilsp-boilerpipe</artifactId>
 			<version>1.9.1</version>
+		</dependency>
+		<dependency>
+			<groupId>gr.ilsp.nlp</groupId>
+			<artifactId>ilsp-nlp-commons</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 
 
