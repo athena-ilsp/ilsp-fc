@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 public class LangDetectorFactory {
 
-
 	private static final Logger logger = LoggerFactory.getLogger(LangDetectorFactory.class);
 
 	private String[] langDetectorIds = {

@@ -4,6 +4,7 @@
 package gr.ilsp.fc.langdetect;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,12 +13,12 @@ import java.util.Map;
  * @author prokopis
  *
  */
-
-/**
- * @author prokopis
- *
- */
-public abstract class LangDetector {
+public abstract class LangDetector implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5579002462789690990L;
 
 	/**
 	 * @param token
@@ -25,7 +26,7 @@ public abstract class LangDetector {
 	 * @throws Exception 
 	 */
 	public abstract void initialize() throws Exception;
-	Map<String, LangDetector> langDetectorsMap;
+	Map<String, LangDetector> langDetectorsMap = new HashMap<String, LangDetector>();
 	/**
 	 * @param text
 	 * @return ISO-639-3 code representing the language or null
@@ -35,8 +36,6 @@ public abstract class LangDetector {
 	public abstract HashMap<String, Double> detectLangs(String text) throws Exception ;
 
 	public abstract void createNewLanguageProfile(String lang, File trainFile, File profileFile) throws Exception ;
-
-	
 	
 	/**
 	 * @param text
