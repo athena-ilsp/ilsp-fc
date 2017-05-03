@@ -6,6 +6,7 @@ package gr.ilsp.fc.langdetect;
 import gr.ilsp.fc.utils.DirUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.JarUtils;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.net.URL;
@@ -25,6 +26,10 @@ import com.cybozu.labs.langdetect.util.LangProfile;
 
 public class CybozuLangDetector extends LangDetector {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -466144670548859084L;
 	private static final Logger logger = LoggerFactory.getLogger(CybozuLangDetector.class);
 
 	/* (non-Javadoc)
@@ -43,7 +48,6 @@ public class CybozuLangDetector extends LangDetector {
 			} else {
 				resdir=new File(urldir.toURI());
 			}	
-			
 			logger.debug("tempdir is " + resdir);
 			DetectorFactory.loadProfile(resdir);
 			
@@ -57,7 +61,7 @@ public class CybozuLangDetector extends LangDetector {
 	 * @see gr.ilsp.fc.langdetect.LangDetector#detect(java.lang.String)
 	 */
 	@Override
-	public String detect(String text) {	
+	protected String detectLang(String text) {
 		try {
 			Detector detector = DetectorFactory.create();
 			detector.append(text);

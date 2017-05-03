@@ -31,7 +31,11 @@ public class LangDetectorFactoryTest {
 	static String langDetectorStr = "langdetect";
 	static LangDetectorFactory langDetectorFactory ;
 	static LangDetector langDetector;
+	static LangDetector combinedLangDetector;
+	
 	private static DecimalFormat df2 = new DecimalFormat(".##");
+	private static Set<String> crawlLangs = new HashSet<String>(Arrays.asList("hrv", "eng")); 
+	private static Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp")); 
 
 	@BeforeClass
 	public static void setUp() throws Exception {
@@ -43,11 +47,25 @@ public class LangDetectorFactoryTest {
 //		langDetectorIds.add("tika");
 //		langDetectorIds.add("langid");
 		
-		
 		// for testLangDetector
 		langDetectorFactory = new LangDetectorFactory();
 		langDetector = langDetectorFactory.getLangDetector(langDetectorStr);
 		langDetector.initialize();
+		
+		combinedLangDetector =  langDetectorFactory.getLangDetector(langDetectorStr);
+		// Initialize
+		for (String crawlLang: crawlLangs) {
+			if (langsTBFI.contains(crawlLang)) {
+				Map<String, LangDetector> otherLangDetectorMap = new HashMap<String, LangDetector>(); 
+				LangDetector otherLangDetector =  langDetectorFactory.getLangDetector("bs-hr-sr-nb");
+				otherLangDetector.initialize();
+				for (String lang: langsTBFI) {
+					otherLangDetectorMap.put(lang, otherLangDetector);
+				}
+				combinedLangDetector.setLangDetectorsMap(otherLangDetectorMap);
+				break;
+			}
+		} 
 	}
 
 	@Test
@@ -112,32 +130,13 @@ public class LangDetectorFactoryTest {
 	 * @throws Exception 
 	 */
 	public void testGetLangDetectors() throws Exception {
-		
+		logger.info("Started testing combined language detectors" );
+
 		HashMap<String, String> fileNamesHM = new HashMap<String, String>();
 		fileNamesHM.put("politika.srp.txt", "srp");
 		fileNamesHM.put("vecernji.hrv.txt", "hrv");
 		fileNamesHM.put("dnevniavaz.bos.txt", "bos");
 		Set<String> fileNames = fileNamesHM.keySet();
-
-		LangDetectorFactory langDetectorFactory = new LangDetectorFactory();
-		String langDetectorId = "langdetect";
-		LangDetector defaultLangDetector =  langDetectorFactory.getLangDetector(langDetectorId);
-		
-		// Initialize
-		Set<String> crawlLangs = new HashSet<String>(Arrays.asList("hrv", "eng")); 
-		Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp")); 
-		for (String crawlLang: crawlLangs) {
-			if (langsTBFI.contains(crawlLang)) {
-				Map<String, LangDetector> otherLangDetectorMap = new HashMap<String, LangDetector>(); 
-				LangDetector otherLangDetector =  langDetectorFactory.getLangDetector("bs-hr-sr-nb");
-				otherLangDetector.initialize();
-				for (String lang: crawlLangs) {
-					otherLangDetectorMap.put(lang, otherLangDetector);
-				}
-				defaultLangDetector.setLangDetectorsMap(otherLangDetectorMap);
-				break;
-			}
-		} 
 		
 		// Now check	
 		for (String fileName : fileNames) {
@@ -149,10 +148,10 @@ public class LangDetectorFactoryTest {
 				HashMap<String, Integer> misses = new HashMap<String, Integer>();
 				for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
 					String line =  iterator.next();
-					String autoLang = defaultLangDetector.detect(line);
+					String autoLang = combinedLangDetector.detect(line);
 					if (langsTBFI.contains(autoLang)) {
 						// logger.debug("Rechecking " + autoLang);
-						autoLang = defaultLangDetector.detect(line, autoLang);
+						autoLang = combinedLangDetector.detect(line, autoLang);
 						// logger.debug("Result is  " + autoLang);
 
 					}
@@ -164,8 +163,8 @@ public class LangDetectorFactoryTest {
 						misses.put(autoLang, 1);
 					}
 				}
-				logger.info(langDetectorId + ":" + fileName + ":" + goldLang + ":" + ((float) hits*100/lines.size()));
 				logger.info("Misses are: "+misses);
+				logger.debug("Hist are: "+ hits);
 			} finally {
 				IOUtils.closeQuietly(in);
 			}
@@ -173,11 +172,22 @@ public class LangDetectorFactoryTest {
 		System.out.println();
 	}
 	
-	
 	private void testLangDetector(String input, String langcode, String testName) {
 		try {
-			logger.info("Expecting " + langcode  + " for " + input);
+			logger.info("Expecting " + langcode  + " for " + 	StringUtils.substring(input, 0 , 25));
 			Assert.assertEquals(testName + ": ", langcode, langDetector.detect(input));
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	private void testCombinedLangDetector(String input, String langcode, String testName) {
+		try {
+			logger.info("Expecting " + langcode  + " for " + 	StringUtils.substring(input, 0 , 25));
+			String defaultLang = combinedLangDetector.detect(input);
+			if (langsTBFI.contains(defaultLang)) {
+				Assert.assertEquals(testName + ": ", langcode, combinedLangDetector.detect(input, defaultLang));
+			}
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
@@ -186,7 +196,6 @@ public class LangDetectorFactoryTest {
 	@Test
 	public void testLangDetector() throws Exception {
 		String testFile = "/lang-detection/tests.txt";
-
 		logger.info("Started testing language detector" );
 		InputStream in  =  AnalyzerTest.class.getResource(testFile).openStream();
 		for (String line:  IOUtils.readLines(in, "UTF-8")) {
@@ -195,7 +204,13 @@ public class LangDetectorFactoryTest {
 			} else {
 				String[] fields = StringUtils.split(line, "\t");
 				//logger.info(line);
-				testLangDetector(fields[1], fields[0], fields[0]+ " test");
+				if (fields[0].equals("empty")) {
+					testLangDetector(fields[1], "", fields[0]+" test");
+				} else if (fields[0].equals("hrv") || fields[0].equals("bos")) {
+					testCombinedLangDetector(fields[1], fields[0], fields[0]+ " test");
+				} else {
+					testLangDetector(fields[1], fields[0], fields[0]+ " test");
+				}
 			}
 		}
 	}

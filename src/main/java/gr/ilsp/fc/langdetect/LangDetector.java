@@ -8,13 +8,17 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import gr.ilsp.nlp.commons.Constants;
+
 
 /**
  * @author prokopis
  *
  */
 public abstract class LangDetector implements Serializable {
-	
+
+	private static final int min_strlen=5;
+
 	/**
 	 * 
 	 */
@@ -27,27 +31,51 @@ public abstract class LangDetector implements Serializable {
 	 */
 	public abstract void initialize() throws Exception;
 	Map<String, LangDetector> langDetectorsMap = new HashMap<String, LangDetector>();
+
 	/**
 	 * @param text
-	 * @return ISO-639-3 code representing the language or null
+	 * @return ISO-639-3 code representing the language or the empty string
 	 */
-	public abstract String detect(String text);
+	public String detect(String text) {
+		String lang = Constants.EMPTY_STRING;
+		if (text.length() < min_strlen) { 
+			return lang;
+		}
+		try {
+			lang = detectLang(text); 
+		} catch (Exception ex) {
+		}
+		return lang;
+	}
 
-	public abstract HashMap<String, Double> detectLangs(String text) throws Exception ;
-
-	public abstract void createNewLanguageProfile(String lang, File trainFile, File profileFile) throws Exception ;
-	
 	/**
 	 * @param text
 	 * @param lang
 	 * @return a new lang for this string, if a better language detector has been initialized and declared for this language
 	 */
 	public String detect(String text, String lang) {
-		if (langDetectorsMap.containsKey(lang)) {
-			return langDetectorsMap.get(lang).detect(text);
+		if (text.length() < min_strlen) { 
+			return Constants.EMPTY_STRING;
+		} else if (langDetectorsMap.containsKey(lang)) {
+			lang = langDetectorsMap.get(lang).detect(text);
+		}
+		if (lang==null) {
+			return Constants.EMPTY_STRING;
 		}
 		return lang;
 	}
+
+	
+	/**
+	 * @param text
+	 * @return ISO-639-3 code representing the language or null
+	 */
+	protected abstract String detectLang(String text);
+	
+	protected abstract HashMap<String, Double> detectLangs(String text) throws Exception ;
+
+	protected abstract void createNewLanguageProfile(String lang, File trainFile, File profileFile) throws Exception ;
+
 
 	/**
 	 * @return the langDetectorsMap

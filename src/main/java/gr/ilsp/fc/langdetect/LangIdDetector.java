@@ -6,9 +6,6 @@ package gr.ilsp.fc.langdetect;
 import java.io.File;
 import java.util.HashMap;
 
-import org.apache.tika.language.LanguageIdentifier;
-import org.apache.tika.language.LanguageProfile;
-
 import com.carrotsearch.labs.langid.DetectedLanguage;
 import com.carrotsearch.labs.langid.LangIdV3;
 
@@ -17,6 +14,10 @@ import gr.ilsp.fc.utils.ISOLangCodes;
 
 public class LangIdDetector extends LangDetector {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -973948477521477985L;
 	LangIdV3 langIdV3;
 	
 	/* (non-Javadoc)
@@ -31,7 +32,7 @@ public class LangIdDetector extends LangDetector {
 	 * @see gr.ilsp.fc.langdetect.LangDetector#detect(java.lang.String)
 	 */
 	@Override
-	public String detect(String text) {
+	public String detectLang(String text) {
 		DetectedLanguage result = langIdV3.classify(text, true);
 		return ISOLangCodes.get3LetterCode(result.langCode);
 	}

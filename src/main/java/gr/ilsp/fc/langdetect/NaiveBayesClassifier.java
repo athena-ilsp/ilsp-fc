@@ -47,8 +47,6 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.tika.language.LanguageIdentifier;
-import org.apache.tika.language.LanguageProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +56,11 @@ import com.google.gson.reflect.TypeToken;
 import gr.ilsp.fc.utils.ISOLangCodes;
 
 public class NaiveBayesClassifier extends LangDetector {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3726067857167972697L;
 
 	private static final Logger logger = LoggerFactory.getLogger(NaiveBayesClassifier.class);
 
@@ -70,7 +73,7 @@ public class NaiveBayesClassifier extends LangDetector {
 	}
 
 	@Override
-	public String detect(String text) {
+	public String detectLang(String text) {
 		return ISOLangCodes.get3LetterCode(guessCategory(parms, text));
 	}
 

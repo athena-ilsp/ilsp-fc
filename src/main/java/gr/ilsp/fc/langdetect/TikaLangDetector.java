@@ -13,6 +13,11 @@ import gr.ilsp.fc.utils.ISOLangCodes;
 
 public class TikaLangDetector extends LangDetector {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2725619789875691076L;
+
 	/* (non-Javadoc)
 	 * @see gr.ilsp.fc.langdetect.LangDetector#initialize()
 	 */
@@ -25,7 +30,7 @@ public class TikaLangDetector extends LangDetector {
 	 * @see gr.ilsp.fc.langdetect.LangDetector#detect(java.lang.String)
 	 */
 	@Override
-	public String detect(String text) {
+	public String detectLang(String text) {
 		return ISOLangCodes.get3LetterCode(new LanguageIdentifier(new LanguageProfile(text)).getLanguage());
 	}
 
