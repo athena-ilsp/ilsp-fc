@@ -33,6 +33,14 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 	Matcher startsWithClosePunctMatcher = Pattern.compile("[”›』›»\\p{Pe}].*").matcher(""); //\p{Pe} or \p{Close_Punctuation}: any kind of closing bracket. 
 	Matcher endsWithPossibleEnumΑ = Pattern.compile("\\s*([0-9]{1,2}||[\\p{L}]{1,2})[\\.\\)]\\s*").matcher(""); 
 	Matcher endsWithPossibleEnumB = Pattern.compile(".*\\s*[‹«]([0-9]{1,2}||[\\p{L}]{1,2})[\\.\\)]\\s*").matcher("");
+	Matcher endsWithDigPunctMatcher = Pattern.compile(".*[0-9][\\.\\,]\\s*").matcher(""); 
+	Matcher startsWithDigPercMatcher = Pattern.compile("[0-9][\\.\\,]?[0-9]*%.*").matcher(""); 
+
+	Matcher endsWithCapsDotMatcher = Pattern.compile(".*\\s*[‹«]*([\\p{Lu}]{2,}\\.)").matcher("");
+	Matcher startsWithCapsDotMatcher = Pattern.compile("([\\p{Lu}]{2,}\\.).*").matcher(""); 
+
+	Matcher endsWithPossibleInitDotMatcher = Pattern.compile(".*\\s[‹«]*[\\p{Lu}]\\.").matcher("");
+	Matcher startsWithPossibleNameMatcher = Pattern.compile("\\s*[\\p{Lu}][\\p{Ll}]{2,}.*").matcher(""); 
 	
 	edu.northwestern.at.morphadorner.corpuslinguistics.sentencesplitter.SentenceSplitter splitter;
 	PreTokenizer preTokenizer;
@@ -132,9 +140,15 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 				
 				String prevSent = paraSents.get(paraSents.size()-1);
 				String sent = text.substring(start, end);
-//				logger.info(prevSent);
-//				logger.info(sent);
+				//logger.info(prevSent);
+				//logger.info(sent);
 				if (startsWithClosePunctMatcher.reset(sent).matches()) {
+					paraSents.set(paraSents.size()-1, prevSent+sent);
+				} else if (endsWithDigPunctMatcher.reset(prevSent).matches() && startsWithDigPercMatcher.reset(sent).matches()) {
+					paraSents.set(paraSents.size()-1, prevSent+sent);
+				} else if (endsWithCapsDotMatcher.reset(prevSent).matches()	&& startsWithCapsDotMatcher.reset(sent).matches()) {
+					paraSents.set(paraSents.size()-1, prevSent+sent);
+				} else if (endsWithPossibleInitDotMatcher.reset(prevSent).matches() && startsWithPossibleNameMatcher.reset(sent).matches()) {
 					paraSents.set(paraSents.size()-1, prevSent+sent);
 				} else if (endsWithPossibleEnumΑ.reset(prevSent).matches()) {
 					paraSents.set(paraSents.size()-1, prevSent+sent);
