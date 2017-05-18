@@ -1,6 +1,7 @@
 afr>afr
 ara>ara
 ben>ben
+bos>bos,bs
 bul>bul,bg,Bulgarian,bulgarian,Български,български език
 cat>cat
 ces>ces,cs,cz,Czech,czech,čeština,český jazyk,Česky

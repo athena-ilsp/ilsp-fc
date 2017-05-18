@@ -8,6 +8,7 @@ nld nl Dutch
 rus ru Russian
 eng en English
 mkd mk Macedonian
+bos bs Bosnian
 deu de German
 mlg mg Malagasy
 ben bn Bangla
