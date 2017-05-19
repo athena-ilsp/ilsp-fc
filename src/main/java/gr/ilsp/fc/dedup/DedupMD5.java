@@ -2,10 +2,10 @@ package gr.ilsp.fc.dedup;
 
 import gr.ilsp.fc.dedup.DedupUtils.TextAttr;
 import gr.ilsp.fc.readwrite.WriteResources;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
-//import java.io.FilenameFilter;
-//import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -20,8 +20,6 @@ public class DedupMD5 {
 	private static File out_textfile;
 	private static final String appHTMLext = ".html";
 	private static final String appXMLHTMLext = ".xml.html";
-	private static final String UNDERSCORE_STR = "_";
-	private static final String PUNCT = ".";
 
 	/**
 	 * Gets files ending with input_type (cesDoc files are targeted) in the indirname directory,
@@ -46,7 +44,7 @@ public class DedupMD5 {
 		}
 		out_textfile =outputfilename;
 		
-		List<File> files = DedupUtils.getTargetFiles(input,UNDERSCORE_STR, input_type);
+		List<File> files = DedupUtils.getTargetFiles(input,Constants.UNDERSCORE, input_type);
 		if (files.size()<2){
 			LOGGER.info("The input list contains less than 2 files.");
 			return;
@@ -56,7 +54,7 @@ public class DedupMD5 {
 		
 		long start = System.currentTimeMillis();
 		HashMap<String, TextAttr> freqs = new HashMap<String, TextAttr>();
-		String file_hashkey="";
+		String file_hashkey=Constants.EMPTY_STRING;
 		int cents=0;
 		String file_to_delete;
 		for (int ii=0;ii<files.size();ii++){
@@ -73,7 +71,7 @@ public class DedupMD5 {
 				}
 			}
 			if (freqs.containsKey(file_hashkey)) { //file under examination is duplicate with an already checked file 
-				file_to_delete="";
+				file_to_delete=Constants.EMPTY_STRING;
 				if (filesinPairs!=null){
 					if (filesinPairs.contains(freqs.get(file_hashkey).filename)){ //file under examination will be deleted since its duplicate participates in a pair
 						file_to_delete = FilenameUtils.concat(input.getPath(),t.filename);		
@@ -96,8 +94,8 @@ public class DedupMD5 {
 				if (!file_to_delete.isEmpty()){
 					LOGGER.debug(t.filename+ "\t\t" + freqs.get(file_hashkey).filename+ "\tDELETED "+ file_to_delete);
 					(new File(file_to_delete)).delete();
-					(new File(file_to_delete.replace(PUNCT+input_type,appHTMLext))).delete();
-					(new File(file_to_delete.replace(PUNCT+input_type,appXMLHTMLext))).delete();
+					(new File(file_to_delete.replace(Constants.DOT+input_type,appHTMLext))).delete();
+					(new File(file_to_delete.replace(Constants.DOT+input_type,appXMLHTMLext))).delete();
 				}
 			}else{
 				freqs.put(file_hashkey, t);

@@ -1,6 +1,7 @@
 package gr.ilsp.fc.depth;
 
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,12 +26,8 @@ public class DepthPostCounter {
 	private static boolean merge;
 	private static File input1, input2;
 	private static int depth;
-	private static final String PUNCT = ".";
-	private static final String SPACE = " ";
-	private static final String TAB = "\t";
 	private static final String CSV = "csv";
 	private static final String LOG = "log";
-	private static final String SEP = "-";
 	private static final String FC = "fc";
 	private static final String RES = "res";
 	private static final String SITES = "sites";
@@ -78,18 +75,18 @@ public class DepthPostCounter {
 		if (input1.isDirectory()){
 			File[] logfiles = input1.listFiles();
 			for (File logfile:logfiles){
-				if (!logfile.getName().startsWith(LOG) || logfile.getName().endsWith(PUNCT+CSV))
+				if (!logfile.getName().startsWith(LOG) || logfile.getName().endsWith(Constants.DOT+CSV))
 					continue;
-				csvfile = new File(FilenameUtils.concat(logfile.getParent(),timeStamp+SEP+FC+SEP+logfile.getName()+PUNCT+CSV));
+				csvfile = new File(FilenameUtils.concat(logfile.getParent(),timeStamp+Constants.HYPHEN+FC+Constants.HYPHEN+logfile.getName()+Constants.DOT+CSV));
 				countCrawlDepth(logfile, csvfile);
 			}
 			if (merge){
-				csvfile = new File(FilenameUtils.concat(input1.getParent(),timeStamp+SEP+FC+SEP+input1.getName()+PUNCT+CSV));
+				csvfile = new File(FilenameUtils.concat(input1.getParent(),timeStamp+Constants.HYPHEN+FC+Constants.HYPHEN+input1.getName()+Constants.DOT+CSV));
 				mergeCSV(input1,csvfile);
 			}
 		}
 		if (input1.isFile()){
-			csvfile = new File(FilenameUtils.concat(input1.getParent(),timeStamp+SEP+FC+SEP+input1.getName()+PUNCT+CSV));
+			csvfile = new File(FilenameUtils.concat(input1.getParent(),timeStamp+Constants.HYPHEN+FC+Constants.HYPHEN+input1.getName()+Constants.DOT+CSV));
 			countCrawlDepth(input1,csvfile);
 		}
 		if (depth>0){
@@ -155,7 +152,7 @@ public class DepthPostCounter {
 					}
 					map.put(t[0], tmap)	;
 				}
-				File resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+SEP+SITES+SEP+ii+PUNCT+CSV));
+				File resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+Constants.HYPHEN+SITES+Constants.HYPHEN+ii+Constants.DOT+CSV));
 				storefile(resi,map);
 				if (ii>1){
 					map = new HashMap<String,HashMap<String, Integer>>();
@@ -175,7 +172,7 @@ public class DepthPostCounter {
 						}
 						map.put(t[0], tmap)	;
 					}
-					resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+SEP+SITES+SEP+"1"+SEP+ii+PUNCT+CSV));
+					resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+Constants.HYPHEN+SITES+Constants.HYPHEN+"1"+Constants.HYPHEN+ii+Constants.DOT+CSV));
 					storefile(resi,map);
 				}
 			}
@@ -215,7 +212,7 @@ public class DepthPostCounter {
 			if (Integer.parseInt(t[2])==depth)
 				resu.put(t[1], resu.get(t[1])+1);
 		}
-		File resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+SEP+RES+SEP+depth+PUNCT+CSV));
+		File resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+Constants.HYPHEN+RES+Constants.HYPHEN+depth+Constants.DOT+CSV));
 		List<String> total = new ArrayList<String>();
 		for (int ii=0;ii<ls.length;ii++){
 			if (resu.containsKey(ls[ii]))
@@ -234,7 +231,7 @@ public class DepthPostCounter {
 				if (Integer.parseInt(t[2])<=depth)
 					resu.put(t[1], resu.get(t[1])+1);
 			}
-			resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+SEP+RES+SEP+"1-"+depth+PUNCT+CSV));	
+			resi = new File(FilenameUtils.concat(csvfile.getParent(), csvfile.getName()+Constants.HYPHEN+RES+Constants.HYPHEN+"1-"+depth+Constants.DOT+CSV));	
 			for (int ii=0;ii<ls.length;ii++){
 				if (resu.containsKey(ls[ii]))
 					total.add(ls[ii]+"\t"+resu.get(ls[ii]));
@@ -262,13 +259,13 @@ public class DepthPostCounter {
 			String cycle_key="";
 			for (String line:lines){
 				if (line.contains(stored)){
-					String[] temp = line.split(TAB);
-					String lang = temp[temp.length-1].split(SPACE)[0].trim();
+					String[] temp = line.split(Constants.TAB);
+					String lang = temp[temp.length-1].split(Constants.SPACE)[0].trim();
 					String link = temp[temp.length-2].trim();
 					url_lang.put(link, lang);
 				}
 				if (line.contains(cycle)){
-					String[] temp = line.split(SPACE);
+					String[] temp = line.split(Constants.SPACE);
 					if (!cycle_key.isEmpty()){
 						depth.put(cycle_key, urls);
 						urls = new ArrayList<String>();
@@ -276,7 +273,7 @@ public class DepthPostCounter {
 					cycle_key = temp[temp.length-2].trim();
 				}
 				if (line.contains(discovered)){
-					String temp = line.split(TAB)[1].split(SPACE)[0].trim();
+					String temp = line.split(Constants.TAB)[1].split(Constants.SPACE)[0].trim();
 					if (!urls.contains(temp))
 						urls.add(temp);
 				}	
@@ -306,8 +303,8 @@ public class DepthPostCounter {
 					continue;
 				}
 				h = new URL(key_st).getHost();
-				System.out.println(h+TAB+l+TAB+d+TAB+key_st);
-				res.add(h+TAB+l+TAB+d+TAB+key_st);	
+				System.out.println(h+Constants.TAB+l+Constants.TAB+d+Constants.TAB+key_st);
+				res.add(h+Constants.TAB+l+Constants.TAB+d+Constants.TAB+key_st);	
 			}
 		} catch (IOException e) {
 			LOGGER.error("problem in reading "+infile.getAbsolutePath());
@@ -325,7 +322,7 @@ public class DepthPostCounter {
 		File[] csvfiles = input.listFiles();
 		List<String> res = new ArrayList<String>();
 		for (File csvfile:csvfiles){
-			if (!csvfile.getName().endsWith(PUNCT+CSV))
+			if (!csvfile.getName().endsWith(Constants.DOT+CSV))
 				continue;
 			try {
 				List<String> lines = FileUtils.readLines(csvfile);
@@ -366,7 +363,7 @@ public class DepthPostCounter {
 		Map<String, String> resu = new HashMap<String, String>();
 		resu.put("site", "");		resu.put("depth", "");		resu.put("minlen", "");		for (int ii=0;ii<ls.length;ii++){resu.put(ls[ii], "");}
 		File[] outputs= inn.listFiles();
-		File resi = new File(FilenameUtils.concat(inn.getParent(), timeStamp+SEP+FC+SEP+inn.getName()+SEP+RES+PUNCT+CSV));
+		File resi = new File(FilenameUtils.concat(inn.getParent(), timeStamp+Constants.HYPHEN+FC+Constants.HYPHEN+inn.getName()+Constants.HYPHEN+RES+Constants.DOT+CSV));
 
 		for (File file:outputs){
 			List<String> lines= FileUtils.readLines(file) ;
@@ -391,7 +388,7 @@ public class DepthPostCounter {
 				if (line.startsWith("number")){
 					System.out.println(line);
 					String[] t = line.split("\t");
-					String l = t[0].split(" ")[4];
+					String l = t[0].split(Constants.SPACE)[4];
 					resu.put(l, resu.get(l)+t[1]+"\t");
 					found.add(l);
 				}

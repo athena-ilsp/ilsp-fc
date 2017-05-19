@@ -3,6 +3,8 @@ package gr.ilsp.fc.dedup;
 import java.io.File;
 import java.util.Set;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -16,9 +18,7 @@ public class DeduplicatorOptions {
 
 	private Options options;
 	private String APPNAME = "(Near) Deduplication";
-	private static final String SEMICOLON_STR = ";";
-	private static final String UNDERSCORE_STR = "_";
-	
+		
 	private String _method="0";
 	private static double inter_thr=0.7; //intersection of common paragraphs
 	private static int MIN_TOK_LEN = 3; //tokens with less that MIN_TOK_LEN letters are excluded
@@ -105,13 +105,13 @@ public class DeduplicatorOptions {
 			if(line.hasOption( "i")) 
 				_targetDir = new File(line.getOptionValue("i")).getAbsoluteFile();
 			if(line.hasOption( "bs"))
-				_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName).getAbsoluteFile();
+				_outBaseName = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName).getAbsoluteFile();
 			if(line.hasOption("a"))
-				_agentName= line.getOptionValue("a").replace(" ", "_");
+				_agentName= line.getOptionValue("a").replace(Constants.SPACE, Constants.UNDERSCORE);
 			if(line.hasOption( "dedup_intype"))
 				_inputType = line.getOptionValue("dedup_intype");
 			if(line.hasOption( "dedup_exf")){ 
-				String[] temp= line.getOptionValue("dedup_exf").split(SEMICOLON_STR);
+				String[] temp= line.getOptionValue("dedup_exf").split(Constants.SEMICOLON);
 				for (int ii=0;ii<temp.length;ii++){
 					_excludefiles.add(FilenameUtils.concat(_targetDir.getAbsolutePath(), temp[ii]));
 				}
