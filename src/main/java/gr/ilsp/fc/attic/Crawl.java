@@ -5,7 +5,7 @@ import gr.ilsp.fc.aligner.factory.AlignerFactory;
 import gr.ilsp.fc.bitext.BitextUtils;
 import gr.ilsp.fc.bitext.BitextsTranslationLinks;
 import gr.ilsp.fc.bitext.PairDetector;
-//import gr.ilsp.fc.datums.CrawlDbDatum;
+import gr.ilsp.fc.crawl.CrawlerDirConfig;
 import gr.ilsp.fc.dedup.Deduplicator;
 import gr.ilsp.fc.exporter.Exporter;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
@@ -266,7 +266,7 @@ public class Crawl {
 				options.help();
 			}
 			//CrawlDbPath is the path where the crawl database will be stored for the current run
-			Path crawlDbPath = new Path(inputPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+			Path crawlDbPath = new Path(inputPath, CrawlerDirConfig.CRAWLDB_SUBDIR_NAME);
 
 			//Start and end loop numbers are calculated (if the crawl is running on a fixed number of loops)
 			int startLoop = CrawlDirUtils.extractLoopNumber(inputPath);
@@ -375,7 +375,7 @@ public class Crawl {
 				loopLogFiles.add(loopLogFile);
 				// flow.writeDOT("build/valid-flow.dot");
 				// Input for the next round is our current output
-				crawlDbPath = new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+				crawlDbPath = new Path(curLoopDir, CrawlerDirConfig.CRAWLDB_SUBDIR_NAME);
 			}
 			for (String loopLogFile:loopLogFiles){
 				new File(loopLogFile).deleteOnExit();
@@ -698,7 +698,7 @@ public class Crawl {
 					fs.mkdirs(pdf_dir);
 				String curLoopDirName = CrawlUtils.path2str(curLoopDir);
 				CrawlUtils.setLoopLoggerFile(curLoopDirName, 0);
-				Path crawlDbPath = new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+				Path crawlDbPath = new Path(curLoopDir, CrawlerDirConfig.CRAWLDB_SUBDIR_NAME);
 				if (domain!=null && !isDomainFile){
 					if (urls!=null)
 						CrawlUtils.importURLOneDomain(urls,crawlDbPath , conf);
