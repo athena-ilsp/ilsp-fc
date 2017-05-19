@@ -1,12 +1,13 @@
 package gr.ilsp.fc.aligner.factory;
 
-import gr.ilsp.fc.attic.CrawlUtils;
+import gr.ilsp.fc.crawl.CrawlerUtils;
 import gr.ilsp.fc.bitext.BitextUtils;
 import gr.ilsp.fc.readwrite.WriteResources;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.XSLTransformer;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitter;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitterFactory;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -292,7 +293,7 @@ public abstract class Aligner {
 	}
 	
 	public void initialize (String sourceLang, String targetLang) {
-		logger.debug("Inititalizing aligner with " + sourceLang +  " " + targetLang + " " + this.toString());
+		logger.debug("Inititalizing aligner with " + sourceLang +  Constants.SPACE + targetLang + Constants.SPACE + this.toString());
 		setSourceLang(sourceLang);
 		setTargetLang(targetLang);
 	}
@@ -400,7 +401,7 @@ public abstract class Aligner {
 	 */
 	public static String getRunningJarPath() {
 		String runpath="";
-		String path = CrawlUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		String path = CrawlerUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		try {
 			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
 			runpath= decodedPath.getParent();
