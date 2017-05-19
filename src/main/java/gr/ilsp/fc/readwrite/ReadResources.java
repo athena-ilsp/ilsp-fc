@@ -1,6 +1,7 @@
 package gr.ilsp.fc.readwrite;
 
 import gr.ilsp.fc.utils.FCStringUtils;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,7 +37,8 @@ public class ReadResources {
 	private static final String ooi_crawlinfo = "crawlinfo";
 	private static final String UNDERSCORE = "_";
 	private static final String XML_EXTENSION = ".xml";
-		
+	private static final String LANG_KEYS_RESOURCE = "langKeys.txt" ;
+	
 	public static String extractNodefromXML(String infile, String ele_name) {
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -121,7 +123,15 @@ public class ReadResources {
 		return result;
 	}
 
-
+/**
+ * Extracts the value of an attribute of an element in a file  
+ * @param inputFile
+ * @param ele_name
+ * @param attr_name
+ * @param included
+ * @param onlyFirstOccur
+ * @return
+ */
 	public static String extractAttrfromXML(String inputFile, String ele_name, String attr_name, boolean included, boolean onlyFirstOccur) {
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -250,7 +260,7 @@ public class ReadResources {
 						str = NameElement.getTextContent();
 						str=str.replaceAll("[^\\P{L}]","");
 						str=str.replaceAll("[^\\P{N}]","");
-						str=str.replaceAll(" ","");
+						str=str.replaceAll(Constants.SPACE,"");
 						str=str.replaceAll("\\.","");
 						str=str.replaceAll("„","");
 						str=str.replaceAll("“","");
@@ -266,7 +276,7 @@ public class ReadResources {
 						str = NameElement.getTextContent();
 						str=str.replaceAll("[^\\P{L}]","");
 						str=str.replaceAll("[^\\P{N}]","");
-						str=str.replaceAll(" ","");
+						str=str.replaceAll(Constants.SPACE,"");
 						str=str.replaceAll("\\.","");
 						str=str.replaceAll("„","");
 						str=str.replaceAll("“","");
@@ -281,7 +291,7 @@ public class ReadResources {
 							str = NameElement.getTextContent();
 							str=str.replaceAll("[^\\P{L}]","");
 							str=str.replaceAll("[^\\P{N}]","");
-							str=str.replaceAll(" ","");
+							str=str.replaceAll(Constants.SPACE,"");
 							str=str.replaceAll("\\.","");
 							str=str.replaceAll("„","");
 							str=str.replaceAll("“","");
@@ -374,4 +384,22 @@ public class ReadResources {
 		}
 		return line;
 	}
+	
+	public static String getSupportedLanguages() {
+		String supportedlangs = "";
+		try {
+			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
+			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
+			String str;
+			while ((str = in.readLine()) != null) {
+				supportedlangs=supportedlangs+Constants.SEMICOLON+str.subSequence(0, str.indexOf(">")).toString();
+			}
+			in.close();
+		} catch (IOException e) {
+			LOGGER.error("Problem in reading the file for langKeys.");
+		}
+		return supportedlangs.substring(1);
+	}
+	
+	
 }
