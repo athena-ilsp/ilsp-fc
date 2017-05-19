@@ -7,15 +7,19 @@ import gr.ilsp.fc.main.Run;
 import gr.ilsp.fc.utils.DirUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.JarUtils;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -27,9 +31,10 @@ import com.cybozu.labs.langdetect.LangDetectException;
 
 public class LangDetectUtils {
 	private static final Logger LOGGER = Logger.getLogger(LangDetectUtils.class);
-	private static final String QUEST_SEPAR = ";";
+	
 	//private static final String LANG_CODES_RESOURCE = "langcode-langs.txt";
-	//private static final String SPACE_SEPERATOR = " ";
+	//private static final String SPACE_SEPERATOR = Constants.SPACE;
+	private static Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp"));
 	private static final int min_strlen=5;
 	//private static final double min_prob=0.6;
 
@@ -128,7 +133,7 @@ public class LangDetectUtils {
 	 */
 	public static String updateLanguages(String languages, boolean iso6393) {
 		String targetlanguages="";
-		String[] initlangs= languages.split(QUEST_SEPAR);
+		String[] initlangs= languages.split(Constants.SEMICOLON);
 		List<String> langs = new ArrayList<String>();
 		String temp="";
 		for (int ii=0;ii<initlangs.length;ii++) {
@@ -145,7 +150,7 @@ public class LangDetectUtils {
 		}
 		Collections.sort(langs);
 		for (int ii=0;ii<langs.size();ii++) {
-			targetlanguages = targetlanguages+QUEST_SEPAR+langs.get(ii);
+			targetlanguages = targetlanguages+Constants.SEMICOLON+langs.get(ii);
 		}
 		targetlanguages=targetlanguages.substring(1);
 		return targetlanguages;
@@ -189,5 +194,39 @@ public class LangDetectUtils {
 		}
 	}*/
 
+	/**
+	 * use one (default) or more language detectors and favoring one for particular languages
+	 * @param targetedLangs
+	 * @param id of the default language Detector
+	 */
+	public static LangDetector loadLangDetectors(String[] targetedLangs, String langdetectorid) {
+		LangDetectorFactory langDetectorFactory = new LangDetectorFactory();
+		LangDetector langDetector = langDetectorFactory.getLangDetector(langdetectorid);
+		try {
+			langDetector.initialize();
+		} catch (Exception e1) {
+			LOGGER.error("problem in loading LangDetector: "+ langdetectorid );
+			e1.printStackTrace();
+		}
+		Set<String> crawlLangs = new HashSet<String>(Arrays.asList(targetedLangs));
+		for (String crawlLang: crawlLangs) {
+			if (langsTBFI.contains(crawlLang)) {
+				Map<String, LangDetector> otherLangDetectorMap = new HashMap<String, LangDetector>(); 
+				LangDetector otherLangDetector =  langDetectorFactory.getLangDetector("bs-hr-sr-nb");
+				try {
+					otherLangDetector.initialize();
+				} catch (Exception e) {
+					LOGGER.error("problem in loading LangDetector: "+ "bs-hr-sr-nb" );
+					e.printStackTrace();
+				}
+				for (String lang: langsTBFI) {
+					otherLangDetectorMap.put(lang, otherLangDetector);
+				}
+				langDetector.setLangDetectorsMap(otherLangDetectorMap);
+				break;
+			}
+		} 
+		return langDetector;
+	}
 
 }

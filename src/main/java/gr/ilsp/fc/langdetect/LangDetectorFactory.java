@@ -56,6 +56,7 @@ public class LangDetectorFactory {
 		// logger.info(langDetector.detect("Μια πρόταση στα ελληνικά."));		
 		logger.info(langDetector.detect(croatianSent));
 		logger.info(langDetector.detect(bosnianSent));
+		logger.info(langDetector.detect(testSent));
 	}
 
 	private static String croatianSent = 
@@ -66,6 +67,9 @@ public class LangDetectorFactory {
 			"Dok se premijer Recep Tayyip Erdogan suočavao s masovnim protestima u gradovima širom zemlje, " +
 			"ljudi u nekoliko balkanskih zemalja izašli su da pokažu svoju podršku premijeru." +			
 			"";
-
+	private static String testSent = 
+			"Članovi Evropskog parlamenta uznemireni su zbog situacije u kojoj se nalazi Javni servis u BiH "+
+			"i upozoravaju bh. vlasti da je, ako Parlamentarna skupština ne donese adekvatnu odluku o finansiranju "+
+			"Javnog medijskog servisa do kraja juna 2017, sistem, a posebno nacionalni emiter BHRT, u velikoj opasnosti od raspada.";
 
 }
