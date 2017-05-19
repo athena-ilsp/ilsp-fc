@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import gr.ilsp.nlp.commons.Constants;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -196,7 +197,7 @@ public class CesAlignProcessor extends AbstractScanner {
 					String segText = "";
 					for(int j=0; j< segNodes.getLength(); j++){
 						Element segElement = (Element) segNodes.item(j);
-						segText = segText + " " + segElement.getTextContent();
+						segText = segText + Constants.SPACE + segElement.getTextContent();
 					}
 					if (tuvElement.hasAttribute(XML_LANG) && tuvElement.getAttribute(XML_LANG).equals(L1) ) {
 						l1Text =   escapeXml (segText.trim());

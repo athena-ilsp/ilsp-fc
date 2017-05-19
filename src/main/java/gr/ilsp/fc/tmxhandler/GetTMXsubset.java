@@ -10,11 +10,11 @@ import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsScoreStats;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -31,7 +31,6 @@ import net.loomchild.maligna.util.bind.tmx.Prop;
 import net.loomchild.maligna.util.bind.tmx.Tmx;
 import net.loomchild.maligna.util.bind.tmx.Tu;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -52,8 +51,6 @@ public class GetTMXsubset {
 	private final static String mes10 = "aligner's score is lower than ";
 	private final static String licenseNode = "license";
 	private final static String CREATIVE_COMMONS = "Creative";
-	private static final String SPACE_SEPARATOR = " ";
-	private static final String SEMICOLON_STR=";";
 	private final static String SCORE = "score";
 	private final static String SEGMENTTYPE = "type"; 
 	private final static String L1URL = "l1-url";
@@ -65,8 +62,6 @@ public class GetTMXsubset {
 	private final static String YES_STR = "yes";
 	private final static String NO_STR = "no";
 	private final static String UNCLEAR_STR = "unclear";
-
-	private final static String TAB_STR = "\t";
 
 	private static boolean iso6393=false;
 	private static boolean oxslt=false;
@@ -124,7 +119,7 @@ public class GetTMXsubset {
 		GetTMXsubsetOptions options = new GetTMXsubsetOptions();
 		options.parseOptions(args);
 		intmx = options.getTargetTMX();
-		String[] langs = options.getLanguage().split(SEMICOLON_STR);
+		String[] langs = options.getLanguage().split(Constants.SEMICOLON);
 		psi = options.getPSinfo();
 		baseName = options.getBaseName();
 		outTMX = new File(baseName.getAbsolutePath()+TMXEXT);
@@ -144,39 +139,17 @@ public class GetTMXsubset {
 		samplesize = options.getSampleSize();
 		sampleTXT = new File(baseName.getAbsolutePath()+SAMPLE+TXTEXT);
 		logger.info("Reading " + intmx.getAbsolutePath());
-		logger.info("Languages: " + langs[0] + " " + langs[1] + " ");
+		logger.info("Languages: " + langs[0] + Constants.SPACE + langs[1] + Constants.SPACE);
 		logger.info("Constructing " + outTMX.getAbsolutePath());
 
 		List<ILSPAlignment> alignmentList = getTMXsubset(langs);
 		
 		int aa =   (int) (0.05 * alignmentList.size());
 		samplesize = Math.max(samplesize, aa);
-		generateSample(alignmentList, samplesize, sampleTXT);
+		TMXHandlerUtils.generateSample(alignmentList, samplesize, sampleTXT);
 
 	}
-	/**
-	 * gets distinct-Random- ILSPAlignments from the alignmentList and "writes them" in a textfile (properties are tab-separated)
-	 * @param alignmentList
-	 * @param samplesize
-	 */
-	private static void generateSample(List<ILSPAlignment> alignmentList, int samplesize, File samplefile) {
-		samplesize = Math.min(samplesize, alignmentList.size());
-		Set<ILSPAlignment> selpairs = Statistics.distinctRandomILSPAlignments(alignmentList, samplesize);
-		List<String> sample= new ArrayList<String>();
-		sample.add("SEG_L1\tSEG_L2\tLenRatio\tAlignScore\tInfo\tMethod\tType\tURL_L1\tURL_L2\tLicense");
-
-		for (ILSPAlignment a:selpairs){
-			sample.add(a.getSourceSegmentList().get(0)+TAB_STR+a.getTargetSegmentList().get(0)+TAB_STR
-					+a.getLengthRatio()+TAB_STR+a.getScore()+TAB_STR+a.getInfo()+TAB_STR
-					+a.getMethod()+TAB_STR+a.getType()+TAB_STR+a.getL1url()+TAB_STR+a.getL2url()+TAB_STR+a.getLicense());
-		}
-		try {
-			FileUtils.writeLines(samplefile, sample);
-		} catch (IOException e) {
-			logger.error("problem in writing the sample file "+ samplefile.getAbsolutePath());
-			e.printStackTrace();
-		}
-	}
+	
 
 	/**
 	 * Generates a new mergedTMX which is a subset of the input TMX based on user's restrictions
@@ -324,11 +297,11 @@ public class GetTMXsubset {
 							annot  = prop.getContent().get(0);
 					}
 				}
-				segpairs.add(new SegPair(StringUtils.join(TMXHandlerUtils.createSegmentList(tu, lang1), SPACE_SEPARATOR), 
-						StringUtils.join(TMXHandlerUtils.createSegmentList(tu, lang2), SPACE_SEPARATOR),
+				segpairs.add(new SegPair(StringUtils.join(TMXHandlerUtils.createSegmentList(tu, lang1), Constants.SPACE), 
+						StringUtils.join(TMXHandlerUtils.createSegmentList(tu, lang2), Constants.SPACE),
 						score, type, "",l1url, l2url, license, other,ratio,annot));
 			}
-			logger.debug("Examining " + tmxFile.getAbsolutePath() + SPACE_SEPARATOR + tus.size());
+			logger.debug("Examining " + tmxFile.getAbsolutePath() + Constants.SPACE + tus.size());
 		} catch (FileNotFoundException e) {
 			logger.warn("Problem in reading "+ tmxFile.getAbsolutePath());
 			e.printStackTrace();
