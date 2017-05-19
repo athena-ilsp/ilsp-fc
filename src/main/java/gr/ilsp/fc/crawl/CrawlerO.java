@@ -1,6 +1,6 @@
 package gr.ilsp.fc.crawl;
 
-
+import gr.ilsp.fc.langdetect.LangDetector;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -58,9 +58,9 @@ public class CrawlerO{
 	protected int durationNumLoops, startLoop, endLoop;
 	protected int durationMinutes;
 	protected long targetEndTime;
-	
+
 	protected Path crawlDbPath;
-	
+
 	protected String type;
 	protected String agentName;
 	protected String userTopic;
@@ -73,7 +73,7 @@ public class CrawlerO{
 	protected HashMap<String, String> mapLangs;
 	protected String[] langKeys;
 	protected Map<String, String> uRLPairsFromTranslationLinks;
-	
+
 	protected int maxTunnelingDepth;
 	protected List<String[]> linkAttrs;
 	protected File topicFile;
@@ -91,8 +91,8 @@ public class CrawlerO{
 	protected boolean hasEndTime;
 	protected boolean keepboiler;
 	protected boolean isdegub;
+	protected LangDetector langDetector;
 
-	
 	/**
 	 * @return the urlPairsFromTranslationLinks, the pairs of URLs detected during crawling as translation links
 	 */
@@ -706,6 +706,14 @@ public class CrawlerO{
 	public void setIsdegub(boolean isdegub) {
 		this.isdegub = isdegub;
 	}
+	
+	public void setLangDetector(LangDetector langDetector){
+		this.langDetector = langDetector;
+	}
+	public LangDetector  getLangDetector(){
+		return langDetector;
+	}
+
 }
 
 

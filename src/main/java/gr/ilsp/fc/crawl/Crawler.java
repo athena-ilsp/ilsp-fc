@@ -1,8 +1,7 @@
 package gr.ilsp.fc.crawl;
 
-import gr.ilsp.fc.attic.CrawlConfig;
+import gr.ilsp.fc.crawl.CrawlerDirConfig;
 import gr.ilsp.fc.bitext.BitextsTranslationLinks;
-import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.crawl.CrawlerUtils;
 import gr.ilsp.fc.crawl.CrawlerOptions;
 import gr.ilsp.fc.parser.LevelUrlFilter;
@@ -139,7 +138,8 @@ public class Crawler {
 		cr.setTargetlangs(options.getTargetedLangs());
 		cr.setMapLangs(options.getMapLangs());
 		cr.setLangKeys(options.getLangKeys());
-		LangDetectUtils.loadCybozuLangIdentifier(); //load languages' profiles
+		cr.setLangDetector(options.getLangDetector());
+		//LangDetectUtils.loadCybozuLangIdentifier(); //load languages' profiles
 
 		//about properties of the targeted content
 		cr.setKeepboiler(options.keepBoiler());
@@ -200,7 +200,7 @@ public class Crawler {
 			Path curLoopDir = CrawlDirUtils.makeLoopDir(cr.fs, cr.outputDirPath, 0);
 			String curLoopDirName = CrawlerUtils.path2str(curLoopDir);
 			CrawlerUtils.setLoopLoggerFile(curLoopDirName, 0);
-			cr.setCrawlDbPath(new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME));
+			cr.setCrawlDbPath(new Path(curLoopDir, CrawlerDirConfig.CRAWLDB_SUBDIR_NAME));
 			if (cr.webDomain!=null && !cr.isDomainFile){
 				if (cr.seedsFile!=null)
 					CrawlerUtils.importURLOneDomain(cr.seedsFile.getAbsolutePath(),cr.crawlDbPath , cr.jobconf);
@@ -337,7 +337,7 @@ public class Crawler {
 			loopLogFiles.add(loopLogFile);
 			// flow.writeDOT("build/valid-flow.dot");
 			// Input for the next round is our current output
-			cr.setCrawlDbPath(new Path(curLoopDir, CrawlConfig.CRAWLDB_SUBDIR_NAME));
+			cr.setCrawlDbPath(new Path(curLoopDir, CrawlerDirConfig.CRAWLDB_SUBDIR_NAME));
 		}
 		for (String loopLogFile:loopLogFiles){
 			new File(loopLogFile).deleteOnExit();

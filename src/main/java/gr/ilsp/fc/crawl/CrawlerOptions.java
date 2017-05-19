@@ -35,23 +35,24 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.net.InternetDomainName;
 
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.langdetect.LangDetector;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.AnalyzerFactory;
 import gr.ilsp.fc.utils.FCStringUtils;
+import gr.ilsp.nlp.commons.Constants;
 
 public class CrawlerOptions {
 	private static final Logger LOGGER = Logger.getLogger(CrawlerOptions.class);
 	private  final String APPNAME = "ILSP Focused Crawler";
 	//private static final String DEFAULT_MONO_CONFIG_FILE = "FMC_config.xml";
 	//private static final String DEFAULT_BI_CONFIG_FILE = "FBC_config.xml";
-	private static final String SEMICOLON_STR=";";
 	private static final String type_p = "p", type_q = "q", type_m = "m";
-	private static final String DIESIS="#", COLON_SEPAR = ":";
+	private static final String DIESIS="#";
+
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	private static final String LANG_KEYS_RESOURCE = "langKeys.txt" ;
 	private static final String TRANS_LINKS_ATTRS = "crossLinksAttrs.txt";
-	private static final String UNDERSCORE_STR = "_";
 	/*private static final String default_agent = "ILSP-FC";
 	private static final int default_threads=10;
 	private static final int default_duration_minutes = 10;
@@ -72,8 +73,9 @@ public class CrawlerOptions {
 
 	private String _webdomain=null, _webmaindomain=null, _usertopic=null, _filter=null, _storefilter=null, _paths_repl=null, _loggingAppender = null;
 
-	private String _agentName="ILSP-FC", _language, _config, ws_dir ;
+	private String _agentName="ILSP-FC", _language, _config, ws_dir, defaultlangDetectorId="langdetect" ;
 	private String[] _langKeys, _targetedLangs;
+	private LangDetector _langDetector;
 	private List<String[]> _linkAttrs;
 	private HashMap<String, String> _mapLangs;
 	//private String default_genrefile="genres_keys.txt";
@@ -242,11 +244,12 @@ public class CrawlerOptions {
 				if (line.getOptionValue("lang").toLowerCase().equals("g"))
 					ll = CrawlerUtils.getSupportedLanguages();
 				_language = LangDetectUtils.updateLanguages(ll,_iso6393);
-				_targetedLangs =_language.split(SEMICOLON_STR);
+				_targetedLangs =_language.split(Constants.SEMICOLON);
 				_langKeys = findKeys4lang(_language);
 				_mapLangs = mapLangs(_language);
 				_linkAttrs = findTransLinks();
 				checkAnalyzers(_targetedLangs);
+				_langDetector = LangDetectUtils.loadLangDetectors(_targetedLangs,defaultlangDetectorId);
 			}else{
 				LOGGER.error("No languages have been defined.");
 				System.exit(0);
@@ -274,9 +277,9 @@ public class CrawlerOptions {
 			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
 			String str;
 			while ((str = in.readLine()) != null) {
-				if (str.startsWith(DIESIS))
+				if (str.startsWith(DIESIS)) 
 					continue;
-				String[] temp = str.split(COLON_SEPAR);
+				String[] temp = str.split(Constants.COLON);
 				res.add(temp);
 			}
 		} catch (IOException e) {
@@ -352,7 +355,7 @@ public class CrawlerOptions {
 	 */
 	private void getParams4Crawl(CommandLine line) {
 		if(line.hasOption( "a"))
-			_agentName = line.getOptionValue("a").replace(" ", "_");
+			_agentName = line.getOptionValue("a").replace(Constants.SPACE, Constants.UNDERSCORE);
 		if (line.hasOption("type"))
 			_type = line.getOptionValue("type");
 		else{
@@ -400,9 +403,9 @@ public class CrawlerOptions {
 
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 		if (line.hasOption( "dest")) 
-			ws_dir = FilenameUtils.concat(line.getOptionValue("dest"), _agentName+UNDERSCORE_STR+timeStamp) ;
+			ws_dir = FilenameUtils.concat(line.getOptionValue("dest"), _agentName+Constants.UNDERSCORE+timeStamp) ;
 		else
-			ws_dir=_agentName+UNDERSCORE_STR+timeStamp;
+			ws_dir=_agentName+Constants.UNDERSCORE+timeStamp;
 
 		_outputDir = new File(FilenameUtils.concat(ws_dir, UUID.randomUUID().toString()));
 		//if(!line.hasOption( "o")) 
@@ -410,7 +413,7 @@ public class CrawlerOptions {
 
 		
 		if (_type.equals(type_p) | _type.equals(type_q)){
-			if (!_language.contains(SEMICOLON_STR)){
+			if (!_language.contains(Constants.SEMICOLON)){
 				LOGGER.error("You crawl for parallel or comparable but only 1 language has been defined.");
 				help();
 			}
@@ -564,7 +567,7 @@ public class CrawlerOptions {
 	 */
 	private String[] findKeys4lang(String language) {
 		ArrayList<String> langKeys=new ArrayList<String>();
-		String[] langs = _language.split(SEMICOLON_STR);
+		String[] langs = _language.split(Constants.SEMICOLON);
 		try {
 			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
 			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
@@ -602,7 +605,7 @@ public class CrawlerOptions {
 	 */
 	private HashMap<String,String> mapLangs(String language) {
 		ArrayList<String> langKeys=new ArrayList<String>();
-		String[] langs = _language.split(SEMICOLON_STR);
+		String[] langs = _language.split(Constants.SEMICOLON);
 		HashMap<String,String> result= new HashMap<String,String>();
 		try {
 			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
@@ -655,8 +658,6 @@ public class CrawlerOptions {
 		}
 		return configuration;
 	}*/
-
-
 
 	public  void help(){
 		printHelp( APPNAME , options );
@@ -979,6 +980,14 @@ public class CrawlerOptions {
 		this._mapLangs = _mapLangs;
 	}
 	
+	public void set_LangDetector(LangDetector langDetector) {
+		this._langDetector = langDetector;// TODO Auto-generated method stub	
+	}
+	public LangDetector getLangDetector() {
+		return _langDetector;	
+	}
+	
+	
 	
 	/*private int procMPL(CommandLine line) {
 		if(line.hasOption( "mtlen")) 
@@ -1148,7 +1157,7 @@ public class CrawlerOptions {
 	}
 	private String procAgent(CommandLine line) {
 		if(line.hasOption( "a"))
-			return line.getOptionValue("a").replace(" ", "_");
+			return line.getOptionValue("a").replace(Constants.SPACE, "_");
 		else
 			return default_agent;
 	}
