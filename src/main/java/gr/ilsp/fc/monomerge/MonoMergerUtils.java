@@ -5,6 +5,7 @@ import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,11 +35,6 @@ import org.apache.log4j.Logger;
 
 public class MonoMergerUtils {
 	private static final Logger LOGGER = Logger.getLogger(MonoMergerUtils.class);
-
-	private static final String SPACE_SEPARATOR = " ";
-	private static final String SEMI_SEPAR = ";";
-	private final static String PUNCT = ".";
-	private static final String UNDERSCORE = "_";
 	private static final String XML_EXTENSION = ".xml";
 	private final static String eAddressNode ="eAddress"; 
 	private final static String licenseNode = "license";
@@ -90,11 +86,11 @@ public class MonoMergerUtils {
 						}
 					}
 				}
-				segpairs.add(new SegPair(StringUtils.join(createSegmentList(tu, lang1), SPACE_SEPARATOR), 
-						StringUtils.join(createSegmentList(tu, lang2), SPACE_SEPARATOR),
+				segpairs.add(new SegPair(StringUtils.join(createSegmentList(tu, lang1), Constants.SPACE), 
+						StringUtils.join(createSegmentList(tu, lang2), Constants.SPACE),
 						score, type, tmxinfo.method, tmxinfo.site, tmxinfo.license, tmxinfo.other));
 			}
-			LOGGER.debug("Examining " + tmxFile.getAbsolutePath() + SPACE_SEPARATOR + tus.size());
+			LOGGER.debug("Examining " + tmxFile.getAbsolutePath() + Constants.SPACE + tus.size());
 			double percent = (double)zeroToOneAlignments / (double)tus.size();
 			if (percent>minPerce01Align){
 				return null;
@@ -111,9 +107,9 @@ public class MonoMergerUtils {
 
 
 	private static TmxInfo getInfo(File tmxFile) {
-		String method = tmxFile.getName().substring(tmxFile.getName().lastIndexOf(UNDERSCORE)+1, tmxFile.getName().lastIndexOf(PUNCT));
-		File f1 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[0])+XML_EXTENSION);
-		File f2 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[1])+XML_EXTENSION);
+		String method = tmxFile.getName().substring(tmxFile.getName().lastIndexOf(Constants.UNDERSCORE)+1, tmxFile.getName().lastIndexOf(Constants.DOT));
+		File f1 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), Constants.UNDERSCORE)[0])+XML_EXTENSION);
+		File f2 = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), Constants.UNDERSCORE)[1])+XML_EXTENSION);
 		String site="", license="";
 		URL url = null;
 		String webpage1=ReadResources.extractNodefromXML(f1.getAbsolutePath(), eAddressNode, false);
@@ -139,7 +135,7 @@ public class MonoMergerUtils {
 			else if (webpage2.contains(webpage1))
 				site = webpage2;
 			else
-				site = webpage1+SEMI_SEPAR+webpage2;
+				site = webpage1+Constants.SEMICOLON+webpage2;
 		}else
 			site = webpage1;
 

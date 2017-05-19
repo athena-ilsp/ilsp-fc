@@ -110,7 +110,7 @@ public class MonoMergerOptions {
 			if (line.hasOption("dom"))
 				_userTopic = line.getOptionValue("dom");
 			//if (line.hasOption("a"))
-			//	_agentName = line.getOptionValue("a").replace(" ", "_");
+			//	_agentName = line.getOptionValue("a").replace(Constants.SPACE, "_");
 			if(line.hasOption( "lang")) 
 				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true);
 			else{

@@ -34,13 +34,13 @@ import gr.ilsp.fc.utils.ISOLangCodes;
 //import gr.ilsp.fc.utils.ZipUtils;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitter;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitterFactory;
+import gr.ilsp.nlp.commons.Constants;
 
 public class MonoMerger {
 	private static final Logger LOGGER = Logger.getLogger(MonoMerger.class);
 	private static MonoMergerOptions options = null;
 	private static File inputFile = null, baseName = null; //, outXMLFile = null;
 	private static final String DEFAULT_M_CONFIG_FILE = "FMC_config.xml";
-	private static final String TAB_STR = "\t";
 	private static final String TXT_EXT = ".txt";
 	//	private static final String ZIP_EXT = ".zip";
 	private static final String XML_EXT = ".xml";
@@ -64,9 +64,6 @@ public class MonoMerger {
 	//private static final double min_median_word_length1 = 3;
 
 	private static SentenceSplitter sentenceSplitter;
-	private static final String UNDERSCORE_STR="_";
-	private static final String SEMICOLON_STR=";";
-	//private final static String PUNCT = ".";
 	private final static String UNKNOWN_STR ="unknown";
 	//private static final String HTML =".html";
 	//private static final String TXTEXT = ".txt";
@@ -97,10 +94,10 @@ public class MonoMerger {
 		mm.setCorpusLevel(options.getCorpusLevel());
 		mm.setSites(options.getSites());
 		mm.setLanguage(options.getLanguage());
-		String[] languages = mm.getLanguage().split(SEMICOLON_STR);
+		String[] languages = mm.getLanguage().split(Constants.SEMICOLON);
 		for (String lang:languages){
 			mm.setLanguage(lang);
-			mm.setBaseName(new File(options.getBaseName().getAbsolutePath()+UNDERSCORE_STR+lang));
+			mm.setBaseName(new File(options.getBaseName().getAbsolutePath()+Constants.UNDERSCORE+lang));
 			mm.merge();
 		}
 	}
@@ -179,11 +176,11 @@ public class MonoMerger {
 
 			String description = "Monolingual ("+ language + ") corpus. It consists of ";
 			if (corpuslevel.equals(DOCLEVEL))
-				description = description + monlingualCorpusInfo.getFilesNum() + " " + DOCUMENTS ;
+				description = description + monlingualCorpusInfo.getFilesNum() + Constants.SPACE + DOCUMENTS ;
 			if (corpuslevel.equals(PARLEVEL))
-				description = description + monlingualCorpusInfo.getParagraphsNum()+ " " + PARAGRAPHS ;
+				description = description + monlingualCorpusInfo.getParagraphsNum()+ Constants.SPACE + PARAGRAPHS ;
 			if (corpuslevel.equals(SENLEVEL))
-				description = description + monlingualCorpusInfo.getSentenceNum()+ " " + SENTENCES ;
+				description = description + monlingualCorpusInfo.getSentenceNum()+ Constants.SPACE + SENTENCES ;
 			description = description + " containing " + monlingualCorpusInfo.getTokensNum() +" tokens and "+ monlingualCorpusInfo.getLexTypesNum() +" lexical types";
 			if (!StringUtils.isBlank(domain)) 
 				description = description + " in the " + domain + " domain.";
@@ -225,7 +222,7 @@ public class MonoMerger {
 	private List<File> selectCesDocFiles() {
 		FilenameFilter cesDocLangfilter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.endsWith(XML_EXT) &!arg1.contains(UNDERSCORE_STR) & arg1.startsWith(ISOLangCodes.get3LetterCode(language)));
+				return (arg1.endsWith(XML_EXT) &!arg1.contains(Constants.UNDERSCORE) & arg1.startsWith(ISOLangCodes.get3LetterCode(language)));
 			}
 		};
 
@@ -325,7 +322,7 @@ public class MonoMerger {
 						if (!words.contains(tok))
 							words.add(tok);
 					}
-					bw.write(sentence+TAB_STR+docurl+TAB_STR+xmlfile.getName());
+					bw.write(sentence+Constants.TAB+docurl+Constants.TAB+xmlfile.getName());
 					bw.newLine();
 				}
 			}
@@ -403,7 +400,7 @@ public class MonoMerger {
 						if (!words.contains(tok))
 							words.add(tok);
 					}
-					bw.write(paragraph+TAB_STR+docurl+TAB_STR+xmlfile.getName());
+					bw.write(paragraph+Constants.TAB+docurl+Constants.TAB+xmlfile.getName());
 					bw.newLine();
 				}
 				filecounter++;
