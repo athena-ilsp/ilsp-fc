@@ -6,10 +6,10 @@ package gr.ilsp.fc.langdetect;
 import gr.ilsp.fc.utils.DirUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.JarUtils;
-import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import net.arnx.jsonic.JSON;
@@ -22,6 +22,7 @@ import com.cybozu.labs.langdetect.Detector;
 import com.cybozu.labs.langdetect.DetectorFactory;
 import com.cybozu.labs.langdetect.GenProfile;
 import com.cybozu.labs.langdetect.LangDetectException;
+import com.cybozu.labs.langdetect.Language;
 import com.cybozu.labs.langdetect.util.LangProfile;
 
 public class CybozuLangDetector extends LangDetector {
@@ -50,7 +51,7 @@ public class CybozuLangDetector extends LangDetector {
 			}	
 			logger.debug("tempdir is " + resdir);
 			DetectorFactory.loadProfile(resdir);
-			
+
 		} catch (LangDetectException e) {
 			logger.error("Cannot initialize language identifier." );
 			throw new Exception(e.getMessage());			
@@ -74,10 +75,15 @@ public class CybozuLangDetector extends LangDetector {
 
 	@Override
 	public HashMap<String, Double> detectLangs(String text) throws Exception {
+		HashMap<String, Double> aa = new HashMap<String, Double>();
 		Detector detector = DetectorFactory.create();
 		detector.append(text);
 		logger.warn(detector.getProbabilities()+"");
-		return null;
+		ArrayList<Language>  res = detector.getProbabilities();
+		for (Language l:res){
+			aa.put(l.lang, l.prob);
+		}
+		return aa;
 	}
 
 	@Override
@@ -86,8 +92,8 @@ public class CybozuLangDetector extends LangDetector {
 		String jsonProfile = JSON.encode(langProfile);
 		FileUtils.writeStringToFile(profileFile, jsonProfile);
 	}
-	
-	
+
+
 	public static void main(String[] args) throws Exception {
 		String lang = args[0];
 		File trainFile = new File(args[1]);
@@ -97,5 +103,4 @@ public class CybozuLangDetector extends LangDetector {
 		FileUtils.writeStringToFile(profileFile, jsonProfile);
 	}
 
-	
 }
