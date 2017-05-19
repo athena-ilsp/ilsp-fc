@@ -6,7 +6,9 @@ package gr.ilsp.fc.langdetect;
 import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import gr.ilsp.nlp.commons.Constants;
 
@@ -32,19 +34,21 @@ public abstract class LangDetector implements Serializable {
 	public abstract void initialize() throws Exception;
 	Map<String, LangDetector> langDetectorsMap = new HashMap<String, LangDetector>();
 
+	
 	/**
 	 * @param text
 	 * @return ISO-639-3 code representing the language or the empty string
 	 */
 	public String detect(String text) {
 		String lang = Constants.EMPTY_STRING;
-		if (text.length() < min_strlen) { 
+		if (text.length() < min_strlen)
 			return lang;
-		}
 		try {
 			lang = detectLang(text); 
-		} catch (Exception ex) {
+		} catch (Exception ex){
 		}
+		if (lang==null) 
+			return Constants.EMPTY_STRING;
 		return lang;
 	}
 
@@ -54,25 +58,37 @@ public abstract class LangDetector implements Serializable {
 	 * @return a new lang for this string, if a better language detector has been initialized and declared for this language
 	 */
 	public String detect(String text, String lang) {
-		if (text.length() < min_strlen) { 
+		if (text.length() < min_strlen) {
 			return Constants.EMPTY_STRING;
 		} else if (langDetectorsMap.containsKey(lang)) {
 			lang = langDetectorsMap.get(lang).detect(text);
 		}
-		if (lang==null) {
+		if (lang==null) 
 			return Constants.EMPTY_STRING;
-		}
 		return lang;
 	}
 
+
+	/*public String detectLangs1(String text) throws Exception {
+		HashMap<String, Double> aa = new  HashMap<String, Double>();
+		if (text.length() < min_strlen) 
+			return "";
+		aa = detectLangs(text);		
+		Set<String> bb = aa.keySet();
+		Iterator<String> cc = bb.iterator();
+		
+		return cc.next();
+	}
+	*/
 	
 	/**
 	 * @param text
 	 * @return ISO-639-3 code representing the language or null
 	 */
 	protected abstract String detectLang(String text);
-	
+
 	protected abstract HashMap<String, Double> detectLangs(String text) throws Exception ;
+	
 
 	protected abstract void createNewLanguageProfile(String lang, File trainFile, File profileFile) throws Exception ;
 
@@ -91,5 +107,4 @@ public abstract class LangDetector implements Serializable {
 		this.langDetectorsMap = langDetectorsMap;
 	}
 
-	
 }
