@@ -20,6 +20,8 @@ import net.loomchild.maligna.util.bind.tmx.Tu;
 import net.loomchild.maligna.util.bind.tmx.Tuv;
 import net.loomchild.maligna.util.date.DateParser;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +53,6 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 	private static final String Mean_Aligner_Scores = "mean aligner's score";
 	private static final String Std_Aligner_Scores = "std aligner's score";
 	
-	private static final String EMPTY_STR = "";
-	private static final String SPACE_STR = " ";
 	public static final String TMX_VERSION = "1.4";
 	public static final String TMX_ADMINLANG = "en";
 	private static final Logger logger = LoggerFactory.getLogger(BilingualScoredTmxFormatterILSP.class);
@@ -101,18 +101,18 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 		int tuid = 1;
 		for (ILSPAlignment alignment : alignmentList) {
 			Tu tu = new Tu();
-			tu.setTuid(EMPTY_STR+tuid++);
+			tu.setTuid(Constants.EMPTY_STRING+tuid++);
 			Prop scoreProperty = new Prop();
 			scoreProperty.setType(SCORE);
-			scoreProperty.getContent().add(EMPTY_STR+alignment.getScore());
+			scoreProperty.getContent().add(Constants.EMPTY_STRING+alignment.getScore());
 			tu.getNoteOrProp().add(scoreProperty);
 			Prop typeProperty = new Prop();
 			typeProperty.setType(TYPE);
-			typeProperty.getContent().add(EMPTY_STR+alignment.getType());
+			typeProperty.getContent().add(Constants.EMPTY_STRING+alignment.getType());
 			tu.getNoteOrProp().add(typeProperty);
 			Prop lengthRatio = new Prop();
 			lengthRatio.setType(LENGTHRATIO);
-			lengthRatio.getContent().add(EMPTY_STR+alignment.getLengthRatio());
+			lengthRatio.getContent().add(Constants.EMPTY_STRING+alignment.getLengthRatio());
 			tu.getNoteOrProp().add(lengthRatio);
 			
 			/*Prop siteProperty = new Prop();
@@ -122,21 +122,21 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 						
 			Prop l1urlProperty = new Prop();
 			l1urlProperty.setType(L1URL);
-			l1urlProperty.getContent().add(EMPTY_STR+alignment.getL1url());
+			l1urlProperty.getContent().add(Constants.EMPTY_STRING+alignment.getL1url());
 			tu.getNoteOrProp().add(l1urlProperty);
 			
 			Prop l2urlProperty = new Prop();
 			l2urlProperty.setType(L2URL);
-			l2urlProperty.getContent().add(EMPTY_STR+alignment.getL2url());
+			l2urlProperty.getContent().add(Constants.EMPTY_STRING+alignment.getL2url());
 			tu.getNoteOrProp().add(l2urlProperty);
 						
 			Prop licenseProperty = new Prop();
 			licenseProperty.setType(LICENSE);
-			licenseProperty.getContent().add(EMPTY_STR+alignment.getLicense());
+			licenseProperty.getContent().add(Constants.EMPTY_STRING+alignment.getLicense());
 			tu.getNoteOrProp().add(licenseProperty);
 			Prop infoProperty = new Prop();
 			infoProperty.setType(INFO);
-			infoProperty.getContent().add(EMPTY_STR+alignment.getInfo());
+			infoProperty.getContent().add(Constants.EMPTY_STRING+alignment.getInfo());
 			tu.getNoteOrProp().add(infoProperty);
 						
 			List<String> sourceSegments = alignment.getSourceSegmentList();
@@ -180,10 +180,10 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 		int tuid = 1;
 		for (Alignment alignment : alignmentList) {
 			Tu tu = new Tu();
-			tu.setTuid(EMPTY_STR+tuid++);
+			tu.setTuid(Constants.EMPTY_STRING+tuid++);
 			Prop scoreProperty = new Prop();
 			scoreProperty.setType(SCORE);
-			scoreProperty.getContent().add(EMPTY_STR+alignment.getScore());
+			scoreProperty.getContent().add(Constants.EMPTY_STRING+alignment.getScore());
 			tu.getNoteOrProp().add(scoreProperty);
 
 			List<String> sourceSegments = alignment.getSourceSegmentList();
@@ -330,7 +330,7 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 			Tuv tuv = new Tuv();			
 			tuv.setLang(languageCode);
 			Seg seg = new Seg();
-			String segment = StringUtils.join(segmentList, SPACE_STR);
+			String segment = StringUtils.join(segmentList, Constants.SPACE);
 			seg.getContent().add(segment.trim());
 			tuv.setSeg(seg);
 			tu.getTuv().add(tuv);

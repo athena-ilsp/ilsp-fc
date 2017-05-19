@@ -2,6 +2,7 @@ package gr.ilsp.fc.aligner.factory;
 
 import gr.ilsp.fc.crawl.Crawler;
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -116,7 +117,7 @@ public class AlignerFactory {
 			List<Pair<File, File>> l1L2Files=new ArrayList<Pair<File, File>>();
 			ArrayList<String> filePairs=IOtools.readFileToArray(args[3]);
 			for(String pair:filePairs){
-				String[] files=pair.split(" ");
+				String[] files=pair.split(Constants.SPACE);
 				Pair<File, File> newPair= Pair.of(new File((new File(args[3]).getParent())+File.separator+files[0]), new File((new File(args[3]).getParent())+File.separator+files[1]));
 				l1L2Files.add(newPair);
 				

@@ -17,6 +17,8 @@ import net.loomchild.maligna.util.bind.tmx.Tu;
 import net.loomchild.maligna.util.bind.tmx.Tuv;
 import net.loomchild.maligna.util.date.DateParser;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +42,6 @@ public class BilingualScoredTmxFormatter implements Formatter  {
 	private static final String SOURCE_LANG = "sourceLang";
 
 	private static final String EMPTY_STR = "";
-
-	private static final String SPACE_STR = " ";
 
 	public static final String TMX_VERSION = "1.4";
 
@@ -268,7 +268,7 @@ public class BilingualScoredTmxFormatter implements Formatter  {
 			tuv.setLang(languageCode);
 
 			Seg seg = new Seg();
-			String segment = StringUtils.join(segmentList, SPACE_STR);
+			String segment = StringUtils.join(segmentList, Constants.SPACE);
 			//String segment = merge(segmentList); 
 			seg.getContent().add(segment.trim());
 			tuv.setSeg(seg);
