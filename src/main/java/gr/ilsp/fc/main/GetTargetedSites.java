@@ -14,15 +14,13 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import gr.ilsp.nlp.commons.Constants;
 
 public class GetTargetedSites {
 	private static final String curly_brackets_o="{";
 	private static final String curly_brackets_c="}";
-	private static final String COMMA=",";
-	private static final String QUEST=";";
 	private static final String EQUALS="=";
 	private static final String SEEDS="seeds";
-	private static final String SEP="-";
 	private static final String L=" -lang ";
 	private static final String AGENT=" -a ";
 	private static final String FILTER=" -filter ";
@@ -208,8 +206,8 @@ public class GetTargetedSites {
 		}
 		lang1 = args[1];
 		lang2 = args[2];
-		File urlSeedFile = new File(FilenameUtils.concat(sitesFile.getParent(), "total_"+lang1+SEP+lang2+SEP+SEEDS));
-		File shellSiteFile = new File(FilenameUtils.concat(sitesFile.getParent(), "total "+lang1+SEP+lang2+SEP+COMMANDS));
+		File urlSeedFile = new File(FilenameUtils.concat(sitesFile.getParent(), "total_"+lang1+Constants.HYPHEN+lang2+Constants.HYPHEN+SEEDS));
+		File shellSiteFile = new File(FilenameUtils.concat(sitesFile.getParent(), "total "+lang1+Constants.HYPHEN+lang2+Constants.HYPHEN+COMMANDS));
 				
 		String commands = "";
 		Set<String> hosts=new HashSet<String>();
@@ -243,12 +241,12 @@ public class GetTargetedSites {
 	private static String generateAllTasksCommand(String host, File urlSeedFile) {
 		String t = host.replaceAll("\\.", "-");
 		String t1 = host.replaceAll("\\.", "\\\\.");
-		String agent = t+"_"+lang1+SEP+lang2;
+		String agent = t+"_"+lang1+Constants.HYPHEN+lang2;
 		String filter = "\".*"+t1+".*\"";
 		String dest = " -dest ";
-		String dest1 = "/var/www/html/elrc4/ejustice/"+lang1+SEP+lang2+"/";
+		String dest1 = "/var/www/html/elrc4/ejustice/"+lang1+Constants.HYPHEN+lang2+"/";
 		String dest2 =  dest1+"output";// dest1+"output_"+agent;
-		String command = JAR_ALL + L + QUOTE+lang1 + QUEST+ lang2 + QUOTE+ AGENT + agent +FILTER + filter + U +QUOTE+urlSeedFile.getAbsolutePath()+QUOTE +
+		String command = JAR_ALL + L + QUOTE+lang1 + Constants.SEMICOLON+ lang2 + QUOTE+ AGENT + agent +FILTER + filter + U +QUOTE+urlSeedFile.getAbsolutePath()+QUOTE +
 				dest+QUOTE+dest1+QUOTE + " -bs " + QUOTE+dest2+QUOTE + FORW +QUOTE+dest1+ "log_"+ agent + QUOTE; 
 						
 		return command;
@@ -267,7 +265,7 @@ public class GetTargetedSites {
 		}
 		lang1 = args[1];
 		lang2 = args[2];
-		File urlSeedFile = new File(FilenameUtils.concat(candidateSitesFile.getParent(), lang1+SEP+lang2+SEP+SEEDS));
+		File urlSeedFile = new File(FilenameUtils.concat(candidateSitesFile.getParent(), lang1+Constants.HYPHEN+lang2+Constants.HYPHEN+SEEDS));
 		//File shellSiteFile = new File(FilenameUtils.concat(candidateSitesFile.getParent(), lang1+SEP+lang2+SEP+COMMANDS));
 		List<Site> sites = new ArrayList<Site>();
 		List<String> sitenames = new ArrayList<String>();
@@ -294,24 +292,24 @@ public class GetTargetedSites {
 	
 
 	private static Site parseLine2Site(String line, List<String> sitenames) {
-		line=line.substring(line.indexOf(COMMA)+1);
-		String site = line.substring(0, line.indexOf(COMMA));
+		line=line.substring(line.indexOf(Constants.COMMA)+1);
+		String site = line.substring(0, line.indexOf(Constants.COMMA));
 		if (sitenames.contains(site)){
 			return null;
 		}
-		line=line.substring(line.indexOf(COMMA)+1);
+		line=line.substring(line.indexOf(Constants.COMMA)+1);
 		String lang = line.substring(line.indexOf(curly_brackets_o)+1, line.indexOf(curly_brackets_c));
 		if (!lang.contains(lang1) || !lang.contains(lang2)){
 			return null;
 		}
-		String[] langs = lang.split(COMMA);
+		String[] langs = lang.split(Constants.COMMA);
 		if (langs.length<2){
 			return null;
 		}
 		String temp = line.substring(line.indexOf(lang1));
-		String l1 = temp.substring(0, temp.indexOf(COMMA));
+		String l1 = temp.substring(0, temp.indexOf(Constants.COMMA));
 		temp = line.substring(line.indexOf(lang2));
-		String l2 = temp.substring(0, temp.indexOf(COMMA));
+		String l2 = temp.substring(0, temp.indexOf(Constants.COMMA));
 		int ind = l1.indexOf(EQUALS);
 		double l1pages = Double.parseDouble(removeNonDigits(l1.substring(ind)));
 		l1 = l1.substring(0, ind);
@@ -348,7 +346,7 @@ public class GetTargetedSites {
 	}
 
 	private static String removeNonDigits(String str) {
-		str=str.replaceAll("[^\\p{N}]", " ").trim();
+		str=str.replaceAll("[^\\p{N}]", Constants.SPACE).trim();
 		return str;
 	}
 
@@ -371,8 +369,8 @@ public class GetTargetedSites {
 		}
 		lang1 = args[1];
 		lang2 = args[2];
-		File urlSeedFile = new File(FilenameUtils.concat(candidateSitesFile.getParent(), lang1+SEP+lang2+SEP+SEEDS));
-		File shellSiteFile = new File(FilenameUtils.concat(candidateSitesFile.getParent(), lang1+SEP+lang2+SEP+COMMANDS));
+		File urlSeedFile = new File(FilenameUtils.concat(candidateSitesFile.getParent(), lang1+Constants.HYPHEN+lang2+Constants.HYPHEN+SEEDS));
+		File shellSiteFile = new File(FilenameUtils.concat(candidateSitesFile.getParent(), lang1+Constants.HYPHEN+lang2+Constants.HYPHEN+COMMANDS));
 		List<Site> sites = new ArrayList<Site>();
 		List<String> sitenames = new ArrayList<String>();
 		String seedurls = "";
