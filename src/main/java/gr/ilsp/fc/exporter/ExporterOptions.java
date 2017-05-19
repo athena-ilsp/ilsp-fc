@@ -1,6 +1,8 @@
 package gr.ilsp.fc.exporter;
 
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.langdetect.LangDetector;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.net.URL;
@@ -20,8 +22,6 @@ import org.apache.log4j.Logger;
 
 public class ExporterOptions {
 	private static final Logger LOGGER = Logger.getLogger(ExporterOptions.class);
-	private static final String QUEST_SEPAR = ";";
-	private static final String UNDERSCORE_STR = "_";
 	private static final String xml_type="xml";
 	private String APPNAME = "Export";
 	private Options options;
@@ -49,7 +49,8 @@ public class ExporterOptions {
 	private String _config;
 	private String _agentName="ILSP-FC";
 	private CompositeConfiguration _configuration ;  
-
+	private LangDetector _langDetector;
+	private String defaultlangDetectorId="langdetect" ;
 	public ExporterOptions() {
 		createOptions();
 	}
@@ -155,8 +156,10 @@ public class ExporterOptions {
 			//	_httrack=true;
 			if(line.hasOption( "oxslt")) 
 				_offlineXSLT  = true;
-			if(line.hasOption( "lang")) 
-				_targetlanguages = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true).split(QUEST_SEPAR);
+			if(line.hasOption( "lang")){ 
+				_targetlanguages = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true).split(Constants.SEMICOLON);
+				_langDetector = LangDetectUtils.loadLangDetectors(_targetlanguages,defaultlangDetectorId);
+			}
 			if(line.hasOption( "tc")) 
 				_topicFile = new File(line.getOptionValue("tc")).getAbsoluteFile();				//_topicFile = new File(_topicFile.getAbsolutePath());
 			if(line.hasOption( "dom")) {
@@ -198,12 +201,10 @@ public class ExporterOptions {
 				_outputDir = new File(line.getOptionValue("o")).getAbsoluteFile();
 			else
 				_outputDir = new File(FilenameUtils.concat(_inputDir.getAbsolutePath(), xml_type));
-			//if(line.hasOption( "bs")) 
-			//	_outBaseName = new File(line.getOptionValue("bs")).getAbsoluteFile();
 			if(line.hasOption( "a"))
-				_agentName = line.getOptionValue("a").replace(" ", "_");
+				_agentName = line.getOptionValue("a").replace(Constants.SPACE, Constants.UNDERSCORE);
 			if (line.hasOption( "bs")) 
-				_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName).getAbsoluteFile();
+				_outBaseName = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName).getAbsoluteFile();
 			else{
 				LOGGER.error("BaseName for outfiles is required");
 				help();				
@@ -292,6 +293,10 @@ public class ExporterOptions {
 
 	public String getAgentName() {
 		return _agentName;
+	}
+
+	public LangDetector getLangDetector() {
+		return _langDetector;	
 	}
 
 }

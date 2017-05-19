@@ -22,7 +22,7 @@
  */
 package gr.ilsp.fc.exporter;
 
-import gr.ilsp.fc.attic.CrawlConfig;
+import gr.ilsp.fc.crawl.CrawlerDirConfig;
 import gr.ilsp.fc.classifier.Classifier;
 import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.datums.ClassifierDatum;
@@ -32,6 +32,7 @@ import gr.ilsp.fc.extractors.MSO2text;
 import gr.ilsp.fc.extractors.Pdf2text;
 import gr.ilsp.fc.extractors.PlainText2text;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.langdetect.LangDetector;
 //import gr.ilsp.fc.main.Crawl;
 import gr.ilsp.fc.readwrite.WriteResources;
 import gr.ilsp.fc.utils.AnalyzerFactory;
@@ -40,8 +41,8 @@ import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.PrettyPrintHandler;
 import gr.ilsp.fc.utils.TopicTools;
+import gr.ilsp.nlp.commons.Constants;
 //import gr.ilsp.fc.genreclassifier.GenreClassifier;
-
 
 import gr.ilsp.fc.utils.XSLTransformer;
 
@@ -59,6 +60,7 @@ import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -144,8 +146,6 @@ public class Exporter {
 	private static final String appPDFext=".pdf";
 	private static final String appDOCext =".doc";
 	private static final String appTXText =".txt";
-	private static final String SEMICOLON_STR = ";";
-	private static final String HYPHEN_STR="-";
 	private static final String p_type = "p";
 	private static final String morethan = ">" ; 
 	private static final String lessthan = "<" ; 
@@ -161,14 +161,16 @@ public class Exporter {
 	private static final String docmime = "word";
 	private static final String txtmime = "plain";
 	private static final String[] ext = {xml_type};
-
+	public static final List<String> similarLangs = Arrays.asList("nno-nor", "nor-nno", "nob-nor", "nor-nob"); //these pairs are not considered different languages
 	private static String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
 
 	private static int MinParLen;
 	private static int depth=10000;
 	private static int MinDocLen;
 	private static String[] targetlanguages;
-
+	private static LangDetector langDetector;
+	public static Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp")); 
+	
 	public static CompositeConfiguration configuration;
 	private static File negWordsFile;
 	private static File inputDir;
@@ -221,7 +223,7 @@ public class Exporter {
 	/*	private static void processCrawlDb(JobConf conf, Path curDirPath, boolean exportDb) throws IOException {
 		//TupleEntryIterator iter;
 		int totalEntries;
-		Path crawlDbPath = new Path(curDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+		Path crawlDbPath = new Path(curDirPath, CrawlerDirConfig.CRAWLDB_SUBDIR_NAME);
 		Tap crawldbTap = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString());
 		TupleEntryIterator iter = crawldbTap.openForRead(conf);
 		totalEntries = 0;
@@ -250,7 +252,7 @@ public class Exporter {
 			if (curLoop != prevLoop + 1) {
 				LOGGER.warn(String.format("Missing directories between %d and %d", prevLoop, curLoop));
 			}
-			//Path classifiedPath = new Path(curDirPath, CrawlConfig.CLASSIFIER_SUBDIR_NAME);
+			//Path classifiedPath = new Path(curDirPath, CrawlerDirConfig.CLASSIFIER_SUBDIR_NAME);
 			//Tap classifiedTap = new Hfs(new SequenceFile(ClassifierDatum.FIELDS),classifiedPath.toUri().toString());
 			//iter = classifiedTap.openForRead(conf);
 			prevLoop = curLoop;
@@ -414,7 +416,7 @@ public class Exporter {
 			outputDir.mkdirs();
 		else
 			id = outputDir.listFiles().length+1;
-		
+
 		if (!inputDir.exists()){
 			LOGGER.error("The directory " +inputDir.getAbsolutePath() + " does not exist.");
 			System.exit(0);
@@ -449,7 +451,15 @@ public class Exporter {
 				maincontent = cleanText;
 				maincontent = maincontent.replaceAll(text_tag, "");
 				maincontent = maincontent.replaceAll(text_tag_en, "");
-				identifiedlanguage =  LangDetectUtils.detectLanguage(maincontent.toLowerCase());
+				//identifiedlanguage =  LangDetectUtils.detectLanguage(maincontent.toLowerCase());
+				identifiedlanguage = LangDetectUtils.detectLanguage(maincontent, langDetector, langsTBFI);
+				/*String ttt = maincontent.toLowerCase();
+				identifiedlanguage = langDetector.detect(ttt);
+				if (langsTBFI.contains(identifiedlanguage)) {
+					// logger.debug("Rechecking " + autoLang);
+					identifiedlanguage = langDetector.detect(ttt, identifiedlanguage);
+				}
+				*/
 				if (!LangDetectUtils.istargetedlang(identifiedlanguage, targetlanguages)){
 					LOGGER.info(file.getAbsolutePath()+ " not in targeted languages.");
 					continue;
@@ -481,7 +491,8 @@ public class Exporter {
 					InputStream input = new ByteArrayInputStream(array);
 					cleanText = CleanerUtils.getContent(input, keepBoiler);
 					maincontent = CleanerUtils.cleanContent(cleanText);
-					identifiedlanguage = LangDetectUtils.detectLanguage(maincontent);
+					//identifiedlanguage = LangDetectUtils.detectLanguage(maincontent);
+					identifiedlanguage = LangDetectUtils.detectLanguage(maincontent, langDetector, langsTBFI);
 					if (!LangDetectUtils.istargetedlang(identifiedlanguage,targetlanguages))
 						continue;
 					int length_in_tok=FCStringUtils.countTokens(maincontent, identifiedlanguage);
@@ -549,16 +560,16 @@ public class Exporter {
 		TupleEntryIterator iter;
 		initValues();
 		//List<String> urls = new ArrayList<String>();
-		Path parseDbPath = new Path(curDirPath, CrawlConfig.PARSE_SUBDIR_NAME);
+		Path parseDbPath = new Path(curDirPath, CrawlerDirConfig.PARSE_SUBDIR_NAME);
 		Tap parseDbTap = new Hfs(new SequenceFile(ExtendedParsedDatum.FIELDS), parseDbPath.toUri().toString());	
-		Path contentPath = new Path(curDirPath,CrawlConfig.CONTENT_SUBDIR_NAME);
+		Path contentPath = new Path(curDirPath,CrawlerDirConfig.CONTENT_SUBDIR_NAME);
 		Tap contentDbTap = new Hfs(new SequenceFile(FetchedDatum.FIELDS), contentPath.toUri().toString());
-		Path classifierPath = new Path(curDirPath, CrawlConfig.CLASSIFIER_SUBDIR_NAME);
+		Path classifierPath = new Path(curDirPath, CrawlerDirConfig.CLASSIFIER_SUBDIR_NAME);
 		Tap classifierDbTap = new Hfs(new SequenceFile(ClassifierDatum.FIELDS), classifierPath.toUri().toString());
 		TupleEntryIterator classIter = classifierDbTap.openForRead(conf);
 		TupleEntryIterator classIter1 = classifierDbTap.openForRead(conf);
 
-		/*Path crawlDbPath = new Path(curDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+		/*Path crawlDbPath = new Path(curDirPath, CrawlerDirConfig.CRAWLDB_SUBDIR_NAME);
 		Tap crawldbTap = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), crawlDbPath.toUri().toString());
 		TupleEntryIterator itercrawl = crawldbTap.openForRead(conf);
 		while (itercrawl.hasNext()) {
@@ -575,7 +586,7 @@ public class Exporter {
 
 		//Path xmlPath = null; //FIXME PUT IT OUT OF THE LOOP
 		//if (outputDir==null)
-		//	xmlPath = new Path(curDirPath.getParent(), CrawlConfig.XML_SUBDIR_NAME);
+		//	xmlPath = new Path(curDirPath.getParent(), CrawlerDirConfig.XML_SUBDIR_NAME);
 		//else 
 		//Path xmlPath = new Path(outputDir.getAbsolutePath());
 		//FileSystem fs = xmlPath.getFileSystem(conf);
@@ -616,7 +627,7 @@ public class Exporter {
 
 			if (XMLExporter(outputDirPath,format, title, url, targetlanguages, identifiedlanguage, htmlText, cleanText,id, "", author,
 					publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, extfilename)){
-				urlsToIds.put(datum.getUrl(), identifiedlanguage+HYPHEN_STR+id);
+				urlsToIds.put(datum.getUrl(), identifiedlanguage+Constants.HYPHEN+id);
 			}
 			id++;
 			//LOGGER.info("EXPORTED:\t"+url+"\t"+identifiedlanguage);
@@ -655,7 +666,8 @@ public class Exporter {
 		String maincontent = cleanText;
 		maincontent = maincontent.replaceAll(text_tag, "");
 		maincontent = maincontent.replaceAll(text_tag_en, "");
-		identifiedlanguage =  LangDetectUtils.detectLanguage(maincontent.toLowerCase());
+		//identifiedlanguage =  LangDetectUtils.detectLanguage(maincontent.toLowerCase());
+		identifiedlanguage = LangDetectUtils.detectLanguage(maincontent, langDetector, langsTBFI);
 		if (!LangDetectUtils.istargetedlang(identifiedlanguage, targetlanguages))
 			return false;
 		int length_in_tok=FCStringUtils.countTokens(maincontent, identifiedlanguage);
@@ -663,7 +675,7 @@ public class Exporter {
 		if (length_in_tok<MinDocLen)
 			return false;
 		LOGGER.debug(extfilename+ " processed.");
-		LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN_STR+ id + "\t" + url);
+		LOGGER.debug("Writing: " +identifiedlanguage+Constants.HYPHEN+ id + "\t" + url);
 
 		author = data.get("author");
 		title = data.get("title");
@@ -807,7 +819,7 @@ public class Exporter {
 	private static void getHTMLInfo(ExtendedParsedDatum datum, Map<String, String> meta2, int id, Path curDirPath, TupleEntryIterator classIter, TupleEntryIterator classIter1, TupleEntryIterator contentIter) {
 
 		identifiedlanguage = datum.getLanguage();
-		LOGGER.debug("Writing: " +identifiedlanguage+HYPHEN_STR+ id + "\t" + url);
+		LOGGER.debug("Writing: " +identifiedlanguage+Constants.HYPHEN+ id + "\t" + url);
 		title = datum.getTitle();
 		if (title==null) title = "";
 		cleanText = datum.getParsedText();
@@ -834,7 +846,7 @@ public class Exporter {
 	 * @param identifiedlanguage
 	 */
 	public static void TextExporter(Path outpath, String text, int id, String identifiedlanguage){
-		Path txt_file = new Path(outpath,identifiedlanguage+HYPHEN_STR+id+appTXText);
+		Path txt_file = new Path(outpath,identifiedlanguage+Constants.HYPHEN+id+appTXText);
 		try {
 			BufferedWriter wrt = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txt_file.toUri().getPath()),"UTF-8"));
 			text = text.replaceAll("<boiler>.*</boiler>\r\n", "");
@@ -867,22 +879,22 @@ public class Exporter {
 		String html_filename="";
 
 		if (format.contains(pdfmime) ){
-			html_filename = identifiedlanguage+HYPHEN_STR+temp_id + appPDFext;			html_text = cleaned_text;
+			html_filename = identifiedlanguage+Constants.HYPHEN+temp_id + appPDFext;			html_text = cleaned_text;
 		}else{
 			if (format.contains(docmime) ){
-				html_filename = identifiedlanguage+HYPHEN_STR+temp_id + appDOCext;		html_text = cleaned_text;
+				html_filename = identifiedlanguage+Constants.HYPHEN+temp_id + appDOCext;		html_text = cleaned_text;
 			}else
-				html_filename = identifiedlanguage+HYPHEN_STR+temp_id + appHTMLext;
+				html_filename = identifiedlanguage+Constants.HYPHEN+temp_id + appHTMLext;
 		}
 
 		Path xml_file = new Path("file", "",
-				(FilenameUtils.concat(outputdirPath.toUri().getPath(),  identifiedlanguage+HYPHEN_STR+temp_id + appXMLext )));
+				(FilenameUtils.concat(outputdirPath.toUri().getPath(),  identifiedlanguage+Constants.HYPHEN+temp_id + appXMLext )));
 
 		Path annotation = new Path(outputdirPath,html_filename);
 		if (format.contains(pdfmime)){
 			try {
 				//FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appPDFext));
-				FileUtils.copyFile(new File(pdfname), new File(FilenameUtils.concat(outputdirPath.toUri().getPath(),  identifiedlanguage+HYPHEN_STR+temp_id + appPDFext)));
+				FileUtils.copyFile(new File(pdfname), new File(FilenameUtils.concat(outputdirPath.toUri().getPath(),  identifiedlanguage+Constants.HYPHEN+temp_id + appPDFext)));
 			} catch (IOException e) {
 				LOGGER.info("source PDF file is not stored.");
 				e.printStackTrace();
@@ -891,7 +903,7 @@ public class Exporter {
 			if (format.contains(docmime)){
 				try {
 					//FcFileUtils.copy(pdfname, FilenameUtils.concat(outputdir.toUri().getPath(),  identifiedlanguage+HYPHEN+temp_id + appDOCext));
-					FileUtils.copyFile(new File(pdfname), new File(FilenameUtils.concat(outputdirPath.toUri().getPath(),  identifiedlanguage+HYPHEN_STR+temp_id + appDOCext)));	
+					FileUtils.copyFile(new File(pdfname), new File(FilenameUtils.concat(outputdirPath.toUri().getPath(),  identifiedlanguage+Constants.HYPHEN+temp_id + appDOCext)));	
 				} catch (IOException e) {
 					LOGGER.info("source DOC file is not stored.");
 					e.printStackTrace();
@@ -986,10 +998,12 @@ public class Exporter {
 							if (!FCStringUtils.isLong(line,MinParLen))
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 							else if (langs.length>0){
-								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
-								if (!identifiedlanguagePreLine.equals(identifiedlanguage))
-									xtw.writeAttribute(tag_crawlinfo, attr_langV);
-								else if (TopicTools.findWords(line, neg_words))
+								//identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								identifiedlanguagePreLine = langDetector.detect(line.toLowerCase());
+								if (!identifiedlanguagePreLine.equals(identifiedlanguage)){
+									if (!similarLangs.contains(identifiedlanguagePreLine+Constants.HYPHEN+identifiedlanguage ))
+										xtw.writeAttribute(tag_crawlinfo, attr_langV);
+								}else if (TopicTools.findWords(line, neg_words))
 									xtw.writeAttribute(tag_crawlinfo, attr_negV);
 								else {
 									foundt = TopicTools.findTopicTerms(line, topic, identifiedlanguage);
@@ -1004,7 +1018,8 @@ public class Exporter {
 								xtw.writeAttribute(tag_type,attr_titleV);
 							}
 							else if (langs.length>0){
-								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								//identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								identifiedlanguagePreLine = langDetector.detect(line.toLowerCase());
 								if (!identifiedlanguagePreLine.equals(identifiedlanguage)){
 									xtw.writeAttribute(tag_crawlinfo, attr_langV);
 									xtw.writeAttribute(tag_type,attr_titleV);
@@ -1028,7 +1043,8 @@ public class Exporter {
 								xtw.writeAttribute(tag_type,"listitem");
 							}
 							else if (langs.length>0){
-								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								//identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								identifiedlanguagePreLine = langDetector.detect(line.toLowerCase());
 								if (!identifiedlanguagePreLine.equals(identifiedlanguage)){
 									xtw.writeAttribute(tag_crawlinfo, attr_langV);
 									xtw.writeAttribute(tag_type,"listitem");
@@ -1052,7 +1068,8 @@ public class Exporter {
 								xtw.writeAttribute(tag_type,"heading");
 							}
 							else if (langs.length>0){
-								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								//identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								identifiedlanguagePreLine = langDetector.detect(line.toLowerCase());
 								if (!identifiedlanguagePreLine.equals(identifiedlanguage)){
 									xtw.writeAttribute(tag_crawlinfo, attr_langV);
 									xtw.writeAttribute(tag_type,"heading");
@@ -1076,7 +1093,8 @@ public class Exporter {
 						if (!FCStringUtils.isLong(line, MinParLen )) {
 							xtw.writeAttribute(tag_type,"length");
 						}else {
-							identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+							//identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+							identifiedlanguagePreLine = langDetector.detect(line.toLowerCase());
 							if (!identifiedlanguagePreLine.equals(identifiedlanguage)){
 								xtw.writeAttribute(tag_type, "lang");
 							} else {
@@ -1096,7 +1114,7 @@ public class Exporter {
 										} 
 										String par_text="";
 										for (String st:stems){
-											par_text=par_text.concat(" "+st);
+											par_text=par_text.concat(Constants.SPACE+st);
 										}
 										par_text = par_text.trim();
 										Boolean found = false;
@@ -1104,8 +1122,8 @@ public class Exporter {
 										for (int ii=0;ii<topic.size();ii++){ //for each row of the topic
 											tempstr=topic.get(ii);
 											term = tempstr[1];
-											Pattern pattern = Pattern.compile(" "+term+" ");	
-											Matcher matcher = pattern.matcher(" "+par_text+" ");
+											Pattern pattern = Pattern.compile(Constants.SPACE+term+Constants.SPACE);	
+											Matcher matcher = pattern.matcher(Constants.SPACE+par_text+Constants.SPACE);
 											if (matcher.find()){
 												found=true;
 												break;
@@ -1209,6 +1227,7 @@ public class Exporter {
 		xtw.writeStartElement("distributor");
 		xtw.writeCharacters(researchProject  +" project");
 		xtw.writeEndElement();
+		
 		xtw.writeStartElement("eAddress");
 		xtw.writeAttribute(tag_type, "web");
 		xtw.writeCharacters("project_website");
@@ -1220,7 +1239,7 @@ public class Exporter {
 			xtw.writeStartElement("license");
 		} else {
 			xtw.writeStartElement("license");
-			String[] t1 =  licenseURL.split(SEMICOLON_STR);
+			String[] t1 =  licenseURL.split(Constants.SEMICOLON);
 			if (t1.length>1)
 				xtw.writeAttribute("target", t1[1]);
 			xtw.writeCharacters(t1[0]);
@@ -1269,7 +1288,7 @@ public class Exporter {
 		} else {
 			xtw.writeStartElement("availability");
 			xtw.writeStartElement("license");
-			String[] t1 =  licenseURL.split(SEMICOLON_STR);
+			String[] t1 =  licenseURL.split(Constants.SEMICOLON);
 			if (t1.length>1)
 				xtw.writeAttribute("target", t1[1]);
 			xtw.writeCharacters(t1[0]);
@@ -1372,7 +1391,7 @@ public class Exporter {
 		configuration = getConfig(options.getConfig());
 		mimetypes = configuration.getStringArray("fetcher.valid_mime_types.mime_type[@value]");	
 		se.setAcceptedMimeTypes(mimetypes);
-		LangDetectUtils.loadCybozuLangIdentifier();
+		se.setLangDetector(options.getLangDetector()); 		//LangDetectUtils.loadCybozuLangIdentifier();
 		langnumMap = se.export(true);
 		if (depth<10000)
 			generateCSV(new File(outBaseName.getAbsolutePath()+CSV), langnumMap);
@@ -1435,7 +1454,7 @@ public class Exporter {
 				String[] subclasses = datum.getSubClasses();
 				for (String s: subclasses){
 					subdomains=subdomains.concat(s + ";");
-					//LOGGER.info(url + " " + s + " " + subscores[count][0]);
+					//LOGGER.info(url + Constants.SPACE + s + Constants.SPACE + subscores[count][0]);
 					//count++;
 				}
 				if (subdomains == "") return subdomains;
@@ -1448,7 +1467,7 @@ public class Exporter {
 	private static String getValidFormat(String format){
 		String result = format;
 		if (format.contains(";")){
-			result = format.split(SEMICOLON_STR)[0];
+			result = format.split(Constants.SEMICOLON)[0];
 		}
 		return result;
 	}
@@ -1638,6 +1657,13 @@ public class Exporter {
 		}
 	}
 
+	public void setLangDetector(LangDetector langDetector) {
+		Exporter.langDetector = langDetector;
+	}
+	public LangDetector getLangDetector() {
+		return langDetector ;
+	}
+
 
 	/*	*//**
 	 * @param _paths_repl the _paths_repl to set
@@ -1743,7 +1769,8 @@ public class Exporter {
 							if (!FCStringUtils.isLong(line,MinParLen))
 								xtw.writeAttribute(tag_crawlinfo, attr_lengthV);
 							else if (langs.length>0){
-								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								//identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								identifiedlanguagePreLine = langDetector.detect(line.toLowerCase());
 								if (!identifiedlanguagePreLine.equals(identifiedlanguage))
 									xtw.writeAttribute(tag_crawlinfo, attr_langV);
 								else if (TopicTools.findWords(line, neg_words))
@@ -1761,7 +1788,8 @@ public class Exporter {
 								xtw.writeAttribute(tag_type,attr_titleV);
 							}
 							else if (langs.length>0){
-								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								//identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								identifiedlanguagePreLine = langDetector.detect(line.toLowerCase());
 								if (!identifiedlanguagePreLine.equals(identifiedlanguage)){
 									xtw.writeAttribute(tag_crawlinfo, attr_langV);
 									xtw.writeAttribute(tag_type,attr_titleV);
@@ -1785,7 +1813,8 @@ public class Exporter {
 								xtw.writeAttribute(tag_type,"listitem");
 							}
 							else if (langs.length>0){
-								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								//identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								identifiedlanguagePreLine = langDetector.detect(line.toLowerCase());
 								if (!identifiedlanguagePreLine.equals(identifiedlanguage)){
 									xtw.writeAttribute(tag_crawlinfo, attr_langV);
 									xtw.writeAttribute(tag_type,"listitem");
@@ -1809,7 +1838,8 @@ public class Exporter {
 								xtw.writeAttribute(tag_type,"heading");
 							}
 							else if (langs.length>0){
-								identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								//identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+								identifiedlanguagePreLine = langDetector.detect(line.toLowerCase());
 								if (!identifiedlanguagePreLine.equals(identifiedlanguage)){
 									xtw.writeAttribute(tag_crawlinfo, attr_langV);
 									xtw.writeAttribute(tag_type,"heading");
@@ -1833,7 +1863,8 @@ public class Exporter {
 						if (!FCStringUtils.isLong(line, MinParLen )) {
 							xtw.writeAttribute(tag_type,"length");
 						}else {
-							identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+							//identifiedlanguagePreLine = LangDetectUtils.detectLanguage(line.toLowerCase());
+							identifiedlanguagePreLine = langDetector.detect(line.toLowerCase());
 							if (!identifiedlanguagePreLine.equals(identifiedlanguage)){
 								xtw.writeAttribute(tag_type, "lang");
 							} else {
@@ -1853,7 +1884,7 @@ public class Exporter {
 										} 
 										String par_text="";
 										for (String st:stems){
-											par_text=par_text.concat(" "+st);
+											par_text=par_text.concat(Constants.SPACE+st);
 										}
 										par_text = par_text.trim();
 										Boolean found = false;
@@ -1861,8 +1892,8 @@ public class Exporter {
 										for (int ii=0;ii<topic.size();ii++){ //for each row of the topic
 											tempstr=topic.get(ii);
 											term = tempstr[1];
-											Pattern pattern = Pattern.compile(" "+term+" ");	
-											Matcher matcher = pattern.matcher(" "+par_text+" ");
+											Pattern pattern = Pattern.compile(Constants.SPACE+term+Constants.SPACE);	
+											Matcher matcher = pattern.matcher(Constants.SPACE+par_text+Constants.SPACE);
 											if (matcher.find()){
 												found=true;
 												break;
