@@ -7,8 +7,7 @@ import gr.ilsp.fc.datums.ClassifierDatum;
 import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.datums.ExtendedUrlDatum;
-//import gr.ilsp.fc.crawl.Crawl;
-import gr.ilsp.fc.crawl.CrawlerOptions;
+import gr.ilsp.fc.crawl.CrawlerDirConfig;
 import gr.ilsp.fc.operations.CreateCrawlDbDatumFromUrlFunction;
 import gr.ilsp.fc.operations.CreateUrlDatumFromCrawlDbFunction;
 import gr.ilsp.fc.operations.CreateUrlDatumFromStatusFunction;
@@ -21,9 +20,6 @@ import gr.ilsp.fc.parser.RobotRulesParser;
 import gr.ilsp.fc.parser.SimpleNoLinksParser;
 import gr.ilsp.fc.pipes.ClassifierPipe;
 import gr.ilsp.fc.pipes.ExtendedParsePipe;
-
-
-
 
 //import java.io.File;
 import java.io.Serializable;
@@ -218,7 +214,7 @@ public class CrawlWorkflow {
 					ipCount++;
 					hostsIpMap.put(hostIpHash, ipCount);
 				}		
-				//LOGGER.info(hostIpHash + " " + url + " " + datum.getScore() + " " + datum.getLastStatus());
+				//LOGGER.info(hostIpHash + Constants.SPACE + url + Constants.SPACE + datum.getScore() + Constants.SPACE + datum.getLastStatus());
 				_numSelected++;
 				//System.out.println("SELECTED URL: "+url);
 				return true;
@@ -357,13 +353,13 @@ public class CrawlWorkflow {
 		urlsToFetchPipe = new Each(urlsToFetchPipe, new CreateUrlDatumFromCrawlDbFunction()); 
 		//Setting up all the sinks (each pipe that will write data is connected to a sink, a "path"
 		//for writing data in hadoop terms.
-		Path outCrawlDbPath = new Path(curWorkingDirPath, CrawlConfig.CRAWLDB_SUBDIR_NAME);
+		Path outCrawlDbPath = new Path(curWorkingDirPath, CrawlerDirConfig.CRAWLDB_SUBDIR_NAME);
 		Tap loopCrawldbSink = new Hfs(new SequenceFile(CrawlDbDatum.FIELDS), outCrawlDbPath.toString());
-		Path contentDirPath = new Path(curWorkingDirPath, CrawlConfig.CONTENT_SUBDIR_NAME);
+		Path contentDirPath = new Path(curWorkingDirPath, CrawlerDirConfig.CONTENT_SUBDIR_NAME);
 		Tap contentSink = new Hfs(new SequenceFile(FetchedDatum.FIELDS), contentDirPath.toString());
-		Path parseDirPath = new Path(curWorkingDirPath, CrawlConfig.PARSE_SUBDIR_NAME);
+		Path parseDirPath = new Path(curWorkingDirPath, CrawlerDirConfig.PARSE_SUBDIR_NAME);
 		Tap parseSink = new Hfs(new SequenceFile(ExtendedParsedDatum.FIELDS), parseDirPath.toString());
-		Path classifierDirPath = new Path(curWorkingDirPath, CrawlConfig.CLASSIFIER_SUBDIR_NAME);
+		Path classifierDirPath = new Path(curWorkingDirPath, CrawlerDirConfig.CLASSIFIER_SUBDIR_NAME);
 		Tap classifierSink = new Hfs(new SequenceFile(ClassifierDatum.FIELDS), classifierDirPath.toString());
 
 		// Create the sub-assembly that runs the fetch job                
@@ -385,7 +381,7 @@ public class CrawlWorkflow {
 		//contentPipe is parsed. Metadata, content and links are extracted. Content is
 		//cleaned using Boilerpipe.
 		ExtendedParsePipe parsePipe = new ExtendedParsePipe(contentPipe, new SimpleNoLinksParser(keepBoiler, 
-				curWorkingDirPath.getParent().toString(),	maplangs, tranlistAttrs, targeted_langs, _urlfilterstr, extractLinks));
+				curWorkingDirPath.getParent().toString(),	maplangs, tranlistAttrs, targeted_langs, null,_urlfilterstr, extractLinks));
 		//The results from the parser are forwarded to the classifier. The classifier
 		//will score the content of each fetched page. It will also score all links
 		//based on the score of the page they came from, the anchor text and the surrounding
