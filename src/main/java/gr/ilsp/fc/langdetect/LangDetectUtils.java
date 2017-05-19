@@ -31,7 +31,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
 
 public class LangDetectUtils {
 	private static final Logger LOGGER = Logger.getLogger(LangDetectUtils.class);
-	
+
 	//private static final String LANG_CODES_RESOURCE = "langcode-langs.txt";
 	//private static final String SPACE_SEPERATOR = Constants.SPACE;
 	private static Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp"));
@@ -54,12 +54,12 @@ public class LangDetectUtils {
 			//for (int ii=0;ii<2;ii++){
 			detector = DetectorFactory.create();
 			detector.append(content);
-				//ArrayList<Language> aaa = detector.getProbabilities();
-				//System.out.println(aaa.get(0).prob +"\t"+aaa.get(0).lang);
-				//if (aaa.get(0).prob>min_prob){
-				//	lang = aaa.get(0).lang;
-				//	break;
-				//}
+			//ArrayList<Language> aaa = detector.getProbabilities();
+			//System.out.println(aaa.get(0).prob +"\t"+aaa.get(0).lang);
+			//if (aaa.get(0).prob>min_prob){
+			//	lang = aaa.get(0).lang;
+			//	break;
+			//}
 			//}
 			//if (lang.isEmpty())
 			lang = ISOLangCodes.get3LetterCode(detector.detect());
@@ -70,6 +70,23 @@ public class LangDetectUtils {
 		}
 		return lang;
 	}
+
+	/**
+	 * 	Identifies language of a given text by a combination of LIs in case the first result (identified language) is in a specific list of languages
+	 * @param text
+	 * @param langDetector
+	 * @param langsTBFI
+	 * @return
+	 */
+	public static String detectLanguage(String text,	LangDetector langDetector, Set<String> langsTBFI) {
+		String 	identifiedlanguage = langDetector.detect(text);
+		if (langsTBFI.contains(identifiedlanguage)) {
+			// logger.debug("Rechecking " + autoLang);
+			identifiedlanguage = langDetector.detect(text, identifiedlanguage);
+		}
+		return identifiedlanguage;
+	}
+
 
 	/**
 	 * compares language with the targeted languages
@@ -228,5 +245,4 @@ public class LangDetectUtils {
 		} 
 		return langDetector;
 	}
-
 }
