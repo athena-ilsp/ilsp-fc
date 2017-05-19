@@ -3,6 +3,8 @@ package gr.ilsp.fc.cleaner;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -266,7 +268,7 @@ List<TextBlock> blocks =textDocument.getTextBlocks();
 			if (labels!= null) {
 				Iterator<String> iter = block.getLabels().iterator();
 				while (iter.hasNext()) {
-					type =  iter.next() + " ";
+					type =  iter.next() + Constants.SPACE;
 				}
 			}
 			type=type.trim();
@@ -308,7 +310,7 @@ List<TextBlock> blocks =textDocument.getTextBlocks();
 	public static String cleanContent(String content){
 		String result = "";
 		String REGEX = "<text.*>.*</text>";
-		String REPLACE = " ";
+		String REPLACE = Constants.SPACE;
 		Pattern p = Pattern.compile(REGEX);
 		Matcher m = p.matcher(content);
 		String text = "";

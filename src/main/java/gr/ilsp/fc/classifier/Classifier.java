@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import gr.ilsp.nlp.commons.Constants;
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
@@ -91,7 +91,6 @@ public class Classifier implements Serializable{
 			content = ContentNormalizer.cleanContent(content);
 		String identifiedlanguage = parsedDatum.getLanguage();
 		LOGGER.debug("URL:\t"+url+"\t"+"LANG:\t"+identifiedlanguage);
-		//LOGGER.info("URL:\t"+url+"\t"+"LANG:\t"+identifiedlanguage);
 		if (!LangDetectUtils.istargetedlang(identifiedlanguage,_targetLanguages)){
 			LOGGER.debug("LANG_CUT:\t"+identifiedlanguage+"\t" +url);
 			return null;
@@ -232,7 +231,7 @@ public class Classifier implements Serializable{
 		}
 		//concatenate stems 
 		str="";
-		for (String s:stems){ str+=" "+s;}
+		for (String s:stems){ str+=Constants.SPACE+s;}
 		str = str.trim();
 		double words_num= FCStringUtils.countTokens(str, language);
 		//initialization of scores array
@@ -257,8 +256,8 @@ public class Classifier implements Serializable{
 			//find term in text
 			if (!term_lang.equals(language))
 				continue;
-			Pattern pattern = Pattern.compile(" "+term+" ");	
-			Matcher matcher = pattern.matcher(" "+str+" ");
+			Pattern pattern = Pattern.compile(Constants.SPACE+term+Constants.SPACE);	
+			Matcher matcher = pattern.matcher(Constants.SPACE+str+Constants.SPACE);
 			//list with positions of a found term
 			ArrayList<String> termpos=new ArrayList<String>(); 
 			while (matcher.find()) {
@@ -372,14 +371,14 @@ public class Classifier implements Serializable{
 			e.printStackTrace();
 		}
 		text="";
-		for (String s:stems){ text=text.concat(" "+s);}
+		for (String s:stems){ text=text.concat(Constants.SPACE+s);}
 		text = text.trim();
 		for (int ii=0;ii<_topic.size();ii++){ 
 			tempstr=_topic.get(ii);
 			term = tempstr[1];
 			matches=0;
-			Pattern pattern = Pattern.compile(" "+term+" ");
-			Matcher matcher = pattern.matcher(" "+text+" ");
+			Pattern pattern = Pattern.compile(Constants.SPACE+term+Constants.SPACE);
+			Matcher matcher = pattern.matcher(Constants.SPACE+text+Constants.SPACE);
 			while (matcher.find()) {
 				matches++;
 			}
@@ -398,7 +397,7 @@ public class Classifier implements Serializable{
 		if  (_targetlangKeys[m].isEmpty())
 			return result;
 		String[] keys= _targetlangKeys[m].split(",");
-		String[] words= text.toLowerCase().split(" ");
+		String[] words= text.toLowerCase().split(Constants.SPACE);
 		if (words.length>10)
 			return result;
 		for (int ii=0;ii<keys.length;ii++){
