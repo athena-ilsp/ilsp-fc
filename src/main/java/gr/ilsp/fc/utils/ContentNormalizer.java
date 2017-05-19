@@ -1,6 +1,5 @@
 package gr.ilsp.fc.utils;
 
-
 //import java.util.ArrayList;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
@@ -8,14 +7,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.lang.StringUtils;
 
-
 public class ContentNormalizer {
-	
-
-    // U+D800..U+DB7F     High Surrogates     896 Code points, 0     Assigned characters
+	// U+D800..U+DB7F     High Surrogates     896 Code points, 0     Assigned characters
     // U+DB80..U+DBFF     High Private Use Surrogates     128 Code points, 0     Assigned characters
     // U+DC00..U+DFFF     Low Surrogates     1,024     0    Assigned characters
     //static Matcher surrogatesMatcher =  Pattern.compile("[\\uD800-\\uDBFF\\uDC00-\\uDFFF]").matcher("");
@@ -41,10 +38,10 @@ public class ContentNormalizer {
 		private static final long serialVersionUID = -7208860988679686271L;
 
 		{ 
-			put("\\uFEFF", " "); //ZERO WIDTH NO-BREAK SPACE
+			put("\\uFEFF", Constants.SPACE); //ZERO WIDTH NO-BREAK SPACE
 			put("\\uFFFF","");
-			put("\\u00a0", " "); //NO BREAK SPACE
-			put("\\u200E"," "); //LEFT-TO-RIGHT MARK
+			put("\\u00a0", Constants.SPACE); //NO BREAK SPACE
+			put("\\u200E",Constants.SPACE); //LEFT-TO-RIGHT MARK
 			put("\\u0097", "-"); //END OF GUARDED AREA
 			put("\\u0092", "’"); //APOSTROPHE
 			put("\\u0313","’"); //COMBINING COMMA ABOVE
@@ -56,7 +53,7 @@ public class ContentNormalizer {
 			put("\\u201D","”");//RIGHT DOUBLE QUOTATION MARK
 			put("\\u0095", "•"); 
 			put("\\u0096", "-");
-			put("\\u202f", " "); //NARROW NO-BREAK SPACE
+			put("\\u202f", Constants.SPACE); //NARROW NO-BREAK SPACE
 			put("\\u2206", "Δ"); //INCREMENT
 			put("\\u02bc", "’"); //MODIFIER LETTER APOSTROPHE
 			put("\\u003e", ">"); //GREATER-THAN SIGN
@@ -141,7 +138,7 @@ public class ContentNormalizer {
 			put("\\uF075",""); //INVALID UNICODE CHARACTER
 			//FIXME check replacement of 2028
 			//put("\\u2028","\n"); //Unicode Character 'LINE SEPARATOR'  
-			put("\\u2028"," "); //Unicode Character 'LINE SEPARATOR'
+			put("\\u2028",Constants.SPACE); //Unicode Character 'LINE SEPARATOR'
 			put("\\u0084","");
 			put("\\uC284","");
 			put("\\uC293","");
@@ -151,16 +148,16 @@ public class ContentNormalizer {
 			put("\\u2026","…"); //HORIZONTAL ELLIPSIS
 			put("\\u2019","'"); //RIGHT SINGLE QUOTATION MARK
 			//got from prokopis
-			put("\\u2002"," "); // EN SPACE
-			put("\\u2003"," "); // EM SPACE
+			put("\\u2002",Constants.SPACE); // EN SPACE
+			put("\\u2003",Constants.SPACE); // EM SPACE
 			put("\\u0085","…");
-			put("\\u2004"," "); // THREE-PER-EM SPACE
-			put("\\u2005"," "); // FOUR-PER-EM SPACE
-			put("\\u2006"," "); // SIX-PER-EM SPACE
-			put("\\u2007"," "); // FIGURE SPACE
-			put("\\u2008"," "); // PUNCTUATION SPACE
-			put("\\u2009"," "); // THIN SPACE
-			put("\\u200A"," "); // HAIR SPACE
+			put("\\u2004",Constants.SPACE); // THREE-PER-EM SPACE
+			put("\\u2005",Constants.SPACE); // FOUR-PER-EM SPACE
+			put("\\u2006",Constants.SPACE); // SIX-PER-EM SPACE
+			put("\\u2007",Constants.SPACE); // FIGURE SPACE
+			put("\\u2008",Constants.SPACE); // PUNCTUATION SPACE
+			put("\\u2009",Constants.SPACE); // THIN SPACE
+			put("\\u200A",Constants.SPACE); // HAIR SPACE
 			put("\\uF0B7","•"); // INVALID UNICODE CHARACTER->BULLET
 			put("\\u2043","•"); // HYPHEN BULLET
 			put("\\uC2B3","•");
@@ -189,9 +186,7 @@ public class ContentNormalizer {
 			//put("\\u008e","Ž");
 			//put("\\u009e","ž");
 			//put("\\u009f","Ÿ");
-			//put("\\u0014"," ");
-			
-
+			//put("\\u0014",Constants.SPACE);
 		}
 	};
 
@@ -206,8 +201,8 @@ public class ContentNormalizer {
 		for (String s:invalidChars.keySet()){
 			text = text.replaceAll(s, invalidChars.get(s));
 		}
-		text = text.replaceAll("\t", " ");
-		text = text.replaceAll("(\\s){2,}", " ");
+		text = text.replaceAll("\t", Constants.SPACE);
+		text = text.replaceAll("(\\s){2,}", Constants.SPACE);
 		text = text.replaceAll("\r\n", "\n");
 		text = text.replaceAll("\r", "\n");
 		text = text.replaceAll("</text><text>", "</text>\n<text>");
@@ -231,8 +226,8 @@ public static String normalizeText1(String text){
 		for (String s:invalidChars.keySet()){
 			text = text.replaceAll(s, invalidChars.get(s));
 		}
-		text = text.replaceAll("\t", " ");
-		text = text.replaceAll("(\\s){2,}", " ");
+		text = text.replaceAll("\t", Constants.SPACE);
+		text = text.replaceAll("(\\s){2,}", Constants.SPACE);
 		text = text.replaceAll("<text> ", "<text>");
 		text = text.replaceAll("<boiler> ", "<boiler>");
 		text = text.replaceAll(" </text>", "</text>");
@@ -259,7 +254,7 @@ public static String normalizeText1(String text){
 			content = content.replaceAll(s, invalidChars.get(s));
 		}
 		content=content.replaceAll(XML10PATTERN, "");
-		//content = content.replaceAll("(\\s){2,}", " ");
+		//content = content.replaceAll("(\\s){2,}", Constants.SPACE);
 		content = content.replaceAll("( \n)", "\n");
 		content = content.replaceAll("(\n){3,}","\n");
 		content=splitParagraphs("\n"+content);
@@ -296,7 +291,7 @@ public static String normalizeText1(String text){
 	public static String cleanContent(String content){
 		String result = "";
 		String REGEX = "<text.*>.*</text>";
-		String REPLACE = " ";
+		String REPLACE = Constants.SPACE;
 		Pattern p = Pattern.compile(REGEX);
 		Matcher m = p.matcher(content);
 		String text = "";
@@ -322,9 +317,9 @@ public static String normalizeText1(String text){
 		String tempstr="";
 		for (String s:stems){
 			if (s.length()>min_tok_num)
-				tempstr+=" "+s;
+				tempstr+=Constants.SPACE+s;
 		}
-		tempstr = tempstr.replaceAll("(\\s){2,}", " ");
+		tempstr = tempstr.replaceAll("(\\s){2,}", Constants.SPACE);
 		tempstr = tempstr.trim();
 		return tempstr;
 	}
@@ -336,27 +331,27 @@ public static String normalizeText1(String text){
 	 */
 	public static String normtext(String text) {
 		
-		text=text.replaceAll("&apos;"," ");		text=text.replaceAll("&quot;"," ");
-		text=text.replaceAll("&amp;"," ");		text=text.replaceAll("&lt"," ");
-		text=text.replaceAll("&gt"," ");			text=text.replaceAll("&#"," ");
+		text=text.replaceAll("&apos;",Constants.SPACE);		text=text.replaceAll("&quot;",Constants.SPACE);
+		text=text.replaceAll("&amp;",Constants.SPACE);		text=text.replaceAll("&lt",Constants.SPACE);
+		text=text.replaceAll("&gt",Constants.SPACE);			text=text.replaceAll("&#",Constants.SPACE);
 		//if (text.contains("&")){
 		//	System.out.println(text);
 		//}
-		text=text.replaceAll("[^\\p{L} ]", " ").trim();
-		text=text.replaceAll("(\\s){2,}", " ").trim();
+		text=text.replaceAll("[^\\p{L} ]", Constants.SPACE).trim();
+		text=text.replaceAll("(\\s){2,}", Constants.SPACE).trim();
 		text=text.toLowerCase();
 		return text;
 	}
 
 public static String normtext1(String text) {
-		text=text.replaceAll("&apos;"," ");		text=text.replaceAll("&quot;"," ");
-		text=text.replaceAll("&amp;"," ");		text=text.replaceAll("&lt"," ");
-		text=text.replaceAll("&gt"," ");			text=text.replaceAll("&#"," ");
+		text=text.replaceAll("&apos;",Constants.SPACE);		text=text.replaceAll("&quot;",Constants.SPACE);
+		text=text.replaceAll("&amp;",Constants.SPACE);		text=text.replaceAll("&lt",Constants.SPACE);
+		text=text.replaceAll("&gt",Constants.SPACE);			text=text.replaceAll("&#",Constants.SPACE);
 		//if (text.contains("&")){
 		//	System.out.println(text);
 		//}
-		text=text.replaceAll("[\\p{N} ]", " ").trim();
-		text=text.replaceAll("(\\s){2,}", " ").trim();
+		text=text.replaceAll("[\\p{N} ]", Constants.SPACE).trim();
+		text=text.replaceAll("(\\s){2,}", Constants.SPACE).trim();
 		text=text.toLowerCase();
 		return text;
 	}

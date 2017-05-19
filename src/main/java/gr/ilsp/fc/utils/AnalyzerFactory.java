@@ -47,7 +47,7 @@ public class AnalyzerFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(AnalyzerFactory.class);
 	
-	static String[] langs = { "deu", "ell", "eng", "spa", "fra", "ita", "por", "lav", "lit", "hrv", "srp", "hun", "jpn","zho", "vie", "tur", "ara", "hin","fas","isl",
+	static String[] langs = { "deu", "ell", "eng", "spa", "fra", "ita", "por", "lav", "lit", "hrv", "srp", "bos", "hun", "jpn", "zho", "vie", "tur", "ara", "hin","fas","isl",
 			"gle", "fin", "grc", "pol", "ron", 
 			"nob", "nno", "nor", // Should we remove nor?  FIXME
 			"nld", "glg", "ces", "dan", "euq", "bul", "rus", "swe", "slv", "cat", "est", "mlt", "slk", "tha", "ind" };
@@ -79,7 +79,7 @@ public class AnalyzerFactory {
 			return new LatvianAnalyzer();
 		} else if (lang3.equals("lit")) {
 			return new LithuanianAnalyzer();
-		} else if (lang3.equals("hrv") || lang3.equals("srp")) { //FIXME Same analyzer for Serbian and Croatian !!!
+		} else if (lang3.equals("hrv") || lang3.equals("srp") || lang3.equals("bos")) { //FIXME Same analyzer for Serbian, Bosnian and Croatian !!!
 			return new CroatianAnalyzer();
 		} else if (lang3.equals("hun")) {
 			return new HungarianAnalyzer();
