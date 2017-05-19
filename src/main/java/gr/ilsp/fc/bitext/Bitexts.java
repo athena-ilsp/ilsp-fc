@@ -4,6 +4,7 @@ import gr.ilsp.fc.main.ImageExtractor;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -189,10 +190,10 @@ public class Bitexts {
 									if (t<0 | t1<0) {
 										int temp = tempstr1.length();
 										xmlFileListWrt.write(Integer.toString(temp)+"\n");
-										tempstr = tempstr+ " "+tempstr1;
+										tempstr = tempstr+ Constants.SPACE+tempstr1;
 									}
 									if (t10==1 | attrs==1)
-										newtempstr = newtempstr + " "+ tempstr1;
+										newtempstr = newtempstr + Constants.SPACE+ tempstr1;
 								}
 							}
 						}

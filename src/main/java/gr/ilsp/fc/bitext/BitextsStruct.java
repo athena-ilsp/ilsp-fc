@@ -2,6 +2,7 @@ package gr.ilsp.fc.bitext;
 
 import gr.ilsp.fc.bitext.Bitexts.DocVector;
 import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -187,12 +188,12 @@ public class BitextsStruct {
 						String f2 = pairlist[j][1];
 						String l1 = pairlist[j][2];
 						String l2 = pairlist[j][3];
-						bitexts.add(new String[] {f1, f2,l1,l2,"",pairlist[j][4]});
+						bitexts.add(new String[] {f1, f2,l1,l2,Constants.EMPTY_STRING,pairlist[j][4]});
 						for(int k=0; k<pairlist.length;k++){
 							if (pairlist[k][0].equals(f1) || pairlist[k][0].equals(f2))
-								pairlist[k][0]="";		
+								pairlist[k][0]=Constants.EMPTY_STRING;		
 							if (pairlist[k][1].equals(f1) || pairlist[k][1].equals(f2))
-								pairlist[k][1]="";
+								pairlist[k][1]=Constants.EMPTY_STRING;
 						}
 					}
 				}

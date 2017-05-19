@@ -2,8 +2,8 @@ package gr.ilsp.fc.bitext;
 
 import gr.ilsp.fc.bitext.Bitexts.DocVector;
 //import gr.ilsp.fc.utils.Statistics;
-
 import gr.ilsp.fc.readwrite.ReadResources;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -348,7 +348,7 @@ public class BitextUtils {
 		try {
 			a = FileUtils.readLines(new File(docpairsfile));
 			for (String t:a){
-				String[] l=t.split(" ");
+				String[] l=t.split(Constants.SPACE);
 				res.put(l[0], l[1]);
 			}
 		} catch (IOException e) {
@@ -909,11 +909,11 @@ public class BitextUtils {
 			if (!temp_pair.isEmpty()){
 				if (key_im.compareTo(temp_pair)<0){
 					pairsIM.add(new String[] {key_im,temp_pair,lang1, temp_lang, im_pair_method, Double.toString(features.get(key_im).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
-					System.out.println("\t\t"+lang1+" "+ temp_lang+" "+key_im+" "+temp_pair);
+					System.out.println("\t\t"+lang1+Constants.SPACE+ temp_lang+Constants.SPACE+key_im+Constants.SPACE+temp_pair);
 				}	
 				if (key_im.compareTo(temp_pair)>0){
 					pairsIM.add(new String[] {temp_pair, key_im, temp_lang, lang1, im_pair_method, Double.toString(features.get(key_im).numToksnoOOI+features.get(temp_pair).numToksnoOOI)});
-					System.out.println("\t\t"+temp_lang+" "+ lang1+" "+temp_pair+" "+key_im);
+					System.out.println("\t\t"+temp_lang+Constants.SPACE+ lang1+Constants.SPACE+temp_pair+Constants.SPACE+key_im);
 				}
 			}
 			paired.add(key_im);
