@@ -3,6 +3,8 @@ package gr.ilsp.fc.aligner.factory;
 import static net.loomchild.maligna.util.Util.getFileInputStream;
 import static net.loomchild.maligna.util.Util.getReader;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -155,11 +157,11 @@ public class MalignaAligner extends Aligner {
 		//		at gr.ilsp.web.scripts.GlobalVoicesDataCollector.main(GlobalVoicesDataCollector.java:191)
 		// 		FIXME: Consult maligna developer.
 		if (Math.abs(sourceSentences.size()-targetSentences.size()) > HARD_SENTENCE_DIFF_THRESHOLD && (sourceSentences.size()==1 || targetSentences.size()==1)) {
-			logger.warn("Skipping actual aligning: " + sourceFile + " " + targetFile + " " + tmxFile + ":"  + sourceSentences.size() + " " + targetSentences.size());
+			logger.warn("Skipping actual aligning: " + sourceFile + Constants.SPACE + targetFile + Constants.SPACE + tmxFile + Constants.COLON + sourceSentences.size() + Constants.SPACE + targetSentences.size());
 		} else {
 			if (Math.abs(sourceSentences.size()-targetSentences.size()) > SOFT_SENTENCE_DIFF_THRESHOLD) {
 				logger.warn("Difference in L1-L2 sentence size > " + SOFT_SENTENCE_DIFF_THRESHOLD
-						+ ": " + sourceFile + " " + targetFile + " " + tmxFile + ":"  + sourceSentences.size() + " " + targetSentences.size());
+						+ ": " + sourceFile + Constants.SPACE + targetFile + Constants.SPACE + tmxFile + Constants.COLON + sourceSentences.size() + Constants.SPACE + targetSentences.size());
 			}
 		}
 		net.loomchild.maligna.filter.aligner.Aligner aligner = new net.loomchild.maligna.filter.aligner.Aligner(alignAlgorithm);

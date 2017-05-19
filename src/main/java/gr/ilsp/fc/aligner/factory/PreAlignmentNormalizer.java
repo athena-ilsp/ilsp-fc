@@ -1,6 +1,7 @@
 package gr.ilsp.fc.aligner.factory;
 
 //import gr.ilsp.fc.utils.ContentNormalizer;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -14,12 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 
 public class PreAlignmentNormalizer {
 
-	private static final String DOT = ".";
 	//private static final String ELLIPSIS_IN_BRACKETS = "[…]";
 	//private static final Logger logger = LoggerFactory.getLogger(ContentNormalizer.class);
-	private static final String HYPHEN = "-";
 	private static final String EMPTYSTR = "";
-	private static final String SPACE_CHAR = " ";
 	//private static final Pattern lowercaseLetterP = Pattern.compile(".*\\p{Ll}.*");
 
 	private static final String ABBRMASK = "ILSPABBRMASK";
@@ -92,12 +90,12 @@ public class PreAlignmentNormalizer {
 				tokens.set(i, token+ABBRMASK);
 			}
 		}
-		return StringUtils.join(tokens, SPACE_CHAR);
+		return StringUtils.join(tokens, Constants.SPACE);
 	}
 
 	public static String unMaskSentence(String sentence) {
 		sentence = StringUtils.replace(sentence, ABBRMASK, EMPTYSTR);
-		sentence = StringUtils.replace(sentence, CCBYVERSIONMASK, DOT);
+		sentence = StringUtils.replace(sentence, CCBYVERSIONMASK, Constants.DOT);
 		return sentence;
 	}
 
@@ -125,10 +123,10 @@ public class PreAlignmentNormalizer {
 			sentenceSB.append(ccBYMatcher.group(1));
 			match = ccBYMatcher.group(2);
 			match = StringUtils.capitalize(match);
-			match = StringUtils.replace(match, EMPTYSTR , HYPHEN);
+			match = StringUtils.replace(match, EMPTYSTR , Constants.HYPHEN);
 			//logger.info(match);
 			if (ccBYMatcherVersion.reset(match).matches()) {	
-				match = ccBYMatcherVersion.group(1) + SPACE_CHAR  + ccBYMatcherVersion.group(3) +CCBYVERSIONMASK + ccBYMatcherVersion.group(5); 
+				match = ccBYMatcherVersion.group(1) + Constants.SPACE  + ccBYMatcherVersion.group(3) +CCBYVERSIONMASK + ccBYMatcherVersion.group(5); 
 			}			
 			//logger.info(match);
 
@@ -146,17 +144,17 @@ public class PreAlignmentNormalizer {
 			String sentence = sentences.get(i);
 			if (punctOnlyMatcher.reset(sentence).matches() &&  i>0) {
 			//	logger.info(sentence);
-				sentences.set(i-1, sentences.get(i-1) + SPACE_CHAR + sentence);
+				sentences.set(i-1, sentences.get(i-1) + Constants.SPACE + sentence);
 				sentences.set(i, EMPTYSTR);
 			} else if (punctDigitOnlyMatcher.reset(sentence).matches() &&  i< (sentences.size()-1)) {
 				//logger.info(sentence);
 				//logger.info(sentences.toString());
-				sentences.set(i+1, sentence + SPACE_CHAR +sentences.get(i+1)  );
+				sentences.set(i+1, sentence + Constants.SPACE +sentences.get(i+1)  );
 				sentences.set(i, EMPTYSTR);
 			} else if (punctDigitOnlyMatcher.reset(sentence).matches() ) {
 				//logger.info(sentence);
 				//logger.info(sentences.toString());
-				sentences.set(i-1, sentences.get(i-1) + SPACE_CHAR + sentence);
+				sentences.set(i-1, sentences.get(i-1) + Constants.SPACE + sentence);
 				sentences.set(i, EMPTYSTR);
 			}
 			
