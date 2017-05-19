@@ -13,16 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils;
+import gr.ilsp.nlp.commons.Constants;
 import net.loomchild.maligna.util.bind.tmx.Tu;
 
 public class EvalSetExtractor {
 
 	private static final Logger logger = LoggerFactory.getLogger(EvalSetExtractor.class);
 	private static final String NEW_LINE = "\n";
-	private static final String TAB_SEPARATOR = "\t";
-	private static final String SPACE_SEPARATOR = " ";
-	private static final String EMPTY_STR = " ";
-
+		
 	public static void extractTUsForEvaluation(File tmxFile, File evalFile, String l1, String l2, int n ) throws IOException  {
 		List<Tu> tus = TMXHandlerUtils.getTUs(tmxFile);
 		Random rand = new Random();
@@ -30,14 +28,14 @@ public class EvalSetExtractor {
 		List<String> outLines = new ArrayList<String>();
 		int tmx_i = 1;
 		for (Tu tu : tus) {
-			String l1Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l1), SPACE_SEPARATOR);
-			String l2Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l2), SPACE_SEPARATOR);
-			outLines.add(StringUtils.join(new String[] {l1Text, l2Text, EMPTY_STR }, TAB_SEPARATOR));
+			String l1Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l1), Constants.SPACE);
+			String l2Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l2), Constants.SPACE);
+			outLines.add(StringUtils.join(new String[] {l1Text, l2Text, Constants.EMPTY_STRING }, Constants.TAB));
 			if (tmx_i++ >= n) {
 				break;
 			}
 		}
-		FileUtils.write (evalFile, StringUtils.join(new String[] {l1, l2, "Score" }, TAB_SEPARATOR)+NEW_LINE, false);
+		FileUtils.write (evalFile, StringUtils.join(new String[] {l1, l2, "Score" }, Constants.TAB)+NEW_LINE, false);
 		FileUtils.writeLines(evalFile, outLines, true);
 	}
 	
@@ -48,7 +46,7 @@ public class EvalSetExtractor {
 		String l2=args[3];
 		int n = Integer.parseInt(args[4]); 
 		logger.info(tmxFile.getAbsolutePath());
-		logger.info(l1 + " " + l2 + " " + n);
+		logger.info(l1 + Constants.SPACE + l2 + Constants.SPACE + n);
 		logger.info(evalFile.getAbsolutePath());
 		extractTUsForEvaluation(tmxFile, evalFile, l1, l2, n);
 	}

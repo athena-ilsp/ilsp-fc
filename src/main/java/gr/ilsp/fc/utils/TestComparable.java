@@ -293,7 +293,7 @@ public class TestComparable {
 				stems = analyze(filetext, lang1);
 				String str="";
 				for (String s:stems)
-					str+=" "+s;
+					str+=Constants.SPACE+s;
 				str = str.trim();
 				//Set<Integer> keys1=topic1.keySet();
 				//Iterator<Integer> it = keys1.iterator();
@@ -305,8 +305,8 @@ public class TestComparable {
 					double matches=0;
 					//String term=topic1.get(it.next());
 					String term=topic1.get(jj);
-					Pattern pattern = Pattern.compile(" "+term+" ");	
-					Matcher matcher = pattern.matcher(" "+str+" ");
+					Pattern pattern = Pattern.compile(Constants.SPACE+term+Constants.SPACE);	
+					Matcher matcher = pattern.matcher(Constants.SPACE+str+Constants.SPACE);
 					//list with positions of a found term
 					//ArrayList<String> termpos=new ArrayList<String>(); 
 					while (matcher.find()) {
@@ -359,7 +359,7 @@ public class TestComparable {
 				ArrayList<String> stemmed_terms = analyze(term, lang);
 				String stemmed_term="";
 				for (int ii=0;ii<stemmed_terms.size();ii++)
-					stemmed_term=stemmed_term +" "+stemmed_terms.get(ii);
+					stemmed_term=stemmed_term +Constants.SPACE+stemmed_terms.get(ii);
 				result.put(kk,stemmed_term.trim());
 				//System.out.println(stemmed_term.trim());
 				kk++;

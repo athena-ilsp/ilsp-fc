@@ -1,4 +1,5 @@
 package gr.ilsp.fc.utils;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -155,7 +156,7 @@ public  class FCStringUtils {
 		String str = "";
 		StringTokenizer st = new StringTokenizer(text);
 		while (st.hasMoreTokens()){
-			str = str+" " + st.nextToken();
+			str = str+Constants.SPACE + st.nextToken();
 		}
 		return str;
 	}
