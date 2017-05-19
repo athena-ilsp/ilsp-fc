@@ -1,7 +1,5 @@
 package gr.ilsp.fc.parser;
 
-
-
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
@@ -11,6 +9,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.log4j.Logger;
 
@@ -455,7 +454,7 @@ public class RobotRulesParser extends BaseRobotsParser {
         
         // Extract possible match names from our target agent name, since it appears
         // to be expected that "Mozilla botname 1.0" matches "botname"
-        String[] targetNames = state.getTargetName().split(" ");
+        String[] targetNames = state.getTargetName().split(Constants.SPACE);
         
         // TODO KKr - catch case of multiple names, log as non-standard.
         String[] agentNames = token.getData().split("[ \t,]");

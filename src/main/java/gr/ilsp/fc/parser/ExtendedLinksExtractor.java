@@ -3,6 +3,7 @@ package gr.ilsp.fc.parser;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.utils.FCStringUtils;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,8 +38,6 @@ public class ExtendedLinksExtractor {
 	//private static final String LANGUAGELINK_VALUE ="language-link";
 	//private static final String TRANSLATIONLINK_VALUE ="translation-link";
 	//private static final String REL_ATTR = "rel";
-
-	private static final String SPACE_STR = " ";
 
 	private static ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
 
@@ -106,19 +105,19 @@ public class ExtendedLinksExtractor {
 					if (index-bb>-1){
 						temp = aa.get(index-bb).getClass().toString();
 						if (temp.equals(CLASS_ORG_JSOUP_NODES_TEXT_NODE)){
-							pre_extendedtext= aa.get(index-bb)+SPACE_STR+pre_extendedtext;
+							pre_extendedtext= aa.get(index-bb)+Constants.SPACE+pre_extendedtext;
 						}else if (temp.equals(CLASS_ORG_JSOUP_NODES_ELEMENT)){
 							node = (org.jsoup.nodes.Element) aa.get(index-bb);
-							pre_extendedtext= node.text()+SPACE_STR+pre_extendedtext;
+							pre_extendedtext= node.text()+Constants.SPACE+pre_extendedtext;
 						}
 					}
 					if (index+bb<aa.size()){
 						temp = aa.get(index+bb).getClass().toString();
 						if (temp.equals(CLASS_ORG_JSOUP_NODES_TEXT_NODE)){
-							post_extendedtext+= SPACE_STR+aa.get(index+bb);
+							post_extendedtext+= Constants.SPACE+aa.get(index+bb);
 						} else if (temp.equals(CLASS_ORG_JSOUP_NODES_ELEMENT)){
 							node = (org.jsoup.nodes.Element) aa.get(index+bb);
-							post_extendedtext+= SPACE_STR+node.text();
+							post_extendedtext+= Constants.SPACE+node.text();
 						}
 					}
 					pre_extendedtext=pre_extendedtext.trim();
@@ -139,14 +138,14 @@ public class ExtendedLinksExtractor {
 					prelimit= Math.min(countpre,(int) Math.rint(countpre*context_thresh/count));
 					postlimit= Math.min(countpost,(int) Math.rint(countpost*context_thresh/count));
 				}
-				preWORDS  = pre_extendedtext.split(SPACE_STR);
-				postWORDS = post_extendedtext.split(SPACE_STR);
+				preWORDS  = pre_extendedtext.split(Constants.SPACE);
+				postWORDS = post_extendedtext.split(Constants.SPACE);
 				for (int bb=preWORDS.length-prelimit-1;bb<preWORDS.length;bb++){
 					if (bb>=0)
-						wholetext = wholetext.concat(SPACE_STR+ preWORDS[bb]);
+						wholetext = wholetext.concat(Constants.SPACE+ preWORDS[bb]);
 				}
 				for (int bb=0;bb<postlimit;bb++)
-					wholetext += SPACE_STR+ postWORDS[bb];
+					wholetext += Constants.SPACE+ postWORDS[bb];
 
 				ExtendedOutlink extendedOutLink = new ExtendedOutlink(linktext,anchortext,wholetext);
 				/*// A check for links with hreflang () attributes.

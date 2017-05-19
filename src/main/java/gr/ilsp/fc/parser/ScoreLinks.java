@@ -1,6 +1,5 @@
 package gr.ilsp.fc.parser;
 
-
 import org.apache.log4j.Logger;
 
 import gr.ilsp.fc.classifier.Classifier;
@@ -10,6 +9,7 @@ import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.datums.ExtendedUrlDatum;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.utils.ContentNormalizer;
+import gr.ilsp.nlp.commons.Constants;
 //import gr.ilsp.fc.utils.ContentNormalizer;
 import cascading.flow.FlowProcess;
 import cascading.flow.hadoop.HadoopFlowProcess;
@@ -83,7 +83,7 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 			//String alltext = datum.getParsedText();
 			String pagelang= LangDetectUtils.detectLanguage(normtext);
 			for (ExtendedOutlink outlink : outlinks) {   
-				String linktext = outlink.getAnchor() + " " + outlink.getSurroundText();
+				String linktext = outlink.getAnchor() + Constants.SPACE + outlink.getSurroundText();
 				String linktext1 = outlink.getAnchor();
 				LOGGER.debug(outlink.getSurroundText());
 				String url = outlink.getToUrl();
