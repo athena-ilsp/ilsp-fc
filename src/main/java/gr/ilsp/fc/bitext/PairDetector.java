@@ -2,6 +2,7 @@ package gr.ilsp.fc.bitext;
 
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,11 +39,7 @@ public class PairDetector {
 	private static boolean offlineXSLT=false;
 	private static String[][] urlReplaces;
 	private static Map<String, String> excludeSetFiles =null;
-	private static String SEMI_SEPAR = ";";
-	private static final String UNDERSCORE_STR = "_";
-	private static final String HYPHEN_STR = "-";
 	private static final String tempFileExt = ".xml.txt";
-	private static final String SEMICOLON_STR=";";
 	private static final String XMLlist = ".xmllist.txt";
 	private static final String XMLHTMLlist = ".xmllist.html";
 
@@ -68,8 +65,8 @@ public class PairDetector {
 			pd.setGroundTruth(options.getGroundTruth());
 			int numOfPairs=pd.pairDetect();
 			numInLangPairMap.put(langpair, numOfPairs);
-			String[] langs = langpair.split(SEMICOLON_STR); 
-			LOGGER.info("Language Pair: "+ langs[0]+ HYPHEN_STR+langs[1]+ " Number of document pairs is: "+numOfPairs);
+			String[] langs = langpair.split(Constants.SEMICOLON); 
+			LOGGER.info("Language Pair: "+ langs[0]+ Constants.HYPHEN+langs[1]+ " Number of document pairs is: "+numOfPairs);
 		}
 	}
 	/**
@@ -86,9 +83,9 @@ public class PairDetector {
 			LOGGER.info("exact two languages required");
 			System.exit(0);
 		}
-		String langpair = languages[0]+HYPHEN_STR+languages[1];
+		String langpair = languages[0]+Constants.HYPHEN+languages[1];
 		LOGGER.info("------------Detection of pairs of parallel documents for "+ langpair+"------------");
-		langpair = UNDERSCORE_STR+langpair;
+		langpair = Constants.UNDERSCORE+langpair;
 		ArrayList<String[]> bitextsALL = Bitexts.findPairsUIDS(indir, methods, languages, excludeSetFiles 
 				, outdir.getAbsolutePath(), urlReplaces, offlineXSLT, useImagePath, groundTruth);
 		outTextList = new File(outBaseName.getAbsolutePath()+langpair+XMLlist);
@@ -121,7 +118,7 @@ public class PairDetector {
 	}
 
 	public void setLanguage(String languages) {
-		PairDetector.languages = languages.split(SEMI_SEPAR);
+		PairDetector.languages = languages.split(Constants.SEMICOLON);
 	}
 	public void setSourceDir(File inDir) {
 		PairDetector.indir = inDir;

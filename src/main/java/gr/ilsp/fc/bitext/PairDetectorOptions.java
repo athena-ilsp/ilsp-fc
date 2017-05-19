@@ -19,6 +19,7 @@ import org.apache.commons.cli.ParseException;
 //import org.apache.hadoop.fs.FileSystem;
 import org.apache.log4j.Logger;
 
+import gr.ilsp.nlp.commons.Constants;
 
 public class PairDetectorOptions {
 	public static int NO_CRAWL_DURATION = 0;
@@ -38,7 +39,6 @@ public class PairDetectorOptions {
 	private boolean _keepimagefp=false;
 	private boolean offlineXSLT = false;
 	private static final Logger LOGGER = Logger.getLogger(PairDetectorOptions.class);
-	private static final String SEMICOLON_STR = ";";
 	private static String DOUBLEQUEST_SEPAR = ";;";
 	private boolean _delFiles = false;
 	
@@ -157,7 +157,7 @@ public class PairDetectorOptions {
 				String[] aa=temp.split(DOUBLEQUEST_SEPAR);
 				String[][] urls_repls =new String[aa.length][2];  
 				for (int ii=0;ii<aa.length;ii++){
-					String[] bb = aa[ii].split(SEMICOLON_STR);
+					String[] bb = aa[ii].split(Constants.SEMICOLON);
 					if (bb.length<=1){
 						LOGGER.error("the argument for URL replacements is not correct." +
 								" Use ;; to seperate pairs and ; to separate the parts of each pair." +
@@ -233,12 +233,12 @@ public class PairDetectorOptions {
 	 * @return
 	 */
 	private List<String> findLangPairs(String language) {
-		String[] langs = language.split(SEMICOLON_STR); 
+		String[] langs = language.split(Constants.SEMICOLON); 
 		List<String> lang_pairs = new ArrayList<String>();
 		if (langs.length>1){
 			for (int ii=0;ii<langs.length-1;ii++){
 				for (int jj=ii+1;jj<langs.length;jj++){
-					lang_pairs.add(langs[ii]+SEMICOLON_STR+langs[jj]);
+					lang_pairs.add(langs[ii]+Constants.SEMICOLON+langs[jj]);
 				}
 			}
 		}

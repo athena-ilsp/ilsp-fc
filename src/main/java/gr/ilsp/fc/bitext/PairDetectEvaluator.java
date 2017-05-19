@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
@@ -44,10 +46,10 @@ public class PairDetectEvaluator {
 			String method = parts[2];
 			boolean correct=false;
 			if ((truepairs.containsKey(key1) && truepairs.get(key1).equals(key2)) || (truepairs.containsKey(key2) && truepairs.get(key2).equals(key1))){
-				System.out.println("\t\t"+key1+" "+key2+" "+"1");
+				System.out.println("\t\t"+key1+Constants.SPACE+key2+Constants.SPACE+"1");
 				correct=true;
 			}else{
-				System.out.println("\t\t"+key1+" "+key2+" "+"0");
+				System.out.println("\t\t"+key1+Constants.SPACE+key2+Constants.SPACE+"0");
 			}
 			int[] res=new int[2];
 			if (results.containsKey(method)){
