@@ -5,6 +5,7 @@ import gr.ilsp.fc.langdetect.LangDetectUtils;
 
 
 import gr.ilsp.fc.readwrite.ReadResources;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,8 +35,6 @@ public class TopicTools {
 	//private static int MAX_CONTENT_TERMS = Crawler.config.getInt("classifier.min_content_terms.value");
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	private static final String XML_EXTENSION = ".xml";
-	private static final String UNDERSCORE_STR = "_";
-	private static final String QUESTION_SEP=";";
 	private static final String  COLON =" : ";
 
 	/**
@@ -73,13 +72,13 @@ public class TopicTools {
 		// i.e. unique of third column of topic
 		ArrayList<String> temp = new ArrayList<String>();
 		String[] tempstr = new String[1];
-		String temp_line="";
+		String temp_line=Constants.EMPTY_STRING;
 		String[] subclasses;
 
 		for (int ii=0;ii<topic.size();ii++){
 			tempstr =topic.get(ii);	
 			temp_line=tempstr[2];
-			subclasses = temp_line.split(QUESTION_SEP);
+			subclasses = temp_line.split(Constants.SEMICOLON);
 			for (int kk=0;kk<subclasses.length;kk++){
 				temp.add(subclasses[kk].trim());
 			}
@@ -163,7 +162,7 @@ public class TopicTools {
 	 * @return
 	 */
 	public static String findTopicTerms(String text, ArrayList<String[]> topic_terms, String lang){
-		String found="";
+		String found=Constants.EMPTY_STRING;
 		if (topic_terms==null || lang.isEmpty())
 			return found;
 
@@ -175,9 +174,9 @@ public class TopicTools {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
-		String par_text="", term_lang ;
+		String par_text=Constants.EMPTY_STRING, term_lang ;
 		for (String st:stems){
-			par_text+=" "+st;
+			par_text+=Constants.SPACE+st;
 		}
 		par_text = par_text.trim();
 		double weight=0.0;
@@ -192,7 +191,7 @@ public class TopicTools {
 			Pattern pattern = Pattern.compile(" "+term+" ");	
 			Matcher matcher = pattern.matcher(" "+par_text+" ");
 			if (matcher.find() & weight>0){
-				found=found+QUESTION_SEP+tempstr[4];
+				found=found+Constants.SEMICOLON+tempstr[4];
 			}
 		}
 		if (!found.isEmpty())
@@ -209,11 +208,11 @@ public class TopicTools {
 	 */
 	public static void mergeTopicPars(File targetDir, File corpusFile){
 		File[] allfiles = targetDir.listFiles();
-		String corpus="";
+		String corpus=Constants.EMPTY_STRING;
 		String[] attrs, texts;
 		Set<String> pars = new HashSet<String>();
 		for (File file:allfiles){
-			if (file.getName().endsWith(XML_EXTENSION) && !file.getName().contains(UNDERSCORE_STR)){
+			if (file.getName().endsWith(XML_EXTENSION) && !file.getName().contains(Constants.UNDERSCORE)){
 				corpus = corpus+file.getAbsolutePath()+"\n";
 				corpus = corpus+ReadResources.extractAttrfromXML(file.getAbsolutePath(), "eAddress", "type", true,false)+"\n";
 				//corpus = corpus+ReadResources.extractURLfromXML(file)+"\n";
@@ -261,7 +260,7 @@ public class TopicTools {
 		BufferedReader in;
 		try {
 			in = new BufferedReader(new InputStreamReader(new FileInputStream(topicFile.getAbsolutePath()), "UTF-8"));
-			String str, a, b, c, d, b_or="";
+			String str, a, b, c, d, b_or=Constants.EMPTY_STRING; 
 			while ((str = in.readLine()) != null) {
 				// Do not bother with commented out or empty lines
 				if (skipLineM.reset(str).matches()) 
@@ -291,9 +290,9 @@ public class TopicTools {
 				ArrayList<String> stems = new ArrayList<String>();
 				if (match)
 					stems = getStems(b, d); //FIXME Call Analyzer for each line!!
-				b="";
+				b=Constants.EMPTY_STRING;
 				//concatenate stems
-				for (String s:stems){ b=b.concat(" "+s);}
+				for (String s:stems){ b=b.concat(Constants.SPACE+s);} 
 				b = b.trim();
 				if (ind>=0)
 					c=str.subSequence(str.indexOf("=")+1, str.indexOf(">")).toString().trim();

@@ -18,12 +18,13 @@ import net.loomchild.maligna.util.bind.tmx.Tmx;
 import net.loomchild.maligna.util.bind.tmx.Tu;
 
 import org.apache.commons.validator.routines.EmailValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 
 public class ValidateUtils {
 	private static final Logger LOGGER = Logger.getLogger(ValidateUtils.class);
 	private final static String INFO = "info";
 	private final static String SITE = "site";
-	
+
 	public static void main(String[] args) throws IOException {
 		File tmxfile = new File(args[0]);
 		//String[] langs = args[1].split(";");
@@ -39,16 +40,16 @@ public class ValidateUtils {
 				if (prop.getType().equals(INFO)) {
 					if (prop.getContent().get(0).isEmpty()){
 						notAnntus.add(tu);
-												
+
 						String segment = getSegment(tu.getTuv().get(0).getSeg());
-						
+
 					}
 				}
 			}
 		}
 		LOGGER.info("Not annotated TUs are: "+ notAnntus.size());
 		Random ran = new Random();
-		
+
 		Set<Integer> selectedIds = new HashSet<Integer>();
 		List<Tu> selectedtus = new ArrayList<Tu>();
 		int x = 0;
@@ -60,7 +61,7 @@ public class ValidateUtils {
 			selectedtus.get(x);
 		}
 	}
-	
+
 	private static String getSegment(Seg seg) {
 		StringBuilder builder = new StringBuilder();
 		for (Object object : seg.getContent()) {
@@ -68,10 +69,21 @@ public class ValidateUtils {
 		}
 		return builder.toString();
 	}
-	
+
 	public static boolean isValidEmailAddress(String email) {
 		boolean valid = EmailValidator.getInstance().isValid(email);
 		return valid;
 	}
-	
+	public static boolean isValidUrl(String url) {
+		boolean valid = UrlValidator.getInstance().isValid(url);
+		if (valid)
+			return valid;
+		else
+			try{
+				valid = UrlValidator.getInstance().isValid("http://"+url);
+			}catch (Exception e){
+				valid = false;
+			}
+		return valid;
+	}
 }

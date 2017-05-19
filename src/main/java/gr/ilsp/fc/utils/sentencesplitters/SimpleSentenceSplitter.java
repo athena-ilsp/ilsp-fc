@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -167,13 +168,13 @@ public class SimpleSentenceSplitter extends SentenceSplitter {
 
     private Vector<String> getSentences(String paragraph, Vector<String> sentences) {
         
-        String orig = paragraph.replaceAll("\\s+", " ") ;
+        String orig = paragraph.replaceAll("\\s+", Constants.SPACE) ;
         String linksMasked = maskLinks(orig) ;
         
         ////System.out.println(orig) ;
         ////System.out.println(linksMasked) ;
 
-        String[] words = linksMasked.split(" ") ;
+        String[] words = linksMasked.split(Constants.SPACE) ;
 
         StringBuffer sentence = new StringBuffer() ;
         int wordPos = 0 ;
@@ -254,7 +255,7 @@ public class SimpleSentenceSplitter extends SentenceSplitter {
                 
                 // Append the word to the sentence
                 sentence.append(orig.substring(wordPos, wordPos + words[i].length())) ;
-                sentence.append(" ") ;
+                sentence.append(Constants.SPACE) ;
                 
                 
 
@@ -272,7 +273,7 @@ public class SimpleSentenceSplitter extends SentenceSplitter {
             { 
                 // If the word doesn't have a candidate, then append the word to the sentence
                 sentence.append(orig.substring(wordPos, wordPos + words[i].length())) ;
-                sentence.append(" ") ;
+                sentence.append(Constants.SPACE) ;
             }
             
             wordPos = wordPos + words[i].length() + 1 ;
