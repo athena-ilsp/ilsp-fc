@@ -6,6 +6,7 @@ import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsNumStats;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsRatioStats;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsScoreStats;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,9 +36,7 @@ public class TMXinfoUpdater {
 	//private static boolean iso6393=false;
 	private static Map<String, String> psinfo;
 
-	private static final String SEMICOLON_STR=";";	
 	private final static String licenseNode = "license";
-	private static final String SPACE_SEPARATOR = " ";
 	private final static String SCORE = "score";
 	private final static String SEGMENTTYPE = "type"; 
 	private final static String L1URL = "l1-url";
@@ -161,8 +160,8 @@ public class TMXinfoUpdater {
 					if (license.equals("no"))
 						license = "no-psi";	
 				}
-				segpairs.add(new SegPair(StringUtils.join(TMXHandlerUtils.createSegmentList(tu, languages[0]), SPACE_SEPARATOR), 
-						StringUtils.join(TMXHandlerUtils.createSegmentList(tu, languages[1]), SPACE_SEPARATOR),
+				segpairs.add(new SegPair(StringUtils.join(TMXHandlerUtils.createSegmentList(tu, languages[0]), Constants.SPACE), 
+						StringUtils.join(TMXHandlerUtils.createSegmentList(tu, languages[1]), Constants.SPACE),
 						score, type, "",l1url, l2url, license, other,ratio,annot));
 			}
 		} catch (FileNotFoundException e) {
@@ -228,7 +227,7 @@ public class TMXinfoUpdater {
 	 * @param languages
 	 */
 	public void setLanguage(String languages) {
-		TMXinfoUpdater.languages = languages.split(SEMICOLON_STR);
+		TMXinfoUpdater.languages = languages.split(Constants.SEMICOLON);
 	}
 	//public void useISO6393(boolean iso6393) {
 	//	TMXinfoUpdater.iso6393 = iso6393;

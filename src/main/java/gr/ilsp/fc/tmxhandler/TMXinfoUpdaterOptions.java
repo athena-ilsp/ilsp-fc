@@ -1,6 +1,7 @@
 package gr.ilsp.fc.tmxhandler;
 
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,9 +24,6 @@ public class TMXinfoUpdaterOptions {
 	private String APPNAME = "TMXinfo Updater";
 	
 	private static final Logger LOGGER = Logger.getLogger(TMXinfoUpdaterOptions.class);
-	private static final String QUEST_STR = ";";
-	private static final String SPACE_STR = " ";
-	private static final String TAB_STR = "\t";
 	
 	private Map<String,String> _psi =new HashMap<String, String>();
 	private File _targetTMX = null;
@@ -76,7 +74,7 @@ public class TMXinfoUpdaterOptions {
 				_iso6393=true;
 			if(cmdline.hasOption( "lang")) {
 				_language = LangDetectUtils.updateLanguages(cmdline.getOptionValue("lang").toLowerCase(),_iso6393);
-				if (_language.split(QUEST_STR).length!=2){
+				if (_language.split(Constants.SEMICOLON).length!=2){
 					LOGGER.error("You should provide 2 languages.");
 					help();
 				}
@@ -94,7 +92,7 @@ public class TMXinfoUpdaterOptions {
 				try {
 					 List<String> lines= FileUtils.readLines(new File(cmdline.getOptionValue("psi")));
 					for (String line:lines){
-						String[] info = line.toLowerCase().split(TAB_STR);
+						String[] info = line.toLowerCase().split(Constants.TAB);
 						//System.out.println(line);
 						if (info.length!=2)
 							_psi.put(info[0], "");

@@ -12,11 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
+import gr.ilsp.nlp.commons.Constants;
 
 public class TmxUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TmxUtils.class);
-	private static final String PUNCT_STR = ".";
 	private static final String TOK_EXT = ".tok";
 	private static final String TXT_EXT = ".txt";
 	private static final String LIST = "list";
@@ -33,7 +33,7 @@ public class TmxUtils {
 		LOGGER.info("Reading " + tmxFile.getAbsolutePath());
 		String lang1=args[1];
 		String lang2=args[2];
-		LOGGER.info("Languages: " + lang1 + " " + lang2 + " ");
+		LOGGER.info("Languages: " + lang1 + Constants.SPACE + lang2 + Constants.SPACE);
 		List<String> info = new ArrayList<String>(); 	//List<String> info = Arrays.asList(new String[] {"short", "ratio", "equal", "duplicate", "address", "numbers", "letters" });
 		if (!args[3].equals("\"\"")){
 			String[] temp= args[3].split(";");
@@ -60,15 +60,15 @@ public class TmxUtils {
 		FileUtils.writeLines(l2file, tokedsegs.get(1));
 
 		//--------------segments in 2 two text files (1 for each language)
-		l1file= new File(tmxFile.getAbsolutePath()+PUNCT_STR+lang1);
+		l1file= new File(tmxFile.getAbsolutePath()+Constants.DOT+lang1);
 		LOGGER.info("Writing file "+ l1file.getAbsolutePath() + " for segments in "+lang1);
 		FileUtils.writeLines(l1file, segsl1);
-		l2file= new File(tmxFile.getAbsolutePath()+PUNCT_STR+lang2);
+		l2file= new File(tmxFile.getAbsolutePath()+Constants.DOT+lang2);
 		LOGGER.info("Writing file "+ l2file.getAbsolutePath() + " for segments in "+lang2);
 		FileUtils.writeLines(l2file, segsl2);
 
 		//----------segments and props in a text file (tab separated)
-		File tsvFile = new File(tmxFile.getAbsolutePath()+PUNCT_STR+LIST);
+		File tsvFile = new File(tmxFile.getAbsolutePath()+Constants.DOT+LIST);
 		List<String> outLines = TMXHandlerUtils.getSegsAndProps(segs, lang1, lang2);
 		FileUtils.writeLines(tsvFile, outLines);
 
