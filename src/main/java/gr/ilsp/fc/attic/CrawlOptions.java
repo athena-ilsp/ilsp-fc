@@ -38,6 +38,7 @@ import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.AnalyzerFactory;
 import gr.ilsp.fc.utils.FCStringUtils;
+import gr.ilsp.nlp.commons.Constants;
 
 public class CrawlOptions {
 	public static int NO_CRAWL_DURATION = 0;
@@ -344,7 +345,7 @@ public class CrawlOptions {
 				getParams4Crawl(line);
 			}
 			if(line.hasOption( "a"))
-				_agentName = line.getOptionValue("a").replace(" ", "_");
+				_agentName = line.getOptionValue("a").replace(Constants.SPACE, "_");
 			else
 				_agentName="A";
 			
@@ -509,7 +510,7 @@ public class CrawlOptions {
 	 */
 	private void getParams4Crawl(CommandLine line) {
 		if(line.hasOption( "a")){
-			_agentName = line.getOptionValue("a").replace(" ", "_");
+			_agentName = line.getOptionValue("a").replace(Constants.SPACE, Constants.UNDERSCORE);
 		}else{
 			LOGGER.error("option -a is required");
 			help();
