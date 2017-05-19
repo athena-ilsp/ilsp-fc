@@ -4,6 +4,7 @@ import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -250,9 +251,9 @@ public class Pdf2text {
 							content = content + "<bolier>"+temp; //out.write(temp);
 						else
 							if (content.isEmpty())
-								content = content +""+ temp; //out.write(" "+temp);
+								content = content +""+ temp; //out.write(Constants.SPACE+temp);
 							else
-								content = content +" "+ temp; //out.write(" "+temp);
+								content = content +Constants.SPACE+ temp; //out.write(Constants.SPACE+temp);
 						if (found)
 							found1 = true;
 						else
@@ -274,7 +275,7 @@ public class Pdf2text {
 						if (found1)
 							content = content + temp+"</text>\n<text>";  //out.write(temp+"\n");
 						else
-							content = content + " " + temp+"</text>\n<text>";  //out.write(" "+temp+"\n");
+							content = content + Constants.SPACE + temp+"</text>\n<text>";  //out.write(Constants.SPACE+temp+"\n");
 						if (found)
 							found1=true;
 						else
@@ -296,7 +297,7 @@ public class Pdf2text {
 					if (found1)
 						content = content + temp+"</text>\n<text>";   //out.write(temp+"\n");
 					else
-						content = content + " "+temp+"</text>\n<text>";  //out.write(" "+temp+"\n");
+						content = content + Constants.SPACE+temp+"</text>\n<text>";  //out.write(Constants.SPACE+temp+"\n");
 					if (found)
 						found1=true;
 					else
@@ -343,7 +344,7 @@ public class Pdf2text {
 					if (found1)
 						content = content + temp;
 					else
-						content = content + temp + " " ;
+						content = content + temp + Constants.SPACE ;
 				}else{
 					content=content+temp+"</text>\n<text>";
 					/*if (found1){
@@ -372,7 +373,7 @@ public class Pdf2text {
 					if (temp.endsWith("−"))
 						temp=temp.substring(0, temp.lastIndexOf("−")); 						//found=true;
 					content = content + temp+"</text>\n";   //out.write(temp+"\n");
-					//content = content + " "+temp+"</text>\n<text>";  //out.write(" "+temp+"\n");
+					//content = content + Constants.SPACE+temp+"</text>\n<text>";  //out.write(Constants.SPACE+temp+"\n");
 				}
 			}
 		}
@@ -436,7 +437,7 @@ public class Pdf2text {
 			linedata.get(ii).chars=ContentNormalizer.normalizeText(linedata.get(ii).chars);
 		}
 		for (int ii=0;ii<linedata.size();ii++){
-			String temp=linedata.get(ii).chars.replace(" ", "");
+			String temp=linedata.get(ii).chars.replace(Constants.SPACE, "");
 			if (linedata.get(ii).fs>fontsize_thr & linedata.get(ii).h>fontsize_thr 
 					& !indeces.contains(ii)
 					& !LineTypeGuesser.isDigitsOnlyLine(temp)){
@@ -1074,9 +1075,9 @@ public class Pdf2text {
 		ArrayList<Float> fsstList=new ArrayList<Float>();
 
 		for (int ii=1;ii<chardata.size();ii++){
-			if (chardata.get(ii).character.length()>1 && !chardata.get(ii).character.contains(" ")){
+			if (chardata.get(ii).character.length()>1 && !chardata.get(ii).character.contains(Constants.SPACE)){
 				if ( !chardata.get(ii).character.contains("f"))
-					chardata.get(ii).character=" ";
+					chardata.get(ii).character=Constants.SPACE;
 			}
 			if (chardata.get(ii).p!=chardata.get(ii-1).p | ii==chardata.size()-1  ){	
 				temp=temp+chardata.get(ii-1).character;
@@ -1191,13 +1192,13 @@ public class Pdf2text {
 			character = chardata.get(ii).character;
 			character = ContentNormalizer.normalizeText1(character);
 			boolean found=false;
-			if (character.equals(" ") 
+			if (character.equals(Constants.SPACE) 
 					& (chardata.get(ii-1).character.equals("fi")
 							| chardata.get(ii-1).character.equals("ff") 
 							| chardata.get(ii-1).character.equals("fl")) ){
 				found=true;
 			}
-			if (!found & (character.equals("") | character.equals(" "))){
+			if (!found & (character.equals("") | character.equals(Constants.SPACE))){
 				chardata.get(ii).character=character;
 				chardata.get(ii).p=chardata.get(ii-1).p;			chardata.get(ii).x=chardata.get(ii-1).x;
 				chardata.get(ii).y=chardata.get(ii-1).y;			chardata.get(ii).h=chardata.get(ii-1).h;
@@ -1206,7 +1207,7 @@ public class Pdf2text {
 				//continue;
 			}
 
-			if (chardata.get(ii).w==0 | found/*|character.equals("") | character.equals(" ")*/)	{	
+			if (chardata.get(ii).w==0 | found/*|character.equals("") | character.equals(Constants.SPACE)*/)	{	
 				//System.out.println("OOPS!!!");
 				chardata.get(ii).character="";
 				chardata.get(ii).p=chardata.get(ii-1).p;
@@ -1422,7 +1423,7 @@ public class Pdf2text {
 			x1=chardata.get(ii-1).x;  
 			x2=chardata.get(ii).x;   
 			w1=chardata.get(ii-1).w; 
-			//if (chardata.get(ii).character.equals(" "))
+			//if (chardata.get(ii).character.equals(Constants.SPACE))
 			//	continue;
 			if (chardata.get(ii-1).character.equals("") )//removed character
 				continue;
@@ -1462,7 +1463,7 @@ public class Pdf2text {
 				if (thr_spaces_per_line[chardata.get(ii-1).p]>0){
 					if((x2-x1-w1)>=thr_spaces_per_line[chardata.get(ii-1).p]){
 						//System.out.println(chardata.get(ii-1).character+"\t"+chardata.get(ii).character);
-						chardata.get(ii-1).character=chardata.get(ii-1).character+" ";
+						chardata.get(ii-1).character=chardata.get(ii-1).character+Constants.SPACE;
 					}
 				}
 			}

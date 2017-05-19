@@ -2,6 +2,7 @@ package gr.ilsp.fc.extractors;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import gr.ilsp.nlp.commons.Constants;
 
 //import org.apache.commons.lang.StringUtils;
 
@@ -24,7 +25,7 @@ public class LineTypeGuesser {
 	
 	public  static boolean isDigitsOnlyLine(String line) {
 		//String tokens[] = StringUtils.split(line);
-		String tokens[] = line.split(" ");
+		String tokens[] = line.split(Constants.SPACE);
 		for (int i = 0; i < tokens.length; i++) {
 			if (!digitTokenM.reset(tokens[i]).matches()) {
 				//System.out.println(tokens[i]);
