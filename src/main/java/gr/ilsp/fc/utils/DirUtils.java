@@ -1,6 +1,6 @@
 package gr.ilsp.fc.utils;
 
-import gr.ilsp.fc.attic.CrawlConfig;
+import gr.ilsp.fc.crawl.CrawlerDirConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class DirUtils {
 				} catch (NumberFormatException e){
 					continue;
 				}
-				crawldb = new Path(dir,CrawlConfig.CRAWLDB_SUBDIR_NAME);
+				crawldb = new Path(dir,CrawlerDirConfig.CRAWLDB_SUBDIR_NAME);
 				if (index == curLoop-2 && fs.exists(crawldb)){
 					fs.delete(crawldb);
 					LOGGER.debug("Deleted: "+crawldb);
@@ -143,7 +143,7 @@ public class DirUtils {
 					//System.out.println(status.getPath());
 					crawldir =status.getPath();
 					
-					crawldb = new Path(crawldir,CrawlConfig.CRAWLDB_SUBDIR_NAME);
+					crawldb = new Path(crawldir,CrawlerDirConfig.CRAWLDB_SUBDIR_NAME);
 					FileStatus[] crawldirfile = listStatus(fs, crawldb);
 					for (FileStatus statusfile : crawldirfile) {
 						//System.out.println(statusfile.getPath());
@@ -151,7 +151,7 @@ public class DirUtils {
 					}
 					fs.delete(crawldb,true);
 					
-					crawlcontent = new Path(crawldir,CrawlConfig.CONTENT_SUBDIR_NAME);
+					crawlcontent = new Path(crawldir,CrawlerDirConfig.CONTENT_SUBDIR_NAME);
 					crawldirfile = listStatus(fs, crawlcontent);
 					for (FileStatus statusfile : crawldirfile) {
 						//System.out.println(statusfile.getPath());
@@ -159,7 +159,7 @@ public class DirUtils {
 					}
 					fs.delete(crawlcontent,true);
 					
-					crawlclassif = new Path(crawldir,CrawlConfig.CLASSIFIER_SUBDIR_NAME);
+					crawlclassif = new Path(crawldir,CrawlerDirConfig.CLASSIFIER_SUBDIR_NAME);
 					crawldirfile = listStatus(fs, crawlclassif);
 					for (FileStatus statusfile : crawldirfile) {
 						//System.out.println(statusfile.getPath());
@@ -167,7 +167,7 @@ public class DirUtils {
 					}
 					fs.delete(crawlclassif,true);
 					
-					crawlparse = new Path(crawldir,CrawlConfig.PARSE_SUBDIR_NAME);
+					crawlparse = new Path(crawldir,CrawlerDirConfig.PARSE_SUBDIR_NAME);
 					crawldirfile = listStatus(fs, crawlparse);
 					for (FileStatus statusfile : crawldirfile) {
 						//System.out.println(statusfile.getPath());

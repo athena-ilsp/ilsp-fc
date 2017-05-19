@@ -9,6 +9,7 @@ import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -37,6 +38,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.StringTokenizer;
+
+import javax.json.Json;
+import javax.json.stream.JsonParser;
+import javax.json.stream.JsonParser.Event;
 
 import net.loomchild.maligna.util.bind.TmxMarshallerUnmarshaller;
 import net.loomchild.maligna.util.bind.tmx.Prop;
@@ -47,7 +53,9 @@ import net.loomchild.maligna.util.bind.tmx.Tuv;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.log4j.Logger;
+
 
 public class TempUtils {
 	private static final Logger LOGGER = Logger.getLogger(TempUtils.class);
@@ -86,8 +94,395 @@ public class TempUtils {
 		}
 	}
 
+	private static String replaceLanguages(String langstring) {
+		String newlangStrinb = langstring.replaceAll("Croatian", "hr");
+		newlangStrinb = newlangStrinb.replaceAll("English", "en");
+		newlangStrinb = newlangStrinb.replaceAll("French", "fr");
+		newlangStrinb = newlangStrinb.replaceAll("German", "de");
+		newlangStrinb = newlangStrinb.replaceAll("Slovenian", "sl");
+		newlangStrinb = newlangStrinb.replaceAll("Italian", "it");
+		newlangStrinb = newlangStrinb.replaceAll("Hungarian", "hu");
+		newlangStrinb = newlangStrinb.replaceAll("Dutch; Flemish", "nl");
+		newlangStrinb = newlangStrinb.replaceAll("Bulgarian", "bg");
+		newlangStrinb = newlangStrinb.replaceAll("Italian", "it");
+		newlangStrinb = newlangStrinb.replaceAll("Latvian","lv");
+		newlangStrinb = newlangStrinb.replaceAll("Modern Greek \\(1453-\\)","el");
+		newlangStrinb = newlangStrinb.replaceAll("Polish","pl");
+		newlangStrinb = newlangStrinb.replaceAll("Romanian; Moldavian; Moldovan","ro");
+		newlangStrinb = newlangStrinb.replaceAll("Spanish; Castilian", "es");
+		newlangStrinb = newlangStrinb.replaceAll("Czech", "cs");
+		newlangStrinb = newlangStrinb.replaceAll("Estonian", "et");
+		newlangStrinb = newlangStrinb.replaceAll("Finnish", "fi");
+		newlangStrinb = newlangStrinb.replaceAll("Maltese","mt");
+		newlangStrinb = newlangStrinb.replaceAll("Portuguese", "pt");
+		newlangStrinb = newlangStrinb.replaceAll("Swedish","sw");
+		newlangStrinb = newlangStrinb.replaceAll("Icelandic", "is");
+		newlangStrinb = newlangStrinb.replaceAll("Irish", "ga");
+		newlangStrinb = newlangStrinb.replaceAll("Lithuanian","lt");
+		newlangStrinb = newlangStrinb.replaceAll("Norwegian","no");
+		newlangStrinb = newlangStrinb.replaceAll("Danish","da");
+		newlangStrinb = newlangStrinb.replaceAll("Slovak", "sk");
+		newlangStrinb = newlangStrinb.replaceAll("Slovenian", "sl");
+		//newlangStrinb = newlangStrinb.replaceAll(Constants.SPACE, "");
+		newlangStrinb = newlangStrinb.replaceAll("\\|", "-");
+		newlangStrinb = newlangStrinb.replaceAll(" - ", "-");
+		return newlangStrinb.trim();
+	}
+
+
+
 
 	public static void main(String[] args) throws IOException {
+		String ooi_crawlinfo = "crawlinfo";
+		String P_ELE = "p";
+		File indir = new File("C:/Users/vpapa/test/ILSP_20170203_113925/5beb49a6-30b8-484a-bc6b-8d6b581fd2e9/xml");
+		File[] xmlfiles = indir.listFiles();
+		for (int ii=0;ii<xmlfiles.length;ii++){
+			String basename = FilenameUtils.getBaseName(xmlfiles[ii].getAbsolutePath());
+			if (basename.contains(Constants.UNDERSCORE))
+				continue;
+			String text= "";
+			if (xmlfiles[ii].getName().endsWith("xml")){
+				text = ReadResources.extractTextfromXML_clean(xmlfiles[ii].getAbsolutePath(),P_ELE,ooi_crawlinfo, false);
+				File txtfile = new File(FilenameUtils.concat(xmlfiles[ii].getParent(),basename+".txt"));
+				FileUtils.writeStringToFile(txtfile, text);
+			}
+		}
+		System.exit(0);
+
+
+		/*String domain = ".hr ";
+		String tlang1 = " hr ";
+		String tlang2 = " en ";
+		List<String> cb = FileUtils.readLines(new File("C://Users//vpapa//ELRC//2015_22.stats.joined"));
+		List<String> cb1 = FileUtils.readLines(new File("C://Users//vpapa//ELRC//2015_40.stats.joined"));
+		List<String> hren_list = new ArrayList<String>();
+		for (String line:cb){
+			if (line.contains(domain) && line.contains(tlang1) && line.contains(tlang2)){
+
+				String[] t = line.split(Constants.SPACE);
+				if (hren_list.contains(t[1]))
+					continue;
+				hren_list.add(t[1]);
+				int index1 = line.indexOf(tlang1);
+				String subline1 = line.substring(index1+4);
+				int index11 = subline1.indexOf(Constants.SPACE);
+
+				int index2 = line.indexOf(tlang2);
+				String subline2 = line.substring(index2+4);
+				int index22 = subline2.indexOf(Constants.SPACE);
+				if (index22<0)
+					index22 = subline2.length();
+				subline1 = t[1]+"\t"+tlang1+subline1.substring(0, index11)+"\t"+tlang2+subline2.substring(0,index22);
+				subline1.replaceAll(Constants.SPACE, "\t");
+				System.out.println(subline1);	
+			}
+		}
+		for (String line:cb1){
+			if (line.contains(domain) && line.contains(tlang1) && line.contains(tlang2)){
+				String[] t = line.split(Constants.SPACE);
+				if (hren_list.contains(t[1]))
+					continue;
+				hren_list.add(t[1]);
+				hren_list.add(t[1]);
+				int index1 = line.indexOf(tlang1);
+				String subline1 = line.substring(index1+4);
+				int index11 = subline1.indexOf(Constants.SPACE);
+
+				int index2 = line.indexOf(tlang2);
+				String subline2 = line.substring(index2+4);
+				int index22 = subline2.indexOf(Constants.SPACE);
+				if (index22<0)
+					index22 = subline2.length();
+				subline1 = t[1]+"\t"+tlang1+subline1.substring(0, index11)+"\t"+tlang2+subline2.substring(0,index22);
+				subline1.replaceAll(Constants.SPACE, "\t");
+				System.out.println(subline1);	
+			}
+		}
+		System.exit(0);*/
+
+		String cri1 = "Corpus";
+		String cri2 = "Translation Units";
+		List<String> ilsp = new ArrayList();	ilsp.add("Greece");		ilsp.add("Poland");			ilsp.add("Croatia");	ilsp.add("Slovenia");		ilsp.add("Slovakia");	ilsp.add("Bulragia");	ilsp.add("Cyprus");		ilsp.add("Romania");
+		List<String> tilde = new ArrayList();	tilde.add("Estonia"); 	tilde.add("Finland"); 		tilde.add("Iceland");	tilde.add("Latvia");		tilde.add("Lithuania");	tilde.add("Norway");	tilde.add("Sweden");
+		List<String> elda = new ArrayList(); 	elda.add("France");		elda.add("Belgium");		elda.add("Spain");		elda.add("France, Spain");	elda.add("France, Malta"); elda.add("Ireland");	elda.add("Italy"); 		elda.add("Malta");		elda.add("Portugal");
+		List<String> dfki = new ArrayList();	dfki.add("Austria");	dfki.add("Czech Republic"); dfki.add("Germany");	dfki.add("Hungary");		dfki.add("Luxembourg");	dfki.add("Netherlands"); 
+
+		File infile = new File("C://Users//vpapa//ELRC//20170406_ELRC_SHARE_OVERVIEW.txt");
+		List<String>  datalines = FileUtils.readLines(infile);
+		List<String>  selectedlines = new ArrayList<String>(); 
+		List<String>  selectedlines1 = new ArrayList<String>();
+		for (String line:datalines){
+			//if (line.contains("INGESTED") || line.contains("INTERNAL") || line.contains("PUBLISHED")){
+			if (line.contains("INTERNAL")){
+				continue;
+			}
+			String[] templine = line.split("\t");
+			if (templine[1].equals(cri1) && templine[5].contains(cri2)){
+				String langs = replaceLanguages(templine[2]);
+				String num =templine[4]; 
+				if (num.contains("|")){
+					String[] a= num.split("\\|");
+					num = a[a.length-1].trim();
+				}
+				num=num.replaceAll(",", "");
+				selectedlines.add(langs+"\t"+num+"\t"+templine[6].trim()+"\t"+templine[7].trim()+"\t"+templine[11].trim()+"\t"+templine[12].trim()+"\t"+templine[14].trim());
+			}
+			if (templine[1].equals(cri1) && !templine[2].contains("|")){
+				String langs = replaceLanguages(templine[2]);
+				String[] meanum =templine[4].split("\\|"); 
+				String[] mea =templine[5].split("\\|");
+				int index=-1;
+				for (int ii=0;ii<mea.length;ii++){
+					if (mea[ii].contains("Words") || mea[ii].contains("Tokens")){
+						index=ii;
+						break;
+					}
+				}
+				if (index<0)
+					continue;
+				String num = meanum[index].trim().replaceAll(",", "");
+				selectedlines1.add(langs+"\t"+num+"\t"+templine[6].trim()+"\t"+templine[7].trim()+"\t"+templine[11].trim()+"\t"+templine[12].trim()+"\t"+templine[14].trim());
+
+			}
+		}
+		FileUtils.writeLines(new File(infile.getAbsolutePath()+"_"+cri1+"_"+cri2), selectedlines);
+		FileUtils.writeLines(new File(infile.getAbsolutePath()+"_"+cri1+"_mono"), selectedlines1);
+
+		Map<String, Integer[]> langmono_num = new HashMap<String,Integer[]>();
+		List<String> tulines1 = FileUtils.readLines(new File(infile.getAbsolutePath()+"_"+cri1+"_mono"));
+
+		for (String tus:tulines1){
+			Integer[] temp_langmono= new Integer[3];
+			for (int ii=0;ii<temp_langmono.length;ii++){
+				temp_langmono[ii] = 0; 
+			}
+			String[] a = tus.split("\t");
+			if (langmono_num.containsKey(a[0]))
+				temp_langmono = langmono_num.get(a[0]);
+			if (a[6].equals("NO"))
+				temp_langmono[0] = temp_langmono[0]+Integer.parseInt(a[1]);
+			if (a[6].equals("YES"))
+				temp_langmono[1] = temp_langmono[1]+Integer.parseInt(a[1]);
+			temp_langmono[2] = temp_langmono[2] + Integer.parseInt(a[1]);
+			langmono_num.put(a[0], temp_langmono);
+		}
+		System.out.println("--------------------monolingual ------------------------");
+		Set<String> langmonoset = langmono_num.keySet();
+		Iterator<String> langmono = langmonoset.iterator();
+		String ll="";
+		while (langmono.hasNext()){
+			ll = langmono.next();
+			Integer[] temp = langmono_num.get(ll);
+			System.out.println(ll+"\t"+temp[0]+ "\t"+temp[1]+"\t"+temp[2]);
+		}	
+
+		Map<String, Integer[]> lang_num = new HashMap<String,Integer[]>();
+		Map<String, Integer[]> country_num = new HashMap<String,Integer[]>();
+		Map<String, Integer[]> lic_num = new HashMap<String,Integer[]>();
+
+		//Map<String, Integer> serv_num = new HashMap<String,Integer>();
+		List<String> tulines = FileUtils.readLines(new File(infile.getAbsolutePath()+"_"+cri1+"_"+cri2));
+		for (String tus:tulines){
+			Integer[] temp_lang=new Integer[3]; Integer[] temp_country=new Integer[3]; Integer[] temp_lic= new Integer[3]; 
+			for (int ii=0;ii<temp_lang.length;ii++){
+				temp_lang[ii] = 0; 	temp_country[ii] = 0; temp_lic[ii] = 0; 
+			}
+			String[] a = tus.split("\t");
+			if (lang_num.containsKey(a[0]))
+				temp_lang = lang_num.get(a[0]);
+			if (a[6].equals("NO"))
+				temp_lang[0] = temp_lang[0]+Integer.parseInt(a[1]);
+			if (a[6].equals("YES"))
+				temp_lang[1] = temp_lang[1]+Integer.parseInt(a[1]);
+			temp_lang[2] = temp_lang[2] + Integer.parseInt(a[1]);
+			lang_num.put(a[0], temp_lang);
+
+			if (country_num.containsKey(a[4]))
+				temp_country = country_num.get(a[4]);
+			if (a[6].equals("NO"))
+				temp_country[0] = temp_country[0]+Integer.parseInt(a[1]);
+			if (a[6].equals("YES"))
+				temp_country[1] = temp_country[1]+Integer.parseInt(a[1]);
+			temp_country[2] = temp_country[2] + Integer.parseInt(a[1]);
+			country_num.put(a[4], temp_country);
+
+			if (lic_num.containsKey(a[5]))
+				temp_lic = lic_num.get(a[5]);
+			if (a[6].equals("NO"))
+				temp_lic[0] = temp_lic[0]+Integer.parseInt(a[1]);
+			if (a[6].equals("YES"))
+				temp_lic[1] = temp_lic[1]+Integer.parseInt(a[1]);
+			temp_lic[2] = temp_lic[2] + Integer.parseInt(a[1]);
+			lic_num.put(a[5], temp_lic);
+		}
+		Set<String> langsset = lang_num.keySet();
+		Set<String> countriesset = country_num.keySet();
+		Set<String> licsset = lic_num.keySet();
+		Iterator<String> lang = langsset.iterator();
+		Iterator<String> country = countriesset.iterator();
+		Iterator<String> lic = licsset.iterator();
+		System.out.println("--------------------langs------------------------");
+		ll="";
+		while (lang.hasNext()){
+			ll = lang.next();
+			Integer[] temp = lang_num.get(ll);
+			System.out.println(ll+"\t"+temp[0]+ "\t"+temp[1]+"\t"+temp[2]);
+		}
+		System.out.println("--------------------counties------------------------");
+		ll="";
+		while (country.hasNext()){
+			ll = country.next();
+			Integer[] temp = country_num.get(ll);
+			System.out.println(ll+"\t"+temp[0]+ "\t"+temp[1]+"\t"+temp[2]);
+		}
+		System.out.println("--------------------lics------------------------");
+		ll="";
+		while (lic.hasNext()){
+			ll = lic.next();
+			Integer[] temp = lic_num.get(ll);
+			System.out.println(ll+"\t"+temp[0]+ "\t"+temp[1]+"\t"+temp[2]);
+		}
+		System.out.println("--------------------partners------------------------");
+		Integer[] temp_init1 = new Integer[3]; Integer[] temp_init2 = new Integer[3]; Integer[] temp_init3 = new Integer[3]; Integer[] temp_init4 = new Integer[3];
+		for (int ii=0;ii<temp_init1.length;ii++){
+			temp_init1[ii] = 0; temp_init2[ii] = 0; temp_init3[ii] = 0; temp_init4[ii] = 0; 
+		}
+		Map<String, Integer[]>  partners = new HashMap<String,Integer[]>(); partners.put("ilsp", temp_init1); partners.put("tilde", temp_init2); partners.put("elda", temp_init3);partners.put("dfki", temp_init4);
+		country = countriesset.iterator();
+		while (country.hasNext()){
+			ll = country.next();
+			if (ilsp.contains(ll)) {
+				Integer[] temp = partners.get("ilsp");
+				for (int ii=0;ii<3;ii++)
+					temp[ii] = temp[ii]+country_num.get(ll)[ii];
+				partners.put("ilsp",  temp);
+				continue;
+			}
+			if (elda.contains(ll)) {
+				Integer[] temp = partners.get("elda");
+				for (int ii=0;ii<3;ii++)
+					temp[ii] = temp[ii]+country_num.get(ll)[ii];
+				partners.put("elda",  temp);
+				continue;
+			}
+			if (dfki.contains(ll)) {
+				Integer[] temp = partners.get("dfki");
+				for (int ii=0;ii<3;ii++)
+					temp[ii] = temp[ii]+country_num.get(ll)[ii];
+				partners.put("dfki",  temp);
+				continue;
+			}
+			if (tilde.contains(ll)) {
+				Integer[] temp = partners.get("tilde");
+				for (int ii=0;ii<3;ii++)
+					temp[ii] = temp[ii]+country_num.get(ll)[ii];
+				partners.put("tilde",  temp);
+				continue;
+			}
+			System.out.println("oops\t"+ll);
+		}
+		System.out.println("ilsp"+"\t" + partners.get("ilsp")[0]+"\t"+partners.get("ilsp")[1]+"\t"+partners.get("ilsp")[2]);
+		System.out.println("elda"+"\t" + partners.get("elda")[0]+"\t"+partners.get("elda")[1]+"\t"+partners.get("elda")[2]);
+		System.out.println("dfki"+"\t" + partners.get("dfki")[0]+"\t"+partners.get("dfki")[1]+"\t"+partners.get("dfki")[2]);
+		System.out.println("tilde"+"\t" + partners.get("tilde")[0]+"\t"+partners.get("tilde")[1]+"\t"+partners.get("tilde")[2]);
+
+
+		System.exit(0);
+
+
+
+
+
+		/*List<String> cb = FileUtils.readLines(new File("C://Users//vpapa//ELRC//2015_22.stats.joined"));
+		List<String> cb1 = FileUtils.readLines(new File("C://Users//vpapa//ELRC//2015_40.stats.joined"));
+		List<String> hren_list = new ArrayList<String>();
+		for (String line:cb){
+			if (line.contains(".hr") && line.contains(" hr ") && line.contains(" en ")){
+				String[] t = line.split(Constants.SPACE);
+				if (hren_list.contains(t[1]))
+					continue;
+				hren_list.add(t[1]);
+				System.out.println(line);
+			}
+		}
+		for (String line:cb1){
+			if (line.contains(".hr") && line.contains(" hr ") && line.contains(" en ")){
+				String[] t = line.split(Constants.SPACE);
+				if (hren_list.contains(t[1]))
+					continue;
+				hren_list.add(t[1]);
+				System.out.println(line);
+			}
+		}
+		FileUtils.writeLines(new File("C://Users//vpapa//ELRC//hr-en_2015_22.stats.joined-2015_40.stats.joined"), hren_list);
+		List<String> aa = FileUtils.readLines(new File("C://Users//vpapa//ELRC//ipr//HOMES//log_rights_homes"));
+		List<String> right_list= new ArrayList<String>();
+		for (String line:aa){
+			if (line.contains("FOUND")){
+				String[] parts = line.split("\t");
+				if (!right_list.contains(parts[1]))
+					right_list.add(parts[1]);
+			}
+		}
+		FileUtils.writeLines(new File("C://Users//vpapa//ELRC//ipr//HOMES//rights_links.txt"), right_list);
+		System.exit(0); */
+		//String aa = FileUtils.readFileToString(new File("C://Users//vpapa//ELRC//ipr//keywords.txt"));
+		//aa= ContentNormalizer.formatString(aa);
+		//FileUtils.writeStringToFile(new File("C://Users//vpapa//ELRC//ipr//keywords_norm.txt"), aa);
+
+		/*File[] ff= new File("C://Users//vpapa//ELRC//ipr//HOMES").listFiles();
+		List<String> all = new ArrayList<String>();
+		for (File f:ff){
+			List<String> ll = FileUtils.readLines(f);
+			all.addAll(ll);
+		}
+		FileUtils.writeLines(new File("C://Users//vpapa//ELRC//ipr//HOMES//all.txt"), all);*/
+
+		List<String> rightslist = FileUtils.readLines(new File("C://Users//vpapa//ELRC//ipr//keywords.txt"));
+
+		List<String> rights = new ArrayList<String>();
+		for (String right:rightslist){
+			right=ContentNormalizer.formatString(right);
+			if (!rights.contains(rights)){
+				System.out.println(right);
+				rights.add(right);
+			}
+		}
+		FileUtils.writeLines(new File("C://Users//vpapa//ELRC//ipr//keywords_norm.txt"),rights);
+		System.exit(0);
+
+		List<String> commands = FileUtils.readLines(new File("C:/Users/vpapa/test/test_pdf/crawldirs_culture_el.txt"));
+		List<String> newcommands = new ArrayList<String>();
+		for (String command:commands){
+			File t1 = new File(command);
+			String t2 = t1.getParentFile().getName();
+			t2 = t2.substring(0, t2.indexOf("_"));
+			String t3 = t1.getParentFile().getParent();
+			t3=t3.replace("\\", "/");
+			//.replaceAll("\\", "/");
+			String a = " java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar ";  
+			a = a + " -export -i \""+command + "\" -lang \"eng;ell\" -len 0 -mtlen 100 -dom \"culture\" -bs \"" + t3 + "/output_"+ t2+"\"" ;
+			a = a + " >\"" + t3+ "/log_export_"+t2+ "\"";
+			newcommands.add(a);
+
+			a = " java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar ";  
+			a = a + " -export -offline -i \""+command +"/pdf"+ "\" -lang \"eng;ell\" -len 0 -mtlen 100 -dom \"culture\" -bs \"" + t3 + "/output_"+ t2+"\"" ;
+			a = a + " -o \""+command +"/xml\"" ; 
+			a = a + " >\"" + t3+ "/log_export_offline_"+t2+ "\"";
+			newcommands.add(a);
+
+			a = " java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar ";  
+			a = a + " -dedup -i \""+command +"/xml"+ "\" -lang \"eng;ell\" -bs \"" + t3 + "/output_"+ t2+"\"" ;
+			a = a + " >\"" + t3+ "/log_dedup_"+t2+ "\"";
+			newcommands.add(a);
+
+
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/test/test_pdf/export-on-off_dedup_commands_culture_el.txt"), newcommands);
+		System.exit(0);
+
+
 
 		processSL_NAP();
 		System.exit(0);
@@ -151,7 +546,7 @@ public class TempUtils {
 				if (line.startsWith("number")){
 					System.out.println(line);
 					String[] t = line.split("\t");
-					String l = t[0].split(" ")[4];
+					String l = t[0].split(Constants.SPACE)[4];
 					resu.put(l, resu.get(l)+t[1]+"\t");
 					found.add(l);
 				}
@@ -269,15 +664,15 @@ public class TempUtils {
 				norm_key =  ContentNormalizer.normtext1(norm_key);
 				if (norm_key.isEmpty())
 					continue;
-				String[] words = norm_key.split(" "); 
+				String[] words = norm_key.split(Constants.SPACE); 
 				if (words.length<2)
 					continue;
 
-				Double[] temp = new Double[boilerpars_attrs.get(key).par_endids.size()];
+				Double[] temp1 = new Double[boilerpars_attrs.get(key).par_endids.size()];
 				for (int ii=0;ii<boilerpars_attrs.get(key).par_endids.size();ii++)
-					temp[ii] = boilerpars_attrs.get(key).par_startids.get(ii)/(boilerpars_attrs.get(key).par_endids.get(ii)+boilerpars_attrs.get(key).par_startids.get(ii));
+					temp1[ii] = boilerpars_attrs.get(key).par_startids.get(ii)/(boilerpars_attrs.get(key).par_endids.get(ii)+boilerpars_attrs.get(key).par_startids.get(ii));
 
-				if (Statistics.getMean(temp)<0.8)
+				if (Statistics.getMean(temp1)<0.8)
 					continue;
 				if (norm_key.contains(COPYRIGHT_STR) || norm_key.contains(RIGHTS_STR)){
 					System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!"+key+"!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -443,7 +838,7 @@ public class TempUtils {
 		for (String train:trainset){
 			engtrains.add(train.split("\t")[1]);
 			elltrains.add(train.split("\t")[2]);
-			trains.add(train.split("\t")[1]+" "+train.split("\t")[2]);
+			trains.add(train.split("\t")[1]+Constants.SPACE+train.split("\t")[2]);
 		}
 		List<String> devset = FileUtils.readLines(new File(path+"devset.tcv"));
 		List<String> engdevs = new ArrayList<String>();
@@ -452,7 +847,7 @@ public class TempUtils {
 		for (String dev:devset){
 			engdevs.add(dev.split("\t")[1]);
 			elldevs.add(dev.split("\t")[2]);
-			devs.add(dev.split("\t")[1]+" "+dev.split("\t")[2]);
+			devs.add(dev.split("\t")[1]+Constants.SPACE+dev.split("\t")[2]);
 		}
 		List<String> testset = FileUtils.readLines(new File(path+"testset.tcv"));
 		List<String> engtests = new ArrayList<String>();
@@ -461,13 +856,13 @@ public class TempUtils {
 		for (String test:testset){
 			engtests.add(test.split("\t")[1]);
 			elltests.add(test.split("\t")[2]);
-			tests.add(test.split("\t")[1]+" "+test.split("\t")[2]);
+			tests.add(test.split("\t")[1]+Constants.SPACE+test.split("\t")[2]);
 		}
 		for (String train:trains){
-			String temp = ContentNormalizer.normtext(train);
+			String temp2 = ContentNormalizer.normtext(train);
 			for (String test:tests){
 				String temp1 = ContentNormalizer.normtext(test);
-				if (temp.equals(temp1)){
+				if (temp2.equals(temp1)){
 					System.out.println(train+"\t"+test);
 				}
 			}
@@ -481,11 +876,11 @@ public class TempUtils {
 		List<String> ellset = FileUtils.readLines(new File(path+"tourism_ell.txt"));
 		List<String> newellgset = new ArrayList<String>();
 
-
+		Integer[] temp= new Integer[6];
 		List<String> l33 = new ArrayList<String>();
 		List<String> l22 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/culture_en-el.processed.tsv"));
 		for (String line:l22){
-			String[] temp = line.split("\t");
+			String[] temp3 = line.split("\t");
 			if (temp[5].equals("NULL")){
 				l33.add(line); //System.out.println(temp[0]+"\t"+temp[3]+"\t"+temp[4]);
 			}
@@ -493,7 +888,7 @@ public class TempUtils {
 		l22=null;
 		List<String> l11 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/tourism_en-el.processed.tsv"));
 		for (String line:l11){
-			String[] temp = line.split("\t");
+			String[] temp4 = line.split("\t");
 			if (temp[5].equals("NULL")){
 				l33.add(line); //System.out.println(temp[0]+"\t"+temp[3]+"\t"+temp[4]);
 			}
@@ -599,9 +994,9 @@ public class TempUtils {
 				//}
 			}*/
 
-			String temp = normS+"\t"+normT;
-			if (!segs.contains(temp)){
-				segs.add(temp);
+			String temp6 = normS+"\t"+normT;
+			if (!segs.contains(temp6)){
+				segs.add(temp6);
 				l1_l2.add(l1.get(ii).trim()+"\t"+l2.get(ii).trim());
 			}
 		}
@@ -703,9 +1098,9 @@ public class TempUtils {
 					counter++;
 					continue;
 				}
-				String[] temp = tu.split("\t");
-				tus[counter][0] = temp[3];
-				tus[counter][1] = temp[4];
+				String[] temp7 = tu.split("\t");
+				tus[counter][0] = temp7[3];
+				tus[counter][1] = temp7[4];
 				//itus[counter] = temp[6];
 				counter++;
 			}
@@ -718,11 +1113,11 @@ public class TempUtils {
 					counter++;
 					continue;
 				}
-				String[] temp = line.split("\t");
-				if (!temp[group].trim().isEmpty()){
+				String[] temp8 = line.split("\t");
+				if (!temp8[group].trim().isEmpty()){
 					System.out.println(temp[group]);
-					int ind = Integer.parseInt(temp[group].trim()) ;
-					res.add(temp[group].trim()+"\t"+tus[ind][0]+"\t"+tus[ind][1]);
+					int ind = Integer.parseInt(temp8[group].trim()) ;
+					res.add(temp8[group].trim()+"\t"+tus[ind][0]+"\t"+tus[ind][1]);
 				}	
 			}
 			FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_g"+Integer.toString(group+1)+".csv"), res);
@@ -781,12 +1176,13 @@ public class TempUtils {
 		}
 	}
 
-/**
- * process two TMX files EN-SL and SL-EN given by the SL NAP
- * checks for duplicates between files
- * generates two files containing only the unique TUs
- * @throws IOException
- */
+
+	/**
+	 * process two TMX files EN-SL and SL-EN given by the SL NAP
+	 * checks for duplicates between files
+	 * generates two files containing only the unique TUs
+	 * @throws IOException
+	 */
 	private static void processSL_NAP() throws IOException {
 		File en_sl = new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL.tmx");
 		File sl_en = new File("C:/Users/vpapa/ELRC/naps/SL/SL-EN.tmx");
@@ -794,12 +1190,12 @@ public class TempUtils {
 		LOGGER.info("number of EN-SL TUs in "+ en_sl.getName() + " is : " + en_sl_pairs.size());
 		List<String> sl_en_pairs = pseudoparseTMX(sl_en, "UTF-16LE");
 		LOGGER.info("number of SL-EN TUs in "+ sl_en.getName() + " is : " + sl_en_pairs.size());
-		
+
 		List<String> all_pairs = new ArrayList<String>();
 		all_pairs.addAll(en_sl_pairs);
 		all_pairs.addAll(sl_en_pairs);
 		LOGGER.info("number of all TUs is "+ all_pairs.size());
-		
+
 		List<String> uniquepairs = new ArrayList<String>();
 		for (String pair:all_pairs){
 			if (!uniquepairs.contains(pair))
@@ -807,7 +1203,7 @@ public class TempUtils {
 		}
 		LOGGER.info("number of unique TUs is "+ uniquepairs.size());
 		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/naps/SL/unique_EN-SL_pairs.txt"), uniquepairs);
-		
+
 		int newsize1 =  7*uniquepairs.size()/15;
 		int newsize2 =  8*uniquepairs.size()/15;
 		LOGGER.info("Two files will be generated.");
@@ -815,7 +1211,7 @@ public class TempUtils {
 		LOGGER.info("The second will include about "+ newsize2 + " TUs.");
 		uniquepairs.clear();
 		all_pairs.clear();
-				
+
 		int comcounter_en=0, comcounter_sl=0;
 		for (String pair:en_sl_pairs){
 			if (sl_en_pairs.contains(pair))
@@ -829,19 +1225,19 @@ public class TempUtils {
 			//else
 			//	LOGGER.info(pair);
 		}
-		
+
 		LOGGER.info("number of TUS from EN-SL which are in SL-EN : " + comcounter_en);
 		double inters1 = 100 *(double) comcounter_en/ (double) en_sl_pairs.size();
 		LOGGER.info(inters1 + "% of EN_SL");
 		double inters2 = 100 * (double) comcounter_en/ (double) sl_en_pairs.size();
 		LOGGER.info(inters2 + "% of SL-EN");
-		
+
 		LOGGER.info("number of TUS from SL-EN which are in EN-SL : " + comcounter_sl);
 		inters1 = 100 *(double) comcounter_sl/ (double) en_sl_pairs.size();
 		LOGGER.info(inters1 + "% of EN_SL");
 		inters2 = 100 * (double) comcounter_sl/ (double) sl_en_pairs.size();
 		LOGGER.info(inters2 + "% of SL-EN");
-		
+
 		sl_en_pairs.clear();
 
 		List<String> en_sl_lines = FileUtils.readLines(en_sl, "UTF-16LE");
@@ -869,22 +1265,22 @@ public class TempUtils {
 		for (String pair:en_sl_pairs_new){
 			pair = pair.replaceAll("<seg>", "");
 			pair = pair.replaceAll("</seg>", "");
-			pair = pair.replaceAll("\t", " ");
+			pair = pair.replaceAll("\t", Constants.SPACE);
 			words = words + FCStringUtils.getTokens(pair).size();
 		}
 		LOGGER.info("Number of words (space separated) in "+ en_sl_new1.getName()+ " is: "+ words);
-		
+
 		System.out.println(en_sl_pairs_new.size());
 		System.out.println(en_sl_pairs_new.get(0));
 		en_sl_lines.clear();
 		en_sl_lines_new.clear();
 		//FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL_new1.tmx"), "UTF-16LE", en_sl_lines_newRest);		
-		
+
 		List<String> sl_en_lines = FileUtils.readLines(sl_en, "UTF-16LE");
 		System.out.println(sl_en_lines.size());
 		sl_en_lines.addAll(en_sl_lines_newRest);
 		System.out.println(sl_en_lines.size());
-		
+
 		List<String> sl_en_lines_new =new ArrayList<String>();
 		List<String> temp = new ArrayList<String>();
 		boolean intu = false;
@@ -930,13 +1326,13 @@ public class TempUtils {
 		File en_sl_new2 = new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL_new2.tmx");
 		FileUtils.writeLines(en_sl_new2, "UTF-16LE", sl_en_lines_new);	
 		List<String> en_sl_pairs_new2 = pseudoparseTMX(en_sl_new2, "UTF-16LE");
-		
+
 		words=0;
 		for (String pair:en_sl_pairs_new2){
 			words = words + FCStringUtils.getTokens(pair).size();
 		}
 		LOGGER.info("Number of words (space separated) in "+ en_sl_new2.getName()+ " is: "+ words);
-		
+
 	}
 
 
@@ -1456,11 +1852,11 @@ public class TempUtils {
 		Set<String> lines2s = new HashSet<String>();
 		for (String line2:lines2){
 			String[] tt = line2.split("\t");
-			lines2s.add(ContentNormalizer.normtext(tt[1] + " " + tt[2]));
+			lines2s.add(ContentNormalizer.normtext(tt[1] + Constants.SPACE + tt[2]));
 		}
 		for (String line1:lines1){
 			String[] t = line1.split("\t");
-			String temp = ContentNormalizer.normtext(t[1]+ " " +t[2]);
+			String temp = ContentNormalizer.normtext(t[1]+ Constants.SPACE +t[2]);
 			if (!lines2s.contains(temp)){
 				res.add(line1);
 			}//else{
@@ -1475,7 +1871,7 @@ public class TempUtils {
 		Set<String> tests = new HashSet<String>();
 		List<String> newlines = new ArrayList<String>();
 		for (String line:lines){
-			String temp = ContentNormalizer.normtext(line.split("\t")[1]+" "+line.split("\t")[2]);
+			String temp = ContentNormalizer.normtext(line.split("\t")[1]+Constants.SPACE+line.split("\t")[2]);
 			if (!tests.contains(temp)){
 				tests.add(temp);
 				newlines.add(line);
@@ -1636,7 +2032,7 @@ public class TempUtils {
 				if (!tmx_files.get(ii).startsWith("align"))
 					continue;
 
-				String[] temp = tmx_files.get(ii).split(" ");
+				String[] temp = tmx_files.get(ii).split(Constants.SPACE);
 				found = false;
 				for (int jj=0;jj<types.length;jj++){
 					if (temp[0].endsWith(types[jj]+".tmx")){
@@ -1827,7 +2223,7 @@ public class TempUtils {
 			File sourcedir = new File(sourcedir1);
 			File targetdir = new File(targetdir1);
 			String[] pairlist =FileUtils.readFileToString(new File(cesAling_listfile)).replace("/", "\\").split("\n");
-			String[] types = type.split(" ");
+			String[] types = type.split(Constants.SPACE);
 			for (int ii=0;ii<pairlist.length;ii++){	
 				if (pairlist[ii].startsWith("pdfs"))
 					continue;
@@ -2252,7 +2648,7 @@ public class TempUtils {
 
 		@Override
 		public String toString() {
-			return url1 + " " + dist;
+			return url1 + Constants.SPACE + dist;
 		}
 
 		public int compareTo(Field field, Record record) {
