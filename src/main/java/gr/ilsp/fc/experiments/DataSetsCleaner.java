@@ -1,6 +1,7 @@
 package gr.ilsp.fc.experiments;
 
 import gr.ilsp.fc.utils.ContentNormalizer;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,11 +20,6 @@ public class DataSetsCleaner {
 	private static String process;
 	private static String cols1, cols2;
 	private static File infile1, infile2, outfile1;
-
-	private static final String TAB_STR = "\t";
-	private static final String SEMICOLON_STR = ";";
-	private static final String SPACE_STR = " ";
-
 
 	public static void main(String[] args) throws IOException {
 
@@ -68,7 +64,7 @@ public class DataSetsCleaner {
 			String temp22 = "";
 			for (int ii=0;ii<temp2.length;ii++){
 				if  (col2.contains(ii))
-					temp22 = temp22 + SPACE_STR + ContentNormalizer.normtext(temp2[ii]);
+					temp22 = temp22 + Constants.SPACE + ContentNormalizer.normtext(temp2[ii]);
 			}
 			temp22 = temp22.trim();
 			if (!map2.containsKey(temp22))
@@ -80,7 +76,7 @@ public class DataSetsCleaner {
 			String temp11 = "";
 			for (int ii=0;ii<temp1.length;ii++){
 				if  (col1.contains(ii))
-					temp11 = temp11 + SPACE_STR + ContentNormalizer.normtext(temp1[ii]);
+					temp11 = temp11 + Constants.SPACE + ContentNormalizer.normtext(temp1[ii]);
 			}
 			temp11 = temp11.trim();
 			if (!map2.containsKey(temp11))
@@ -130,11 +126,11 @@ public class DataSetsCleaner {
 		HashMap<String, String> parts = new HashMap<String, String>();
 		int counter=0;
 		for (String t:list){
-			String[] temp1 = t.split(TAB_STR);
+			String[] temp1 = t.split(Constants.TAB);
 			String temp11 = "";
 			for (int ii=0;ii<temp1.length;ii++){
 				if  (col.contains(ii))
-					temp11 = temp11 + SPACE_STR + ContentNormalizer.normtext(temp1[ii]);
+					temp11 = temp11 + Constants.SPACE + ContentNormalizer.normtext(temp1[ii]);
 			}
 			temp11 = temp11.trim();
 
@@ -160,7 +156,7 @@ public class DataSetsCleaner {
 	 */
 	
 	private static List<Integer> definecols(String cols3) {
-		String[] t=cols3.split(SEMICOLON_STR);
+		String[] t=cols3.split(Constants.SEMICOLON);
 		List<Integer> col = new ArrayList<Integer>();
 		for (int ii=0;ii<t.length;ii++){
 			col.add(Integer.parseInt(t[ii]));
