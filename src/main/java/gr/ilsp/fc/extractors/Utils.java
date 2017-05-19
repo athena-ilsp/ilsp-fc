@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import gr.ilsp.nlp.commons.Constants;
+
 public class Utils {
 
 	public static double minimum_space_width = 1;
@@ -17,9 +19,9 @@ public class Utils {
 		private static final long serialVersionUID = -7208860988679686271L;
 
 		{ 
-			put("\\uFEFF", " "); //ZERO WIDTH NO-BREAK SPACE
-			put("\\u00a0", " "); //NO BREAK SPACE
-			put("\\u200E"," "); //LEFT-TO-RIGHT MARK
+			put("\\uFEFF", Constants.SPACE); //ZERO WIDTH NO-BREAK SPACE
+			put("\\u00a0", Constants.SPACE); //NO BREAK SPACE
+			put("\\u200E",Constants.SPACE); //LEFT-TO-RIGHT MARK
 			put("\\u0097", "-"); //END OF GUARDED AREA
 			put("\\u0092", "’"); //APOSTROPHE
 			put("\\u0313","’"); //COMBINING COMMA ABOVE
@@ -27,8 +29,8 @@ public class Utils {
 			put("\\u0093", "“"); //OPEN DOUBLE QUOTE
 			put("\\u0095", "•"); 
 			put("\\u0096", "-");
-			put("\\u0081", " ");
-			put("\\u202f", " "); //NARROW NO-BREAK SPACE
+			put("\\u0081", Constants.SPACE);
+			put("\\u202f", Constants.SPACE); //NARROW NO-BREAK SPACE
 			put("\\u2206", "Δ"); //INCREMENT
 			put("\\u02bc", "’"); //MODIFIER LETTER APOSTROPHE
 			put("\\u003e", ">"); //GREATER-THAN SIGN
@@ -49,19 +51,19 @@ public class Utils {
 			put("\\uF075",""); //INVALID UNICODE CHARACTER
 			put("\\u2126","Ω"); //OHM SIGN
 			put("\\u25B6","►"); //BLACK RIGHT-POINTING TRIANGLE
-			put("\\u200F"," "); //RIGHT-TO-LEFT MARK
+			put("\\u200F",Constants.SPACE); //RIGHT-TO-LEFT MARK
 			put("\\u0080","€"); //RIGHT-TO-LEFT MARK
 			put("\\u2082","2"); // SUBSCRIPT TWO
 			//got from prokopis
-			put("\\u2002"," "); // EN SPACE
-			put("\\u2003"," "); // EM SPACE
-			put("\\u2004"," "); // THREE-PER-EM SPACE
-			put("\\u2005"," "); // FOUR-PER-EM SPACE
-			put("\\u2006"," "); // SIX-PER-EM SPACE
-			put("\\u2007"," "); // FIGURE SPACE
-			put("\\u2008"," "); // PUNCTUATION SPACE
-			put("\\u2009"," "); // THIN SPACE
-			put("\\u200A"," "); // HAIR SPACE
+			put("\\u2002",Constants.SPACE); // EN SPACE
+			put("\\u2003",Constants.SPACE); // EM SPACE
+			put("\\u2004",Constants.SPACE); // THREE-PER-EM SPACE
+			put("\\u2005",Constants.SPACE); // FOUR-PER-EM SPACE
+			put("\\u2006",Constants.SPACE); // SIX-PER-EM SPACE
+			put("\\u2007",Constants.SPACE); // FIGURE SPACE
+			put("\\u2008",Constants.SPACE); // PUNCTUATION SPACE
+			put("\\u2009",Constants.SPACE); // THIN SPACE
+			put("\\u200A",Constants.SPACE); // HAIR SPACE
 		}
 	};
 		

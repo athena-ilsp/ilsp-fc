@@ -4,6 +4,7 @@ import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.readwrite.WriteResources;
 import gr.ilsp.fc.utils.LicensePostProcessor;
 import gr.ilsp.fc.utils.TopicTools;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -53,7 +54,7 @@ public class GenrePostProcessor {
 	//private static final String NgramFileExt=".ngr";
 	private static final String fs = System.getProperty("file.separator");
 	//private static final String rarechar="~";
-	//private static final String space_char=" ";	
+	//private static final String space_char=Constants.SPACE;	
 	//private static final String ngramExec="ngran-count";
 	private static final String underscore="_";
 	private static final String separator=",";
@@ -119,7 +120,7 @@ public class GenrePostProcessor {
 			if (temp.length>1)
 				features[ii]=temp[1].toLowerCase();
 			else
-				features[ii]=" ";
+				features[ii]=Constants.SPACE;
 		}
 		List<String> files = FileUtils.readLines(new File(this.pairlist));
 		logger.info("Pairs are: "+ files.size());
@@ -340,7 +341,7 @@ public class GenrePostProcessor {
 			if (temp.length>1)
 				features[ii]=temp[1].toLowerCase();
 			else
-				features[ii]=" ";
+				features[ii]=Constants.SPACE;
 		}
 
 		FilenameFilter filter = new FilenameFilter() {			
@@ -442,7 +443,7 @@ public class GenrePostProcessor {
 				//concatenate stems 
 				tempstr="";
 				for (String s:stems){
-					tempstr+=" "+s;
+					tempstr+=Constants.SPACE+s;
 				}
 				HashMap<String, Token> tokens = new HashMap<String, Token>();
 				StringBuffer curToken = new StringBuffer();
@@ -650,7 +651,7 @@ public class GenrePostProcessor {
 
 		@Override
 		public String toString() {
-			return val + " " + cnt;
+			return val + Constants.SPACE + cnt;
 		}
 	}
 	

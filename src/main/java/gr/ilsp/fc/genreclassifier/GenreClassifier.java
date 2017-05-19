@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gr.ilsp.fc.readwrite.ReadResources;
+import gr.ilsp.nlp.commons.Constants;
 
 public class GenreClassifier {
 
@@ -70,7 +71,7 @@ public class GenreClassifier {
 			if (temp.length>1)
 				features[ii]=temp[1].toLowerCase();
 			else
-				features[ii]=" ";
+				features[ii]=Constants.SPACE;
 		}
 		int found=genres_features.size()-1;
 		for (int jj=0; jj<genres.length;jj++){
