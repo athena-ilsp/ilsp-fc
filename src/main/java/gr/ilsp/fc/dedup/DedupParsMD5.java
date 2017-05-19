@@ -2,10 +2,12 @@ package gr.ilsp.fc.dedup;
 
 import gr.ilsp.fc.dedup.DedupUtils.TextParsAttr;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.langdetect.LangDetector;
+import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.readwrite.WriteResources;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
-//import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,8 +29,8 @@ public class DedupParsMD5 {
 	private static final String txtext="txt";
 	private static final String appHTMLext = ".html";
 	private static final String appXMLHTMLext = ".xml.html";
-	private static final String UNDERSCORE_STR = "_";
-	private static final String PUNCT = ".";
+	private static String defaultlangDetectorId="langdetect";
+	private static LangDetector langDetector;
 	//private static double inter_thr=0.7;
 
 	/**
@@ -54,7 +56,7 @@ public class DedupParsMD5 {
 			System.exit(64);
 		}
 		out_textfile =outputfilename;
-		List<File> files = DedupUtils.getTargetFiles(input,UNDERSCORE_STR, input_type);
+		List<File> files = DedupUtils.getTargetFiles(input,Constants.UNDERSCORE, input_type);
 		if (files.size()<2){
 			LOGGER.info("The input list contains less than 2 files.");
 			return;
@@ -67,20 +69,21 @@ public class DedupParsMD5 {
 		int cents=0;
 		HashMap<String, TextParsAttr> filesTextParsAttrs = new HashMap<String, TextParsAttr>();
 		if (input_type.equals(txtext)){
-			LangDetectUtils.loadCybozuLangIdentifier();
+			//LangDetectUtils.loadCybozuLangIdentifier();
+			langDetector = LangDetectUtils.loadLangDetectors(ReadResources.getSupportedLanguages().split(Constants.SEMICOLON), defaultlangDetectorId);
 		}
 		for (int ii=0;ii<files.size();ii++){
 			TextParsAttr t =null;
 			if (input_type.equals(xmlext))
 				try {
-					t= DedupUtils.getTextParsAttr(files.get(ii), MIN_PAR_LEN,input_type);
+					t= DedupUtils.getTextParsAttr(files.get(ii), MIN_PAR_LEN,input_type, langDetector);
 				} catch (IOException e) {
 					LOGGER.error("Problem in reading file "+files.get(ii).getAbsolutePath());
 					e.printStackTrace();
 				}
 			if (input_type.equals(txtext)){
 				try {
-					t= DedupUtils.getTextParsAttr(files.get(ii), MIN_PAR_LEN,input_type);
+					t= DedupUtils.getTextParsAttr(files.get(ii), MIN_PAR_LEN,input_type, langDetector);
 				} catch (IOException e) {
 					LOGGER.error("Problem in reading file "+files.get(ii).getAbsolutePath());
 					e.printStackTrace();
@@ -161,8 +164,8 @@ public class DedupParsMD5 {
 					if (!file_to_delete.isEmpty()){
 						LOGGER.debug(file_key+"\t\t"+ file1_key + "\tDELETED: "+ file_to_delete);
 						(new File(file_to_delete)).delete();
-						(new File(file_to_delete.replace(PUNCT+input_type,appHTMLext))).delete();
-						(new File(file_to_delete.replace(PUNCT+input_type,appXMLHTMLext))).delete();
+						(new File(file_to_delete.replace(Constants.DOT+input_type,appHTMLext))).delete();
+						(new File(file_to_delete.replace(Constants.DOT+input_type,appXMLHTMLext))).delete();
 					}
 				}
 			}

@@ -1,18 +1,22 @@
 package gr.ilsp.fc.dedup;
 
-import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.langdetect.LangDetector;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.TopicTools;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.FileUtils;
@@ -25,15 +29,14 @@ public class DedupUtils {
 	//private static int MIN_TOKEN_LEN=3;	//tokens with less than MIN_TOKEN_LEN are excluded
 	private static float QUANT_RATE= (float) 0.01;
 	private static int QAUNT_DEFAULT=1; // quantization interval 
-	//private static final String LANGUAGE_ELE = "language";
-	//private static final String LANGUAGE_ATT ="iso639";
+	private static final String LANGUAGE_ELE = "language";
+	private static final String LANGUAGE_ATT ="iso639";
 	private static final String ooi_crawlinfo = "crawlinfo";
 	private static final String P_ELE = "p";
 	//private static int min_tok_num=3;  
-	private static final String HYPHEN="-";
 	private static final String xmlext="xml";
 	private static final String txtext="txt";
-
+	private static Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp"));
 	/**
 	 * calculates an MD5 hashkey for a  text	
 	 * @param text
@@ -165,7 +168,7 @@ public class DedupUtils {
 
 		@Override
 		public String toString() {
-			return val + " " + cnt;
+			return val + Constants.SPACE + cnt;
 		}
 	}
 
@@ -207,16 +210,21 @@ public class DedupUtils {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static TextParsAttr getTextParsAttr(File file, int min_tok_num, String input_type) throws IOException {
-		String text="", langIdentified="";
+	public static TextParsAttr getTextParsAttr(File file, int min_tok_num, String input_type, LangDetector langDetector) throws IOException {
+		String text=Constants.EMPTY_STRING, langIdentified=Constants.EMPTY_STRING;
 		if (input_type.endsWith(xmlext)){
 			text = ReadResources.extractTextfromXML_clean(file.getAbsolutePath(),P_ELE,ooi_crawlinfo, false);
-			//String langIdentified = ReadResources.extractLangfromXML(file.getAbsolutePath(), LANGUAGE_ELE, LANGUAGE_ATT);
-			langIdentified = file.getName().split(HYPHEN)[0];
+			langIdentified = ReadResources.extractAttrfromXML(file.getAbsolutePath(), LANGUAGE_ELE, LANGUAGE_ATT, true, false);
+			//langIdentified = file.getName().split(HYPHEN)[0];
 		}		
 		if (input_type.endsWith(txtext)){
 			text = FileUtils.readFileToString(file);
-			langIdentified = LangDetectUtils.detectLanguage(text);
+			//langIdentified = LangDetectUtils.detectLanguage(text);
+			langIdentified = langDetector.detect(text);
+			if (langsTBFI.contains(langIdentified)) {
+				// logger.debug("Rechecking " + autoLang);
+				langIdentified = langDetector.detect(text, langIdentified);
+			}
 		}
 
 		String[] pars=text.split("\n");
