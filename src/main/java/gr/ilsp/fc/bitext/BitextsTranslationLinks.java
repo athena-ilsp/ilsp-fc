@@ -1,6 +1,6 @@
 package gr.ilsp.fc.bitext;
 
-import gr.ilsp.fc.attic.CrawlConfig;
+import gr.ilsp.fc.crawl.CrawlerDirConfig;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.parser.ExtendedOutlink;
 import gr.ilsp.fc.utils.ISOLangCodes;
@@ -65,7 +65,7 @@ public class BitextsTranslationLinks {
 				prevLoop)) != null) {
 
 			Path parseDbPath = new Path(curDirPath,
-					CrawlConfig.PARSE_SUBDIR_NAME);
+					CrawlerDirConfig.PARSE_SUBDIR_NAME);
 			Tap parseDbTap = new Hfs(new SequenceFile(
 					ExtendedParsedDatum.FIELDS), parseDbPath.toUri().toString());
 			LOGGER.debug("Examining " + parseDbPath.toUri().toString());
