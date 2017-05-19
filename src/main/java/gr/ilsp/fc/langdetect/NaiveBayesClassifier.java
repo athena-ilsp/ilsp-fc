@@ -54,6 +54,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.nlp.commons.Constants;
 
 public class NaiveBayesClassifier extends LangDetector {
 
@@ -304,7 +305,7 @@ public class NaiveBayesClassifier extends LangDetector {
 				}
 				parms.get(category).put(feature, val+0.1);	
 				if (feature.equals("sedmice") ) {
-					logger.info( "Init param ->" + feature + " " + category + " ->" + parms.get(category).get(feature));
+					logger.info( "Init param ->" + feature + Constants.SPACE + category + " ->" + parms.get(category).get(feature));
 				}
 			}
 
