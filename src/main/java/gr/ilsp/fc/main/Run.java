@@ -10,10 +10,11 @@ import gr.ilsp.fc.crawl.CrawlerO;
 import gr.ilsp.fc.crawl.CrawlerOptions;
 import gr.ilsp.fc.dedup.Deduplicator;
 import gr.ilsp.fc.exporter.Exporter;
-import gr.ilsp.fc.langdetect.LangDetectUtils;
+//import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.monomerge.MonoMerger;
 import gr.ilsp.fc.tmxhandler.TMXHandler;
 import gr.ilsp.fc.utils.sentencesplitters.SentenceSplitterFactory;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,15 +32,11 @@ import org.apache.log4j.Logger;
 public class Run {
 	private static final Logger LOGGER = Logger.getLogger(Run.class);
 	private static final String xml_type="xml";
-	private static final String UNDERSCORE_STR = "_";
-	private static final String SEMICOLON_STR=";";
-	private static final String HYPHEN_STR="-";
 	private static final String CRAWL_operation = "crawl", EXPORT_operation = "export", DEDUP_operation = "dedup", PAIRDETECT_operation = "pairdetect";
 	private static final String ALIGN_operation = "align", TMX_MERGE_operation = "tmxmerge", MONO_MERGE_operation = "monomerge";
 	private static final String XMLlist = ".xmllist.txt";
 
 	private static int[] thres={ 100, 100, 100, 100, 100, 100, 100, 100};
-
 
 	public static void main(String[] args) {
 		LOGGER.info(Arrays.toString(args));
@@ -104,12 +101,14 @@ public class Run {
 				exp.setOutputDir(new File(FilenameUtils.concat(cro.getOutputDir().getAbsolutePath(), xml_type)).getAbsoluteFile());
 				exp.setAcceptedMimeTypes(cro.getValidMimes().toArray(new String[cro.getValidMimes().size()]));
 				exp.setConfiguration(cro.getConfiguration());
+				exp.setLangDetector(cro.getLangDetector());
 			}else{
 				exp.setConfiguration(Exporter.getConfig(run_options.getConfig()));
 				exp.setInputDir(run_options.getInputDir());
 				exp.setOutputDir(run_options.getOutputDir());
 				exp.setAcceptedMimeTypes(exp.getConfiguration().getStringArray("fetcher.valid_mime_types.mime_type[@value]"));
-				LangDetectUtils.loadCybozuLangIdentifier();
+				//LangDetectUtils.loadCybozuLangIdentifier();
+				exp.setLangDetector(run_options.getLangDetector());
 			}
 			numInLangMap = exp.export(false);
 			urlsToIds = exp.getUrlsToIds();
@@ -151,10 +150,10 @@ public class Run {
 			List<String> langpairs = run_options.getLangPairs();
 			for (String langpair:langpairs){
 				if (export){ //then there is information about number of available documents in each targeted language //FIXME it is probable that numbers have been changed due to (near)deduplication
-					boolean stop = noDocsForLangPair(numInLangMap, langpair.split(SEMICOLON_STR));
+					boolean stop = noDocsForLangPair(numInLangMap, langpair.split(Constants.SEMICOLON));
 					if (stop){
 						numInLangPairMap.put(langpair,0);
-						LOGGER.info("No pairs for "+ langpair.replaceAll(SEMICOLON_STR, HYPHEN_STR));
+						LOGGER.info("No pairs for "+ langpair.replaceAll(Constants.SEMICOLON, Constants.HYPHEN));
 						continue;
 					}
 				}
@@ -204,8 +203,8 @@ public class Run {
 			Aligner aligner = null; 
 			List<String> langpairs = run_options.getLangPairs();
 			for (String langpair:langpairs){
-				String[] langs = langpair.split(SEMICOLON_STR);
-				LOGGER.info("------------Alignment of segments in "+ langs[0]+HYPHEN_STR+langs[1]+".------------");
+				String[] langs = langpair.split(Constants.SEMICOLON);
+				LOGGER.info("------------Alignment of segments in "+ langs[0]+Constants.HYPHEN+langs[1]+".------------");
 				if (pairdetect){ //then there is information about the number of document pairs (cesAlign files) per language pair
 					boolean stop = noDocPairsForLangPair(numInLangPairMap, langpair);
 					if (stop)
@@ -213,7 +212,7 @@ public class Run {
 				}
 				aligner = AlignerFactory.prepareAligner(configuration, run_options.toAlign(), run_options.useDict(), run_options.pathDict(), langs);
 				if (aligner!=null){
-					String langext = UNDERSCORE_STR+langs[0]+HYPHEN_STR+langs[1];
+					String langext = Constants.UNDERSCORE+langs[0]+Constants.HYPHEN+langs[1];
 					File outTextList = null;
 					if (pairdetect)
 						outTextList = new File(run_options.getBaseName()+langext+XMLlist);
@@ -223,10 +222,11 @@ public class Run {
 							try {
 								List<String> cesAlignPaths = aligner.getCesAlignPaths(outTextList, langs);
 								if (!cesAlignPaths.isEmpty()){
-									FileUtils.writeLines(new File(FilenameUtils.concat(outTextList.getAbsolutePath(),run_options.getAgentName()+UNDERSCORE_STR+langext+XMLlist)), cesAlignPaths);
-									outTextList = new File(outTextList+langext+XMLlist);
+									FileUtils.writeLines(new File(FilenameUtils.concat(outTextList.getAbsolutePath(),run_options.getAgentName()+Constants.UNDERSCORE+langext+XMLlist)), cesAlignPaths);
+									//outTextList = new File(outTextList+langext+XMLlist);
+									outTextList = new File(FilenameUtils.concat(outTextList.getAbsolutePath(),run_options.getAgentName()+Constants.UNDERSCORE+langext+XMLlist));
 								}else{
-									LOGGER.info("no cesAlign files for "+ langs[0]+HYPHEN_STR+langs[1]);
+									LOGGER.info("no cesAlign files for "+ langs[0]+Constants.HYPHEN+langs[1]);
 									continue;
 								}
 							} catch (IOException e) {
@@ -265,22 +265,27 @@ public class Run {
 			tm.setCC(run_options.getCC());
 			tm.useISO6393(run_options.useISO6393());
 			tm.setUserTopic(run_options.getUserTopic());
+			tm.setMaxSampleSize(run_options.getMaxSampleSize());
 			if (pairdetect)
 				tm.setTargetDir(pd.getTargetDir());
 			else
 				tm.setTargetDir(run_options.getInputDir());
+			if (export)
+				tm.setLangDetector(exp.getLangDetector());
+			else
+				tm.setLangDetector(run_options.getLangDetector());
+			
 			if (tm.getTargetDir()!=null){
 				List<String> langpairs = run_options.getLangPairs();
 				for (String langpair:langpairs){
 					tm.setLanguage(langpair);
-					String[] temp_langs = langpair.split(SEMICOLON_STR);
-					String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
+					String[] temp_langs = langpair.split(Constants.SEMICOLON);
+					String lang = Constants.UNDERSCORE+temp_langs[0]+Constants.HYPHEN+temp_langs[1];
 					tm.setBaseName(new File(run_options.getBaseName()+lang));
 					tm.mergeTMXs();
 				}
-			}else{
+			}else
 				LOGGER.warn("No targeted directory");
-			}
 			tmxmerge=true;
 		}
 		//constructs monolingual corpora 
@@ -299,10 +304,10 @@ public class Run {
 			mm.setCorpusLevel(run_options.getCorpusLevel());
 			//mm.setSites(run_options.getSites());
 			mm.setLanguage(run_options.getLanguage());
-			String[] languages = mm.getLanguage().split(SEMICOLON_STR);
+			String[] languages = mm.getLanguage().split(Constants.SEMICOLON);
 			for (String lang:languages){
 				mm.setLanguage(lang);
-				mm.setBaseName(new File(run_options.getBaseName()+UNDERSCORE_STR+lang));
+				mm.setBaseName(new File(run_options.getBaseName()+Constants.UNDERSCORE+lang));
 				mm.setSentenceSplitter(sentenceSplitterFactory.getSentenceSplitter(lang));
 				mm.merge();
 			}
@@ -319,7 +324,7 @@ public class Run {
 	private static boolean noDocPairsForLangPair(Map<String, Integer> numInLangPairMap, String langpair) {
 		if (numInLangPairMap.containsKey(langpair)){
 			if (numInLangPairMap.get(langpair)==0){
-				LOGGER.info("No pairs in "+ langpair.replaceAll(SEMICOLON_STR, HYPHEN_STR));
+				LOGGER.info("No pairs in "+ langpair.replaceAll(Constants.SEMICOLON, Constants.HYPHEN));
 				return true;
 			}
 		}
@@ -375,7 +380,7 @@ public class Run {
 		//cr_options.set_minParLen(run_options.getMinParLen());
 
 		cr_options.set_targetedLangs(run_options.getTargetedLangs());
-
+		cr_options.set_LangDetector(run_options.getLangDetector());
 		cr_options.set_langKeys(run_options.getLangKeys());
 		cr_options.set_mapLangs(run_options.getMapLangs());
 		cr_options.set_linkAttrs(run_options.getTransLinksAttrs());
