@@ -360,12 +360,14 @@ public class TMXHandler {
 
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
 			
+			LOGGER.info("Generating language files");
+			TMXHandlerUtils.splitIntolangFiles(alignmentList, languages, baseName);
+			
 			int sampleSizeCe = (int)((double)alignmentList.size()*sampleSizePerCe);
+			int sampleSize = Math.min(maxSampleSize, sampleSizeCe);
 			File samplefile = new File(baseName.getAbsolutePath() + SAMPLE);
 			LOGGER.info("Generating sample file " + samplefile.getAbsolutePath());
-			TMXHandlerUtils.generateSample(alignmentList, Math.min(maxSampleSize, sampleSizeCe), samplefile);
-			LOGGER.info("Generating language files " + samplefile.getAbsolutePath());
-			TMXHandlerUtils.splitIntolangFiles(alignmentList, languages, baseName);
+			TMXHandlerUtils.generateSample(alignmentList, sampleSize, samplefile);
 			
 			try {
 				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITES), sites_all);

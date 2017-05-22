@@ -978,26 +978,30 @@ public class TMXHandlerUtils {
 	/*
 	 * returns a table that holds the segments of "source" and "target" languages
 	 */
-	public static String[] generateLangsParts(List<ILSPAlignment> alignmentList) {
-		String[] res = new String[2];
-		for (ILSPAlignment al:alignmentList){
-			res[0] = res[0]+al.getSourceSegmentList().get(0)+"\n";
-			res[1] = res[1]+al.getTargetSegmentList().get(0)+"\n";
+	public static List<String> getLangPart(List<ILSPAlignment> alignmentList, boolean source) {
+		List<String> res =new ArrayList<String>();
+		if (source){
+			for (ILSPAlignment al:alignmentList)
+				res.add(al.getSourceSegmentList().get(0));
+		}else{
+			for (ILSPAlignment al:alignmentList)
+				res.add(al.getTargetSegmentList().get(0));
 		}
 		return res;
 	}
 
 	public static void splitIntolangFiles(List<ILSPAlignment> alignmentList,String[] languages, File baseName) {
-		String[] texts = generateLangsParts(alignmentList);
+		List<String> res = getLangPart(alignmentList, true);
 		File filelang1 = new File(baseName.getAbsolutePath() + Constants.DOT+ ISOLangCodes.get2LetterCode(languages[0]));
 		try {
-			FileUtils.writeStringToFile(filelang1, texts[0]);
+			FileUtils.writeLines(filelang1, res);
 		} catch (IOException e) {
 			LOGGER.warn("problem in writing "+ filelang1);
 		}
+		 res = getLangPart(alignmentList, false);
 		File filelang2 = new File(baseName.getAbsolutePath() + Constants.DOT+ ISOLangCodes.get2LetterCode(languages[1]));
 		try {
-			FileUtils.writeStringToFile(filelang2, texts[1]);
+			FileUtils.writeLines(filelang2, res);
 		} catch (IOException e) {
 			LOGGER.warn("problem in writing "+ filelang2);
 		}
