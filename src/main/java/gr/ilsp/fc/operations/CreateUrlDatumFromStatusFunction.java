@@ -94,7 +94,7 @@ public class CreateUrlDatumFromStatusFunction extends BaseOperation<NullContext>
         else {fetchTime=0;}
 
         _numCreated += 1;
-        //LOGGER.info(url + " " + status.name());
+        //LOGGER.info(url + Constants.SPACE + status.name());
         ExtendedUrlDatum urlDatum = new ExtendedUrlDatum(url);
         urlDatum.setScore(score);
         urlDatum.setPayloadValue(CrawlDbDatum.LAST_FETCHED_FIELD, fetchTime);
