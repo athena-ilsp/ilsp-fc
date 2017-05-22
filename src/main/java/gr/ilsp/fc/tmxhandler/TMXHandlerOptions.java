@@ -1,6 +1,8 @@
 package gr.ilsp.fc.tmxhandler;
 
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.langdetect.LangDetector;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +24,6 @@ public class TMXHandlerOptions {
 	private String APPNAME = "TMX Handler";
 	
 	private static final Logger LOGGER = Logger.getLogger(TMXHandlerOptions.class);
-	private static final String QUEST_SEPAR = ";";
 	private List<String> _sites ;
 	private File _targetDir = null;
 	private File _baseName=null;
@@ -31,6 +32,8 @@ public class TMXHandlerOptions {
 	private String _config;
 	private String _descr;
 	private String _language;
+	private LangDetector _langDetector;
+	private String defaultlangDetectorId="langdetect" ;
 	private String _doctypes="aupdih";
 	private boolean _oxslt=false;
 	private boolean _keepsn = false;
@@ -51,6 +54,7 @@ public class TMXHandlerOptions {
 	private  double _minPerce01Align = 1;
 	private  double _minTULenRatio = 0;
 	private  double _maxTULenRatio = 100;
+	private int _maxSampleSize = 1500;		//no more than this value
 	
 	public TMXHandlerOptions() {
 		createOptions();
@@ -148,6 +152,10 @@ public class TMXHandlerOptions {
 				.withDescription( "A list of accepted websites" )
 				.hasArg()
 				.create("sites") );
+		options.addOption( OptionBuilder.withLongOpt( "MaxSampleSize_TUs" )
+				.withDescription( "max sample size in TUs")
+				.hasArg()
+				.create("samplesize") );
 		options.addOption( OptionBuilder.withLongOpt( "specific_output2" )
 				.withDescription( "Not used(Specific outout2)")
 				.hasArg()
@@ -197,19 +205,21 @@ public class TMXHandlerOptions {
 			if (line.hasOption("iso6393"))		
 				_iso6393=true;
 			if(line.hasOption( "lang")) {
-				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),_iso6393);
-				if (_language.split(QUEST_SEPAR).length!=2){
+				//_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),_iso6393);
+				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true);
+				if (_language.split(Constants.SEMICOLON).length!=2){
 					LOGGER.error("You should provide 2 languages.");
 					help();
 				}
+				_langDetector = LangDetectUtils.loadLangDetectors(_language.split(Constants.SEMICOLON),defaultlangDetectorId);
 			}else{
 				LOGGER.error("No languages have been defined.");
 				System.exit(0);
 			}
 			if(line.hasOption( "pdm"))
-				_doctypes = line.getOptionValue("doctypes");
+				_doctypes = line.getOptionValue("pdm");
 			if(line.hasOption( "mtuvl"))
-				_minTuvLen = Integer.parseInt(line.getOptionValue("mtl"));
+				_minTuvLen = Integer.parseInt(line.getOptionValue("mtuvl"));
 			if(line.hasOption( "mpa"))
 				_minPerce01Align = Double.parseDouble(line.getOptionValue("mpa"));
 			if(line.hasOption( "minlr"))
@@ -219,7 +229,7 @@ public class TMXHandlerOptions {
 			if(line.hasOption( "ksn"))
 				_keepsn = true;
 			if(line.hasOption( "thres")){
-				String[] temp = line.getOptionValue("thres").split(QUEST_SEPAR); 
+				String[] temp = line.getOptionValue("thres").split(Constants.SEMICOLON); 
 				if (_doctypes.length()!=temp.length){
 					LOGGER.error("for each method a threshold should be defined");
 					help();
@@ -227,7 +237,7 @@ public class TMXHandlerOptions {
 				}
 			}
 			if(line.hasOption( "segtypes")){
-				String[] temp= line.getOptionValue("segtypes").split(QUEST_SEPAR); 
+				String[] temp= line.getOptionValue("segtypes").split(Constants.SEMICOLON); 
 				for (String str:temp){
 					_segtypes.add(str);
 				}
@@ -242,6 +252,8 @@ public class TMXHandlerOptions {
 					e.printStackTrace();
 				}	
 			}
+			if(line.hasOption( "samplesize"))
+				_maxSampleSize = Integer.parseInt(line.getOptionValue("samplesize"));
 		}catch( ParseException exp ) {
 			// oops, something went wrong
 			System.err.println( "Parsing options failed.  Reason: " + exp.getMessage() );			
@@ -328,5 +340,11 @@ public class TMXHandlerOptions {
 	}
 	public List<String> getSites() {
 		return _sites;
+	}
+	public LangDetector getLangDetector() {
+		return _langDetector;	
+	}
+	public int getMaxSampleSize() {
+		return _maxSampleSize;
 	}
 }
