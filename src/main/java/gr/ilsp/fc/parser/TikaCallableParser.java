@@ -5,8 +5,10 @@ package gr.ilsp.fc.parser;
 
 import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
-import gr.ilsp.fc.langdetect.LangDetectUtils;
+//import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.langdetect.LangDetector;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
+import gr.ilsp.fc.utils.ContentNormalizer;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -16,8 +18,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 //import java.util.regex.Matcher;
 //import java.util.regex.Pattern;
@@ -52,6 +56,9 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	//private static final String CC_pattern= "Creative Commons";
 	//private static final String default_CCurl_in_text= "http://creativecommons.org/licenses/by/3.0/";
 	private static final String default_CCcomment_in_url = "Distributed under a Creative Commons license";
+	private static final String default_OGLcomment_in_url = "Distributed under an Open Government license";
+	//https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+	
 	private static final String default_Europecomment_in_url = "©European Union, 1995-2014. Reuse is authorised, provided the source is acknowledged.";
 	/*private static final String default_CCcomment_in_text = "Distributed under a Creative Commons license (auto detected in document)";*/
 	//private static final String default_CCcomment_in_text = "Distributed under a Creative Commons license";
@@ -63,11 +70,11 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	// FUTURE KKr - improve this to handle en-US, and "eng" for those using old-style language codes.
 	private static final Pattern LANGUAGE_CODE_PATTERN = Pattern.compile("([a-z]{2})([,;-]).*");
 	private static final String LINK_CANONICAL = "link[canonical]";
-	private static final List<String> rights_links= Arrays.asList("privacy statement", "οροι χρησης", "προστασία προσωπικών δεδομένων",
-			"terms of use", "privacy policy" , "disclaimer");
-	
+	private static final List<String> rights_links= Arrays.asList("kushtet e perdorimit","kushtet e perdorimit te","afatet e perdorimit te","afatet e perdorimit","kushtet e perdorimit","mohim","abdikim","hedhje poshte","условия за ползване","опровержение","uvjeti koristenja","odricanje","dementi","zreknuti se","odricanje","podminky pouziti","podminky pouzivani","odmitnuti odpovednosti","betingelser for brug","betingelserne for anvendelse","brugsbetingelser","brugsvilkar","betingelserne for brug","ansvarsfraskrivelse","gebruiksvoorwaarden","voorwaarden","gebruiksvoorwaarden","ontkenning","algemene voorwaardes","gebruiksvoorwaarden","afwijzing van aansprakelijkheid","temrs of use","disclaimer","kasutustingimused","kasutustingimusi","lahtiutlemine","lahtiutlus","lahtiutluse","lahtiutlemise","kayttoehdot","vastuuvapauslauseke","conditions d'utilisation","avertissement","desistement","nutzungsbedingungen","haftungsausschluss","dementi","οροι χρησης","αποποιηση ευθυνων","αρνηση","hasznalati feltetelek","felhasznalasi feltetelek","lemondas","felelosseget kizaro nyilatkozat","felelossegi nyilatkozat","notenda skilmalar","notkunarskilmalar","fyrirvari","afsal abyrgðar","hofnun","tearmai usaide","seanadh","sheanadh","condizioni d'uso","termini di utilizzo","condizioni di utilizzo","disconoscimento","responsabilita","diniego","lietosanas noteikumi","atruna","atrunu","naudojimo salygos","naudojimo salygos ir","naudojimo salygas","atsisakymas","atsakomybes","wat d 'benotzung","benotzungsconditioune","benotzungsconditiounen","konditiounen verstoussen wei","konditiounen verstoussen","verzichterklarung","bestemmungen","neideg","termini ta 'uzu","termini tal-uzu","caħda ta 'responsabbilta","vilkar for bruk","ansvarsfraskrivelse","forbehold","ansvar","warunki korzystania","zrzeczenie sie","termos de uso","aviso legal","renuncia","aviso de isencao","retratacao","termeni de utilizare","act de renuntare","indicatii","denegari de responsabilitate","podmienky pouzivania","dement","zrieknutie sa prav","pogoji uporabe","odgovornosti","terminos de uso","condiciones de uso","renuncia","negante","villkor","anvandarvillkor","anvandningsvillkor","vilkor","anvandningsforhallanden","varning","privacy statement","οροι χρησης","προστασια προσωπικων δεδομενων","οροι και προυποθεσεις","terms of use","privacy policy","disclaimer","terms","privacy","user agreement","terms of service","privacidad","condiciones","legal","respect de la vie privee","juridique","terms and conditions","dmca/copyright","προσωπικα δεδομενα","νομικα","privacy cookies","license our content","termos de servico","privacidade","open government licence","conditions of use","privacy notice","terms of use privacy","απορρητο","datenschutz","privacy cookies security legal","ca privacy rights","privacy security","πολιτικη απορρητου","termini di servizio","unternehmen","notendaskilmalar","legal notice","lagalegur fyrirvari","smluvni podminky","podminky uziti sluzby","podminky pouzivani","vseobecne podminky","общи условия","потребителско споразумение","note legali","copyright","termini e condizioni","algemene voorwaarden","gebruiksvoorwaarden","legal matters","mentions legales","lees de gebruiksvoorwaarden","privacybeleid","regler og vilkar","brukervilkar","vilkar","personvern");
+
 	private Parser _parser;
 	private BaseContentExtractor _contentExtractor;
+	private LangDetector _langDetector;
 	private InputStream _input;
 	private Metadata _metadata;
 	private String _urlfilterstr;
@@ -75,18 +82,19 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 	private boolean _extractLanguage;
 	private boolean _keepBoiler = false;
 	private String[] _targeted_langs;
+	public Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp")); 
 	private HashMap<String,String> _maplangs;
 	private List<String[]> _tranlistAttrs;
 
 	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, InputStream input, Metadata metadata, HashMap<String,String> maplangs, 
-			List<String[]> tranlistAttrs, String[] targeted_langs, String urlfilterstr, boolean extractLinks) {
-		this(parser, contentExtractor, input, metadata, true, maplangs, tranlistAttrs, targeted_langs, false, urlfilterstr, extractLinks);
+			List<String[]> tranlistAttrs, String[] targeted_langs, LangDetector defaultLangDetector, String urlfilterstr, boolean extractLinks) {
+		this(parser, contentExtractor, input, metadata, true, maplangs, tranlistAttrs, targeted_langs, defaultLangDetector, false, urlfilterstr, extractLinks);
 	}
 
 
 	public TikaCallableParser(Parser parser, BaseContentExtractor contentExtractor, 
 			InputStream input, Metadata metadata, boolean extractLanguage, HashMap<String,String> maplangs, 
-			List<String[]> tranlistAttrs, String[] targeted_langs, boolean keepBoiler, String urlfilterstr, boolean extractLinks) {
+			List<String[]> tranlistAttrs, String[] targeted_langs, LangDetector defaultLangDetector, boolean keepBoiler, String urlfilterstr, boolean extractLinks) {
 		_parser = parser;
 		_contentExtractor = contentExtractor;
 		_input = input;
@@ -98,6 +106,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 		_tranlistAttrs = tranlistAttrs;
 		_urlfilterstr =urlfilterstr;
 		_extractLinks = extractLinks;
+		 _langDetector = defaultLangDetector;
 	}
 
 	@Override
@@ -125,7 +134,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			StringBuilder builder = new StringBuilder();
 			String aux = "";
 			while ((aux = reader.readLine()) != null) {
-				//builder.append(aux+" ");
+				//builder.append(aux+Constants.SPACE);
 				builder.append(aux);
 			}
 			_metadata.set(Metadata.COMMENTS, builder.toString());
@@ -142,7 +151,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			}
 			LOGGER.debug("PARSED URL:\t"+_metadata.get(Metadata.CONTENT_LOCATION));
 			//LOGGER.info("PARSED URL:\t"+_metadata.get(Metadata.CONTENT_LOCATION));
-			
+
 			//String lang = _extractLanguage ? _metadata.get(Metadata.CONTENT_LANGUAGE) : null;
 			/*String lang = _extractLanguage ? detectLanguageFromMetadata(_metadata, profilingHandler) : null;
 			String content = "";
@@ -155,12 +164,17 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				lang = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
 			}*/
 			String content = CleanerUtils.getContent(_input, _metadata, _keepBoiler);  
-			//String ttt = CleanerUtils.cleanContent(content);
-			String lang = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
-			//LOGGER.debug(_metadata.get(Metadata.CONTENT_LOCATION) + "\n"+ lang +"\n"+ttt);
-			
+			String ttt = CleanerUtils.cleanContent(content);
+			String lang = _langDetector.detect(ttt);
+			if (langsTBFI.contains(lang)) {
+				// logger.debug("Rechecking " + autoLang);
+				lang = _langDetector.detect(ttt, lang);
+			}
+			//String lang = LangDetectUtils.detectLanguage(ttt);
+			LOGGER.debug(_metadata.get(Metadata.CONTENT_LOCATION) + "\n"+ lang +"\n"+ttt);
+
 			ExtendedOutlink[] outlinks = new ExtendedOutlink[0] ;
-			
+
 			if (_extractLinks){
 				outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata,_maplangs, _tranlistAttrs);
 				outlinks = filterOutLinks(outlinks, _urlfilterstr);
@@ -179,7 +193,10 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 					for (ExtendedOutlink extendedOutlink : outlinks) {
 						try {
 							URL url = new URL(extendedOutlink.getToUrl().toString());//.getAnchor());              	// resolve the url
+							//String normAnchor = ContentNormalizer.formatString(extendedOutlink.getAnchor());
+							//if (rights_links.contains(normAnchor)){
 							if (rights_links.contains(extendedOutlink.getAnchor())){
+								//LOGGER.info("FOUND:\t"+url + "\t"+ normAnchor);
 								String templic = _metadata.get(Metadata.LICENSE_URL); 
 								if (templic.isEmpty())
 									_metadata.set(Metadata.LICENSE_URL, extendedOutlink.getAnchor()+SEMI_STR+url.toString());
@@ -200,7 +217,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 						} catch (Exception e) {
 							LOGGER.debug("reached");
 						}
-						
+
 					}
 					//if a creative commons license is mentioned in the content 
 					//if (!found_license){
@@ -248,7 +265,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				}else{
 					LOGGER.debug("CUT\t"+outlink.getToUrl());
 				}
-				
+
 			} catch (MalformedURLException e) {
 				//LOGGER.warn("not valid url: "+ outlink.getToUrl());
 				continue;

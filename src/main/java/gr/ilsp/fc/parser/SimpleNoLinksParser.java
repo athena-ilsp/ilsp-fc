@@ -30,6 +30,8 @@ import bixo.parser.SimpleContentExtractor;
 import bixo.utils.HttpUtils;
 import bixo.utils.IoUtils;
 
+import gr.ilsp.fc.langdetect.LangDetector;
+
 
 public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParsedDatum> {
 	/**
@@ -41,6 +43,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 
 	private boolean _extractLanguage = true;
 	protected BaseContentExtractor _contentExtractor;
+	protected LangDetector _langDetector;
 	private transient Parser _parser;
 	//private transient Parser _parser1;
 	private ParserPolicy _policy;
@@ -65,7 +68,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 		this(new ParserPolicy());
 	}
 	public SimpleNoLinksParser(boolean keepBoiler, String storedir_path, HashMap<String,String> maplangs, 
-			List<String[]> tranlistAttrs, String[] targeted_langs, String urlfilterstr, boolean extractLinks) {    	
+			List<String[]> tranlistAttrs, String[] targeted_langs, LangDetector langDetector, String urlfilterstr, boolean extractLinks) {    	
 		this(new ParserPolicy());
 		_keepBoiler  = keepBoiler;
 		_storedir_path = storedir_path;
@@ -74,6 +77,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 		_tranlistAttrs = tranlistAttrs;
 		_urlfilterstr = urlfilterstr;
 		_extractLinks = extractLinks;
+		_langDetector = langDetector;
 	}
 	public SimpleNoLinksParser(ParserPolicy parserPolicy) {
 		this(new SimpleContentExtractor(),  parserPolicy);
@@ -147,7 +151,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 					callable = new MsWordCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _keepBoiler, _storedir_path);
 				}else{
 					callable = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _maplangs,
-							_tranlistAttrs, _targeted_langs, _keepBoiler, _urlfilterstr,_extractLinks);
+							_tranlistAttrs, _targeted_langs, _langDetector, _keepBoiler, _urlfilterstr,_extractLinks);
 					//callable = new TikaCallableParser(_parser, _contentExtractor,  is, metadata, isExtractLanguage(), _maplangs, _tranlistAttrs, _targeted_langs, _keepBoiler);
 				}
 			}
