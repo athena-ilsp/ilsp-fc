@@ -11,6 +11,7 @@ import java.io.Writer;
 import java.net.URL;
 //import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +33,8 @@ import org.apache.commons.lang.StringUtils;
 //import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+//import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.langdetect.LangDetector;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsNumStats;
@@ -49,8 +52,8 @@ import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.Statistics;
-import gr.ilsp.fc.utils.ValidateUtils;
 import gr.ilsp.fc.utils.XSLTransformer;
+import gr.ilsp.nlp.commons.Constants;
 
 public class TMXHandler {
 	private static final Logger LOGGER = Logger.getLogger(TMXHandler.class);
@@ -68,7 +71,7 @@ public class TMXHandler {
 	private static String usertopic;
 	private static int[] thres = { 100,100,100,100,100,100,100};
 	private static boolean oxslt=false;
-	private static boolean iso6393=false;
+	private static boolean iso6393=true;
 	private static boolean cc=false;
 	private static boolean keepem = false;
 	private static boolean keepiden = false;
@@ -77,24 +80,23 @@ public class TMXHandler {
 	private static boolean keepsn=false;
 	private static int minTuvLen=0;
 	private static int maxSize=1000000000;
+	private final static double sampleSizePerCe = 0.1; //fixed to 10% of the total collection 
 	private static double minPerce01Align=1;
 	private static double minTuLenRatio = 0;
 	private static double maxTuLenRatio = 100;
-	private static final double median_word_length=25;
-	private static final double max_word_length=30;
+	private final static double median_word_length=25;
+	private final static double max_word_length=30;
 	private static String doctypes="aupidh";// = "aupidhml";
 	private static List<String> segtypes;
 	private static Set<String> segs = new HashSet<String>() ;
 	static Matcher twitterHandleMatcher = Pattern.compile("(^|[^@\\w])@(\\w{1,15})\\b").matcher("");
-	private static final String UNDERSCORE_STR = "_";
-	private static final String SEMICOLON_STR=";";
-	private static final String HYPHEN_STR="-";
 	//private final static String PUNCT = ".";
 	private final static String UNKNOWN_STR ="unknown";
-	private static final String HTML =".html";
-	private static final String SITES =".sites.txt";
-	private static final String SITESN =".sitesn.txt";
-	private static final String TMXEXT = ".tmx";
+	private final static  String SAMPLE ="_sample.csv";
+	private final static String HTML =".html";
+	private final static String SITES =".sites.txt";
+	private final static String SITESN =".sitesn.txt";
+	private final static String TMXEXT = ".tmx";
 	private final static String MetadataExt = ".md.xml";
 	private final static String domainNode = "domain";
 	private final static String FREE_STR="free";
@@ -113,7 +115,12 @@ public class TMXHandler {
 	private final static String mes6 = "different numbers in TUVs";
 	private final static String mes7 = "duplicate";
 	private final static String mes8 = "e-mail address";
+	private final static String mes9 = "url";
 
+	private static LangDetector langDetector;
+	public static Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp")); 
+	private static int maxSampleSize;		//no more than this value
+	
 	private static int totalcounter=0;
 	//private static int distthr=5; //FIXME add as parameter
 
@@ -157,24 +164,25 @@ public class TMXHandler {
 		tm.setKeepIdentical(options.getKeepIdentical());
 		tm.setKeepDuplicates(options.getKeepDuplicates());
 		tm.setClean(options.getClean());
-		tm.setSites(options.getSites());
+		//tm.setSites(options.getSites());
 		tm.setO1(options.getO1());
 		tm.setO2(options.getO2());
 		tm.setUserTopic(options.getTargetedDomain());
-
-		String[] languages = options.getLanguage().split(SEMICOLON_STR);
+		tm.setLangDetector(options.getLangDetector()); 
+		tm.setMaxSampleSize(options.getMaxSampleSize());
+		String[] languages = options.getLanguage().split(Constants.SEMICOLON);
 		List<String> lang_pairs = new ArrayList<String>();
 		if (languages.length>1){
 			for (int ii=0;ii<languages.length-1;ii++){
 				for (int jj=ii+1;jj<languages.length;jj++){
-					lang_pairs.add(languages[ii]+SEMICOLON_STR+languages[jj]);
+					lang_pairs.add(languages[ii]+Constants.SEMICOLON+languages[jj]);
 				}
 			}
 		}
 		for (String lang_pair:lang_pairs){
 			tm.setLanguage(lang_pair);
-			String[] temp_langs = lang_pair.split(SEMICOLON_STR);
-			String lang = UNDERSCORE_STR+temp_langs[0]+HYPHEN_STR+temp_langs[1];
+			String[] temp_langs = lang_pair.split(Constants.SEMICOLON);
+			String lang = Constants.UNDERSCORE+temp_langs[0]+Constants.HYPHEN+temp_langs[1];
 			tm.setBaseName(new File(options.getBaseName()+lang));
 			tm.mergeTMXs();
 		}
@@ -189,7 +197,9 @@ public class TMXHandler {
 	 */
 	public void mergeTMXs() {
 		LOGGER.info("------------Merging of generated TMXs for "+languages[0]+"-"+languages[1] +" language pair.------------");
-	
+		String[] _targetedLangs = new String[2]; _targetedLangs[0] = languages[0]; _targetedLangs[1] = languages[1];
+		//_langDetector = LangDetectUtils.loadLangDetectors(_targetedLangs,defaultlangDetectorId);
+
 		creationModeDescription = "The ILSP Focused Crawler was used for the acquisition "
 				+ "of bilingual data from multilingual websites, and for the normalization, cleaning, (near) de-duplication and identification of parallel documents. "
 				+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
@@ -212,13 +222,19 @@ public class TMXHandler {
 			filter8=" Alignments with only non-letters in at least one of their TUVs were discarded/annotated";
 		if (keepdup)
 			filter9=" Duplicate alignments were kept and were discarded/annotated";
-		
+
 		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
 				return (arg1.endsWith(TMXEXT) & arg1.contains(ISOLangCodes.get3LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get3LetterCode(languages[1])));
 			}
 		};
+		/*filter = new FilenameFilter() {			
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.endsWith(TMXEXT) );
+			}
+		};*/
+		
 		if (!iso6393){
 			languages[0]=ISOLangCodes.get2LetterCode(languages[0]);
 			languages[1]=ISOLangCodes.get2LetterCode(languages[1]);
@@ -228,9 +244,9 @@ public class TMXHandler {
 		}		
 		String[] types = new String[doctypes.length()];
 		for (int ii=0;ii<doctypes.length();ii++){
-			types[ii] = UNDERSCORE_STR+Character.toString(doctypes.charAt(ii))+TMXEXT;
+			types[ii] = Constants.UNDERSCORE+Character.toString(doctypes.charAt(ii))+TMXEXT;
 		}
-		
+
 		List<File> tmxfiles = new ArrayList<File>();
 		if (inputFile.isDirectory()){
 			List<File> tfs = FcFileUtils.listFiles(inputFile, filter,true);
@@ -255,7 +271,7 @@ public class TMXHandler {
 		}else
 			LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
 		creationModeDescription = creationModeDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
-		
+
 		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
 		if (domains.isEmpty()){
 			if (!StringUtils.isBlank(usertopic))
@@ -293,12 +309,12 @@ public class TMXHandler {
 					" and "+ stats2.tokens_noan +" words and "+ stats2.words_noan+" lexical types in "+ TMXHandler.languages[1] +
 					". The mean value of aligner's scores is "+ scores.meanscore_noan+ ", the std value is "+ scores.stdscore_noan +
 					". The mean value of length (in terms of characters) ratios is "+ ratios.meanratio_noan + " and the std value is "+ ratios.stdratio_noan + "." ;
-			
-			creationDescription = "Parallel ("+ languages[0] + HYPHEN_STR + languages[1] +") corpus of "+
-									alignmentList.size()+ " (" +stats1.tus_noan +" not-annotated) translation units";
+
+			creationDescription = "Parallel ("+ languages[0] + Constants.HYPHEN + languages[1] +") corpus of "+
+					alignmentList.size()+ " (" +stats1.tus_noan +" not-annotated) translation units";
 			if (!StringUtils.isEmpty(domain))
 				creationDescription = creationDescription + " in the "+	domain+" domain)";
-			
+
 			BilingualCorpusInformation bilingualCorpusInfo = new BilingualCorpusInformation();
 			bilingualCorpusInfo.setName(FilenameUtils.getBaseName(outTMX.getAbsolutePath()));
 			bilingualCorpusInfo.setL1(TMXHandler.languages[0]);
@@ -343,6 +359,13 @@ public class TMXHandler {
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
 
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
+			
+			int sampleSizeCe = (int)((double)alignmentList.size()*sampleSizePerCe);
+			File samplefile = new File(baseName.getAbsolutePath() + SAMPLE);
+			LOGGER.info("Generating sample file " + samplefile.getAbsolutePath());
+			TMXHandlerUtils.generateSample(alignmentList, Math.min(maxSampleSize, sampleSizeCe), samplefile);
+			LOGGER.info("Generating language files " + samplefile.getAbsolutePath());
+			TMXHandlerUtils.splitIntolangFiles(alignmentList, languages, baseName);
 			
 			try {
 				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITES), sites_all);
@@ -495,35 +518,49 @@ public class TMXHandler {
 				}
 				String info="";//, info1="";
 				//FIXME add constrains for length, or other "filters"
-
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
 				if ( normS.isEmpty() || normT.isEmpty()){
-					//if (clean)
-					//	continue;
+					if (clean)
+						continue;
 					if (!keepem)
 						continue;
 					info =  mes1;
 				}
 				if (normS.equals(normT)){
-					//if (clean)
-					//	continue;
+					if (clean)
+						continue;
 					if (!keepiden)
 						continue;
 					if (info.isEmpty()){	info =  mes2;}		else{	info =  info + " | "+mes2;}	
 				}
-				if (ValidateUtils.isValidEmailAddress(segpair.seg1) || ValidateUtils.isValidEmailAddress(segpair.seg2)){
-					//if (clean)
-					//	continue;
+				if (TMXHandlerUtils.checkemail(segpair.seg1) || TMXHandlerUtils.checkemail(segpair.seg2)){
+				//if (ValidateUtils.isValidEmailAddress(segpair.seg1) || ValidateUtils.isValidEmailAddress(segpair.seg2)){
+					if (clean)
+						continue;
 					if (!keepem)
 						continue;
 					if (info.isEmpty()){	info =  mes8;}		else{	info =  info + " | "+mes8;}	
 				}
+				if (TMXHandlerUtils.checkurl(segpair.seg1) || TMXHandlerUtils.checkurl(segpair.seg2)){
+				//if (ValidateUtils.isValidUrl(segpair.seg1) || ValidateUtils.isValidUrl(segpair.seg2)){
+					if (clean)
+						continue;
+					if (!keepem)
+						continue;
+					if (info.isEmpty()){	info =  mes9;}		else{	info =  info + " | "+mes9;}	
+				}
 
-				List<String> stokens = FCStringUtils.getTokens(normS);
+				/*List<String> stokens = FCStringUtils.getTokens(normS);
 				List<String> ttokens = FCStringUtils.getTokens(normT);
 				Double[] stokenslen = FCStringUtils.getTokensLength(stokens);
+				Double[] ttokenslen = FCStringUtils.getTokensLength(ttokens);*/
+				
+				List<String> stokens = FCStringUtils.getTokens(segpair.seg1);
+				List<String> ttokens = FCStringUtils.getTokens(segpair.seg2);
+				Double[] stokenslen = FCStringUtils.getTokensLength(stokens);
 				Double[] ttokenslen = FCStringUtils.getTokensLength(ttokens);
+								
 				if (Statistics.getMax(stokenslen)>max_word_length || Statistics.getMax(ttokenslen)>max_word_length){
 					LOGGER.info("discarded TU, very large word (due to bad text extraction from pdf):"+ segpair.seg1 +"\t"+ segpair.seg2);
 					//String info1 = "a: "+ max_word_length;
@@ -553,22 +590,38 @@ public class TMXHandler {
 				String num1=segpair.seg1.replaceAll("\\D+","");
 				String num2=segpair.seg2.replaceAll("\\D+","");
 				if (!num1.equals(num2)){
-					//if (clean)
-					//	continue;
+					if (clean)
+						continue;
 					if (ksn)
 						continue;
 					if (info.isEmpty()){	info =  mes6;}		else{	info =  info + " | "+mes6;}	
 				}
 				String temp = normS+TAB+normT;
 				if (segs.contains(temp)){
+					if (clean)
+						continue;
 					if (!keepdup)
 						continue;
-					//if (clean)
-					//	continue;
 					if (info.isEmpty()){	info =  mes7;}		else{	info =  info + " | "+mes7;}
 
-				}else
+				}else{
+					/*boolean check =false;
+					String identifiedlanguage1 = _langDetector.detect(segpair.seg1);
+					if (langsTBFI.contains(identifiedlanguage1)) 
+						identifiedlanguage1 = _langDetector.detect(segpair.seg1, identifiedlanguage1);
+					if (!languages[0].equals(LangDetectUtils.updateLanguages(identifiedlanguage1, false)))
+						check=true;
+					String identifiedlanguage2 = _langDetector.detect(segpair.seg2);
+					if (langsTBFI.contains(identifiedlanguage2)) 
+						identifiedlanguage2 = _langDetector.detect(segpair.seg2, identifiedlanguage2);
+					if (!languages[1].equals(LangDetectUtils.updateLanguages(identifiedlanguage2, false)))
+						check=true;
+					if (check && info.isEmpty()){
+						System.out.println(identifiedlanguage1+"\t"+segpair.seg1+"\t"+identifiedlanguage2+"\t"+segpair.seg2);
+						continue;
+					}else*/
 					segs.add(temp);
+				}
 				ILSPAlignment alignment = new ILSPAlignment();
 				alignment.addSourceSegment(segpair.seg1);
 				alignment.addTargetSegment(segpair.seg2);
@@ -589,7 +642,6 @@ public class TMXHandler {
 		return alignmentList;
 	}
 
-
 	/**
 	 * absolute path of the baseName for the outfiles  
 	 * @param baseName
@@ -608,13 +660,13 @@ public class TMXHandler {
 	public File getTargetDir() {
 		return inputFile ;
 	}
-	
+
 	/**
 	 * language iso codes separated by ";"
 	 * @param languages
 	 */
 	public void setLanguage(String languages) {
-		TMXHandler.languages = languages.split(SEMICOLON_STR);
+		TMXHandler.languages = languages.split(Constants.SEMICOLON);
 	}
 	public void useISO6393(boolean iso6393) {
 		TMXHandler.iso6393 = iso6393;
@@ -766,5 +818,13 @@ public class TMXHandler {
 	public void setMaxSize(int maxSize) {
 		TMXHandler.maxSize = maxSize;
 	}
-
+	public void setMaxSampleSize(int maxSampleSize) {
+		TMXHandler.maxSampleSize = maxSampleSize;
+	}
+	public void setLangDetector(LangDetector langDetector) {
+		TMXHandler.langDetector = langDetector;
+	}
+	public LangDetector getLangDetector() {
+		return langDetector ;
+	}
 }
