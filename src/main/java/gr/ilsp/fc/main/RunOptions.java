@@ -39,17 +39,15 @@ import org.apache.log4j.Logger;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.InternetDomainName;
 
-
-
-
-
-
 //import gr.ilsp.fc.crawl.Crawler;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.langdetect.LangDetector;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.AnalyzerFactory;
 import gr.ilsp.fc.utils.FCStringUtils;
+
+import gr.ilsp.nlp.commons.Constants;
 
 public class RunOptions {
 	public static int NO_CRAWL_DURATION = 0;
@@ -62,9 +60,9 @@ public class RunOptions {
 	//private String ws_dir="/var/lib/tomcat6/webapps/soaplab2-results/";
 
 	private static final String XMLlist = ".xmllist.txt", XMLHTMLlist = ".xmllist.html", TMXlist = ".tmxlist.txt", xml_type ="xml";
-	private static final String TMXHTMLlist = ".tmxlist.html", TMXEXT = ".tmx", HTMLEXT = ".html", UNDERSCORE_STR = "_";
-	private static final String DIESIS="#", QUEST_SEPAR = ";", COLON_SEPAR = ":", DOUBLESEMICOLON_SEPAR = ";;";
-
+	private static final String TMXHTMLlist = ".tmxlist.html", TMXEXT = ".tmx", HTMLEXT = ".html";
+	private static final String DIESIS="#", DOUBLESEMICOLON_SEPAR = ";;";
+	
 	//operations
 	private static final String CRAWL_operation = "crawl", EXPORT_operation = "export", DEDUP_operation = "dedup", PAIRDETECT_operation = "pairdetect";
 	private static final String ALIGN_operation = "align", TMX_MERGE_operation = "tmxmerge", MONO_MERGE_operation = "monomerge";
@@ -82,11 +80,13 @@ public class RunOptions {
 	private String _usertopic="",  _config;
 
 	// linguality params
+	private static String defaultlangDetectorId="langdetect";
 	private String[] _langKeys, _targetedLangs;
 	private HashMap<String, String> _mapLangs;
 	private List<String> _langPairs;
 	private String _language;
 	private boolean _iso6393 = false;
+	private LangDetector _langDetector;
 
 	//crawl params
 	private String _webdomain=null, _webmaindomain=null,  _filter=null, _storefilter=null;
@@ -114,7 +114,8 @@ public class RunOptions {
 	private File _outputFile_mergedTMX, _outputFile_mergedTMXHTML;
 	private static String _selectDocs = "aupdih";
 	private static List<String> _selectSegs = new ArrayList<String>();
-
+	private int _maxSampleSize = 1500;		//no more than this value
+	
 	//monomerge params
 	private String _corpuslevel="doc";
 
@@ -335,7 +336,10 @@ public class RunOptions {
 				.withDescription( "maximum number of TUs")
 				.hasArg()
 				.create("size") );
-
+		options.addOption( OptionBuilder.withLongOpt( "MaxSampleSize_TUs" )
+				.withDescription( "max sample size in TUs")
+				.hasArg()
+				.create("samplesize") );
 		//pair detect params
 		options.addOption( OptionBuilder.withLongOpt( "url_replacements" )
 				.withDescription( "A string to be replaced, separated by ';'.")
@@ -462,14 +466,17 @@ public class RunOptions {
 			if(line.hasOption( "lang")) {
 				String ll = line.getOptionValue("lang").toLowerCase();	
 				if (line.getOptionValue("lang").toLowerCase().equals("g"))
-					ll = getSupportedLanguages();
+					ll = ReadResources.getSupportedLanguages();
 				_language = LangDetectUtils.updateLanguages(ll,true);
-				_targetedLangs =_language.split(QUEST_SEPAR);
+				_targetedLangs =_language.split(Constants.SEMICOLON);
 				_langKeys = findKeys4lang(_language);
 				_mapLangs = mapLangs(_language);
 				_langPairs = findLangPairs(_language);
 				_linkAttrs = findTransLinks();
 				checkAnalyzers(_language);
+				//_langDetector = loadLangDetectors(_targetedLangs);
+				_langDetector = LangDetectUtils.loadLangDetectors(_targetedLangs,defaultlangDetectorId);
+				
 			}else{
 				if (!_operation.contains(DEDUP_operation)){ //for all tasks but deduplication, language(s) is required
 					LOGGER.error("No targeted languages have been defined.");
@@ -477,7 +484,7 @@ public class RunOptions {
 				}
 			}
 			if(line.hasOption( "a"))
-				_agentName = line.getOptionValue("a").replace(" ", "_");
+				_agentName = line.getOptionValue("a").replace(Constants.SPACE, Constants.UNDERSCORE);
 
 			if (_operation.contains(CRAWL_operation))
 				getParams4Crawl(line);
@@ -510,11 +517,11 @@ public class RunOptions {
 						_textexport = true;		
 				}
 				if (line.hasOption( "bs")) {
-					_outBaseName = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName).getAbsoluteFile();
-					_outputFile = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLlist).getAbsoluteFile();
+					_outBaseName = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName).getAbsoluteFile();
+					_outputFile = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+XMLlist).getAbsoluteFile();
 					if(line.hasOption( "oxslt")){
 						_offlineXSLT  = true;
-						_outputFileHTML = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+XMLHTMLlist).getAbsoluteFile();
+						_outputFileHTML = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+XMLHTMLlist).getAbsoluteFile();
 					}
 				}else{
 					if (!_runoffline){
@@ -598,7 +605,7 @@ public class RunOptions {
 			String[] aa=temp.split(DOUBLESEMICOLON_SEPAR);
 			String[][] urls_repls =new String[aa.length][2];  
 			for (int ii=0;ii<aa.length;ii++){
-				String[] bb = aa[ii].split(QUEST_SEPAR);
+				String[] bb = aa[ii].split(Constants.SEMICOLON);
 				if (bb.length<1){
 					LOGGER.error("the argument for URL replacements is not correct." +
 							" Use ;; to seperate pairs and ; to separate the parts of each pair." );
@@ -627,7 +634,7 @@ public class RunOptions {
 		if(line.hasOption( "dedup_intype"))
 			_dedupInputType = line.getOptionValue("dedup_intype");
 		if(line.hasOption( "dedup_exf")){ 
-			String[] temp= line.getOptionValue("exf").split(QUEST_SEPAR);
+			String[] temp= line.getOptionValue("exf").split(Constants.SEMICOLON);
 			for (int ii=0;ii<temp.length;ii++){
 				_dedupExcludefiles.add(FilenameUtils.concat(_outputDir.getAbsolutePath(), temp[ii]));
 			}
@@ -643,7 +650,7 @@ public class RunOptions {
 			while ((str = in.readLine()) != null) {
 				if (str.startsWith(DIESIS))
 					continue;
-				String[] temp = str.split(COLON_SEPAR);
+				String[] temp = str.split(Constants.COLON); 
 				res.add(temp);
 			}
 		} catch (IOException e) {
@@ -653,12 +660,12 @@ public class RunOptions {
 	}
 
 	private List<String> findLangPairs(String language) {
-		String[] langs = language.split(QUEST_SEPAR); 
+		String[] langs = language.split(Constants.SEMICOLON); 
 		List<String> lang_pairs = new ArrayList<String>();
 		if (langs.length>1){
 			for (int ii=0;ii<langs.length-1;ii++){
 				for (int jj=ii+1;jj<langs.length;jj++){
-					lang_pairs.add(langs[ii]+QUEST_SEPAR+langs[jj]);
+					lang_pairs.add(langs[ii]+Constants.SEMICOLON+langs[jj]);
 				}
 			}
 		}
@@ -766,9 +773,9 @@ public class RunOptions {
 
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 		if (line.hasOption( "dest")) 
-			ws_dir = FilenameUtils.concat(line.getOptionValue("dest"), _agentName+UNDERSCORE_STR+timeStamp) ;
+			ws_dir = FilenameUtils.concat(line.getOptionValue("dest"), _agentName+Constants.UNDERSCORE+timeStamp) ;
 		else
-			ws_dir=_agentName+UNDERSCORE_STR+timeStamp;
+			ws_dir=_agentName+Constants.UNDERSCORE+timeStamp;
 
 		if(!line.hasOption( "o")) 
 			_outputDir = new File(FilenameUtils.concat(ws_dir, UUID.randomUUID().toString())); 				 	
@@ -780,7 +787,7 @@ public class RunOptions {
 				_filter = ".*.*";
 		}
 		if (_type.equals(type_p) | _type.equals(type_q)){
-			if (!_language.contains(QUEST_SEPAR)){
+			if (!_language.contains(Constants.SEMICOLON)){
 				LOGGER.error("You crawl for parallel or comparable but only 1 language has been defined.");
 				help();
 			}
@@ -903,10 +910,10 @@ public class RunOptions {
 				_dict = "default";
 		}else
 			_dict=null;
-		_outputFileTMX = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+TMXlist);
+		_outputFileTMX = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+TMXlist);
 		_outputFileTMX = _outputFileTMX.getAbsoluteFile();	
 		if (line.hasOption( "oxslt")){
-			_outputFileHTMLTMX = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+TMXHTMLlist);
+			_outputFileHTMLTMX = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+TMXHTMLlist);
 			_outputFileHTMLTMX =_outputFileHTMLTMX.getAbsoluteFile();	
 		}
 	}
@@ -920,10 +927,10 @@ public class RunOptions {
 	 * @param line
 	 */
 	private void getParams4MergingAlignments(CommandLine line) {
-		_outputFile_mergedTMX = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+TMXEXT);
+		_outputFile_mergedTMX = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+TMXEXT);
 		_outputFile_mergedTMX = _outputFile_mergedTMX.getAbsoluteFile();
 		if (line.hasOption( "oxslt")){
-			_outputFile_mergedTMXHTML = new File(line.getOptionValue("bs")+UNDERSCORE_STR+_agentName+TMXEXT+HTMLEXT);
+			_outputFile_mergedTMXHTML = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+TMXEXT+HTMLEXT);
 			_outputFile_mergedTMXHTML =_outputFile_mergedTMXHTML.getAbsoluteFile();
 		}
 		if (line.hasOption("pdm"))
@@ -947,7 +954,7 @@ public class RunOptions {
 		if(line.hasOption( "keepdup"))
 			_keepdup = true;
 		if (line.hasOption("segtypes")){
-			String[] temp= line.getOptionValue("segtypes").split(QUEST_SEPAR); 
+			String[] temp= line.getOptionValue("segtypes").split(Constants.SEMICOLON); 
 			for (String str:temp){
 				_selectSegs.add(str);
 			}
@@ -964,6 +971,8 @@ public class RunOptions {
 			_usertopic = line.getOptionValue("dom");
 		if(line.hasOption( "size"))
 			_maxSize = Integer.parseInt(line.getOptionValue("size"));
+		if(line.hasOption( "samplesize"))
+			_maxSampleSize = Integer.parseInt(line.getOptionValue("samplesize"));
 	}
 
 	/**
@@ -971,7 +980,7 @@ public class RunOptions {
 	 * @param _languages
 	 */
 	private void checkAnalyzers(String languages) {
-		String[] langs=languages.split(QUEST_SEPAR);
+		String[] langs=languages.split(Constants.SEMICOLON);
 		for (int ii=0;ii<langs.length;ii++){
 			try {
 				AnalyzerFactory analyzerFactory = new AnalyzerFactory();
@@ -1015,7 +1024,7 @@ public class RunOptions {
 	 */
 	private String[] findKeys4lang(String language) {
 		ArrayList<String> langKeys=new ArrayList<String>();
-		String[] langs = _language.split(QUEST_SEPAR);
+		String[] langs = _language.split(Constants.SEMICOLON);
 		try {
 			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
 			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
@@ -1052,7 +1061,7 @@ public class RunOptions {
 	 */
 	private HashMap<String,String> mapLangs(String language) {
 		ArrayList<String> langKeys=new ArrayList<String>();
-		String[] langs = _language.split(QUEST_SEPAR);
+		String[] langs = _language.split(Constants.SEMICOLON);
 		HashMap<String,String> result= new HashMap<String,String>();
 		try {
 			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
@@ -1074,14 +1083,14 @@ public class RunOptions {
 		return result;
 	}
 
-	private String getSupportedLanguages() {
+	/*private String getSupportedLanguages() {
 		String supportedlangs = "";
 		try {
 			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
 			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
 			String str;
 			while ((str = in.readLine()) != null) {
-				supportedlangs=supportedlangs+QUEST_SEPAR+str.subSequence(0, str.indexOf(">")).toString();
+				supportedlangs=supportedlangs+Constants.SEMICOLON+str.subSequence(0, str.indexOf(">")).toString();
 			}
 			in.close();
 		} catch (IOException e) {
@@ -1089,7 +1098,7 @@ public class RunOptions {
 		}
 		return supportedlangs.substring(1);
 	}
-
+*/
 	public  void help(){
 		printHelp( APPNAME , options );
 		System.exit(0);
@@ -1118,6 +1127,9 @@ public class RunOptions {
 	 */
 	public List<String> getLangPairs() {
 		return _langPairs;
+	}
+	public LangDetector  getLangDetector() {
+		return _langDetector;
 	}
 	public List<String[]> getTransLinksAttrs() {
 		return _linkAttrs;
@@ -1391,7 +1403,9 @@ public class RunOptions {
 	public int getMaxSize() {
 		return _maxSize;
 	}
-
+	public int getMaxSampleSize() {
+		return _maxSampleSize;
+	}
 	/**
 	 * Loads the default configuration file and checks if user supplied a custom one.
 	 * @param type
