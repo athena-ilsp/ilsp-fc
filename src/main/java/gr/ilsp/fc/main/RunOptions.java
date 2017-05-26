@@ -476,7 +476,6 @@ public class RunOptions {
 				checkAnalyzers(_language);
 				//_langDetector = loadLangDetectors(_targetedLangs);
 				_langDetector = LangDetectUtils.loadLangDetectors(_targetedLangs,defaultlangDetectorId);
-				
 			}else{
 				if (!_operation.contains(DEDUP_operation)){ //for all tasks but deduplication, language(s) is required
 					LOGGER.error("No targeted languages have been defined.");

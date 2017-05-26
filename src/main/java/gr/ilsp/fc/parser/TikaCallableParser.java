@@ -8,7 +8,6 @@ import gr.ilsp.fc.datums.ExtendedParsedDatum;
 //import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.langdetect.LangDetector;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
-import gr.ilsp.fc.utils.ContentNormalizer;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -163,7 +162,9 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				content = CleanerUtils.getContent(_input, _metadata, _keepBoiler);
 				lang = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
 			}*/
-			String content = CleanerUtils.getContent(_input, _metadata, _keepBoiler);  
+			String content = CleanerUtils.getContent(_input, _metadata, _keepBoiler);
+			//content = content.replaceAll("(\\_){2,}", Constants.UNDERSCORE);
+			//content = content.replaceAll("(\\.){2,}", ".");
 			String ttt = CleanerUtils.cleanContent(content);
 			String lang = _langDetector.detect(ttt);
 			if (langsTBFI.contains(lang)) {

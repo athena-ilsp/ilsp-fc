@@ -3,6 +3,7 @@ package gr.ilsp.fc.cleaner;
 import gr.ilsp.fc.cleaner.CleanerUtils.ParsAttr;
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -19,7 +20,6 @@ public class Cleaner {
 	private static final Logger LOGGER = Logger.getLogger(Cleaner.class);
 	private static double thr_persent = 0.2; 
 	private static double thr_std = 2;
-	private static final String UNDERSCORE_STR="_";
 	private static final String XMLEXT = ".xml";
 	
 	public static void main(String[] args) {
@@ -32,7 +32,7 @@ public class Cleaner {
 		
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.endsWith(XMLEXT) &!arg1.contains(UNDERSCORE_STR) );
+				return (arg1.endsWith(XMLEXT) &!arg1.contains(Constants.UNDERSCORE) );
 			}
 		};
 		List<File> files = FcFileUtils.listFiles(xmlDirName, filter,true);
