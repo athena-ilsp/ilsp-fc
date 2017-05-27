@@ -1466,7 +1466,7 @@ public class Exporter {
 
 	private static String getValidFormat(String format){
 		String result = format;
-		if (format.contains(";")){
+		if (format.contains(Constants.SEMICOLON)){
 			result = format.split(Constants.SEMICOLON)[0];
 		}
 		return result;

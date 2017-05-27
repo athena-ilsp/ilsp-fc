@@ -2,6 +2,7 @@ package gr.ilsp.fc.exporter;
 
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.langdetect.LangDetector;
+import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
@@ -156,8 +157,11 @@ public class ExporterOptions {
 			//	_httrack=true;
 			if(line.hasOption( "oxslt")) 
 				_offlineXSLT  = true;
-			if(line.hasOption( "lang")){ 
-				_targetlanguages = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true).split(Constants.SEMICOLON);
+			if(line.hasOption( "lang")){
+				String ll = line.getOptionValue("lang").toLowerCase();	
+				if (line.getOptionValue("lang").toLowerCase().equals("g"))
+					ll = ReadResources.getSupportedLanguages();
+				_targetlanguages = LangDetectUtils.updateLanguages(ll,true).split(Constants.SEMICOLON);
 				_langDetector = LangDetectUtils.loadLangDetectors(_targetlanguages,defaultlangDetectorId);
 			}
 			if(line.hasOption( "tc")) 
