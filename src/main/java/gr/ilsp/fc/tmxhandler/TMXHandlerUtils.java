@@ -846,8 +846,13 @@ public class TMXHandlerUtils {
 	 * @param samplesize
 	 */
 	public static void generateSample(List<ILSPAlignment> alignmentList, int samplesize, File samplefile) {
-		samplesize = Math.min(samplesize, alignmentList.size());
-		Set<ILSPAlignment> selpairs = Statistics.distinctRandomILSPAlignments(alignmentList, samplesize);
+		
+		List<ILSPAlignment> tempList = new ArrayList<ILSPAlignment>();
+		for (ILSPAlignment t:alignmentList)
+			tempList.add(t);
+		
+		samplesize = Math.min(samplesize, tempList.size());
+		Set<ILSPAlignment> selpairs = Statistics.distinctRandomILSPAlignments(tempList, samplesize);
 		List<String> sample= new ArrayList<String>();
 		//sample.add("SEG_L1\tSEG_L2\tLenRatio\tAlignScore\tInfo\tMethod\tType\tURL_L1\tURL_L2\tLicense");
 
