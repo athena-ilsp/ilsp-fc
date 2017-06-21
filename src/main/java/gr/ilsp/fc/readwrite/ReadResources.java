@@ -62,6 +62,37 @@ public class ReadResources {
 		return result;
 	}
 
+	
+	public static List<String> extractListFromNodesOfXML(String infile, String ele_name,boolean hasattr) {
+		List<String> result=new ArrayList<String>();
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db;
+		try {
+			db = dbf.newDocumentBuilder();
+			Document doc = db.parse(infile);
+			doc.getDocumentElement().normalize();
+			NodeList nodeLstP = doc.getElementsByTagName(ele_name);
+			for(int s=0; s<nodeLstP.getLength() ; s++){
+				Element NameElement = (Element)nodeLstP.item(s);
+				if (hasattr==NameElement.hasAttributes()){
+					String temp =NameElement.getTextContent(); 
+					if (temp.contains(Constants.NEWLINE))
+						temp = temp.replaceAll(Constants.NEWLINE, Constants.SPACE);
+					result.add(temp);	
+				}
+			}
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	
+	
 	public static String extractNodefromXML(String infile, String ele_name,boolean hasattr) {
 		String result="";
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
