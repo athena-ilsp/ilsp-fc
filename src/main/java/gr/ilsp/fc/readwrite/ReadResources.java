@@ -1,5 +1,6 @@
 package gr.ilsp.fc.readwrite;
 
+import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.nlp.commons.Constants;
 
@@ -78,7 +79,7 @@ public class ReadResources {
 					String temp =NameElement.getTextContent(); 
 					if (temp.contains(Constants.NEWLINE))
 						temp = temp.replaceAll(Constants.NEWLINE, Constants.SPACE);
-					result.add(temp);	
+					result.add(ContentNormalizer.normalizeText(temp));	
 				}
 			}
 		} catch (ParserConfigurationException e) {
