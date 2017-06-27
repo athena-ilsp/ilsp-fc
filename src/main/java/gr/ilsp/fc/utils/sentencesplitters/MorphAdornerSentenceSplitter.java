@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,19 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 
 	Matcher endsWithPossibleInitDotMatcher = Pattern.compile(".*\\s[‹«]*[\\p{Lu}]\\.").matcher("");
 	Matcher startsWithPossibleNameMatcher = Pattern.compile("\\s*[\\p{Lu}][\\p{Ll}]{2,}.*").matcher(""); 
+
+	Matcher startsWithNumberMatcher = Pattern.compile("[0-9].*").matcher("");
+	Matcher endsWithNumberMatcher = Pattern.compile(".*[0-9][%‰‱°\\,\\.]*").matcher("");
 	
+	// Compiled regular expression to match
+	// an abbreviation.
+	Matcher abbreviationMatcher = Pattern.compile(
+			// "([A-Z,a-z]\\.([A-Z,a-z,0-9]\\.)*)|([A-Z][bcdfghj-np-tvxz]+\\.)"
+			"^" + "([\\p{Lu}]{1,3}\\.)+" + "|" + "([\\p{Lu}]\\.[\\p{Lu}]+\\.)" + "$").matcher("");
+
+	Matcher numberMatcher1 = Pattern.compile("^['\\+\\-\\.,\\p{Sc}]*([0-9\\p{N}]+[0-9\\p{N},\\.]*)[%‰‱°\\p{Sc}′'’]*(\\-[\\p{N}0-9]+[\\p{N}0-9,\\.]*)*[%‰‱°\\p{Sc}′'’]*$").matcher("");
+	//Matcher numberMatcher2 = Pattern.compile("^[0-9]+.[0-9]+[%‰‱°]$").matcher("");
+
 	edu.northwestern.at.morphadorner.corpuslinguistics.sentencesplitter.SentenceSplitter splitter;
 	PreTokenizer preTokenizer;
 	WordTokenizer tokenizer;
@@ -114,8 +127,9 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 		// offsets in input text.
 		//logger.info("In text " + text );
 		int[] sentenceOffsets  = splitter.findSentenceOffsets(text, splitterSents);
-		// logger.debug("After finding " + splitterSents.size() + " offsets.");
-		// Loop over sentences.
+		// logger.debug("Looping over " + splitterSents.size() + " sentences.");
+		int prevSentEnd = 0;
+
 		for (int i = 0; i < splitterSents.size(); i++) {
 
 			// Get start and end offset of
@@ -133,15 +147,16 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 			if (paraSents.isEmpty()) {
 				paraSents.add(text.substring(start, end));				
 			} else {
-				boolean prevSentIsFirst=false;
-				if (paraSents.size()-1==0) {
-					prevSentIsFirst=true;
+				boolean firstSent=false;
+				//if (paraSents.size()-1==0) {
+				if (prevSentEnd==0) {
+					firstSent=true;
 				}
-				
 				String prevSent = paraSents.get(paraSents.size()-1);
 				String sent = text.substring(start, end);
 				//logger.info(prevSent);
 				//logger.info(sent);
+//				logger.info(firstSent+"");
 				if (startsWithClosePunctMatcher.reset(sent).matches()) {
 					paraSents.set(paraSents.size()-1, prevSent+sent);
 				} else if (endsWithDigPunctMatcher.reset(prevSent).matches() && startsWithDigPercMatcher.reset(sent).matches()) {
@@ -154,16 +169,47 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 					paraSents.set(paraSents.size()-1, prevSent+sent);
 				} else if (endsWithPossibleEnumB.reset(prevSent).matches()) {
 					paraSents.set(paraSents.size()-1, prevSent+sent);
+				} else if (firstSent==false && prevSentEnd==start) {
+					String[] prevTokens = StringUtils.split(prevSent);
+					String[] tokens = StringUtils.split(sent);
+					if (prevTokens.length > 0 && tokens.length > 0 && isTokenNotToBeSplit(prevTokens[prevTokens.length-1] + tokens[0])) { 	
+//						logger.info("PrevSentEnd : " + prevSentEnd);
+//						logger.info("SentStart : " + start);
+//						logger.info(prevTokens[prevTokens.length-1] + tokens[0]);
+						paraSents.set(paraSents.size()-1, prevSent+sent);
+					} else if (prevTokens.length > 0 && tokens.length > 0 && isTokenNotToBeSplit(prevTokens[prevTokens.length-1], tokens[0])) { 	
+//						logger.info("PrevSentEnd : " + prevSentEnd);
+//						logger.info("SentStart : " + start);
+//						logger.info(prevTokens[prevTokens.length-1] + tokens[0]);
+						paraSents.set(paraSents.size()-1, prevSent+sent);
+					} else {
+						paraSents.add(text.substring(start, end));
+					}
 				} else {
 					paraSents.add(text.substring(start, end));
 				}
 			}
-			
+			prevSentEnd = end;
 		}
-		
-		
 		return paraSents;
 	}
+
+	private boolean isTokenNotToBeSplit(String string1, String string2) {		
+		if (endsWithNumberMatcher.reset(string1).matches() &&  startsWithNumberMatcher.reset(string2).matches() ) {
+			return true;
+		}
+		return false; 
+	}
+
+	private boolean isTokenNotToBeSplit(String string) {
+		//logger.info(string +  " " + abbreviationMatcher.reset(string).matches() );
+		return 
+				abbreviationMatcher.reset(string).matches() 	
+				|| 
+				numberMatcher1.reset(string).matches() 
+				;
+	}
+
 
 
 	@Override
