@@ -594,6 +594,9 @@ public class TMXHandlerUtils {
 	}
 
 	private static boolean inSites(String webpage1, List<String> sites) {
+		if (sites==null){
+			return true;
+		}
 		if (!sites.isEmpty()){
 			try {
 				if (!sites.contains(new URL(webpage1).getHost()))
