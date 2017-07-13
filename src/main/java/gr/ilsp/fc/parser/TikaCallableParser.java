@@ -178,7 +178,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 
 			if (_extractLinks){
 				outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata,_maplangs, _tranlistAttrs);
-				outlinks = filterOutLinks(outlinks, _urlfilterstr);
+				//outlinks = filterOutLinks(outlinks, _urlfilterstr);
 				if (outlinks.length==1 && outlinks[0].getAnchor().equals(LINK_CANONICAL)) {
 					return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, "", lang,
 							_metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
@@ -227,6 +227,7 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 					//	}
 					//}
 				}
+				outlinks = filterOutLinks(outlinks, _urlfilterstr);
 			}
 			LOGGER.debug(outlinks.length+"\t"+_metadata.get(Metadata.CONTENT_LOCATION));
 			LOGGER.debug(_metadata.get(Metadata.CONTENT_LOCATION) + _metadata.get(Metadata.LICENSE_URL));
