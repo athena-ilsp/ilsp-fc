@@ -128,8 +128,6 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 			//FIXME set another property to HTMLSource or in the fetchedDatum. Check if we keep HTML source twice
 			_input.reset();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(_input,_metadata.get(Metadata.CONTENT_ENCODING)));
-			/*System.out.println(IOUtils.toString(reader));
-			_metadata.set(Metadata.COMMENTS, IOUtils.toString(reader));*/
 			StringBuilder builder = new StringBuilder();
 			String aux = "";
 			while ((aux = reader.readLine()) != null) {
@@ -163,24 +161,22 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				lang = LangDetectUtils.detectLanguage(CleanerUtils.cleanContent(content));
 			}*/
 			String content = CleanerUtils.getContent(_input, _metadata, _keepBoiler);
-			//content = content.replaceAll("(\\_){2,}", Constants.UNDERSCORE);
-			//content = content.replaceAll("(\\.){2,}", ".");
 			String ttt = CleanerUtils.cleanContent(content);
 			String lang = _langDetector.detect(ttt);
-			if (langsTBFI.contains(lang)) {
-				// logger.debug("Rechecking " + autoLang);
+			if (langsTBFI.contains(lang)) 
 				lang = _langDetector.detect(ttt, lang);
-			}
 			//String lang = LangDetectUtils.detectLanguage(ttt);
 			LOGGER.debug(_metadata.get(Metadata.CONTENT_LOCATION) + "\n"+ lang +"\n"+ttt);
-
+			
+			_metadata.set(Metadata.LICENSE_URL,"");
 			ExtendedOutlink[] outlinks = new ExtendedOutlink[0] ;
-
 			if (_extractLinks){
 				outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata,_maplangs, _tranlistAttrs);
-				//outlinks = filterOutLinks(outlinks, _urlfilterstr);
+				if (outlinks==null)
+					return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, content, lang,
+							_metadata.get(Metadata.TITLE), new ExtendedOutlink[0],makeMap(_metadata));
 				if (outlinks.length==1 && outlinks[0].getAnchor().equals(LINK_CANONICAL)) {
-					return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, "", lang,
+					return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, content, lang,
 							_metadata.get(Metadata.TITLE), outlinks,makeMap(_metadata));
 				}
 				// Check if the  sourcelink is from europa.eu
