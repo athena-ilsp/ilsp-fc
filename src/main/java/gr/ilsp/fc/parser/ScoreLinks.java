@@ -82,7 +82,10 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 			String normtext = ContentNormalizer.cleanContent(datum.getParsedText()).toLowerCase();
 			//String alltext = datum.getParsedText();
 			String pagelang= LangDetectUtils.detectLanguage(normtext);
-			for (ExtendedOutlink outlink : outlinks) {   
+			for (ExtendedOutlink outlink : outlinks) {
+				String hreflang = "";
+				if ( ! outlink.getHrefLang().equals(Constants.HYPHEN)) 
+					hreflang = LangDetectUtils.updateLanguages(outlink.getHrefLang(),true);
 				String linktext = outlink.getAnchor() + Constants.SPACE + outlink.getSurroundText();
 				String linktext1 = outlink.getAnchor();
 				LOGGER.debug(outlink.getSurroundText());
@@ -92,11 +95,11 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 				LOGGER.debug(outlink.getAnchor());
 				//if (_filter!=null)
 				if (_classifier.getTopic()!=null){ 
-					linkScore = _classifier.rankLink(linktext, linktext1,pagelang,vv);
+					linkScore = _classifier.rankLink(url, hreflang,linktext, linktext1,pagelang,vv);
 					//linkScore += _classifier.rankLink(linktext1,pagelang,vv);
 					//linkScore = linkScore+_classifier.rankLink1(url);
 				}else{
-					linkScore = _classifier.rankLinkNotopic(linktext, linktext1,pagelang,vv);
+					linkScore = _classifier.rankLinkNotopic(url, hreflang,linktext, linktext1,pagelang,vv);
 					//FIXME TO PROMOTE URLS with special strings/patterns
 					//if (url.contains("/cikk/16") || url.contains("/cikk/15") || url.contains("english.")){
 					//if (url.contains("/en/")){

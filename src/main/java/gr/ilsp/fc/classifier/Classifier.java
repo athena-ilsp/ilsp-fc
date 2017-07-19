@@ -15,12 +15,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import gr.ilsp.nlp.commons.Constants;
+
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class Classifier implements Serializable{
 	private static final Logger LOGGER = Logger.getLogger(Classifier.class);
+	private static final String LANGSTRING_IND = "lang=";
 	private static final String keyword_loc="keywords";
 	private static final String description_loc= "description";
 	private static final String PDFcontent = "pdfcontent";
@@ -310,8 +313,20 @@ public class Classifier implements Serializable{
 	}
 
 
-	public double rankLink(String text1, String anchortext, String pagelang, double vv) {
+	public double rankLink(String url, String hreflang, String text1, String anchortext, String pagelang, double vv) {
 		double score = 0, weight=0; int matches=0;
+		if (url.contains(LANGSTRING_IND))
+			score+=_absthres;
+		if (hreflang.equals(pagelang))
+			score+=_absthres;
+		else{
+			for (String lang:_targetLanguages){
+				if (hreflang.equals(lang)){
+					score+=10*_absthres;
+					break;
+				}
+			}
+		}
 		String[] tempstr = null;		
 		String term;
 		String text = text1.trim();
@@ -428,8 +443,21 @@ public class Classifier implements Serializable{
 	 * @param vv : score of the webpage
 	 * @return
 	 */
-	public double rankLinkNotopic(String linktext, String anchortext, String pagelang, double vv) {
+	public double rankLinkNotopic(String url, String hreflang, String linktext, String anchortext, String pagelang, double vv) {
 		double score = 0;
+		if (url.contains(LANGSTRING_IND))
+			score+=2;
+		if (hreflang.equals(pagelang))
+			score+=1;
+		else{
+			for (String lang:_targetLanguages){
+				if (hreflang.equals(lang)){
+					score+=2;
+					break;
+				}
+			}
+		}
+		
 		String text = linktext.trim();
 		boolean matchT=false, matchL=false;
 		for (String lang:_targetLanguages){
@@ -457,7 +485,7 @@ public class Classifier implements Serializable{
 			int m=0;
 			for (String lang:_targetLanguages){
 				//if (containLangKeys(text,m) & !lang.equals(pagelang)){
-				if (containLangKeys(anchortext,m) & !lang.equals(pagelang)){
+				if (containLangKeys(anchortext,m) && !lang.equals(pagelang)){
 					//System.out.println("BINGO!");
 					//link's text implies that the link points to candidate translation
 					type=1;
@@ -472,10 +500,10 @@ public class Classifier implements Serializable{
 			}
 		}
 		if (matchT & matchL){
-			if (!langidentified_link.equals(pagelang) & FCStringUtils.countTokens(text,langidentified_link)>3 & vv>=_absthres)
+			if (!langidentified_link.equals(pagelang) && FCStringUtils.countTokens(text,langidentified_link)>3 && vv>=_absthres)
 				score+=1; //text and link are in dif. langs but both in targ. langs
-			else
-				score+=1;  //text and link are in same langs and in targ. langs
+			//else
+			//	score+=1;  //text and link are in same langs and in targ. langs
 		}
 		else
 			return score;
