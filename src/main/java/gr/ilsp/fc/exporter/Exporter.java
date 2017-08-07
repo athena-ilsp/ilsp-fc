@@ -649,10 +649,14 @@ public class Exporter {
 		LOGGER.debug(extfilename);
 
 		Map<String, String> data = new HashMap<String, String>();
-		if (format.contains(docmime))
+		if (format.contains(docmime)){
+			LOGGER.info("text extraction from "+ format);
 			data = MSO2text.run1(new File(extfilename));
-		if (format.contains(pdfmime))
+		}
+		if (format.contains(pdfmime)){
+			LOGGER.info("text extraction from "+ format);
 			data = Pdf2text.run1(new File(extfilename), _sort_type);
+		}
 		if (data.isEmpty()){
 			LOGGER.info("Text Conversion failed." + extfilename);
 			return false;
