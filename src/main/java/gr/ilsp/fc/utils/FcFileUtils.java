@@ -34,6 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.northwestern.at.utils.ZipUtils;
+import gr.ilsp.fc.readwrite.ReadResources;
+import gr.ilsp.nlp.commons.Constants;
 
 /**
  * @author prokopis
@@ -43,9 +45,10 @@ public class FcFileUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(FcFileUtils.class
 			.getName());
-	private static final String UNDERSCORE_STR = "_";
 	private static final String TMX_EXTENSION = ".tmx";
 	private static final String ZIP=".zip";
+	private static final String LANGUAGE_ELE = "language";
+	private static final String LANGUAGE_ATT = "iso639";
 
 	/*public static Vector<URL> listFilesAsURLs(File directory, FilenameFilter filter,
 			boolean recurse) {
@@ -139,7 +142,7 @@ public class FcFileUtils {
 		}
 		for (File file:tmxfiles){
 			for (int ii=0;ii<types.length;ii++){
-				if (file.getName().endsWith(UNDERSCORE_STR+types[ii]+TMX_EXTENSION)){
+				if (file.getName().endsWith(Constants.UNDERSCORE+types[ii]+TMX_EXTENSION)){
 					if (filegroups.containsKey(types[ii])){
 						List<File> filesgroup = filegroups.get(types[ii]);
 						filesgroup.add(file);
@@ -176,7 +179,7 @@ public class FcFileUtils {
 	 */
 	public static void removeFiles(List<File> filelist, final String ext) {
 		for (File file: filelist) {
-			if (file.isDirectory() || file.getName().contains(UNDERSCORE_STR))  // Skip directories and cesAlignFiles
+			if (file.isDirectory() || file.getName().contains(Constants.UNDERSCORE))  // Skip directories and cesAlignFiles
 				continue;
 			if (file.getName().endsWith(ext))
 				file.delete();
@@ -299,6 +302,17 @@ public class FcFileUtils {
 		}
 		logger.info(filename + " detected mimetype is " + mimetype);
 		return mimetype;
+	}
+
+	public static List<File> getCesDocs(File inputDir, String language) {
+		List<File> xmlfiles = new ArrayList<File>();
+		String[] ext = {"xml"};
+		List<File> xmlfiles1 = (List<File>) FileUtils.listFiles(inputDir, ext, true);
+		for (File xmlfile1:xmlfiles1){
+			if (ReadResources.extractAttrfromXML(xmlfile1.getAbsolutePath(), LANGUAGE_ELE, LANGUAGE_ATT, true, false).equals(language))
+				xmlfiles.add(xmlfile1);
+		}
+		return xmlfiles;
 	}
 
 
