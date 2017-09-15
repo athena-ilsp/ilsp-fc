@@ -79,7 +79,8 @@ public class MonoMerger {
 	private String creationDescription = "The ILSP Focused Crawler was used for the acquisition "
 			+ "of monolingual data from websites, and for the normalization, cleaning, (near)deduplication on document level.";
 	private static boolean iso6393=false;
-
+	private static List<File> infiles=new ArrayList<File>();
+	
 	public static void main(String[] args) {
 		MonoMerger mm = new MonoMerger();
 		options = new MonoMergerOptions();
@@ -98,6 +99,8 @@ public class MonoMerger {
 		for (String lang:languages){
 			mm.setLanguage(lang);
 			mm.setBaseName(new File(options.getBaseName().getAbsolutePath()+Constants.UNDERSCORE+lang));
+			infiles = selectCesDocFiles(mm.getTargetDir(), lang);
+			mm.setInFiles(infiles);
 			mm.merge();
 		}
 	}
@@ -123,8 +126,13 @@ public class MonoMerger {
 		if (corpuslevel.equals(PARLEVEL) || corpuslevel.equals(SENLEVEL))
 			corpusdoc = new File(corpusdoc.getAbsolutePath()+TXT_EXT);
 
-		List<File> xmlfiles = selectCesDocFiles();
-		LOGGER.info("targeted files : "+ xmlfiles.size());
+		if (infiles.isEmpty())
+			infiles = selectCesDocFiles();
+		
+		LOGGER.info("targeted files : "+ infiles.size());
+		
+		//List<File> xmlfiles = selectCesDocFiles();
+		//LOGGER.info("targeted files : "+ xmlfiles.size());
 		/*for (File xmlfile:xmlfiles){
 			if (ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), FORMAT_ELE).contains("pdf"))
 			//		continue;
@@ -133,11 +141,12 @@ public class MonoMerger {
 				xmlfiles.remove(xmlfile);
 		}
 		LOGGER.info("targeted files (originated from HTML files): "+ xmlfiles.size()); */
-		if (!xmlfiles.isEmpty()){
+		if (!infiles.isEmpty()){
 			MonolingualCorpusInformation monlingualCorpusInfo =new MonolingualCorpusInformation();
 			monlingualCorpusInfo.setCreationDescription(creationDescription);
 			monlingualCorpusInfo.setName(FilenameUtils.getBaseName(corpusdoc.getAbsolutePath()));
 			monlingualCorpusInfo.setLang(language);
+			System.out.println(configuration.getString("resourceCreator.organization"));
 			monlingualCorpusInfo.setOrganization(configuration.getString("resourceCreator.organization"));
 			monlingualCorpusInfo.setOrganizationURL(configuration.getString("resourceCreator.organizationURL"));
 			monlingualCorpusInfo.setProjectId(configuration.getString("fundingProject.projectId"));
@@ -146,16 +155,16 @@ public class MonoMerger {
 			int[] sizes = new int[5]; //docs, pars, sents, tokens, words FIXME
 			String level="";
 			if (corpuslevel.equals(DOCLEVEL)){
-				sizes = generateDocLevelMonoCorpus(xmlfiles, corpusdoc);
+				sizes = generateDocLevelMonoCorpus(infiles, corpusdoc);
 				//ZipUtils.zipDir(corpusdoc,new File(corpusdoc.getAbsolutePath()+ZIP_EXT));
 				level = DOCUMENTS;
 			}
 			if (corpuslevel.equals(PARLEVEL)){
-				sizes = generateParLevelMonoCorpus(xmlfiles, corpusdoc);
+				sizes = generateParLevelMonoCorpus(infiles, corpusdoc);
 				level = PARAGRAPHS;
 			}
 			if (corpuslevel.equals(SENLEVEL)){
-				sizes =  generateSenLevelMonoCorpus(xmlfiles, corpusdoc);
+				sizes =  generateSenLevelMonoCorpus(infiles, corpusdoc);
 				level = SENTENCES;
 			}
 			monlingualCorpusInfo.setLevel(level);
@@ -165,7 +174,7 @@ public class MonoMerger {
 			monlingualCorpusInfo.setTokensNum(sizes[3]);
 			monlingualCorpusInfo.setLexTypesNum(sizes[4]);
 
-			List<String> domains = ReadResources.extactValueFromCesDoc(xmlfiles, domainNode);
+			List<String> domains = ReadResources.extactValueFromCesDoc(infiles, domainNode);
 			if (domains.isEmpty())
 				domains.add(userTopic); 
 			List<String> domainEurovocIds=getEurovocId(domains);
@@ -214,12 +223,40 @@ public class MonoMerger {
 		}
 	}
 
+	
+	/**
+	 * Selects the cesDoc files (in the targeted language) in the targeted directory or the list of the targeted directories. 
+	 * @return
+	 */
+	private static List<File> selectCesDocFiles(File inputFile, String language) {
+		
+		List<File> xmlfiles = new ArrayList<File>();
+		if (inputFile.isDirectory())
+			xmlfiles = FcFileUtils.getCesDocs(inputFile, language);	
+		else{ //it is considered a text file containing a list with full paths of targeted directories (a full path per line)
+			List<String> targetdirs;
+			try {
+				targetdirs = FileUtils.readLines(inputFile);
+				for (String targetdir:targetdirs){
+					LOGGER.info("finding files from "+ targetdir);
+					List<File> tfs = FcFileUtils.getCesDocs(inputFile, language);	
+					xmlfiles.addAll(tfs);
+				}
+			} catch (IOException e) {
+				LOGGER.error("Problem in reading file "+ inputFile.getAbsolutePath() );
+				e.printStackTrace();
+			} 
+		}
+		return xmlfiles;
+	}
+	
+	
 
 	/**
 	 * Selects the cesDoc files (in the targeted language) in the targeted directory or the list of the targeted directories. 
 	 * @return
 	 */
-	private List<File> selectCesDocFiles() {
+	private static List<File> selectCesDocFiles() {
 		FilenameFilter cesDocLangfilter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
 				return (arg1.endsWith(XML_EXT) &!arg1.contains(Constants.UNDERSCORE) & arg1.startsWith(ISOLangCodes.get3LetterCode(language)));
@@ -588,6 +625,10 @@ public class MonoMerger {
 		MonoMerger.inputFile  = inputFile;
 	}
 
+	public File getTargetDir() {
+		return inputFile;
+	}
+	
 	/**
 	 * language iso codes separated by ";"
 	 * @param languages
@@ -669,4 +710,12 @@ public class MonoMerger {
 	public static void setIso6393(boolean iso6393) {
 		MonoMerger.iso6393 = iso6393;
 	}
+	public void setInFiles(List<File> infiles) {
+		MonoMerger.infiles = infiles;
+	}
+	
+	public List<File> getInFiles() {
+		return infiles;
+	}
+	
 }
