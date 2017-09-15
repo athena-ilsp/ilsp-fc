@@ -276,9 +276,9 @@ public class TopicTools {
 								" the language of term '"+str+"' is not defined. Modify the topic definition properly.");
 						System.exit(0);	
 					}
-					d=LangDetectUtils.updateLanguages(str.subSequence(ind+1, str.length()).toString().toLowerCase().trim(),true);
+					d=LangDetectUtils.updateLanguages(str.subSequence(ind+1, str.length()).toString(),true);
 				}else{
-					d=LangDetectUtils.updateLanguages(targetlanguages[0].toString().trim(),true);
+					d=LangDetectUtils.updateLanguages(targetlanguages[0].toString(),true);
 				}
 				boolean match = false;
 				for (String tlang:targetlanguages){
