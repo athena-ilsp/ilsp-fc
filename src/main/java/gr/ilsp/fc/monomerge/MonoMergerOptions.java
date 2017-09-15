@@ -67,7 +67,7 @@ public class MonoMergerOptions {
 		options.addOption( OptionBuilder.withLongOpt( "level of corpus' item" )
 				.withDescription( "corpus consists of txt documents (default), or paragraphs, or sentences")
 				.hasArg()
-				.create("corpusLevel") );
+				.create("corpuslevel") );
 		options.addOption( OptionBuilder.withLongOpt( "uderTopic" )
 				.withDescription( "A descriptive title for the targeted domain" )
 				.hasArg()
@@ -100,8 +100,8 @@ public class MonoMergerOptions {
 			}
 			if (line.hasOption("cc"))
 				_cc=true;
-			if (line.hasOption("corpusLevel")){
-				_corpuslevel=line.getOptionValue("corpusLevel");
+			if (line.hasOption("corpuslevel")){
+				_corpuslevel=line.getOptionValue("corpuslevel");
 				if (!(_corpuslevel.equals("doc") || _corpuslevel.equals("par") || _corpuslevel.equals("sen"))){
 					LOGGER.error("Value should be \"doc\" (default) or \"par\" or \"sen\".");
 					System.exit(0);
@@ -112,7 +112,7 @@ public class MonoMergerOptions {
 			//if (line.hasOption("a"))
 			//	_agentName = line.getOptionValue("a").replace(Constants.SPACE, "_");
 			if(line.hasOption( "lang")) 
-				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true);
+				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang"),true);
 			else{
 				LOGGER.error("No language has been defined.");
 				System.exit(0);
