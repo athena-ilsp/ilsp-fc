@@ -97,6 +97,7 @@ public class Run {
 			exp.setApplyOfflineXSLT(run_options.isOfflineXSLT());
 			//exp.set_paths_repl(run_options.get_paths_repl());
 			if (crawl){
+				LOGGER.info(cro.getOutputDir());
 				exp.setInputDir(cro.getOutputDir());
 				exp.setOutputDir(new File(FilenameUtils.concat(cro.getOutputDir().getAbsolutePath(), xml_type)).getAbsoluteFile());
 				exp.setAcceptedMimeTypes(cro.getValidMimes().toArray(new String[cro.getValidMimes().size()]));
@@ -217,7 +218,7 @@ public class Run {
 					if (pairdetect)
 						outTextList = new File(run_options.getBaseName()+langext+XMLlist);
 					else{
-						outTextList = run_options.getInputDir(); //this is not a directory but a textfile with paths to cesAlign files.
+						outTextList = run_options.getInputDir(); //this should not be a directory but a textfile with paths to cesAlign files.
 						if (outTextList.isDirectory()){
 							try {
 								List<String> cesAlignPaths = aligner.getCesAlignPaths(outTextList, langs);
