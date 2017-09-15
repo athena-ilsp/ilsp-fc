@@ -205,6 +205,10 @@ public class TMXHandler {
 				+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
 				+ "As a post-processing step, alignments were merged into one TMX file. "
 				+ "The following filters were applied: ";
+		
+		//creationModeDescription = "It was created/offered by the Ľudovít Štúr Institute of Linguistics, Slovak Academy of Sciences."
+		//		+ "As a post-processing process several filters were applied to discard/annotate alignmentsthat that might be incorrect";
+		
 		outTMX = new File(baseName.getAbsolutePath()+TMXEXT);
 		if (!outTMX.getParentFile().exists())
 			outTMX.getParentFile().mkdirs();
@@ -313,7 +317,7 @@ public class TMXHandler {
 			creationDescription = "Parallel ("+ languages[0] + Constants.HYPHEN + languages[1] +") corpus of "+
 					alignmentList.size()+ " (" +stats1.tus_noan +" not-annotated) translation units";
 			if (!StringUtils.isEmpty(domain))
-				creationDescription = creationDescription + " in the "+	domain+" domain)";
+				creationDescription = creationDescription + " in the "+	domain+" domain";
 
 			BilingualCorpusInformation bilingualCorpusInfo = new BilingualCorpusInformation();
 			bilingualCorpusInfo.setName(FilenameUtils.getBaseName(outTMX.getAbsolutePath()));
