@@ -205,8 +205,8 @@ public class TMXHandlerOptions {
 			if (line.hasOption("iso6393"))		
 				_iso6393=true;
 			if(line.hasOption( "lang")) {
-				//_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),_iso6393);
-				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(),true);
+				//_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang"),_iso6393);
+				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang"),true);
 				if (_language.split(Constants.SEMICOLON).length!=2){
 					LOGGER.error("You should provide 2 languages.");
 					help();

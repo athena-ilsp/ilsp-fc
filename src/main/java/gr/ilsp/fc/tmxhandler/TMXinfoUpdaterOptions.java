@@ -73,7 +73,7 @@ public class TMXinfoUpdaterOptions {
 			if (cmdline.hasOption("iso6393"))		
 				_iso6393=true;
 			if(cmdline.hasOption( "lang")) {
-				_language = LangDetectUtils.updateLanguages(cmdline.getOptionValue("lang").toLowerCase(),_iso6393);
+				_language = LangDetectUtils.updateLanguages(cmdline.getOptionValue("lang"),_iso6393);
 				if (_language.split(Constants.SEMICOLON).length!=2){
 					LOGGER.error("You should provide 2 languages.");
 					help();
