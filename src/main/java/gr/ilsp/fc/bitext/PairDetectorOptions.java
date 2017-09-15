@@ -135,7 +135,7 @@ public class PairDetectorOptions {
 					offlineXSLT  = true;
 			}
 			if(line.hasOption( "lang")) {
-				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang").toLowerCase(), true);
+				_language = LangDetectUtils.updateLanguages(line.getOptionValue("lang"), true);
 				_langPairs = findLangPairs(_language);
 			}else{
 				LOGGER.error("No languages have been defined.");

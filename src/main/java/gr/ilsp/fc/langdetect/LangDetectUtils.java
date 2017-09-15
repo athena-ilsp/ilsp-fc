@@ -150,6 +150,7 @@ public class LangDetectUtils {
 	 */
 	public static String updateLanguages(String languages, boolean iso6393) {
 		String targetlanguages="";
+		languages = languages.toLowerCase().trim();
 		String[] initlangs= languages.split(Constants.SEMICOLON);
 		List<String> langs = new ArrayList<String>();
 		String temp="";
