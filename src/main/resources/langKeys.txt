@@ -21,7 +21,7 @@ grc>ell,EL,el,Greek,ελληνικά,(el),[el],Ελληνική,Ελληνικά
 guj>guj
 heb>heb
 hin>hin
-hrv>hrv,hr,HR,hrvatski,Cro,Croatian,hrvatski jezik
+hrv>hrv,hr,HR,hrvatski,Cro,Croatian,hrvatski jezik, cro, Hrvatska verzija, Hrvatska
 hun>hun,HU,hu,hungarian,Hungarian,MAGYAR,(hu),Magyar,magyar
 ind>ind,Indonesian
 ita>ita,IT,it,Italian,italiano,(it),[it],Italy,itas
