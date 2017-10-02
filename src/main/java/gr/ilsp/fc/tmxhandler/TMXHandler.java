@@ -219,13 +219,13 @@ public class TMXHandler {
 		String filter4=" Alignments with a TUV (after normalization) that has less than "+ minTuvLen + " tokens, were discarded/annotated";
 		String filter5=" Alignments with a l1/l2 TUV length ratio smaller than " + minTuLenRatio+ " or larger than "+ maxTuLenRatio + ", were discarded/annotated";
 		if (keepsn)
-			filter6=" Alignments in which different digits appear in each TUV were discarded/annotated";
+			filter6=" Alignments in which different digits appear in each TUV were discarded";
 		if (keepiden)
-			filter7=" Alignments with identical TUVs (after normalization) were discarded/annotated";
+			filter7=" Alignments with identical TUVs (after normalization) were annotated";
 		if (keepem)
-			filter8=" Alignments with only non-letters in at least one of their TUVs were discarded/annotated";
+			filter8=" Alignments with only non-letters in at least one of their TUVs were annotated";
 		if (keepdup)
-			filter9=" Duplicate alignments were kept and were discarded/annotated";
+			filter9=" Duplicate alignments were kept and were annotated";
 
 		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
 		FilenameFilter filter = new FilenameFilter() {			
