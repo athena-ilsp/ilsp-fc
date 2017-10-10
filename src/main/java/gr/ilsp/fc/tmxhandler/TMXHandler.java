@@ -119,7 +119,7 @@ public class TMXHandler {
 
 	private static LangDetector langDetector;
 	public static Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp")); 
-	private static int maxSampleSize;		//no more than this value
+	private static int maxSampleSize=1500;		//no more than this value
 	
 	private static int totalcounter=0;
 	//private static int distthr=5; //FIXME add as parameter
