@@ -1,5 +1,12 @@
 package gr.ilsp.fc.utils;
 
+import gr.ilsp.fc.readwrite.ReadResources;
+import gr.ilsp.nlp.commons.Constants;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,16 +15,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 public class ISOLangCodes {
-
-	private static final Logger logger = LoggerFactory.getLogger(ISOLangCodes.class);
+	private static final Logger LOGGER = Logger.getLogger(ISOLangCodes.class);
 	private static final String CHINESE="zh";
 	private static final String CHINESE0="zh-cn";
 	private static final String CHINESE1="zh-tw";
-	
+	private static final String langCodesNames = "iso-639-1-codes.txt";
+		
     private static final Map<String, String> iso2Toiso3;
     static {
         Map<String, String> tempMap = new HashMap<String, String>();
@@ -38,7 +44,27 @@ public class ISOLangCodes {
         iso3Toiso2 = Collections.unmodifiableMap(tempMap);
     }
     
-
+    private static final Map<String, String> iso2ToLangName;
+    static {
+    	iso2ToLangName=new HashMap<String, String>();
+    	try {
+			URL svURL = ReadResources.class.getClassLoader().getResource(langCodesNames);
+			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
+			String str;
+			while ((str = in.readLine()) != null) {
+				//System.out.println(str);
+				String[] temp = str.split(Constants.TAB);
+				iso2ToLangName.put(temp[0], temp[1]);
+			}
+			in.close();
+		} catch (IOException e) {
+			LOGGER.warn("Problem in reading default file with lang codes and names");
+		}
+    	
+    }
+    
+    
+    
 	public static String get3LetterCode(String language) {
 		if (language.equals(CHINESE0) || language.equals(CHINESE1))
 			language=CHINESE;
@@ -65,7 +91,7 @@ public class ISOLangCodes {
 		for (String language : languages) {
 		    Locale locale = new Locale(language);
 		    localeMap.put(locale.getISO3Language(), locale);
-		    logger.info(language + "->" + locale.getISO3Language());
+		    LOGGER.info(language + "->" + locale.getISO3Language());
 		}
 	}
 
@@ -105,5 +131,15 @@ public class ISOLangCodes {
 		return langslist;
 	}
 	
+	public static String getLangName(String language) {
+		language = iso3Toiso2.get(language);
+		String langName="";
+		if (language==null)
+			return langName;	
+		if (iso2ToLangName.containsKey(language)) 
+			langName = iso2ToLangName.get(language);
+		
+		return langName;
+	}
 	
 }

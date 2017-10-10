@@ -9,7 +9,7 @@ cym>cym
 dan>dan,da,Danish,danish,dansk
 deu>deu,DE,de,German,Deutsch,deutsch,DEUTSH,(de),Deutsch [de],[de],Germany,Deutsch (de),Wechsel zu Deutsch,ger,deus 
 ell>ell,EL,el,Greek,ελληνικά,(el),[el],Ελληνική,Ελληνικά,Επιλογή γλώσσας,Greece, Greek Edition, ελληνικά (el),Greek (modern),gre
-eng>eng,EN,en,English,ENGLISH,(en),English [en],[en],english,United Kingdom,English Edition,english (en),Eng,Switch to English,In English,in English,english version,engs,switch to english version
+eng>eng,EN,en,English,ENGLISH,(en),English [en],[en],english,United Kingdom,English Edition,english (en),Eng,Switch to English,In English,in English,english version,engs,switch to english version,Show this page in English,Engleski
 est>est,et,estonian,eesti
 eus>eus
 fas>fas
@@ -37,9 +37,9 @@ mkd>mkd
 mlt>mlt,Maltese,Malti,mt
 nep>nep
 nld>nld,nl,Dutch,dutch,Nederlands,Vlaams,dut
-nor>nor,no,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
-nno>nno,nn,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
-nob>nob,nb,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
+#nor>nor,no,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål,Viser denne siden på norsk
+nno>nno,nn,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål,Viser denne siden på norsk
+nob>nob,nb,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål,Viser denne siden på norsk
 pan>pan
 pol>pol,PL,polski,(pl),polska wersja,język polski,polszczyzna,pols,Polsku
 por>por,PT,pt,Portuguese,Português,português,português [pt],português (pt)

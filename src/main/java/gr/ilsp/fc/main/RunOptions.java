@@ -39,6 +39,7 @@ import org.apache.log4j.Logger;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.InternetDomainName;
 
+
 //import gr.ilsp.fc.crawl.Crawler;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.langdetect.LangDetector;
@@ -46,7 +47,7 @@ import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.AnalyzerFactory;
 import gr.ilsp.fc.utils.FCStringUtils;
-
+import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.nlp.commons.Constants;
 
 public class RunOptions {
@@ -1016,12 +1017,12 @@ public class RunOptions {
 
 	/**
 	 * parses the predefined project resource LANG_KEYS_RESOURCE and for each targeted language
-	 * returns the array with alternative patterns each targeted languages
+	 * returns the array with alternative patterns of links for each targeted language
 	 * Targeted languages must be included in LANG_KEYS_RESOURCE 
 	 * @param language
 	 * @return
-	 */
-	private String[] findKeys4lang(String language) {
+	 *//*
+	private String[] findKeys4langOLD(String language) {
 		ArrayList<String> langKeys=new ArrayList<String>();
 		String[] langs = _language.split(Constants.SEMICOLON);
 		try {
@@ -1051,10 +1052,53 @@ public class RunOptions {
 
 		return result;
 	}
+	*/
+	
+	/**
+	 * parses the predefined project resource LANG_KEYS_RESOURCE and for each targeted language
+	 * returns the array with alternative patterns of links for each targeted language
+	 * Targeted languages must be included in LANG_KEYS_RESOURCE 
+	 * @param language
+	 * @return
+	 */
+	private String[] findKeys4lang(String language) {
+		String langKeys="";
+		String[] langs = _language.split(Constants.SEMICOLON);
+		HashMap<String,String> resultmap= new HashMap<String,String>();
+		String[] result=new String[langs.length];
+		try {
+			URL svURL = ReadResources.class.getClassLoader().getResource(LANG_KEYS_RESOURCE);
+			BufferedReader in = new BufferedReader(new InputStreamReader(svURL.openStream()));
+			String str, b;
+			while ((str = in.readLine()) != null) {
+				b=str.subSequence(0, str.indexOf(">")).toString();
+				langKeys = str.subSequence(str.indexOf(">")+1, str.length()).toString();
+				resultmap.put(b, langKeys);
+			}
+			in.close();
+		} catch (IOException e) {
+			LOGGER.error("Problem in reading the file for langKeys.");
+		}	
+		
+		for (int ii=0;ii<langs.length;ii++){
+			if (!resultmap.containsKey(langs[ii])){
+				String lang = ISOLangCodes.get2LetterCode(langs[ii]);
+				//String langName = ISOLangCodes.getLangName(lang);
+				LOGGER.error("The targeted language \"" + lang +"\" is not supported. Check the file for langKeys and/or langcode-langs.");
+				if (lang.equals("nor"))
+					LOGGER.error("In case a targeted language is Norwegian, you have to set \"nb\" for Norwegian Bokmål or \"nn\" for Norwegian Nynorsk.");
+				System.exit(0);
+			}
+			result[ii] =  resultmap.get(langs[ii]);
+		}		
+		return result;
+	}
+	
+	
 
 	/**
 	 * parses the predefined project resource LANG_KEYS_RESOURCE and for each targeted language
-	 * returns the array with alternative patterns each targeted languages  
+	 * returns the array with alternative patterns of links for each targeted language  
 	 * @param language
 	 * @return
 	 */
