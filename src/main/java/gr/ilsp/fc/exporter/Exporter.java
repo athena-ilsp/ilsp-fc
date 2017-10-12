@@ -170,7 +170,7 @@ public class Exporter {
 	private static String[] targetlanguages;
 	private static LangDetector langDetector;
 	public static Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp")); 
-	
+
 	public static CompositeConfiguration configuration;
 	private static File negWordsFile;
 	private static File inputDir;
@@ -459,7 +459,7 @@ public class Exporter {
 					// logger.debug("Rechecking " + autoLang);
 					identifiedlanguage = langDetector.detect(ttt, identifiedlanguage);
 				}
-				*/
+				 */
 				if (!LangDetectUtils.istargetedlang(identifiedlanguage, targetlanguages)){
 					LOGGER.info(file.getAbsolutePath()+ " not in targeted languages.");
 					continue;
@@ -644,8 +644,17 @@ public class Exporter {
 	private static boolean getEXTFileInfo(int id, ArrayList<String[]> topic2, String format) {
 		boolean done=true;
 		extfilename = meta.get("comment");
-		if (!new File(extfilename).exists())
-			return false;
+		if (!new File(extfilename).exists()){ //the following check is for exporting in case the location of the crawled data has been changed
+			File temp = null;
+			if (format.contains(pdfmime))
+				temp = new File(FilenameUtils.concat(inputDir.getAbsolutePath(), pdf_type));
+			if (format.contains(docmime))
+				temp = new File(FilenameUtils.concat(inputDir.getAbsolutePath(), doc_type));
+			File temp1 = new File(extfilename);
+			extfilename = FilenameUtils.concat(temp.getAbsolutePath(), temp1.getName());
+			if (!new File(extfilename).exists())
+				return false;
+		}
 		LOGGER.debug(extfilename);
 
 		Map<String, String> data = new HashMap<String, String>();
@@ -1231,7 +1240,7 @@ public class Exporter {
 		xtw.writeStartElement("distributor");
 		xtw.writeCharacters(researchProject  +" project");
 		xtw.writeEndElement();
-		
+
 		xtw.writeStartElement("eAddress");
 		xtw.writeAttribute(tag_type, "web");
 		xtw.writeCharacters("project_website");
