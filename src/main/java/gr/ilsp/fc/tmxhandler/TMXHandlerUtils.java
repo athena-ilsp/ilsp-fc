@@ -289,7 +289,7 @@ public class TMXHandlerUtils {
 	 * @param minPerce01Align 
 	 * @param sites 
 	 */
-	public static List<SegPair>  getTUsFromTMX(File tmxFile, int thr, double minPerce01Align, String lang1, String lang2, boolean lic, List<String> sites) {
+	public static List<SegPair>  getTUsFromTMX(File tmxFile, int thr, double minPerce01Align, double minPerceM1Align, String lang1, String lang2, boolean lic, List<String> sites) {
 		List<SegPair> segpairs = new ArrayList<SegPair>();
 		Tmx tmx;
 		try {
@@ -298,6 +298,7 @@ public class TMXHandlerUtils {
 			int sourceSegments = 0;
 			int targetSegments = 0;
 			int zeroToOneAlignments = 0;
+			int manyToOneAlignments = 0;
 			//double meanAlignmentScore = 0.0;
 			TmxInfo tmxinfo = TMXHandlerUtils.getInfo(tmxFile,sites);
 			if (tmxinfo==null)
@@ -330,6 +331,8 @@ public class TMXHandlerUtils {
 										alignments--;
 										zeroToOneAlignments++;
 									}
+									if (Integer.parseInt(segs[0])>1 ||Integer.parseInt(segs[1])>1 )
+										manyToOneAlignments++;
 								}
 							}
 						}
@@ -342,11 +345,15 @@ public class TMXHandlerUtils {
 			LOGGER.debug("Examining " + tmxFile.getAbsolutePath() + Constants.SPACE + tus.size());
 			double percent = (double)zeroToOneAlignments / (double)tus.size();
 			if (percent>minPerce01Align){
+				LOGGER.info("Cut due to many 0:1 alignments: " +tmxFile.getAbsolutePath());
 				return null;
 			}
-			/*if (zeroToOneAlignments>thr || percent>percent_thr){
+			percent = ((double)zeroToOneAlignments + (double)manyToOneAlignments)  / (double)tus.size();
+			if (percent>minPerceM1Align){
+				LOGGER.info(percent+"\tCut due to many 0:1 and many:1 alignments: " +tmxFile.getAbsolutePath());
 				return null;
-			}*/
+			}
+			
 		} catch (FileNotFoundException e) {
 			LOGGER.warn("Problem in reading "+ tmxFile.getAbsolutePath());
 			e.printStackTrace();
@@ -676,7 +683,7 @@ public class TMXHandlerUtils {
 			LOGGER.error("Problem in reading "+ psiInfo.getAbsolutePath());
 			e1.printStackTrace();
 		}
-		List<SegPair> segpairs = getTUsFromTMX(tmxFile, 1000000000, 1000, lang1, lang2, false, null);
+		List<SegPair> segpairs = getTUsFromTMX(tmxFile, 1000000000, 1000, 1000, lang1, lang2, false, null);
 		String  res1 = "", res2 = "", res = "";
 		for (SegPair segpair:segpairs){
 			if (segpair.license.isEmpty()){

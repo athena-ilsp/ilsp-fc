@@ -52,6 +52,7 @@ public class TMXHandlerOptions {
 	private int _maxsize = 1000000000;
 	private  int _minTuvLen = 0;
 	private  double _minPerce01Align = 1;
+	private  double _minPerceM1Align = 1;
 	private  double _minTULenRatio = 0;
 	private  double _maxTULenRatio = 100;
 	private int _maxSampleSize = 1500;		//no more than this value
@@ -117,6 +118,10 @@ public class TMXHandlerOptions {
 				.withDescription( "minimum percentage of 0:1 alignments in a TMX, to be accepted ")
 				.hasArg()
 				.create("mpa") );
+		options.addOption( OptionBuilder.withLongOpt( "MinPerceM1Align" )
+				.withDescription( "minimum percentage of many:1 alignments in a TMX, to be accepted ")
+				.hasArg()
+				.create("mpma") );
 		options.addOption( OptionBuilder.withLongOpt( "MinTuLenRatio" )
 				.withDescription( "minimum ratio of length (in chars) in a TU")
 				.hasArg()
@@ -222,6 +227,8 @@ public class TMXHandlerOptions {
 				_minTuvLen = Integer.parseInt(line.getOptionValue("mtuvl"));
 			if(line.hasOption( "mpa"))
 				_minPerce01Align = Double.parseDouble(line.getOptionValue("mpa"));
+			if(line.hasOption( "mpma"))
+				_minPerceM1Align = Double.parseDouble(line.getOptionValue("mpma"));
 			if(line.hasOption( "minlr"))
 				_minTULenRatio = Double.parseDouble(line.getOptionValue("minlr"));
 			if(line.hasOption( "maxlr"))
@@ -328,6 +335,9 @@ public class TMXHandlerOptions {
 	}
 	public double getMinPerce01Align() {
 		return _minPerce01Align;
+	}
+	public double getMinPerceM1Align() {
+		return _minPerceM1Align;
 	}
 	public double getMaxTuLenRatio() {
 		return _maxTULenRatio;

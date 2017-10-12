@@ -254,6 +254,7 @@ public class Run {
 			tm.setSegTypes(run_options.getSegTypes());
 			tm.setMinTuvLen(run_options.getMinTuvLen());
 			tm.setMinPerce01Align(run_options.getMinPerce01Align());
+			tm.setMinPerceM1Align(run_options.getMinPerceM1Align());
 			tm.setMinTuLenRatio(run_options.getMinTuLenRatio());
 			tm.setMaxTuLenRatio(run_options.getMaxTuLenRatio());
 			tm.KeepTuSameNum(run_options.keepTuSameNum());

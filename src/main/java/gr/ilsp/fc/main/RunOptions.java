@@ -104,12 +104,12 @@ public class RunOptions {
 	private boolean  _runoffline=false, _textexport=false;
 
 	//pairdetect params
-	private  double _minPerce01Align = 1, _minTULenRatio = 0, _maxTULenRatio = 100;
 	private String _methods = "aupdih";
 	private boolean _del=false,  _keepimagefp=false;
 	private  int _maxSize=1000000000;
 
 	//tmxmerge params
+	private  double _minPerce01Align = 1, _minPerceM1Align = 1, _minTULenRatio = 0, _maxTULenRatio = 100;
 	private boolean _cc = false, _keepem = false, _keepiden = false, _keepdup = false, _clean =false, _keepsn = false;
 	private String defaultSegType="1:1";
 	private File _outputFile_mergedTMX, _outputFile_mergedTMXHTML;
@@ -303,6 +303,10 @@ public class RunOptions {
 				.withDescription( "minimum percentage of 0:1 alignments in a TMX, to be accepted")
 				.hasArg()
 				.create("mpa") );
+		options.addOption( OptionBuilder.withLongOpt( "MinPerceM1Align" )
+				.withDescription( "minimum percentage of many:1 alignments in a TMX, to be accepted")
+				.hasArg()
+				.create("mpma") );
 		options.addOption( OptionBuilder.withLongOpt( "MinTuLenRatio" )
 				.withDescription( "minimum ratio of length (in chars) in a TU")
 				.hasArg()
@@ -939,6 +943,8 @@ public class RunOptions {
 			_minTuvLen = Integer.parseInt(line.getOptionValue("mtuvl"));
 		if(line.hasOption( "mpa"))
 			_minPerce01Align = Double.parseDouble(line.getOptionValue("mpa"));
+		if(line.hasOption( "mpma"))
+			_minPerceM1Align = Double.parseDouble(line.getOptionValue("mpma"));
 		if(line.hasOption( "minlr"))
 			_minTULenRatio = Double.parseDouble(line.getOptionValue("minlr"));
 		if(line.hasOption( "maxlr"))
@@ -1285,6 +1291,9 @@ public class RunOptions {
 	}
 	public double getMinPerce01Align() {
 		return _minPerce01Align;
+	}
+	public double getMinPerceM1Align() {
+		return _minPerceM1Align;
 	}
 	public double getMaxTuLenRatio() {
 		return _maxTULenRatio;

@@ -82,6 +82,7 @@ public class TMXHandler {
 	private static int maxSize=1000000000;
 	private final static double sampleSizePerCe = 0.1; //fixed to 10% of the total collection 
 	private static double minPerce01Align=1;
+	private static double minPerceM1Align=1;
 	private static double minTuLenRatio = 0;
 	private static double maxTuLenRatio = 100;
 	private final static double median_word_length=25;
@@ -156,6 +157,7 @@ public class TMXHandler {
 		tm.useISO6393(options.useISO6393());
 		tm.setMinTuvLen(options.getMinTuvLen());
 		tm.setMinPerce01Align(options.getMinPerce01Align());
+		tm.setMinPerceM1Align(options.getMinPerceM1Align());
 		tm.setMinTuLenRatio(options.getMinTuLenRatio());
 		tm.setMaxTuLenRatio(options.getMaxTuLenRatio());
 		tm.KeepTuSameNum(options.keepTuSameNum());
@@ -508,9 +510,9 @@ public class TMXHandler {
 		for (File tmxFile : tmxFiles) {
 			if (alignmentList.size()>maxSize)
 				return alignmentList;
-			List<SegPair> segpairs = TMXHandlerUtils.getTUsFromTMX(tmxFile,thr, minPerce01Align, languages[0], languages[1], cc,sites);
+			List<SegPair> segpairs = TMXHandlerUtils.getTUsFromTMX(tmxFile,thr, minPerce01Align, minPerceM1Align, languages[0], languages[1], cc,sites);
 			if (segpairs==null){
-				LOGGER.info("Cut due to many 0:1 alignments: " +tmxFile.getAbsolutePath());
+				//LOGGER.info("Cut due to many 0:1 alignments: " +tmxFile.getAbsolutePath());
 				continue;
 			}
 			totalcounter=totalcounter+segpairs.size();
@@ -764,6 +766,14 @@ public class TMXHandler {
 	public void setMinPerce01Align(double minPerce01align) {
 		TMXHandler.minPerce01Align = minPerce01align;
 	}
+	/**
+	 * tmx files with ratio (number of many:1 TUs /total number of TUs) more than minPerce01align (default is 1, i.e. all in) are annotated
+	 * @param minPerce01align
+	 */
+	public void setMinPerceM1Align(double minPerceM1align) {
+		TMXHandler.minPerceM1Align = minPerceM1align;
+	}
+	
 	/**
 	 * TUs with length (in characters) ratio of TUVs less than minTuLenRatio (default is 0, i.e all in) are annotated 
 	 * @param minTuLenRatio
