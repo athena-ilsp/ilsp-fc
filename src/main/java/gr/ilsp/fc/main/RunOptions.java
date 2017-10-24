@@ -110,7 +110,7 @@ public class RunOptions {
 
 	//tmxmerge params
 	private  double _minPerce01Align = 1, _minPerceM1Align = 1, _minTULenRatio = 0, _maxTULenRatio = 100;
-	private boolean _cc = false, _keepem = false, _keepiden = false, _keepdup = false, _clean =false, _keepsn = false;
+	private boolean _cc = false, _keepem = false, _keepiden = false, _keepdup = false, _clean =false, _keepsn = false, _samesymb=false;
 	private String defaultSegType="1:1";
 	private File _outputFile_mergedTMX, _outputFile_mergedTMXHTML;
 	private static String _selectDocs = "aupdih";
@@ -321,6 +321,9 @@ public class RunOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepNonAnnotatedTu" )
 				.withDescription( "keeps only non-annotated TUs")
 				.create("clean") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepTUsWithSameSymbolsInTUVs" )
+				.withDescription( "keeps only Tus in which TUVs have the same symbols")
+				.create("samesymb") );
 		options.addOption( OptionBuilder.withLongOpt( "KeepEmpty" )
 				.withDescription( "keeps TUs, even if one of its TUV does not contain any letter")
 				.create("keepem") );
@@ -955,6 +958,8 @@ public class RunOptions {
 			_keepem = true;
 		if (line.hasOption("clean"))
 			_clean=true;
+		if (line.hasOption("samesymb"))
+			_samesymb=true;
 		if(line.hasOption( "keepiden"))
 			_keepiden = true;
 		if(line.hasOption( "keepdup"))
@@ -1396,6 +1401,9 @@ public class RunOptions {
 	}
 	public boolean getClean() {
 		return _clean;
+	}
+	public boolean getSameSymb() {
+		return _samesymb;
 	}
 	public File getO1() {
 		return _o1;

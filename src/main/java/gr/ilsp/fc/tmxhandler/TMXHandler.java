@@ -77,6 +77,7 @@ public class TMXHandler {
 	private static boolean keepiden = false;
 	private static boolean keepdup = false;
 	private static boolean clean = false;
+	private static boolean samesymb = false;
 	private static boolean keepsn=false;
 	private static int minTuvLen=0;
 	private static int maxSize=1000000000;
@@ -121,7 +122,7 @@ public class TMXHandler {
 	private static LangDetector langDetector;
 	public static Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp")); 
 	private static int maxSampleSize=1500;		//no more than this value
-	
+
 	private static int totalcounter=0;
 	//private static int distthr=5; //FIXME add as parameter
 
@@ -166,6 +167,7 @@ public class TMXHandler {
 		tm.setKeepIdentical(options.getKeepIdentical());
 		tm.setKeepDuplicates(options.getKeepDuplicates());
 		tm.setClean(options.getClean());
+		tm.setSameSymb(options.getSameSymb());
 		//tm.setSites(options.getSites());
 		tm.setO1(options.getO1());
 		tm.setO2(options.getO2());
@@ -207,10 +209,10 @@ public class TMXHandler {
 				+ "The " + alignerStr + " sentence aligner was used for extracting segment alignments from crawled parallel documents. "
 				+ "As a post-processing step, alignments were merged into one TMX file. "
 				+ "The following filters were applied: ";
-		
+
 		//creationModeDescription = "It was created/offered by the Ľudovít Štúr Institute of Linguistics, Slovak Academy of Sciences."
 		//		+ "As a post-processing process several filters were applied to discard/annotate alignmentsthat that might be incorrect";
-		
+
 		outTMX = new File(baseName.getAbsolutePath()+TMXEXT);
 		if (!outTMX.getParentFile().exists())
 			outTMX.getParentFile().mkdirs();
@@ -240,7 +242,7 @@ public class TMXHandler {
 				return (arg1.endsWith(TMXEXT) );
 			}
 		};*/
-		
+
 		if (!iso6393){
 			languages[0]=ISOLangCodes.get2LetterCode(languages[0]);
 			languages[1]=ISOLangCodes.get2LetterCode(languages[1]);
@@ -298,7 +300,7 @@ public class TMXHandler {
 		HashMap<String, List<File>> tmxTypeFiles =FcFileUtils.clusterfiles(tmxfiles,doctypes);
 		for (int ii=0;ii<doctypes.length();ii++){
 			String m= Character.toString(doctypes.charAt(ii));
-			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, keepsn, clean, cc,targ_sites, maxSize);
+			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, keepsn, clean, samesymb, cc,targ_sites, maxSize);
 		}
 		if (!alignmentList.isEmpty()){
 			TUsScoreStats scores = TMXHandlerUtils.scorestats(alignmentList, true);
@@ -365,15 +367,17 @@ public class TMXHandler {
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
 
 			generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
-			
+
 			LOGGER.info("Generating language files");
 			TMXHandlerUtils.splitIntolangFiles(alignmentList, languages, baseName);
-			
+
 			int sampleSizeCe = (int)((double)alignmentList.size()*sampleSizePerCe);
 			int sampleSize = Math.min(maxSampleSize, sampleSizeCe);
 			File samplefile = new File(baseName.getAbsolutePath() + SAMPLE);
 			LOGGER.info("Generating sample file " + samplefile.getAbsolutePath());
 			TMXHandlerUtils.generateSample(alignmentList, sampleSize, samplefile);
+			//ArrayList<ILSPAlignment> selpairs = TMXHandlerUtils.generateSample(alignmentList, sampleSize, samplefile);
+			//TMXHandlerUtils.generateSampleView(languages, selpairs, samplefile);
 			
 			try {
 				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITES), sites_all);
@@ -500,7 +504,7 @@ public class TMXHandler {
 	 */
 
 	private List<ILSPAlignment> addTMXs(List<File> tmxFiles, List<ILSPAlignment> alignmentList, String type,
-			boolean keepem, boolean keepiden, boolean keepdup, boolean ksn, boolean clean, boolean cc, List<String> sites, int maxSize) {
+			boolean keepem, boolean keepiden, boolean keepdup, boolean ksn, boolean clean, boolean symb, boolean cc, List<String> sites, int maxSize) {
 		LOGGER.info("Examining docpairs of type "+ type);
 		int thr = thres[doctypes.indexOf(type)];
 		if (tmxFiles==null)
@@ -543,7 +547,7 @@ public class TMXHandler {
 					if (info.isEmpty()){	info =  mes2;}		else{	info =  info + " | "+mes2;}	
 				}
 				if (TMXHandlerUtils.checkemail(segpair.seg1) || TMXHandlerUtils.checkemail(segpair.seg2)){
-				//if (ValidateUtils.isValidEmailAddress(segpair.seg1) || ValidateUtils.isValidEmailAddress(segpair.seg2)){
+					//if (ValidateUtils.isValidEmailAddress(segpair.seg1) || ValidateUtils.isValidEmailAddress(segpair.seg2)){
 					if (clean)
 						continue;
 					if (!keepem)
@@ -551,7 +555,7 @@ public class TMXHandler {
 					if (info.isEmpty()){	info =  mes8;}		else{	info =  info + " | "+mes8;}	
 				}
 				if (TMXHandlerUtils.checkurl(segpair.seg1) || TMXHandlerUtils.checkurl(segpair.seg2)){
-				//if (ValidateUtils.isValidUrl(segpair.seg1) || ValidateUtils.isValidUrl(segpair.seg2)){
+					//if (ValidateUtils.isValidUrl(segpair.seg1) || ValidateUtils.isValidUrl(segpair.seg2)){
 					if (clean)
 						continue;
 					if (!keepem)
@@ -563,12 +567,18 @@ public class TMXHandler {
 				List<String> ttokens = FCStringUtils.getTokens(normT);
 				Double[] stokenslen = FCStringUtils.getTokensLength(stokens);
 				Double[] ttokenslen = FCStringUtils.getTokensLength(ttokens);*/
-				
+
+				if (FCStringUtils.isAllUpperCase(segpair.seg1) * FCStringUtils.isAllUpperCase(segpair.seg2)<0){
+					//System.out.println(segpair.seg1);
+					//System.out.println(segpair.seg2);
+					continue;
+				}
+
 				List<String> stokens = FCStringUtils.getTokens(segpair.seg1);
 				List<String> ttokens = FCStringUtils.getTokens(segpair.seg2);
 				Double[] stokenslen = FCStringUtils.getTokensLength(stokens);
 				Double[] ttokenslen = FCStringUtils.getTokensLength(ttokens);
-								
+
 				if (Statistics.getMax(stokenslen)>max_word_length || Statistics.getMax(ttokenslen)>max_word_length){
 					LOGGER.info("discarded TU, very large word (due to bad text extraction from pdf):"+ segpair.seg1 +"\t"+ segpair.seg2);
 					//String info1 = "a: "+ max_word_length;
@@ -604,6 +614,10 @@ public class TMXHandler {
 						continue;
 					if (info.isEmpty()){	info =  mes6;}		else{	info =  info + " | "+mes6;}	
 				}
+				if (symb){
+					if (!ContentNormalizer.leaveSymbols(segpair.seg1).equals(ContentNormalizer.leaveSymbols(segpair.seg2)))
+						continue;
+				}
 				String temp = normS+TAB+normT;
 				if (segs.contains(temp)){
 					if (clean)
@@ -630,6 +644,12 @@ public class TMXHandler {
 					}else*/
 					segs.add(temp);
 				}
+				//System.out.println(segpair.seg1+"\t"+ContentNormalizer.leaveSymbols(segpair.seg1));
+				//System.out.println(segpair.seg2+"\t"+ContentNormalizer.leaveSymbols(segpair.seg2));
+
+
+
+
 				ILSPAlignment alignment = new ILSPAlignment();
 				alignment.addSourceSegment(segpair.seg1);
 				alignment.addTargetSegment(segpair.seg2);
@@ -731,6 +751,15 @@ public class TMXHandler {
 		TMXHandler.clean=clean;
 	}
 	/**
+	 * TUs with different symbols are excluded
+	 * @param sy,b
+	 */
+	public void setSameSymb(boolean samesymb){
+		TMXHandler.samesymb=samesymb;
+	}
+	
+	
+	/**
 	 * types of TMXs to be merged, i.e. method by which the documents have been paired (and then aligned), default "aupidh" 
 	 * @param docTypes
 	 */
@@ -773,7 +802,7 @@ public class TMXHandler {
 	public void setMinPerceM1Align(double minPerceM1align) {
 		TMXHandler.minPerceM1Align = minPerceM1align;
 	}
-	
+
 	/**
 	 * TUs with length (in characters) ratio of TUVs less than minTuLenRatio (default is 0, i.e all in) are annotated 
 	 * @param minTuLenRatio

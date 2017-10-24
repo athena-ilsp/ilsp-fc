@@ -262,6 +262,7 @@ public class Run {
 			tm.setKeepIdentical(run_options.getKeepIdentical());
 			tm.setKeepDuplicates(run_options.getKeepDuplicates());
 			tm.setClean(run_options.getClean());
+			tm.setSameSymb(run_options.getSameSymb());
 			tm.setMaxSize(run_options.getMaxSize());
 			tm.setThres(thres);
 			tm.setCC(run_options.getCC());

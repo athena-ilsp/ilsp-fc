@@ -38,6 +38,7 @@ public class TMXHandlerOptions {
 	private boolean _oxslt=false;
 	private boolean _keepsn = false;
 	private boolean _clean = false;
+	private boolean _samesymb = false;
 	private boolean _iso6393=false;
 	private boolean _cc=false;
 	private boolean _keepem = false;
@@ -136,6 +137,9 @@ public class TMXHandlerOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepNonAnnotatedTu" )
 				.withDescription( "keeps only non-annotated TUs")
 				.create("clean") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepTUsWithSameSymbolsInTUVs" )
+				.withDescription( "keeps only Tus in which TUVs have the same symbols")
+				.create("samesymb") );
 		options.addOption( OptionBuilder.withLongOpt( "KeepEmpty" )
 				.withDescription( "keeps TUs, even if one of its TUV does not contain any letter")
 				.create("keepem") );
@@ -205,6 +209,8 @@ public class TMXHandlerOptions {
 				_keepdup=true;
 			if (line.hasOption("clean"))
 				_clean=true;
+			if (line.hasOption("samesymb"))
+				_samesymb=true;
 			if (line.hasOption("dom"))
 				_descr=line.getOptionValue("dom");
 			if (line.hasOption("iso6393"))		
@@ -305,6 +311,9 @@ public class TMXHandlerOptions {
 	}
 	public boolean getClean() {
 		return _clean;
+	}
+	public boolean getSameSymb() {
+		return _samesymb;
 	}
 	public boolean getKeepIdentical() {
 		return _keepiden;

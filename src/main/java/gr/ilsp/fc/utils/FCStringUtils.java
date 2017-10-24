@@ -32,7 +32,7 @@ public  class FCStringUtils {
 			host=host.substring(4);
 		return host;
 	}
-	
+
 	public static int getGraphemeLength(String str) {
 		BreakIterator it = BreakIterator.getCharacterInstance();
 		it.setText(str);
@@ -160,9 +160,18 @@ public  class FCStringUtils {
 		}
 		return str;
 	}
-	
-	
-	
+
+	public static int isAllUpperCase(String text) {
+		int res = 1;
+		text=text.replaceAll("[^\\p{L} ]", "").trim();
+		text=text.replaceAll(Constants.SPACE, "").trim();
+		for(char c : text.toCharArray())  {
+	        if(! Character.isUpperCase(c))
+	            return -1;
+	    }
+		return res;
+	}
+
 
 	public static Double[] getTokensLength(List<String> tokens) {
 		Double[] lens = new Double[tokens.size()];
@@ -185,7 +194,7 @@ public  class FCStringUtils {
 		}
 		return arr;
 	}
-	
+
 	/**
 	 * Reads the contents of a URL into a string
 	 * @param url

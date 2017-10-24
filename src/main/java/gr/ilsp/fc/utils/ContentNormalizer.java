@@ -324,6 +324,17 @@ public static String normalizeText1(String text){
 		return tempstr;
 	}
 
+	public static String leaveSymbols(String text) {
+		//System.out.println(text);
+		text=text.replaceAll("\\p{L}","").trim();
+		text=text.replaceAll("\\p{N}","").trim();
+		text=text.replaceAll(Constants.SPACE,"");
+		text=text.replaceAll("\\.","");
+		text=text.replaceAll(Constants.COMMA,"");
+		text=text.replaceAll("'","");
+		return text;
+	}
+	
 	/**
 	 * removes non-letters and a few "special" chars 
 	 * @param text
@@ -333,7 +344,7 @@ public static String normalizeText1(String text){
 		
 		text=text.replaceAll("&apos;",Constants.SPACE);		text=text.replaceAll("&quot;",Constants.SPACE);
 		text=text.replaceAll("&amp;",Constants.SPACE);		text=text.replaceAll("&lt",Constants.SPACE);
-		text=text.replaceAll("&gt",Constants.SPACE);			text=text.replaceAll("&#",Constants.SPACE);
+		text=text.replaceAll("&gt",Constants.SPACE);		text=text.replaceAll("&#",Constants.SPACE);
 		//if (text.contains("&")){
 		//	System.out.println(text);
 		//}

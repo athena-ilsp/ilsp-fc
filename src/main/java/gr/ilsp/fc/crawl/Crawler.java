@@ -60,6 +60,7 @@ public class Crawler {
 	private static final String DEFAULT_BI_CONFIG_FILE = "FBC_config.xml";
 
 	private static int PAGES_STORED = 0, max_crawldepth = 10000;  
+	private static int encoding_issues=0;
 	private static int PAGES_FAILED_CLASSIFICATION=0;
 	private static int PAGES_VISITED = 0;
 	private static int TOKENS_STORED = 0;
@@ -424,6 +425,7 @@ public class Crawler {
 		float avg = (float)duration/(curLoop-startLoop-1);
 		LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
 		LOGGER.info("Total pages failed classification or are too short: " + PAGES_FAILED_CLASSIFICATION );
+		LOGGER.info("Visited pages with encoding issues: " + encoding_issues );
 		LOGGER.info("Total tokens stored: " + TOKENS_STORED);
 		LOGGER.info("Average run time: " + avg + " milliseconds.");	
 	}
@@ -483,6 +485,11 @@ public class Crawler {
 		PAGES_VISITED++;
 	}
 
+	public static void incrementEncodingIssues() {
+		encoding_issues++;
+	}
+	
+	
 	public static int incrementTokensStored(Double len) {
 		TOKENS_STORED=(int) (TOKENS_STORED+len);
 		return TOKENS_STORED;

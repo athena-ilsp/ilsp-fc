@@ -855,9 +855,10 @@ public class TMXHandlerUtils {
 	 * @param alignmentList
 	 * @param samplesize
 	 */
-	public static void generateSample(List<ILSPAlignment> alignmentList, int samplesize, File samplefile) {
-		
+	//public static void generateSample(List<ILSPAlignment> alignmentList, int samplesize, File samplefile) {
+	public static ArrayList<ILSPAlignment> generateSample(List<ILSPAlignment> alignmentList, int samplesize, File samplefile) {	
 		List<ILSPAlignment> tempList = new ArrayList<ILSPAlignment>();
+		ArrayList<ILSPAlignment> sampleList = new ArrayList<ILSPAlignment>();
 		for (ILSPAlignment t:alignmentList)
 			tempList.add(t);
 		
@@ -870,6 +871,7 @@ public class TMXHandlerUtils {
 			sample.add(a.getSourceSegmentList().get(0)+Constants.TAB+a.getTargetSegmentList().get(0)+Constants.TAB
 					+a.getLengthRatio()+Constants.TAB+a.getScore()+Constants.TAB+a.getInfo()+Constants.TAB
 					+a.getMethod()+Constants.TAB+a.getType()+Constants.TAB+a.getL1url()+Constants.TAB+a.getL2url()+Constants.TAB+a.getLicense());
+			sampleList.add(a);
 		}
 		try {
 			FileUtils.writeLines(samplefile, sample);
@@ -877,6 +879,7 @@ public class TMXHandlerUtils {
 			LOGGER.error("problem in writing the sample file "+ samplefile.getAbsolutePath());
 			e.printStackTrace();
 		}
+		return sampleList;
 	}
 	
 	public static boolean checkurl(String seg) {
@@ -1020,6 +1023,19 @@ public class TMXHandlerUtils {
 		} catch (IOException e) {
 			LOGGER.warn("problem in writing "+ filelang2);
 		}
+	}
+
+	public static void generateSampleView(String[] languages, ArrayList<ILSPAlignment> selpairs, File samplefile) {
+		
+		BilingualCorpusInformation bilingualCorpusInfo = new BilingualCorpusInformation();
+		bilingualCorpusInfo.setName(FilenameUtils.getBaseName(samplefile.getAbsolutePath()+".tmx"));
+		bilingualCorpusInfo.setL1(languages[0]);
+		bilingualCorpusInfo.setL2(languages[1]);
+		bilingualCorpusInfo.setAlignmentList(selpairs);
+		File sampleViewFile = new File(samplefile.getAbsolutePath()+".tmx");
+		File sampleViewFileHTML = new File(samplefile.getAbsolutePath()+".tmx");
+		TMXHandler.generateMergedTMX(sampleViewFile, languages, bilingualCorpusInfo, sampleViewFileHTML);
+		
 	}
 
 

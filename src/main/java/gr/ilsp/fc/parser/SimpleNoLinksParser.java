@@ -1,5 +1,6 @@
 package gr.ilsp.fc.parser;
 
+import gr.ilsp.fc.crawl.Crawler;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 
 import java.io.ByteArrayInputStream;
@@ -7,12 +8,14 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 
 //import org.apache.pdfbox.pdfparser.PDFParser;
 //import org.apache.hadoop.fs.Path;
@@ -29,8 +32,8 @@ import bixo.parser.BaseContentExtractor;
 import bixo.parser.SimpleContentExtractor;
 import bixo.utils.HttpUtils;
 import bixo.utils.IoUtils;
-
 import gr.ilsp.fc.langdetect.LangDetector;
+import gr.ilsp.fc.utils.EncodingDetector;
 
 
 public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParsedDatum> {
@@ -130,11 +133,24 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 		Metadata metadata = new Metadata();
 		metadata.add(Metadata.RESOURCE_NAME_KEY, fetchedDatum.getUrl());
 		metadata.add(Metadata.CONTENT_TYPE, fetchedDatum.getContentType());
-		String charset = getCharset(fetchedDatum);
-		metadata.add(Metadata.CONTENT_LANGUAGE, getLanguage(fetchedDatum, charset));
-		metadata.add(Metadata.CONTENT_ENCODING, charset);
-
+		String encoding1 = getCharset(fetchedDatum);
+		
 		InputStream is = new ByteArrayInputStream(fetchedDatum.getContentBytes(), 0, fetchedDatum.getContentLength());
+		EncodingDetector encdet = new EncodingDetector();
+		encdet.initialize();
+		String encoding2="";
+		Charset charset2 = encdet.detect(is);
+		if (charset2!=null){
+			encoding2 = charset2.name();
+		}
+		if (!encoding1.equals(encoding2)){
+			LOGGER.warn("ENCODING ISSUE:\t"+fetchedDatum.getUrl()+"\t"+encoding1 +"\t"+encoding2);		
+			Crawler.incrementEncodingIssues();	
+		}
+metadata.add(Metadata.CONTENT_LANGUAGE, getLanguage(fetchedDatum, encoding1));
+		//metadata.add(Metadata.CONTENT_ENCODING, charset2);
+		metadata.add(Metadata.CONTENT_ENCODING, encoding1);
+		
 		metadata.add(Metadata.CONTENT_LENGTH, Integer.toString(fetchedDatum.getContentLength()));
 		try {
 			URL baseUrl = getContentLocation(fetchedDatum);
@@ -213,7 +229,10 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 	 * @return charset in response headers, or null
 	 */
 	protected String getCharset(FetchedDatum datum) {
-		return CharsetUtils.clean(HttpUtils.getCharsetFromContentType(datum.getContentType()));
+		
+		String enc1 = CharsetUtils.clean(HttpUtils.getCharsetFromContentType(datum.getContentType()));
+		
+		return enc1;
 	}
 
 	/**

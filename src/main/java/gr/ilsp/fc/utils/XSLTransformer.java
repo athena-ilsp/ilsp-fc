@@ -51,6 +51,14 @@ public class XSLTransformer {
 	}
 	
     public static void main(String[] args) throws Exception {
+    	File outTMX = new File(args[0]);
+    	File outHTML = new File(outTMX.getAbsolutePath()+".html");
+    	XSLTransformer xslTransformer1 = new XSLTransformer("http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html-no-segtype.xsl");
+		xslTransformer1.setBaseDir(outTMX.getParent());
+		xslTransformer1.transform(outTMX, outHTML);
+    	
+    	System.exit(0);
+    	
         if (args.length < 1) {
             logger.error("Usage: XSLTransformer xmlfile [xsltfile]");
             System.exit(1);
