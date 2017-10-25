@@ -332,6 +332,7 @@ public class Crawler {
 				DirUtils.clearPreviousLoopDir(cr.fs,cr.outputDirPath,curLoop);
 
 			LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
+			LOGGER.info("Encoding issues in "+encoding_issues + " pages");
 			LOGGER.info("Total pages failed classification or are too short : " + PAGES_FAILED_CLASSIFICATION );
 			LOGGER.info("Total tokens stored: " + TOKENS_STORED );
 			stor_vis.add(new int[] {PAGES_STORED,PAGES_VISITED});
