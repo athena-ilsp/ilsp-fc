@@ -258,12 +258,10 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				link=link.replace(url.getProtocol()+"://", "");
 				if (link.matches(urlfilterstr)){
 					temp.add(outlink);
-					//LOGGER.info("PASSED\t"+outlink.getToUrl());
 					LOGGER.debug("PASSED\t"+outlink.getToUrl());
 				}else{
 					LOGGER.debug("CUT\t"+outlink.getToUrl());
 				}
-
 			} catch (MalformedURLException e) {
 				//LOGGER.warn("not valid url: "+ outlink.getToUrl());
 				continue;

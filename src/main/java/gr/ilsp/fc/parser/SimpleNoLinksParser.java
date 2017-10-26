@@ -62,7 +62,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 	private static String pdfmime = "application/pdf";
 	private static String docmime = "application/msword";
 	private static String docmime1 = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-	
+
 	public SimpleNoLinksParser(FetchedDatum datum) {
 		this();
 		_datum = datum;    	
@@ -134,7 +134,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 		metadata.add(Metadata.RESOURCE_NAME_KEY, fetchedDatum.getUrl());
 		metadata.add(Metadata.CONTENT_TYPE, fetchedDatum.getContentType());
 		String encoding1 = getCharset(fetchedDatum);
-		
+
 		InputStream is = new ByteArrayInputStream(fetchedDatum.getContentBytes(), 0, fetchedDatum.getContentLength());
 		EncodingDetector encdet = new EncodingDetector();
 		encdet.initialize();
@@ -143,17 +143,20 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 		if (charset2!=null){
 			encoding2 = charset2.name();
 		}
-		if (!encoding1.equals(encoding2)){
-			LOGGER.warn("ENCODING ISSUE:\t"+fetchedDatum.getUrl()+"\t"+encoding1 +"\t"+encoding2);		
-			Crawler.incrementEncodingIssues();	
+		if (encoding1!=null && encoding2!=null){
+			if (!encoding1.equals(encoding2)){
+				LOGGER.warn("ENCODING ISSUE:\t"+fetchedDatum.getUrl()+"\t"+encoding1 +"\t"+encoding2);		
+				Crawler.incrementEncodingIssues();	
+			}
 		}
-metadata.add(Metadata.CONTENT_LANGUAGE, getLanguage(fetchedDatum, encoding1));
+		metadata.add(Metadata.CONTENT_LANGUAGE, getLanguage(fetchedDatum, encoding1));
 		//metadata.add(Metadata.CONTENT_ENCODING, charset2);
 		metadata.add(Metadata.CONTENT_ENCODING, encoding1);
-		
+
 		metadata.add(Metadata.CONTENT_LENGTH, Integer.toString(fetchedDatum.getContentLength()));
 		try {
 			URL baseUrl = getContentLocation(fetchedDatum);
+			LOGGER.debug(baseUrl +"\t"+ metadata.get("Content-Type"));
 			metadata.add(Metadata.CONTENT_LOCATION, baseUrl.toExternalForm());
 			Callable<ExtendedParsedDatum> callable;
 			if (metadata.get("Content-Type").contains(pdfmime)){	
@@ -184,7 +187,7 @@ metadata.add(Metadata.CONTENT_LANGUAGE, getLanguage(fetchedDatum, encoding1));
 				//	result = task.get(30000, TimeUnit.MILLISECONDS);
 				//}
 				//if (!metadata.get("Content-Type").equals("application/pdf")){
-					result = task.get(getParserPolicy().getMaxParseDuration(), TimeUnit.MILLISECONDS);
+				result = task.get(getParserPolicy().getMaxParseDuration(), TimeUnit.MILLISECONDS);
 				//}
 			} catch (TimeoutException e) {
 				LOGGER.error("Exception thrown when a blocking operation times out");
@@ -229,9 +232,9 @@ metadata.add(Metadata.CONTENT_LANGUAGE, getLanguage(fetchedDatum, encoding1));
 	 * @return charset in response headers, or null
 	 */
 	protected String getCharset(FetchedDatum datum) {
-		
+
 		String enc1 = CharsetUtils.clean(HttpUtils.getCharsetFromContentType(datum.getContentType()));
-		
+
 		return enc1;
 	}
 
