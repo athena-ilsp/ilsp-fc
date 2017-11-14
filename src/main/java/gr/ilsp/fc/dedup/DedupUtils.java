@@ -42,7 +42,7 @@ public class DedupUtils {
 	 * @param text
 	 * @return
 	 */
-	private static byte[] calculateMD5(String text, int MIN_TOKEN_LEN) {
+	public static byte[] calculateMD5(String text, int MIN_TOKEN_LEN) {
 		HashMap<String, Token> tokens = new HashMap<String, Token>();
 		StringBuffer curToken = new StringBuffer();
 		int maxFreq = 0;
