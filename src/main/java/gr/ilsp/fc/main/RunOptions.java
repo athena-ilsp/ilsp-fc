@@ -354,8 +354,8 @@ public class RunOptions {
 				.hasArg()
 				.create("u_r") );
 		options.addOption( OptionBuilder.withLongOpt( ""
-				+ "pair_detection_methods to apply and/or docpairs to select for merging" )
-				.withDescription( "Α string forcing the crawler to detect pairs using one or more specific methods: "
+				+ "pair_detection_methods" )
+				.withDescription( "Α string forcing the tool to detect pairs using one or more specific methods: "
 						+ "a (links between documents), "
 						+ "u (patterns in urls), "
 						+ "p (common images and similar digit sequences),"
@@ -364,7 +364,7 @@ public class RunOptions {
 						+ "u (high similarity of html structure)"
 						+ "m (medium similarity of html structure)"
 						+ "l (low similarity of html structure)"
-						+ "When creating a merged TMX file, only use sentence alignments from document pairs that have been identified by specific methods.")
+						+ " When creating a merged TMX file, only sentence alignments from document pairs that have been identified by specific methods, will be used.")
 						.hasArg()
 						.create("pdm") );
 		options.addOption( OptionBuilder.withLongOpt( "delete_redundant_files" )
@@ -414,7 +414,7 @@ public class RunOptions {
 				.withDescription( "Paragraphs with less than MIN_PAR_LEN (default is 3) tokens are excluded from content" )	
 				.hasArg()
 				.create("dedup_mpl") );
-		options.addOption( OptionBuilder.withLongOpt( "dedup_intersectionThr_paragraphs" )
+		options.addOption( OptionBuilder.withLongOpt( "dedup_intersectThr_pars" )
 				.withDescription( "Documents for which the ratio the common paragraphs"
 						+ " with the shortest of them is more than this threshold are considered duplicates")	
 						.hasArg()
@@ -440,7 +440,9 @@ public class RunOptions {
 	public  void parseOptions ( String[] args) {
 		if ((args.length==0) || (helpAsked(args) )) {
 			help();
-		}	
+		}
+		//String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+		
 		// create the command line parser
 		CommandLineParser clParser = new GnuParser();
 		try {
@@ -523,6 +525,20 @@ public class RunOptions {
 					if (line.hasOption("te"))
 						_textexport = true;		
 				}
+				/*if (line.hasOption( "bs")) {
+					_outBaseName = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+ Constants.UNDERSCORE+timeStamp).getAbsoluteFile();
+					_outputFile = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+ Constants.UNDERSCORE+timeStamp+XMLlist).getAbsoluteFile();
+					if(line.hasOption( "oxslt")){
+						_offlineXSLT  = true;
+						_outputFileHTML = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+ Constants.UNDERSCORE+timeStamp+ XMLHTMLlist).getAbsoluteFile();
+					}
+				}else{
+					if (!_runoffline){
+						LOGGER.error("Outputfile baseName required ");
+						System.exit(0);
+					}else
+						_outBaseName = new File(FilenameUtils.concat(_inputDir.getAbsolutePath(),_agentName)).getAbsoluteFile();
+				} */
 				if (line.hasOption( "bs")) {
 					_outBaseName = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName).getAbsoluteFile();
 					_outputFile = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+XMLlist).getAbsoluteFile();
@@ -538,16 +554,15 @@ public class RunOptions {
 						_outBaseName = new File(FilenameUtils.concat(_inputDir.getAbsolutePath(),_agentName)).getAbsoluteFile();
 				}
 
-
 			}
 			if (_operation.contains(ALIGN_operation) || _operation.contains(TMX_MERGE_operation)){
 				if(line.hasOption("iso6393"))
 					_iso6393=true;
 			}
 			if (_operation.contains(TMX_MERGE_operation) )
-				getParams4MergingAlignments(line);
+				getParams4MergingAlignments(line); //getParams4MergingAlignments(line, timeStamp);
 			if (_operation.contains(ALIGN_operation))
-				getParams4Align(line);
+				getParams4Align(line); //getParams4Align(line, timeStamp);
 			//if (_operation.contains(CRAWL_operation) || _operation.contains(EXPORT_operation) || _operation.contains(TMX_MERGE_operation))
 			//	getParams4ContentProps(line);
 			if(line.hasOption( "cfg")) 
@@ -903,7 +918,8 @@ public class RunOptions {
 	 * The file in which the list of links pointing to generated TMXs will be stored @param _outputFileHTMLTMX.
 	 * @param line
 	 */
-	private void getParams4Align(CommandLine line) {
+	//private void getParams4Align(CommandLine line, String timeStamp) {
+	private void getParams4Align(CommandLine line) {	
 		String tt =  line.getOptionValue("align");
 		if (tt!=null)
 			_aligner = line.getOptionValue("align").toLowerCase();
@@ -933,7 +949,8 @@ public class RunOptions {
 	 * The xslt transformed file of the selected alignments @param _outputFile_mergedTMXHTML.
 	 * @param line
 	 */
-	private void getParams4MergingAlignments(CommandLine line) {
+	//private void getParams4MergingAlignments(CommandLine line, String timeStamp) {
+	private void getParams4MergingAlignments(CommandLine line) {	
 		_outputFile_mergedTMX = new File(line.getOptionValue("bs")+Constants.UNDERSCORE+_agentName+TMXEXT);
 		_outputFile_mergedTMX = _outputFile_mergedTMX.getAbsoluteFile();
 		if (line.hasOption( "oxslt")){
@@ -1160,7 +1177,7 @@ public class RunOptions {
 
 	public  void printHelp(String program, Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.setWidth(100);
+		formatter.setWidth(200);
 		formatter.printHelp( program, options );
 	}
 	public String getLanguage() { 

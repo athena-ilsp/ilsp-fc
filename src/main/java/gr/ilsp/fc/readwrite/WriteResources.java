@@ -9,7 +9,7 @@ import org.apache.commons.io.FileUtils;
 
 public class WriteResources {
 	private static final String appHTMLext = ".html";
-	
+	//private static final String VAR_RES_CACHE = "/var/www/html/20171107-ILSP-FC_demo/";
 	/**
 	 * Generates Text file with list of paths of cesDocFiles 
 	 */
@@ -38,6 +38,8 @@ public class WriteResources {
 				if (!file.getAbsolutePath().endsWith(appHTMLext)){
 					file = new File(file.getAbsolutePath()+appHTMLext);
 				}
+				//String prot = file.getAbsolutePath().replaceAll(VAR_RES_CACHE, "");
+				//ttt= "<a href=\""+prot+"\">\n"+file.getName()+"</a>";
 				ttt= "<a href=\""+file.getAbsolutePath()+"\">\n"+file.getName()+"</a>";
 				lines.add("<br />"+ttt.replace("\\","/"));
 			}

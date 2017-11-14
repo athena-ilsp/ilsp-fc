@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -39,10 +40,23 @@ public class Run {
 	private static int[] thres={ 100, 100, 100, 100, 100, 100, 100, 100};
 
 	public static void main(String[] args) {
-		LOGGER.info(Arrays.toString(args));
+		System.out.println("");
+		System.out.println("");
+		LOGGER.info("ILSP-FC is a comprehensive solution for acquiring parallel (general or domain-specific) corpora from the web.");
+		LOGGER.info("It is a modular system that includes components/methods for all the tasks required to acquire such data from the web.");
+		System.out.println("");
+		LOGGER.info("The user should provide:");
+		LOGGER.info("   a) a URL (seed URL) of the targeted  multi-bilingual website");
+		LOGGER.info("   b) the targeted languages");
+		LOGGER.info("   c) (optional) a topic definition, i.e. a list of terms in the targted languages that describe the targeted topic");
+		System.out.println("");
+		
+		LOGGER.info("Starting from the seed URL(s), the tool harvests webpages of this website and \n"+"stores the ones that are in the targeted languages, and relevant to a targeted topic if required.");
+		System.out.println("");
+		LOGGER.info("Most of the parameters are fixed for the default configuration.\n"+  Arrays.toString(args));
 		RunOptions run_options = new RunOptions();
 		run_options.parseOptions(args);	
-
+		System.out.println("");
 		String operations=run_options.getOperation(); 
 		boolean crawl= false, export=false, dedup= false, pairdetect=false, align=false, tmxmerge=false, monomerge=false;
 
@@ -97,7 +111,7 @@ public class Run {
 			exp.setApplyOfflineXSLT(run_options.isOfflineXSLT());
 			//exp.set_paths_repl(run_options.get_paths_repl());
 			if (crawl){
-				LOGGER.info(cro.getOutputDir());
+				LOGGER.info("Data to be processed is in " +cro.getOutputDir());
 				exp.setInputDir(cro.getOutputDir());
 				exp.setOutputDir(new File(FilenameUtils.concat(cro.getOutputDir().getAbsolutePath(), xml_type)).getAbsoluteFile());
 				exp.setAcceptedMimeTypes(cro.getValidMimes().toArray(new String[cro.getValidMimes().size()]));
@@ -168,6 +182,18 @@ public class Run {
 						pd.setSourceDir(ded.getTargetDir());
 						pd.setTargetDir(ded.getTargetDir());
 					}else{
+						/*File newInputDir = new File(run_options.getInputDir().getAbsolutePath()+Constants.UNDERSCORE
+								+UUID.randomUUID().toString()+"offline");
+						if (newInputDir.exists())
+							newInputDir.delete();
+						try {
+							FileUtils.copyDirectory(run_options.getInputDir(), newInputDir);
+						} catch (IOException e) {
+							LOGGER.error("Problem in copying files");
+							e.printStackTrace();
+						}
+						pd.setSourceDir(newInputDir);
+						pd.setTargetDir(newInputDir); */
 						pd.setSourceDir(run_options.getInputDir());
 						pd.setTargetDir(run_options.getInputDir());
 					}
@@ -281,6 +307,9 @@ public class Run {
 			if (tm.getTargetDir()!=null){
 				List<String> langpairs = run_options.getLangPairs();
 				for (String langpair:langpairs){
+					/*tm.setSameSymb(run_options.getSameSymb());
+					if (langpair.contains("spa") || langpair.contains("rus") || langpair.contains("mlt") || langpair.contains("isl"))
+						tm.setSameSymb(false);*/
 					tm.setLanguage(langpair);
 					String[] temp_langs = langpair.split(Constants.SEMICOLON);
 					String lang = Constants.UNDERSCORE+temp_langs[0]+Constants.HYPHEN+temp_langs[1];
@@ -291,6 +320,13 @@ public class Run {
 				LOGGER.warn("No targeted directory");
 			tmxmerge=true;
 		}
+		
+		/*File [] files = run_options.getOutputFile().getParentFile().listFiles();
+		for (File file:files){
+			if (file.getName().endsWith(".txt"))
+				file.delete();	
+		}*/
+		
 		//constructs monolingual corpora 
 		if (operations.contains(MONO_MERGE_operation)){
 			LOGGER.info("---------------------------------------------------");
