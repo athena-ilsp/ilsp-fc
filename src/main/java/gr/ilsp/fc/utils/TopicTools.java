@@ -257,11 +257,15 @@ public class TopicTools {
 		if (!topicFile.exists())
 			return null;
 
-		BufferedReader in;
+		//BufferedReader in;
+		//try {
+		//in = new BufferedReader(new InputStreamReader(new FileInputStream(topicFile.getAbsolutePath()), "UTF-8"));
+		String  a, b, c, d, b_or=Constants.EMPTY_STRING; 
+		List<String> topiclines;
 		try {
-			in = new BufferedReader(new InputStreamReader(new FileInputStream(topicFile.getAbsolutePath()), "UTF-8"));
-			String str, a, b, c, d, b_or=Constants.EMPTY_STRING; 
-			while ((str = in.readLine()) != null) {
+			topiclines = FileUtils.readLines(new File(topicFile.getAbsolutePath()));
+			for (String str:topiclines) {
+				//System.out.println(str);
 				// Do not bother with commented out or empty lines
 				if (skipLineM.reset(str).matches()) 
 					continue;
@@ -314,17 +318,24 @@ public class TopicTools {
 				if (flag)
 					topicterms.add(new String[] {a,b,c,LangDetectUtils.updateLanguages(d,true),b_or});
 			}
-			in.close();
-		} catch (UnsupportedEncodingException e) {
-			LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			LOGGER.warn("File "+ topicFile.getAbsolutePath()+ " does not exist.");
-			e.printStackTrace();
 		} catch (IOException e) {
 			LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
 			e.printStackTrace();
 		}
+
+		//while ((str = in.readLine()) != null) {
+
+		//in.close();
+		//} catch (UnsupportedEncodingException e) {
+		//	LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
+		//	e.printStackTrace();
+		//} catch (FileNotFoundException e) {
+		//	LOGGER.warn("File "+ topicFile.getAbsolutePath()+ " does not exist.");
+		//	e.printStackTrace();
+		//} catch (IOException e) {
+		//	LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
+		//	e.printStackTrace();
+		//}
 		return topicterms;
 	}
 
