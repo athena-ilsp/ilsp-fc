@@ -2,6 +2,7 @@ package gr.ilsp.fc.bitext;
 
 import gr.ilsp.fc.utils.PrettyPrintHandler;
 import gr.ilsp.fc.utils.XSLTransformer;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
@@ -36,9 +37,9 @@ public class WriteBitexts {
 	private static final String appXMLext = ".xml";
 	private static final String appXMLHTMLext = ".xml.html";
 	private static XSLTransformer xslTransformer = null;
-	private static String cesAlignURL="http://nlp.ilsp.gr/xslt/ilsp-fc/cesAlign.xsl";	
+	private static final String cesAlignURL="http://nlp.ilsp.gr/xslt/ilsp-fc/cesAlign.xsl";	
 	private static String XMLNS= "<html xmlns=\"http://www.w3.org/1999/xhtml\">";
-	private static final String UNDERSCORE_STR = "_";
+	//private static final String VAR_RES_CACHE = "/var/www/html/20171107-ILSP-FC_demo/";
 
 	/**
 	 * Generates the cesAlign files and their transformed files based on the detected pairs (bitexts) 
@@ -74,7 +75,7 @@ public class WriteBitexts {
 			String confid=bitexts.get(ii)[4];
 
 			cesAlignFile = new File(FilenameUtils.concat(resultsDir, 
-					f1+UNDERSCORE_STR+f2+UNDERSCORE_STR+confid.substring(0, 1)+appXMLext));
+					f1+Constants.UNDERSCORE+f2+Constants.UNDERSCORE+confid.substring(0, 1)+appXMLext));
 
 			writeCesAlign(cesAlignFile, 
 					new File(FilenameUtils.concat(resultsDir, f1+appXMLext)), 
@@ -246,7 +247,7 @@ public class WriteBitexts {
 		LOGGER.debug("CesAlignListFile:"+"\t"+outputFile.getAbsolutePath());
 		List<String> cesAlignFiles = new ArrayList<String>();
 		for (int ii=bitexts.size()-1;ii>-1;ii--){
-			filename=bitexts.get(ii)[0]+UNDERSCORE_STR+bitexts.get(ii)[1]+UNDERSCORE_STR+bitexts.get(ii)[4].substring(0, 1)+appXMLext;
+			filename=bitexts.get(ii)[0]+Constants.UNDERSCORE+bitexts.get(ii)[1]+Constants.UNDERSCORE+bitexts.get(ii)[4].substring(0, 1)+appXMLext;
 			cesAlignFiles.add(FilenameUtils.concat(outputDirName.getAbsolutePath(),filename).replace("\\","/"));
 		}
 		try {
@@ -262,8 +263,9 @@ public class WriteBitexts {
 			List<String> cesAlignHTMLFiles = new ArrayList<String>();
 			cesAlignHTMLFiles.add(XMLNS);
 			for (int ii=bitexts.size()-1;ii>-1;ii--){
-				filename= bitexts.get(ii)[0]+UNDERSCORE_STR+bitexts.get(ii)[1]+UNDERSCORE_STR+bitexts.get(ii)[4].substring(0, 1)+appXMLHTMLext;
+				filename= bitexts.get(ii)[0]+Constants.UNDERSCORE+bitexts.get(ii)[1]+Constants.UNDERSCORE+bitexts.get(ii)[4].substring(0, 1)+appXMLHTMLext;
 				fullfilename = FilenameUtils.concat(outputDirName.getAbsolutePath(), filename).replace("\\","/");
+				//fullfilename = fullfilename.replaceAll(VAR_RES_CACHE, "");
 				cesAlignHTMLFiles.add("<br />"+"<a href=\""+fullfilename+"\">\n"+filename+"</a>");
 			}
 			cesAlignHTMLFiles.add("</html>");

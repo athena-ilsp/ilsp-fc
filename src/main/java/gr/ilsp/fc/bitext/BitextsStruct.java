@@ -6,6 +6,8 @@ import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
+//import java.net.MalformedURLException;
+//import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,7 +49,7 @@ public class BitextsStruct {
 		}
 		ArrayList<String[]> pairs = new ArrayList<String[]>();
 		Set<String> files=features.keySet();
-		String  key1, key2, lang1, lang2;
+		String  key1, key2, lang1, lang2; //, url1="", url2="";
 		int level1, level2,  counter = 0, thous=0;
 		double dist, sl_length , p2, p1;
 		Set<String> paired=new HashSet<String>();
@@ -62,7 +64,13 @@ public class BitextsStruct {
 			}
 			key1 = files1_it.next();
 			lang1 = features.get(key1).codeLang;
-			level1 = features.get(key1).urlLevel;
+			level1 = features.get(key1).urlLevel; 
+			/*try {
+				url1 = new URL(features.get(key1).url).getAuthority();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				LOGGER.warn("not valid url!");
+			} */
 			int[] sl =BitextUtils.readFingerprint(FilenameUtils.concat(xmldir.getAbsolutePath(),key1+appXMLTXText));
 			if (sl==null){
 				paired.add(key1);
@@ -90,6 +98,15 @@ public class BitextsStruct {
 				if (lang2.equals(lang1))
 					continue;
 				level2 = features.get(key2).urlLevel;
+				/*try {
+					url2 = new URL(features.get(key2).url).getAuthority();
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					LOGGER.warn("not valid url!");
+				}
+				if (!url1.equals(url2))
+					continue;*/
+				//LOGGER.info(url1+"\t"+url2);
 				if (Math.abs(level1-level2)>URL_LEVEL)
 					continue;		
 				p2 = features.get(key2).numPars; 
