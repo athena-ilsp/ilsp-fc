@@ -87,7 +87,7 @@ public class Crawler {
 		options.parseOptions(args);		
 		crawl(options);
 	}
-	
+
 	/**
 	 * Parses CrawlerOprions, creates a Crawler Object, and runs the Crawl Job.
 	 * Creates a specific file structure "user-defined directory/crawl directory/job directory" in which the data acquired in each crawl cycle is stored in directories.
@@ -235,7 +235,8 @@ public class Crawler {
 			if (!cr.fs.exists(cr.outputDirPath)) {
 				//FIXME convert Path to String (file protocol should be removed)
 				//System.out.println(outputPath.toUri().getPath());
-				LOGGER.info("Creating directory: " +CrawlerUtils.path2str(cr.outputDirPath));
+				LOGGER.info("The results will be stored in: " +CrawlerUtils.path2str(cr.outputDirPath));
+				System.out.println();
 				cr.fs.mkdirs(cr.outputDirPath);
 				Path m_dir =new Path(FilenameUtils.concat(cr.outputDirPath.toString(),resultPDFDir));  
 				if (!cr.fs.exists(m_dir))
@@ -308,7 +309,16 @@ public class Crawler {
 			//	for(int il =0; il<cr.jobconf.getLocalDirs().length;il++) 
 			//		LOGGER.debug(cr.jobconf.getLocalDirs()[il]);
 
+			LOGGER.info("The crawler runs in cycles:");
 			LOGGER.info("Starting cycle "+curLoop);
+			if (curLoop==1){
+				LOGGER.info("  1. The seed url(s) are being fetched.");
+				LOGGER.info("  2. The content of each fetched page/document is normalised (UTF8 conversion, metadata extraction).");
+				LOGGER.info("  3. The main content of each document is extracted, i.e. boilerplate (e.g. advertisements) is detected.");
+				LOGGER.info("  4. The language of the main content of each document is identified.");
+				LOGGER.info("  5. In case a topic definition is provided by the user, each docuemnt is classified as relevent to the targeted topic or not.");
+				LOGGER.info("  6. The links of the fetched pages are extracted and prioritized in order to feed the crawler's next cycle.");
+			}
 			boolean extractlinks = true;
 			if (cr.depth-curLoop<0)
 				extractlinks = false;
@@ -330,10 +340,10 @@ public class Crawler {
 			CrawlerWorkflow.resetCounters();
 			if (curLoop>3) 
 				DirUtils.clearPreviousLoopDir(cr.fs,cr.outputDirPath,curLoop);
-
+			System.out.println();
 			LOGGER.info("Total pages stored/visited: " + PAGES_STORED + "/" + PAGES_VISITED);
 			LOGGER.info("Encoding issues in "+encoding_issues + " pages");
-			LOGGER.info("Total pages failed classification or are too short : " + PAGES_FAILED_CLASSIFICATION );
+			LOGGER.info("Total pages failed classification (due to language/topic), or are too short : " + PAGES_FAILED_CLASSIFICATION );
 			LOGGER.info("Total tokens stored: " + TOKENS_STORED );
 			stor_vis.add(new int[] {PAGES_STORED,PAGES_VISITED});
 			loopLogFiles.add(loopLogFile);
@@ -364,6 +374,7 @@ public class Crawler {
 		}
 		////////////////////////////////////////////////////////////////////////////////////////////////////////
 		cr.setURLPairsFromTranslationLinks(urlPairsFromTranslationLinks);
+		System.out.println();
 		LOGGER.info("Crawler ended");
 		/*} catch (PlannerException e) {
 			//LOGGER.debug(conf.get("hadoop.tmp.dir"));			
@@ -409,7 +420,7 @@ public class Crawler {
 			min_uniq_terms = compositeConfiguration.getInt("classifier.min_unique_content_terms.value");
 			rel_thres = compositeConfiguration.getDouble("classifier.relative_relevance_threshold.value");
 		} else 
-			LOGGER.info("Running with no topic.");
+			LOGGER.info("Running with no topic definition.\n"+"\t\t In general, the topic defintion is a list of terms that describe the targeted topic in the targeted languages.");
 	}
 
 
@@ -489,8 +500,8 @@ public class Crawler {
 	public static void incrementEncodingIssues() {
 		encoding_issues++;
 	}
-	
-	
+
+
 	public static int incrementTokensStored(Double len) {
 		TOKENS_STORED=(int) (TOKENS_STORED+len);
 		return TOKENS_STORED;

@@ -97,7 +97,10 @@ public class CrawlerUtils {
 				CrawlDbDatum datum = new CrawlDbDatum(line, 0, 0, UrlStatus.UNFETCHED, 0,0.0);
 				writer.add(datum.getTuple());
 			}
+			//System.out.println();
+			//LOGGER.info("One URL of the targeted website is enough.\n"+"\t\t For demo purposes many urls from several websites have been selected as seed URLs.");
 			LOGGER.info("Starting from "+ seedUrls.size()+ " URLs");
+			System.out.println();
 			rdr.close();
 			writer.close();
 		} catch (IOException e) {
