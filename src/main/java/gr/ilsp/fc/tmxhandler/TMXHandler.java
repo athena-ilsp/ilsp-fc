@@ -277,7 +277,7 @@ public class TMXHandler {
 			LOGGER.info("No tmx files found.");
 			return;
 		}else
-			LOGGER.info(filter1+"\n"+filter2+"\n"+filter3+"\n"+filter4+"\n"+filter5+"\n"+filter6+"\n"+filter7+"\n"+filter8+"\n"+filter9);
+			LOGGER.info("A set of criteria to filter out specific types of TUs is applied with the purpose of generating precision-high parallel LRs for training MT systems:\n\t-"+filter1+"\n\t-"+filter2+"\n\t-"+filter3+"\n\t-"+filter4+"\n\t-"+filter5+"\n\t-"+filter6+"\n\t-"+filter7+"\n\t-"+filter8+"\n\t-"+filter9);
 		creationModeDescription = creationModeDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
 
 		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
@@ -530,6 +530,8 @@ public class TMXHandler {
 				}
 				String info="";//, info1="";
 				//FIXME add constrains for length, or other "filters"
+				//if (segpair.seg1.contains(">") || segpair.seg2.contains(">") )
+				//	continue;
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
 				if ( normS.isEmpty() || normT.isEmpty()){
