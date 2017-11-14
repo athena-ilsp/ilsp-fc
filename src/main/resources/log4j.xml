@@ -74,8 +74,12 @@
 	<!-- TapCollector -->
 	<!-- Task -->
 
-
-
+	<logger name="javax.net.ssl.SSLPeerUnverifiedException">
+		<level value="ERROR" />
+	</logger>
+	<logger name="bixo.fetcher.SimpleHttpFetcher">
+		<level value="ERROR" />
+	</logger>
 
 	<logger name="cascading.tap.hadoop.TapCollector">
 		<level value="ERROR" />
