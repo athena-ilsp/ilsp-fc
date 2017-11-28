@@ -60,13 +60,16 @@ public class Statistics {
 	public static double getMedian(Double[] numarray){
 		if (numarray.length==0)
 			return 0;
-		Arrays.sort(numarray);
-		int middle = numarray.length/2;
+		double[] new_numarray = new double[numarray.length];
+		for (int ii=0;ii<new_numarray.length;ii++)
+			new_numarray[ii] = numarray[ii];
+		Arrays.sort(new_numarray);
+		int middle = new_numarray.length/2;
 		double medianValue = 0; //declare variable 
-		if (numarray.length%2 == 1) 
-			medianValue = numarray[middle];
+		if (new_numarray.length%2 == 1) 
+			medianValue = new_numarray[middle];
 		else
-			medianValue = (numarray[middle-1] + numarray[middle]) / 2;
+			medianValue = (new_numarray[middle-1] + new_numarray[middle]) / 2;
 
 		return medianValue;
 	}
@@ -79,8 +82,7 @@ public class Statistics {
 		return temp/numarray.length;
 	}
 
-	public static double getStdDev(Double[] numarray)
-	{
+	public static double getStdDev(Double[] numarray){
 		return Math.sqrt(getVariance(numarray));
 	}
 
@@ -216,8 +218,11 @@ public class Statistics {
 	public static double getMax(Double[] numarray) {
 		if (numarray.length==0)
 			return 0;
-		Arrays.sort(numarray);
-		return numarray[numarray.length-1];
+		double[] new_numarray = new double[numarray.length];
+		for (int ii=0;ii<new_numarray.length;ii++)
+			new_numarray[ii] = numarray[ii];
+		Arrays.sort(new_numarray);
+		return new_numarray[new_numarray.length-1];
 	}
 
 	public static String[][] sort2darray(String[][] arr, int col, String order) {
