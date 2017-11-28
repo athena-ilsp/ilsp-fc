@@ -36,6 +36,7 @@ public class Pdf2text {
 	private static final String TITLE = "title"; 
 	private static final String PUBLISHER = "publisher"; 
 	private static final String  KEYWORDS = "keywords";
+	private static final String  PAGE = "page";
 	private static final List<String> FORBIDLIST = Arrays.asList( "πξ", "ξπ", "νξ", "ξν", "ζξ", "ξζ","νλ", "σξ" );
 	private static ArrayList<PrintTextLocations.CharAttr> chardata=new ArrayList<PrintTextLocations.CharAttr>();
 
@@ -142,11 +143,11 @@ public class Pdf2text {
 					chardata=printer.getchardata();
 					//System.out.println(chardata.size());
 					if (chardata.size()<1 ){
-						docprops.put("page"+i, current_linedata);
+						docprops.put(PAGE+i, current_linedata);
 						continue;
 					}
 					if (chardata.size()>20000){
-						docprops.put("page"+i, current_linedata);
+						docprops.put(PAGE+i, current_linedata);
 						continue;
 					}
 					layout_analysis(pageheight, sort_sections);
@@ -154,11 +155,11 @@ public class Pdf2text {
 				for (int jj=0;jj<linedata.size();jj++){
 					current_linedata.add(linedata.get(jj));
 					current_linedata.get(jj).chars=Utils.normalizeContent(current_linedata.get(jj).chars);
-					LOGGER.debug(current_linedata.get(jj).p+"\t"+
-							current_linedata.get(jj).t+"\t"+
+					LOGGER.debug(current_linedata.get(jj).p+ Constants.TAB+
+							current_linedata.get(jj).t+ Constants.TAB+
 							current_linedata.get(jj).chars);
 				}
-				docprops.put("page"+i, current_linedata);
+				docprops.put(PAGE+i, current_linedata);
 				content = content+getAllText(docprops);
 				data.put("content", content);
 			}
@@ -216,7 +217,7 @@ public class Pdf2text {
 		boolean found, found1;
 
 		for (int ii=0;ii<docprops.size();ii++){	
-			temp_int="page"+ii;
+			temp_int=PAGE+ii;
 			if  (!docprops.containsKey(temp_int))
 				continue;
 			if (docprops.get(temp_int).size()==1){
@@ -315,7 +316,7 @@ public class Pdf2text {
 		boolean found1=false; //true denotes that i the textline ends with "-".
 
 		for (int ii=0;ii<docprops.size();ii++){	
-			temp_int="page"+ii;
+			temp_int=PAGE+ii;
 			if  (!docprops.containsKey(temp_int))
 				continue;
 			if (docprops.get(temp_int).size()==1){
@@ -377,6 +378,8 @@ public class Pdf2text {
 				}
 			}
 		}
+		if (!content.endsWith("\n"))
+			content = content+"\n";
 		return content;
 	}
 
@@ -1274,6 +1277,8 @@ public class Pdf2text {
 				chardata.get(ii).p=linecounter; //chardata.get(ii-1).p+1;
 			}
 		}
+		if (linecounter==0 && chardata.size()>5)
+			linecounter++;
 		return linecounter;
 	}
 
