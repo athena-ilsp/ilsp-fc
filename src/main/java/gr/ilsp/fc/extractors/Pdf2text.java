@@ -1458,6 +1458,15 @@ public class Pdf2text {
 				//temp="";
 			}
 		}
+		if (!candidate_spaces.isEmpty()){ //last textline
+			if (usefonts)
+				thr_spaces_per_line[linecounter]=(float) Math.min((float) Statistics.otsu(candidate_spaces,0),
+						chardata.get(chardata.size()-1).fs/5);
+			else{
+				thr_spaces_per_line[linecounter]=(float) Statistics.otsu(candidate_spaces,0.4*Statistics.getMean(char_widths.toArray(new Double[char_widths.size()])));	
+			}
+			
+		}
 		//based on the estimated threshold per text-line, required white spaces are added.
 		//System.out.println("BASED ON THE ESTIMATED THRESHOLD PER TEXT-LINE, REQUIRED WHITESPACES ARE ADDED.");
 		for (int ii=1;ii<chardata.size();ii++){

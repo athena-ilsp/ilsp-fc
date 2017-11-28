@@ -16,7 +16,7 @@ import java.util.Random;
 import java.util.Set;
 
 public class Statistics {
-
+	public static double minimum_space_width = 1;
 	private static double text_thres=0.4;
 	enum SortingOrder{
 	    ASCENDING, DESCENDING;
@@ -275,6 +275,99 @@ public class Statistics {
 	    	
 	    }
 		return sample;
+	}
+	
+	
+	public static double otsu(ArrayList<Double> candidate_spaces, double mean_char_width) {
+		//FIXME implementation should be improved to avoid redundant loops 
+		double thr=0, var1, var2, min_var;
+
+		if (candidate_spaces.size()==0)
+			return -1;
+		double[] temp = sort(candidate_spaces);
+		//if all candidates are higher (lower) than a typical value, all candidates are real (not real).
+		if (temp[temp.length-1]<minimum_space_width)   
+			return 1000000;
+		//if (temp[0]>Math.max(minimum_space_width,)) 
+		if (temp[0]>Math.max(minimum_space_width,mean_char_width))	
+			return temp[0];
+
+		double bins=50;
+		double[] thrs=new double[(int) bins];
+		double[] thrs_var=new double[(int) bins];
+		double step=temp[temp.length-1]/bins;
+		if (step<0.00001)
+			return temp[0];
+		for (int ii=0;ii<bins;ii++)
+			thrs[ii]=temp[0]+ii*step;
+
+		for (int ii=0;ii<thrs.length;ii++){
+			ArrayList<Double> class1=new ArrayList<Double>();
+			ArrayList<Double> class2=new ArrayList<Double>();
+			int count1=0, count2=0;
+			for (int jj=0;jj<temp.length;jj++){
+				if (temp[jj]<thrs[ii]){
+					class1.add(temp[jj]);
+					count1++;
+				}else{
+					class2.add(temp[jj]);
+					count2++;
+				}
+			}
+			Double[] class11 = class1.toArray(new Double[0]);
+			Double[] class22 = class2.toArray(new Double[0]);
+			if (class11.length==0)
+				var1=0;
+			else
+				var1=getVariance(class11); //variance of clas1
+			if (class22.length==0)
+				var2=0; 
+			else
+				var2=getVariance(class22); //variance of clas2
+
+			thrs_var[ii]=((double)count1/(double)temp.length)*var1+((double)count2/(double)temp.length)*var2; //intra_class_variance
+		}
+		min_var=getMin(thrs_var);
+		thr=-1;
+		for (int ii=0;ii<thrs_var.length;ii++){
+			if (thrs_var[ii]==min_var){
+				if (thr<0){
+					thr=thrs[ii];
+				}
+				else
+					thr=(thr+thrs[ii])/2;
+			}
+		}
+		return thr;
+	}
+	
+	public static double getMin(double[] thrs_var) {
+		double res=1000000000;
+		for (int ii=0;ii<thrs_var.length;ii++){
+			if (thrs_var[ii]<res){
+				res=thrs_var[ii];
+			}
+		}
+		return res;
+	}
+
+	public static double getMin(Double[] thrs_var) {
+		double res=1000000000;
+		for (int ii=0;ii<thrs_var.length;ii++){
+			if (thrs_var[ii]<res){
+				res=thrs_var[ii];
+			}
+		}
+		return res;
+	}
+	
+	private static double[] sort(ArrayList<Double> candidate_spaces) {
+		double[] result = new double[candidate_spaces.size()];
+		for (int i = 0; i < result.length; i++){
+			result[i] =candidate_spaces.get(i);
+		}
+		Arrays.sort(result);
+		return result;
 	}
 	
 }
