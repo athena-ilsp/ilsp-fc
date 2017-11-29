@@ -324,13 +324,13 @@ public class RunOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepTUsWithSameSymbolsInTUVs" )
 				.withDescription( "keeps only Tus in which TUVs have the same symbols")
 				.create("samesymb") );
-		options.addOption( OptionBuilder.withLongOpt( "KeepEmpty" )
+		options.addOption( OptionBuilder.withLongOpt( "KeepEmptyTUs" )
 				.withDescription( "keeps TUs, even if one of its TUV does not contain any letter")
 				.create("keepem") );
-		options.addOption( OptionBuilder.withLongOpt( "KeepIdentical" )
+		options.addOption( OptionBuilder.withLongOpt( "KeepIdenticalTUs" )
 				.withDescription( "keeps TUs, even if its TUVs are identical after removing non-letters")
 				.create("keepiden") );
-		options.addOption( OptionBuilder.withLongOpt( "KeepDuplicates" )
+		options.addOption( OptionBuilder.withLongOpt( "KeepDuplicatesTUs" )
 				.withDescription( "keeps duplicate TUs")
 				.create("keepdup") );
 		options.addOption( OptionBuilder.withLongOpt("segtypes")
