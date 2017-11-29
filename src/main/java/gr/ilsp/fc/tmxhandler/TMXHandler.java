@@ -277,7 +277,9 @@ public class TMXHandler {
 			LOGGER.info("No tmx files found.");
 			return;
 		}else
-			LOGGER.info("A set of criteria to filter out specific types of TUs is applied with the purpose of generating precision-high parallel LRs for training MT systems:\n\t-"+filter1+"\n\t-"+filter2+"\n\t-"+filter3+"\n\t-"+filter4+"\n\t-"+filter5+"\n\t-"+filter6+"\n\t-"+filter7+"\n\t-"+filter8+"\n\t-"+filter9);
+			LOGGER.info(tmxfiles.size() + " TMX files will be merged.\n");
+		
+		LOGGER.info("A set of criteria to filter out specific types of TUs is applied with the purpose of generating precision-high parallel LRs for training MT systems:\n\t-"+filter1+"\n\t-"+filter2+"\n\t-"+filter3+"\n\t-"+filter4+"\n\t-"+filter5+"\n\t-"+filter6+"\n\t-"+filter7+"\n\t-"+filter8+"\n\t-"+filter9);
 		creationModeDescription = creationModeDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
 
 		List<String> domains = ReadResources.extactValueFromDocPair(tmxfiles, domainNode);
