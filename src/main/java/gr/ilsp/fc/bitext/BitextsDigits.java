@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math3.util.Precision;
 import org.apache.log4j.Logger;
 
 public class BitextsDigits {
@@ -120,45 +121,15 @@ public class BitextsDigits {
 				int minlen = Math.min(digits1length,digits2length); 
 				if (minlen>len_thr3){
 					temp = Statistics.editDist(digits1.substring(0, minlen), digits2.substring(0, minlen)) / (double)minlen;	
-					/*if (temp>=mindist){
-						String dmax= digits1, dmin=digits2;
-						if (digits1length<digits2length){
-							dmax = digits2;
-							dmin = digits1;
-						}
-						for (int jj=1;jj<1000;jj++){
-							int st=jj*step;
-							int en = st+minlen;
-							if (en>dmax.length())
-								break;
-							else{
-								double temp1 = Statistics.editDist(dmin, dmax.substring(st, en)) / (double)minlen;
-								System.out.println(st+"\t"+en+"\t"+temp1);
-								if (temp1<temp)
-									temp = temp1;
-							}
-						}
-					}*/
 				}
-				//if (digits2.length()<len_thr3 && digits1.length()<len_thr3 && tok1<toknum_thr && tok2<toknum_thr ) 
-				//	continue;
-				if (temp<mindist){
+				if (Precision.round(temp, 2)<=mindist){
 					mindist=temp;
-					//mindisttok=disttok;
 					ind = key2;
 					det_lang = lang2;
 				}else{
 					if (temp==mindist & !ind.isEmpty()){
-						/*if (disttok>mindisttok){
-									ind = key2;
-									det_lang = lang2;
-									mindisttok=disttok;
-								}else{
-									if (disttok==mindisttok){*/
 						ind="";
 						break;
-						//}
-						//}
 					}
 				}
 			}
