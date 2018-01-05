@@ -251,7 +251,7 @@ public class GetTMXsubset {
 
 
 	/**
-	 * gets the tus of a tmx if the 0:1 alignments are less than thr
+	 * gets the tus of a tmx 
 	 * @param tmxFile
 	 * @param thr
 	 * @param minPerce01Align 
@@ -308,7 +308,6 @@ public class GetTMXsubset {
 		}
 		return segpairs;
 	}
-
 
 
 	private static List<ILSPAlignment> getSelectedSegs(List<SegPair> segpairs,	List<ILSPAlignment> alignmentList) {

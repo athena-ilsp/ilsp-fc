@@ -44,6 +44,7 @@ public class TMXHandlerOptions {
 	private boolean _keepem = false;
 	private boolean _keepiden = false;
 	private boolean _keepdup = false;
+	private boolean _keepneardup = false;
 	private List<String> _segtypes=new ArrayList<String>();
 	private int[] _thres={ 100, 100, 100, 100, 100, 100, 100, 100};
 /*	private int _minTuvLen = 5;
@@ -149,6 +150,9 @@ public class TMXHandlerOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepDuplicates" )
 				.withDescription( "keeps duplicate TUs")
 				.create("keepdup") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepNearDuplicates" )
+				.withDescription( "keeps (near)duplicate TUs")
+				.create("keepneardup") );
 		options.addOption( OptionBuilder.withLongOpt( "specific_output1" )
 				.withDescription( "Not used (Specific outout1)")
 				.hasArg()
@@ -207,6 +211,8 @@ public class TMXHandlerOptions {
 				_keepiden=true;
 			if (line.hasOption("keepdup"))
 				_keepdup=true;
+			if (line.hasOption("keepneardup"))
+				_keepneardup=true;
 			if (line.hasOption("clean"))
 				_clean=true;
 			if (line.hasOption("samesymb"))
@@ -320,6 +326,9 @@ public class TMXHandlerOptions {
 	}
 	public boolean getKeepDuplicates() {
 		return _keepdup;
+	}
+	public boolean getKeepNearDuplicates() {
+		return _keepneardup;
 	}
 	public File getBaseName(){
 		return _baseName;

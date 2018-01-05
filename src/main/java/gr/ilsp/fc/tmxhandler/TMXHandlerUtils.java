@@ -72,9 +72,9 @@ public class TMXHandlerUtils {
 	public static Set<String> langsTBFI = new HashSet<String>(Arrays.asList("bos", "hrv", "srp")); 
 
 	public static void main(String[] args) {
-		
+
 		TMXHandlerUtils.checkurl("http://greece.greekreporter.com/2017/01/19/it-will-take-21-vears-until-unemplovment-in-greece-returns-to-normal-");		
-		
+
 		String[] _targetedLangs= new String[2];
 		_targetedLangs[0]= "en"; _targetedLangs[1]= "es";
 		_langDetector = LangDetectUtils.loadLangDetectors(_targetedLangs,defaultlangDetectorId);
@@ -89,7 +89,7 @@ public class TMXHandlerUtils {
 
 		//List<SegPair> testsegpairs = TMXHandlerUtils.getTUsFromTMX(new File("C:/Users/vpapa/Downloads/archive (1)/EN-ES_Website_corpus/output_data_en-es.tmx"), false,
 		//		_targetedLangs[0], _targetedLangs[1]);
-		
+
 		//File infile = new File("C:/Users/vpapa/ELRC/created_datasets/datasets_v2/pub_admin_v2_elrc_ell-eng.tmx");
 		File infile = new File("C:/Users/vpapa/Downloads/archive (1)/EN-ES_Website_corpus/output_data_en-es.tmx");
 		List<SegPair> testsegpairs = TMXHandlerUtils.getTUsFromTMX(infile, false,	_targetedLangs[0], _targetedLangs[1]);
@@ -140,7 +140,7 @@ public class TMXHandlerUtils {
 			}
 			List<String> stokens = FCStringUtils.getTokens(segpair.seg1);
 			List<String> stokensn = FCStringUtils.getTokens(normS);
-			
+
 			if (((double)stokensn.size() / (double) stokens.size()) >3){
 				System.out.println("TEXT_EXTRACTION\t"+segpair.seg1+"\t\t"+segpair.seg2);
 				counter++;
@@ -167,7 +167,7 @@ public class TMXHandlerUtils {
 					continue;
 				}
 			}
-			
+
 
 			float ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
 			if (ratio>1.6 || ratio < 0.6){
@@ -353,7 +353,7 @@ public class TMXHandlerUtils {
 				LOGGER.info(percent+"\tCut due to many 0:1 and many:1 alignments: " +tmxFile.getAbsolutePath());
 				return null;
 			}
-			
+
 		} catch (FileNotFoundException e) {
 			LOGGER.warn("Problem in reading "+ tmxFile.getAbsolutePath());
 			e.printStackTrace();
@@ -377,14 +377,17 @@ public class TMXHandlerUtils {
 			List<Tu> tus = tmx.getBody().getTu();
 			for (Tu tu: tus) {
 				List<Object> tuProps = tu.getNoteOrProp();
-				boolean found=false;
+				boolean found=true;
 				for (Object obProp : tuProps) {
 					Prop prop = (Prop) obProp;
 					if (prop.getType().equals(INFO)) {
-						if (prop.getContent().isEmpty())
-							found=true;
-						else
-							System.out.println(prop.getContent().get(0));
+						//if (prop.getContent().isEmpty() && !hasannot)
+						//	found=true;
+						if (!prop.getContent().isEmpty() && !hasannot){
+							found=false;
+							//else
+							//System.out.println(prop.getContent().get(0));
+						}
 					}
 				}
 				if (found){
@@ -861,7 +864,7 @@ public class TMXHandlerUtils {
 		ArrayList<ILSPAlignment> sampleList = new ArrayList<ILSPAlignment>();
 		for (ILSPAlignment t:alignmentList)
 			tempList.add(t);
-		
+
 		samplesize = Math.min(samplesize, tempList.size());
 		Set<ILSPAlignment> selpairs = Statistics.distinctRandomILSPAlignments(tempList, samplesize);
 		List<String> sample= new ArrayList<String>();
@@ -881,6 +884,35 @@ public class TMXHandlerUtils {
 		}
 		return sampleList;
 	}
+	
+	/**
+	 * gets distinct-Random- SegPairs from the SegPairList and "writes them" in a textfile (properties are tab-separated)
+	 * @param alignmentList
+	 * @param samplesize
+	 */
+	public static ArrayList<SegPair> generateSampleSegs(List<SegPair> segPairList, int samplesize, File samplefile) {	
+		List<SegPair> tempList = new ArrayList<SegPair>();
+		ArrayList<SegPair> sampleList = new ArrayList<SegPair>();
+		for (SegPair t:segPairList)
+			tempList.add(t);
+
+		samplesize = Math.min(samplesize, tempList.size());
+		Set<SegPair> selpairs = Statistics.distinctRandomSegPairs(tempList, samplesize);
+		List<String> sample= new ArrayList<String>();
+		for (SegPair a:selpairs){
+			sample.add(a.seg1+Constants.TAB+a.seg2);
+			sampleList.add(a);
+		}
+		try {
+			FileUtils.writeLines(samplefile, sample);
+		} catch (IOException e) {
+			LOGGER.error("problem in writing the sample file "+ samplefile.getAbsolutePath());
+			e.printStackTrace();
+		}
+		return sampleList;
+	}
+	
+	
 	
 	public static boolean checkurl(String seg) {
 		List<String> tokens = FCStringUtils.getTokens(seg);
@@ -907,8 +939,8 @@ public class TMXHandlerUtils {
 			return true;
 		return false;
 	}
-	
-	
+
+
 	/**
 	 * calculates mean and std values of length ratio for all and notannotated TUs
 	 * @author 
@@ -1016,7 +1048,7 @@ public class TMXHandlerUtils {
 		} catch (IOException e) {
 			LOGGER.warn("problem in writing "+ filelang1);
 		}
-		 res = getLangPart(alignmentList, false);
+		res = getLangPart(alignmentList, false);
 		File filelang2 = new File(baseName.getAbsolutePath() + Constants.DOT+ ISOLangCodes.get2LetterCode(languages[1]));
 		try {
 			FileUtils.writeLines(filelang2, res);
@@ -1026,7 +1058,7 @@ public class TMXHandlerUtils {
 	}
 
 	public static void generateSampleView(String[] languages, ArrayList<ILSPAlignment> selpairs, File samplefile) {
-		
+
 		BilingualCorpusInformation bilingualCorpusInfo = new BilingualCorpusInformation();
 		bilingualCorpusInfo.setName(FilenameUtils.getBaseName(samplefile.getAbsolutePath()+".tmx"));
 		bilingualCorpusInfo.setL1(languages[0]);
@@ -1035,7 +1067,7 @@ public class TMXHandlerUtils {
 		File sampleViewFile = new File(samplefile.getAbsolutePath()+".tmx");
 		File sampleViewFileHTML = new File(samplefile.getAbsolutePath()+".tmx");
 		TMXHandler.generateMergedTMX(sampleViewFile, languages, bilingualCorpusInfo, sampleViewFileHTML);
-		
+
 	}
 
 

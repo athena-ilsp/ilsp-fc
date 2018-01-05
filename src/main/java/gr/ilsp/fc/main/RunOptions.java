@@ -110,7 +110,7 @@ public class RunOptions {
 
 	//tmxmerge params
 	private  double _minPerce01Align = 1, _minPerceM1Align = 1, _minTULenRatio = 0, _maxTULenRatio = 100;
-	private boolean _cc = false, _keepem = false, _keepiden = false, _keepdup = false, _clean =false, _keepsn = false, _samesymb=false;
+	private boolean _cc = false, _keepem = false, _keepiden = false, _keepdup = false, _keepneardup = false, _clean =false, _keepsn = false, _samesymb=false;
 	private String defaultSegType="1:1";
 	private File _outputFile_mergedTMX, _outputFile_mergedTMXHTML;
 	private static String _selectDocs = "aupdih";
@@ -333,6 +333,9 @@ public class RunOptions {
 		options.addOption( OptionBuilder.withLongOpt( "KeepDuplicatesTUs" )
 				.withDescription( "keeps duplicate TUs")
 				.create("keepdup") );
+		options.addOption( OptionBuilder.withLongOpt( "KeepNearDuplicatesTUs" )
+				.withDescription( "keeps (near)duplicate TUs")
+				.create("keepneardup") );
 		options.addOption( OptionBuilder.withLongOpt("segtypes")
 				.withDescription( "When creating a merged TMX file, only use sentence alignments of specific types, ie. 1:1" )	
 				.hasArg()
@@ -981,6 +984,8 @@ public class RunOptions {
 			_keepiden = true;
 		if(line.hasOption( "keepdup"))
 			_keepdup = true;
+		if(line.hasOption( "keepneardup"))
+			_keepneardup = true;
 		if (line.hasOption("segtypes")){
 			String[] temp= line.getOptionValue("segtypes").split(Constants.SEMICOLON); 
 			for (String str:temp){
@@ -1415,6 +1420,9 @@ public class RunOptions {
 	}
 	public boolean getKeepDuplicates() {
 		return _keepdup;
+	}
+	public boolean getKeepNearDuplicates() {
+		return _keepneardup;
 	}
 	public boolean getClean() {
 		return _clean;
