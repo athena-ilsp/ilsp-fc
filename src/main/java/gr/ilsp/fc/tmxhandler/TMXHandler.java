@@ -538,7 +538,7 @@ public class TMXHandler {
 				if (segpair.l1url.contains("twitter.") || segpair.l2url.contains("twitter.")) //temp addition.  should it be removed? 
 					continue;
 				if (!segtypes.isEmpty()){
-					if (!segtypes.contains(segpair.type))
+					if (!segtypes.contains(segpair.type) && !segpair.type.isEmpty())
 						continue;
 				}
 				if (FCStringUtils.isAllUpperCase(segpair.seg1) * FCStringUtils.isAllUpperCase(segpair.seg2)<0){
@@ -583,9 +583,10 @@ public class TMXHandler {
 						continue;
 					if (info.isEmpty()){	info =  mes2;}		else{	info =  info + " | "+mes2;}	
 				}	
-
-				List<String> stokens = FCStringUtils.getTokens(segpair.seg1);
-				List<String> ttokens = FCStringUtils.getTokens(segpair.seg2);
+				String tempseg = segpair.seg1.replaceAll(".", " "); 	 tempseg = tempseg.replaceAll("/", " ");
+				List<String> stokens = FCStringUtils.getTokens(tempseg); //List<String> stokens = FCStringUtils.getTokens(segpair.seg1);
+				tempseg = segpair.seg2.replaceAll(".", " ");			 tempseg = tempseg.replaceAll("/", " ");
+				List<String> ttokens = FCStringUtils.getTokens(tempseg); //List<String> ttokens = FCStringUtils.getTokens(segpair.seg2);
 				Double[] stokenslen = FCStringUtils.getTokensLength(stokens);
 				Double[] ttokenslen = FCStringUtils.getTokensLength(ttokens);
 
