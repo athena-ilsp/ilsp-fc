@@ -96,6 +96,8 @@ public class ReadResources {
 	
 	public static String extractNodefromXML(String infile, String ele_name,boolean hasattr) {
 		String result="";
+		if (!(new File(infile).exists()))
+			return result;
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
 		try {
@@ -166,6 +168,8 @@ public class ReadResources {
  */
 	public static String extractAttrfromXML(String inputFile, String ele_name, String attr_name, boolean included, boolean onlyFirstOccur) {
 		String result="";
+		if (!(new File(inputFile).exists()))
+			return result;
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
 		try {

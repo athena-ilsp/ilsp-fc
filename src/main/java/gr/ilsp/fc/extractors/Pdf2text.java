@@ -1320,8 +1320,11 @@ public class Pdf2text {
 		//	fontsizes[ii]=chardata.get(ii).fs;
 		Arrays.sort(fontsizes);
 		for (int ii=1;ii<fontsizes.length;ii++){
-			if (Math.abs(fontsizes[ii]-fontsizes[ii-1])>fontsize_thr)
-				uniquefontsizes.add(fontsizes[ii-1]);
+			if (Math.abs(fontsizes[ii]-fontsizes[ii-1])>fontsize_thr){
+				//uniquefontsizes.add(fontsizes[ii-1]);
+				if (fontsizes[ii-1]>1)
+					uniquefontsizes.add(fontsizes[ii-1]);
+			}
 		}
 		return uniquefontsizes;
 	}
