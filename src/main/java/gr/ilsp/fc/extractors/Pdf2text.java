@@ -766,7 +766,8 @@ public class Pdf2text {
 			for (int ii=sectionAttr.sl;ii<sectionAttr.el+1;ii++){
 				if (x_st[ii-sectionAttr.sl]>cl[0]+std_x_st & !pars.contains(ii-sectionAttr.sl))
 					pars.add(ii-sectionAttr.sl);
-				if ( x_en[ii-sectionAttr.sl]<cr[0]-2*sectionAttr.fs & !pars.contains(ii-sectionAttr.sl+1))
+				//if ( x_en[ii-sectionAttr.sl]<cr[0]-2*sectionAttr.fs & !pars.contains(ii-sectionAttr.sl+1))
+				if ( x_en[ii-sectionAttr.sl]<cr[0]-3*sectionAttr.fs & !pars.contains(ii-sectionAttr.sl+1))
 					pars.add(ii-sectionAttr.sl+1);
 			}
 		}
