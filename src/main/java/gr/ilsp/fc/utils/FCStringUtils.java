@@ -172,11 +172,19 @@ public  class FCStringUtils {
 		return res;
 	}
 
-
+	/**
+	 * counts the length of each token. in case a token is a valid url or email, its length is set to a fixed value (5) 
+	 * @param tokens
+	 * @return
+	 */
 	public static Double[] getTokensLength(List<String> tokens) {
 		Double[] lens = new Double[tokens.size()];
 		for (int ii=0;ii<tokens.size();ii++){
-			lens[ii] = (double) tokens.get(ii).length();
+			if (ValidateUtils.isValidEmailAddress(tokens.get(ii)) || ValidateUtils.isValidEmailAddress(tokens.get(ii))){
+				lens[ii] = 5.0;
+				//continue;
+			}else
+				lens[ii] = (double) tokens.get(ii).length();
 		}
 		return lens;
 	}
