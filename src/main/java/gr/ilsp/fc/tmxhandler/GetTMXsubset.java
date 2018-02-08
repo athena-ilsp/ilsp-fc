@@ -147,7 +147,6 @@ public class GetTMXsubset {
 		int aa =   (int) (0.05 * alignmentList.size());
 		samplesize = Math.max(samplesize, aa);
 		TMXHandlerUtils.generateSample(alignmentList, samplesize, sampleTXT);
-
 	}
 	
 
@@ -314,8 +313,30 @@ public class GetTMXsubset {
 
 		double ratio, score;
 		for (SegPair segpair:segpairs){
+			if (segpair.l1url.contains("twitter.") || segpair.l2url.contains("twitter.")) //temp addition.  should it be removed? 
+				continue;
+			//if (FCStringUtils.isAllUpperCase(segpair.seg1) * FCStringUtils.isAllUpperCase(segpair.seg2)<0){
+			//	logger.debug("CUT:\t"+segpair.seg1+ "\t"+segpair.seg2);
+			//	continue;
+			//}
 			String info="";
-
+			if (TMXHandlerUtils.checkemail(segpair.seg1) || TMXHandlerUtils.checkemail(segpair.seg2)){
+				if (clean){
+					logger.info("CUT:\t"+segpair.seg1+"\t"+segpair.seg2);
+					continue;
+				}
+				if (!keepem)
+					continue;	
+			}
+			if (TMXHandlerUtils.checkurl(segpair.seg1) || TMXHandlerUtils.checkurl(segpair.seg2)){
+				if (clean){
+					logger.info("CUT:\t"+segpair.seg1+"\t"+segpair.seg2);
+					continue;
+				}
+				if (!keepem)
+					continue;	
+			}
+			
 			String license = segpair.license;
 			if (cc && !license.contains(CREATIVE_COMMONS))
 				continue;
