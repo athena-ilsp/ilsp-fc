@@ -1,6 +1,7 @@
 package gr.ilsp.fc.tmxhandler;
 
 import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +24,8 @@ public class GetTMXsubsetOptions {
 	private String APPNAME = "Get TMX subsets";
 	
 	private static final Logger LOGGER = Logger.getLogger(GetTMXsubsetOptions.class);
-	private static final String QUEST_SEPAR = ";";
-	private static final String TAB_STR = "\t";
+	//private static final String QUEST_SEPAR = ";";
+	//private static final String TAB_STR = "\t";
 	private List<String> _sites ;
 	private Map<String,String> _psi = null;
 	private File _targetTMX = null;
@@ -155,7 +156,7 @@ public class GetTMXsubsetOptions {
 			}
 			if(cmdline.hasOption( "lang")) {
 				_language = LangDetectUtils.updateLanguages(cmdline.getOptionValue("lang"),_iso6393);
-				if (_language.split(QUEST_SEPAR).length!=2){
+				if (_language.split(Constants.SEMICOLON).length!=2){
 					LOGGER.error("You should provide 2 languages.");
 					help();
 				}
@@ -213,7 +214,7 @@ public class GetTMXsubsetOptions {
 					 List<String> lines= FileUtils.readLines(new File(cmdline.getOptionValue("psi")));
 					 _psi = new HashMap<String, String>();
 					for (String line:lines){
-						String[] info = line.toLowerCase().split(TAB_STR);
+						String[] info = line.toLowerCase().split(Constants.TAB);
 						//System.out.println(line);
 						if (info.length!=2)
 							_psi.put(info[0], "");
