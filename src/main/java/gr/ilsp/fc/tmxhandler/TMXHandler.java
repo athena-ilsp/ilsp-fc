@@ -218,21 +218,21 @@ public class TMXHandler {
 		if (!outTMX.getParentFile().exists())
 			outTMX.getParentFile().mkdirs();
 
-		String filter1=" TMX files generated from document pairs which have been identified by non-"+ doctypes + " methods were discarded";
-		String filter2=" TMX files with a zeroToOne_alignments/total_alignments ratio larger than "+ minPerce01Align + ", were discarded";
-		String filter3=" Alignments of non-" + segtypes+ " type(s) were discarded.";
-		String filter4=" Alignments with a TUV (after normalization) that has less than "+ minTuvLen + " tokens, were discarded/annotated";
-		String filter5=" Alignments with a l1/l2 TUV length ratio smaller than " + minTuLenRatio+ " or larger than "+ maxTuLenRatio + ", were discarded/annotated";
+		String filter1 = " TMX files generated from document pairs which have been identified by non-"+ doctypes + " methods were discarded";
+		String filter2 = " TMX files with a zeroToOne_alignments/total_alignments ratio larger than "+ minPerce01Align + ", were discarded";
+		String filter3 = " Alignments of non-" + segtypes+ " type(s) were discarded.";
+		String filter4 = " Alignments with a TUV (after normalization) that has less than "+ minTuvLen + " tokens, were discarded/annotated";
+		String filter5 = " Alignments with a l1/l2 TUV length ratio smaller than " + minTuLenRatio+ " or larger than "+ maxTuLenRatio + ", were discarded/annotated";
 		if (keepsn)
-			filter6=" Alignments in which different digits appear in each TUV were discarded";
+			filter6 = " Alignments in which different digits appear in each TUV were discarded";
 		if (keepiden)
-			filter7=" Alignments with identical TUVs (after normalization) were annotated";
+			filter7 = " Alignments with identical TUVs (after normalization) were annotated";
 		if (keepem)
-			filter8=" Alignments with only non-letters in at least one of their TUVs were annotated";
+			filter8 = " Alignments with only non-letters in at least one of their TUVs were annotated";
 		if (keepdup)
-			filter9=" Exact duplicate alignments were kept and were annotated";
+			filter9 = " Exact duplicate alignments were kept and were annotated";
 		if (keepneardup)
-			filter99=" (Near)duplicate alignments were kept and were annotated";
+			filter99 = " (Near)duplicate alignments were kept and were annotated";
 		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
@@ -278,8 +278,8 @@ public class TMXHandler {
 		if (tmxfiles.isEmpty()){
 			LOGGER.info("No tmx files found.");
 			return;
-		}else
-			LOGGER.info(tmxfiles.size() + " TMX files will be merged.");
+		}
+		LOGGER.info(tmxfiles.size() + " TMX files will be merged.");
 		System.out.println("\n");
 		LOGGER.info("A set of criteria to filter out specific types of TUs is applied with the purpose of generating precision-high parallel LRs for training MT systems:\n\t-"+filter1+"\n\t-"+filter2+"\n\t-"+filter3+"\n\t-"+filter4+"\n\t-"+filter5+"\n\t-"+filter6+"\n\t-"+filter7+"\n\t-"+filter8+"\n\t-"+filter9);
 		creationModeDescription = creationModeDescription+filter1+" ; "+filter2+" ; "+filter3+" ; "+filter4+" ; "+filter5+" ; "+filter6+" ; "+filter7+" ; "+filter8+" ; "+filter9;
@@ -330,12 +330,10 @@ public class TMXHandler {
 			BilingualCorpusInformation bilingualCorpusInfo = new BilingualCorpusInformation();
 			bilingualCorpusInfo.setName(FilenameUtils.getBaseName(outTMX.getAbsolutePath()));
 
-			//bilingualCorpusInfo.setL1(TMXHandler.languages[0]);
-			//bilingualCorpusInfo.setL2(TMXHandler.languages[1]);
 			String[] langs = new String[2];
 			langs[0]=ISOLangCodes.get2LetterCode(languages[0]);
 			langs[1]=ISOLangCodes.get2LetterCode(languages[1]);
-			bilingualCorpusInfo.setL1(langs[0]); 
+			bilingualCorpusInfo.setL1(langs[0]);
 			bilingualCorpusInfo.setL2(langs[1]);
 
 			bilingualCorpusInfo.setAlignmentList(alignmentList);
@@ -376,10 +374,9 @@ public class TMXHandler {
 				bilingualCorpusInfo.setAvailability(UNKNOWN_STR);
 			if (oxslt) 
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
-
+			
 			//generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
 			generateMergedTMX(outTMX, langs, bilingualCorpusInfo, outHTML);
-
 
 			LOGGER.info("Generating language files");
 			TMXHandlerUtils.splitIntolangFiles(alignmentList, languages, baseName);
@@ -389,9 +386,7 @@ public class TMXHandler {
 			File samplefile = new File(baseName.getAbsolutePath() + SAMPLE);
 			LOGGER.info("Generating sample file " + samplefile.getAbsolutePath());
 			TMXHandlerUtils.generateSample(alignmentList, sampleSize, samplefile);
-			//ArrayList<ILSPAlignment> selpairs = TMXHandlerUtils.generateSample(alignmentList, sampleSize, samplefile);
-			//TMXHandlerUtils.generateSampleView(languages, selpairs, samplefile);
-
+			
 			try {
 				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITES), sites_all);
 				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITESN), sites_noannot);
@@ -549,7 +544,6 @@ public class TMXHandler {
 				boolean addr=false;
 				if (TMXHandlerUtils.checkemail(segpair.seg1) || TMXHandlerUtils.checkemail(segpair.seg2)){
 					addr=true;
-					//if (ValidateUtils.isValidEmailAddress(segpair.seg1) || ValidateUtils.isValidEmailAddress(segpair.seg2)){
 					if (clean)
 						continue;
 					if (!keepem)
@@ -558,7 +552,6 @@ public class TMXHandler {
 				}
 				if (TMXHandlerUtils.checkurl(segpair.seg1) || TMXHandlerUtils.checkurl(segpair.seg2)){
 					addr=true;
-					//if (ValidateUtils.isValidUrl(segpair.seg1) || ValidateUtils.isValidUrl(segpair.seg2)){
 					if (clean)
 						continue;
 					if (!keepem)
@@ -592,18 +585,14 @@ public class TMXHandler {
 
 				if (Statistics.getMax(stokenslen)>max_word_length || Statistics.getMax(ttokenslen)>max_word_length){
 					LOGGER.info("discarded TU, very large word (due to bad text extraction from pdf):"+ segpair.seg1 +"\t"+ segpair.seg2);
-					//String info1 = "a: "+ max_word_length;
 					continue;
 				}else{
 					if (Statistics.getMedian(stokenslen)>=median_word_length || Statistics.getMedian(ttokenslen)>=median_word_length){
 						LOGGER.info("discarded TU, very large words (due to bad text extraction from pdf):"+ segpair.seg1 +"\t"+ segpair.seg2);
-						//	String info1 = "a: "+ median_word_length;
 						continue;
 					}
 				}
-				//if (!info1.isEmpty()){
-				//	if (info.isEmpty()){	info = info1;}	else{	info = info + " | "+info1;}
-				//}	
+
 				if (!normS.isEmpty() && !normT.isEmpty() && !normT.equals(normS) && (FCStringUtils.countTokens(normS)<minTuvLen || FCStringUtils.countTokens(normT)<minTuvLen)){
 					if (clean)
 						continue;
