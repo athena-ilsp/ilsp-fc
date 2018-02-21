@@ -96,6 +96,7 @@ public class Pdf2text {
 	 */
 	public static Map<String, String> run1(File input, boolean sort_sections)  { 
 		Map<String, String> data = new HashMap<String, String>();
+		//System.out.println(input.getName());
 		String content="";
 		PDDocument document = null;
 		docprops.clear();
@@ -150,6 +151,16 @@ public class Pdf2text {
 						docprops.put(PAGE+i, current_linedata);
 						continue;
 					}
+					double countsymbols = 0;
+					for (int ii=0;ii<chardata.size();ii++){
+						if (!StringUtils.isAlphanumericSpace(chardata.get(ii).character))
+							countsymbols++;
+					}
+					if  (countsymbols/(double)chardata.size() >0.5){
+						LOGGER.info(PAGE+i+ " of file "+ input.getName() + " is discarded" );
+						docprops.put(PAGE+i, current_linedata);
+						continue;
+					}
 					layout_analysis(pageheight, sort_sections);
 				}
 				for (int jj=0;jj<linedata.size();jj++){
@@ -190,6 +201,8 @@ public class Pdf2text {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}else{
+				return data;
 			}
 		}
 		
