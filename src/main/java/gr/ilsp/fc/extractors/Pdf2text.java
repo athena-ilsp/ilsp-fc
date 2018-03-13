@@ -153,7 +153,7 @@ public class Pdf2text {
 					}
 					double countsymbols = 0;
 					for (int ii=0;ii<chardata.size();ii++){
-						if (!StringUtils.isAlphanumericSpace(chardata.get(ii).character))
+						if (!StringUtils.isAlphanumericSpace(chardata.get(ii).character)) //isAlphaSpace(chardata.get(ii).character))
 							countsymbols++;
 					}
 					if  (countsymbols/(double)chardata.size() >0.5){

@@ -76,17 +76,17 @@ public class BitextsDigits {
 			while (files2_it.hasNext()){
 				key2 = files2_it.next();
 				//System.out.println(key1+"\t"+key2);
-				if (paired.contains(key2))
-					continue;
-				if (features.get(key2)==null){
-					paired.add(key2); // even it is not paired, we do not need to examine it 
-					continue;
-				}
 				lang2=features.get(key2).codeLang;
 				if (lang1.equals(lang2))
 					continue;
 				if (!targetlanguages.contains(lang2)){
 					paired.add(key2); // even it is not paired, we do not need to examine it
+					continue;
+				}
+				if (paired.contains(key2))
+					continue;
+				if (features.get(key2)==null){
+					paired.add(key2); // even it is not paired, we do not need to examine it 
 					continue;
 				}
 				digits2=features.get(key2).digitList;

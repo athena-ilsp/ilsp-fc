@@ -165,9 +165,11 @@ public class CrawlerUtils {
 			LOGGER.info("Starting from "+ seedUrls.size()+ " URL(s)");
 			rdr.close();
 			writer.close();
+			LOGGER.info("seeds added:\t"+seedUrls.size());
 		} catch (IOException e) {
 			throw e;
 		}
+		
 	}	
 
 
