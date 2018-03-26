@@ -203,7 +203,6 @@ public class TMXHandler {
 	public void mergeTMXs() {
 		LOGGER.info("------------Merging of generated TMXs for "+languages[0]+"-"+languages[1] +" language pair.------------");
 		String[] _targetedLangs = new String[2]; _targetedLangs[0] = languages[0]; _targetedLangs[1] = languages[1];
-		//_langDetector = LangDetectUtils.loadLangDetectors(_targetedLangs,defaultlangDetectorId);
 
 		creationModeDescription = "The ILSP Focused Crawler was used for the acquisition "
 				+ "of bilingual data from multilingual websites, and for the normalization, cleaning, (near) de-duplication and identification of parallel documents. "
