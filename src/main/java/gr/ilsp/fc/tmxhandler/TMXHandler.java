@@ -657,8 +657,7 @@ public class TMXHandler {
 					}else*/
 					normsegs.add(normtemp);
 				}
-
-
+				
 				//System.out.println(segpair.seg1+"\t"+ContentNormalizer.leaveSymbols(segpair.seg1));
 				//System.out.println(segpair.seg2+"\t"+ContentNormalizer.leaveSymbols(segpair.seg2));
 

@@ -316,7 +316,7 @@ public class Crawler {
 				LOGGER.info("  2. The content of each fetched page/document is normalised (UTF8 conversion, metadata extraction).");
 				LOGGER.info("  3. The main content of each document is extracted, i.e. boilerplate (e.g. advertisements) is detected.");
 				LOGGER.info("  4. The language of the main content of each document is identified.");
-				LOGGER.info("  5. In case a topic definition is provided by the user, each docuemnt is classified as relevent to the targeted topic or not.");
+				LOGGER.info("  5. In case a topic definition is provided by the user, each document is classified as relevant to the targeted topic or not.");
 				LOGGER.info("  6. The links of the fetched pages are extracted and prioritized in order to feed the crawler's next cycle.");
 			}
 			boolean extractlinks = true;
