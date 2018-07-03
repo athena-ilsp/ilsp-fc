@@ -139,7 +139,7 @@ public  class FCStringUtils {
 	}
 
 	/**
-	 * counts tokens (space separated)
+	 * returns tokens (space separated)
 	 * @param text
 	 * @return
 	 */

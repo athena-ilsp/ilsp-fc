@@ -329,9 +329,9 @@ public static String normalizeText1(String text){
 		text=text.replaceAll("\\p{L}","").trim();
 		text=text.replaceAll("\\p{N}","").trim();
 		text=text.replaceAll(Constants.SPACE,"");
-		text=text.replaceAll("\\.","");
-		text=text.replaceAll(Constants.COMMA,"");
-		text=text.replaceAll("'","");
+		//text=text.replaceAll("\\.","");
+		//text=text.replaceAll(Constants.COMMA,"");
+		//text=text.replaceAll("'","");
 		return text;
 	}
 	
@@ -378,5 +378,49 @@ public static String normtext1(String text) {
 		s = Normalizer.normalize(s, Form.NFD); //Decompose
 		s= s.replaceAll("[\\p{M}]",""); //Remove diacritics
 		return s;
+	}
+
+
+	public static String normENDEtext(String text) {
+		text=text.replaceAll("&apos;",Constants.SPACE);		text=text.replaceAll("&quot;",Constants.SPACE);
+		text=text.replaceAll("&amp;",Constants.SPACE);		text=text.replaceAll("&lt",Constants.SPACE);
+		text=text.replaceAll("&gt",Constants.SPACE);		text=text.replaceAll("&#",Constants.SPACE);
+		text=text.replaceAll("[^\\p{L} ]", Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u4E00-\\u9FFF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u0600-\\u06FF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u0980-\\u09FF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u0C80-\\u0CFF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u0590-\\u05FF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u1100-\\u11FF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\uAC00-\\uD7AF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u30A0-\\u30FF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u0370-\\u03FF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u0E00-\\u0E7F].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u3040-\\u309F].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u10A0-\\u10FF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u0400-\\u04FF].*",Constants.SPACE).trim();
+		text=text.replaceAll(".*[\\u0530-\\u058F].*",Constants.SPACE).trim();				
+						
+		text=text.replaceAll("(\\s){2,}", Constants.SPACE).trim();
+		text=text.toLowerCase();
+		return text;
+	}
+
+/**
+ * keeps only letters of the basic latin charset
+ * @param text
+ * @return
+ */
+	public static String basiclatin(String text) {
+		String text1 = text;
+		text=text.replaceAll("&apos;",Constants.SPACE);		text=text.replaceAll("&quot;",Constants.SPACE);
+		text=text.replaceAll("&amp;",Constants.SPACE);		text=text.replaceAll("&lt",Constants.SPACE);
+		text=text.replaceAll("&gt",Constants.SPACE);		text=text.replaceAll("&#",Constants.SPACE);
+		text=text.replaceAll("[^\\p{L} ]", Constants.SPACE).trim();
+		text=text.replaceAll("[^\\u0020-\\u007F]",Constants.SPACE).trim(); 
+		//text=text.replaceAll("[^\\p{InBasic_Latin}]", Constants.SPACE).trim(); 
+		text=text.replaceAll("(\\s){2,}", Constants.SPACE).trim();
+		text=text.toLowerCase();
+		return text;
 	}
 }
