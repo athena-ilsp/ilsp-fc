@@ -19,7 +19,6 @@ import net.loomchild.maligna.util.bind.tmx.Tmx;
 import net.loomchild.maligna.util.bind.tmx.Tu;
 import net.loomchild.maligna.util.bind.tmx.Tuv;
 import net.loomchild.maligna.util.date.DateParser;
-
 import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +33,7 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 	//private static final String SITE = "site";
 	private static final String L1URL = "l1-url";
 	private static final String L2URL = "l2-url";
+	private static final String LOC = "loc";
 	private static final String INFO = "info";
 	private static final String LICENSE = "license";
 	private static final String LENGTHRATIO = "lengthRatio";
@@ -129,7 +129,14 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 			l2urlProperty.setType(L2URL);
 			l2urlProperty.getContent().add(Constants.EMPTY_STRING+alignment.getL2url());
 			tu.getNoteOrProp().add(l2urlProperty);
-						
+			
+			
+			Prop locProperty = new Prop();
+			locProperty.setType(LOC);
+			locProperty.getContent().add(Constants.EMPTY_STRING+alignment.getSite());
+			tu.getNoteOrProp().add(locProperty);
+			
+			
 			Prop licenseProperty = new Prop();
 			licenseProperty.setType(LICENSE);
 			licenseProperty.getContent().add(Constants.EMPTY_STRING+alignment.getLicense());
@@ -232,7 +239,13 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 		header.setSegtype(TMX_SEGTYPE);
 		header.setDatatype(TMX_DATATYPE);
 		header.setOTmf(TMX_OTMF);
-		header.setCreationdate(DateParser.getIsoDateNoMillis(new Date()));
+		//header.setCreationdate(DateParser.getIsoDateNoMillis(new Date()));
+		String creationdate = DateParser.getIsoDateNoMillis(new Date());
+		int  ii = creationdate.indexOf("+");
+		creationdate = creationdate.substring(0, ii)+"Z";
+		creationdate = creationdate.replaceAll(Constants.COLON, "");
+		creationdate = creationdate.replaceAll(Constants.HYPHEN, "");
+		header.setCreationdate(creationdate);
 
 		if (!(sourceFile==null || targetFile==null)) {
 			Prop sourceFileProperty = new Prop();
@@ -264,6 +277,7 @@ public class BilingualScoredTmxFormatterILSP implements Formatter  {
 		Prop descrProperty = new Prop();
 		descrProperty.setType(DESCRIPTION);
 		descrProperty.getContent().add(description);
+		//descrProperty.getContent().add(corpusinfo.getCreationDescription());
 		header.getNoteOrPropOrUde().add(descrProperty);
 		
 		Prop availProperty = new Prop();
