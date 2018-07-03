@@ -143,12 +143,12 @@ public class GetTMXsubset {
 		logger.info("Constructing " + outTMX.getAbsolutePath());
 
 		List<ILSPAlignment> alignmentList = getTMXsubset(langs);
-		
+
 		int aa =   (int) (0.05 * alignmentList.size());
 		samplesize = Math.max(samplesize, aa);
 		TMXHandlerUtils.generateSample(alignmentList, samplesize, sampleTXT);
 	}
-	
+
 
 	/**
 	 * Generates a new mergedTMX which is a subset of the input TMX based on user's restrictions
@@ -203,8 +203,8 @@ public class GetTMXsubset {
 					" and "+ stats2.tokens_noan +" words and "+ stats2.words_noan+" lexical types in "+ langs[1] +
 					". The mean value of aligner's scores is "+ scores.meanscore_noan+ ", the std value is "+ scores.stdscore_noan +
 					". The mean value of length (in terms of characters) ratios is "+ ratios.meanratio_noan + " and the std value is "+ ratios.stdratio_noan + "." ;
-			
-			
+
+
 			BilingualCorpusInformation bilingualCorpusInfo;
 			if (cc) {
 				bilingualCorpusInfo = new BilingualCorpusInformation(FilenameUtils.getBaseName(outTMX.getAbsolutePath()), langs[0], langs[1], 
@@ -249,11 +249,10 @@ public class GetTMXsubset {
 	}
 
 
+
 	/**
 	 * gets the tus of a tmx 
 	 * @param tmxFile
-	 * @param thr
-	 * @param minPerce01Align 
 	 */
 	public static List<SegPair>  getTUsFromTMX(File tmxFile, String lang1, String lang2) {
 		List<SegPair> segpairs = new ArrayList<SegPair>();
@@ -336,7 +335,7 @@ public class GetTMXsubset {
 				if (!keepem)
 					continue;	
 			}
-			
+
 			String license = segpair.license;
 			if (cc && !license.contains(CREATIVE_COMMONS))
 				continue;
