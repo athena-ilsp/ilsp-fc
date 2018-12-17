@@ -1,11 +1,10 @@
+(PROM.
 art.
 arts
-
 EL.STAT.
 EL.
 EL.S.S.
 Υ.Ο.Δ.Δ.
-
 a.
 A.
 A1C
@@ -2625,6 +2624,7 @@ prog
 prog.
 proly
 prom
+Prom.
 pron
 prop.
 Prop.
@@ -2948,6 +2948,7 @@ sfz.
 sg
 sg.
 Sg.
+SG.
 sgd.
 sGP
 Sgs.
@@ -3119,6 +3120,7 @@ st st
 St. Vincent
 SU
 Sun.
+suppl.
 Supt.
 Surg.
 SUT
