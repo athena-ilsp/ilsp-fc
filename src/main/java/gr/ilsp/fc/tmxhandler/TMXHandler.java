@@ -99,6 +99,7 @@ public class TMXHandler {
 	private final static String SITES =".sites.txt";
 	private final static String SITESN =".sitesn.txt";
 	private final static String TMXEXT = ".tmx";
+	private final static String XMLEXT = ".xml";
 	private final static String MetadataExt = ".md.xml";
 	private final static String domainNode = "domain";
 	private final static String FREE_STR="free";
@@ -235,7 +236,14 @@ public class TMXHandler {
 		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
 		FilenameFilter filter = new FilenameFilter() {			
 			public boolean accept(File arg0, String arg1) {
-				return (arg1.endsWith(TMXEXT) & arg1.contains(ISOLangCodes.get3LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get3LetterCode(languages[1])));
+				//return (arg1.endsWith(TMXEXT) & arg1.contains(ISOLangCodes.get3LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get3LetterCode(languages[1])));
+				//return (arg1.endsWith(TMXEXT) & arg1.contains(ISOLangCodes.get2LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get2LetterCode(languages[1])));
+				
+				return (arg1.endsWith(TMXEXT) && ( 
+						(arg1.contains(ISOLangCodes.get3LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get3LetterCode(languages[1])))
+						|| (arg1.contains(ISOLangCodes.get2LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get2LetterCode(languages[1])))
+						));
+				
 			}
 		};
 		/*filter = new FilenameFilter() {			
@@ -251,11 +259,16 @@ public class TMXHandler {
 			languages[0]=ISOLangCodes.get3LetterCode(languages[0]);
 			languages[1]=ISOLangCodes.get3LetterCode(languages[1]);			
 		}		
-		String[] types = new String[doctypes.length()];
+		String[] types = new String[2*doctypes.length()];
 		for (int ii=0;ii<doctypes.length();ii++){
 			types[ii] = Constants.UNDERSCORE+Character.toString(doctypes.charAt(ii))+TMXEXT;
 		}
-
+		int startcoun = doctypes.length();
+		int endcoun = startcoun+doctypes.length();
+		for (int ii=startcoun;ii<endcoun;ii++){
+			types[ii] = Constants.UNDERSCORE+Character.toString(doctypes.charAt(ii-startcoun))+XMLEXT+TMXEXT;
+		}
+		
 		List<File> tmxfiles = new ArrayList<File>();
 		if (inputFile.isDirectory()){
 			List<File> tfs = FcFileUtils.listFiles(inputFile, filter,true);
@@ -529,50 +542,72 @@ public class TMXHandler {
 			totalcounter=totalcounter+segpairs.size();
 			float ratio;
 			for (SegPair segpair:segpairs){
-				if (segpair.l1url.contains("twitter.") || segpair.l2url.contains("twitter.")) //temp addition.  should it be removed? 
+				if (segpair.l1url.contains("twitter.") || segpair.l2url.contains("twitter.")){ //temp addition.  should it be removed?
+					LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 					continue;
+				}
 				if (!segtypes.isEmpty()){
-					if (!segtypes.contains(segpair.type) && !segpair.type.isEmpty())
+					if (!segtypes.contains(segpair.type) && !segpair.type.isEmpty()){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 				}
 				if (FCStringUtils.isAllUpperCase(segpair.seg1) * FCStringUtils.isAllUpperCase(segpair.seg2)<0){
-					LOGGER.debug(segpair.seg1+ "\t"+segpair.seg2);
-					continue;
+					if (clean){
+						LOGGER.debug(segpair.seg1+ "\t"+segpair.seg2);
+						continue;
+					}
 				}
 				String info="";
 				boolean addr=false;
 				if (TMXHandlerUtils.checkemail(segpair.seg1) || TMXHandlerUtils.checkemail(segpair.seg2)){
 					addr=true;
-					if (clean)
+					if (clean){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
-					if (!keepem)
+					}
+					if (!keepem){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 					if (info.isEmpty()){	info =  mes8;}		else{	info =  info + " | "+mes8;}	
 				}
 				if (TMXHandlerUtils.checkurl(segpair.seg1) || TMXHandlerUtils.checkurl(segpair.seg2)){
 					addr=true;
-					if (clean)
+					if (clean){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
-					if (!keepem)
+					}
+					if (!keepem){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 					if (info.isEmpty()){	info =  mes9;}		else{	info =  info + " | "+mes9;}	
 				}
 
 				String normS = ContentNormalizer.normtext(segpair.seg1);
 				String normT = ContentNormalizer.normtext(segpair.seg2);
 				if (!addr && ( normS.isEmpty() || normT.isEmpty())){
-					if (clean)
+					if (clean){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
-					if (!keepem)
+					}
+					if (!keepem){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 					info =  mes1;
 				}
 
 				if (normS.equals(normT) && !normT.isEmpty() && !addr){
-					if (clean)
+					if (clean){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
-					if (!keepiden)
+					}
+					if (!keepiden){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 					if (info.isEmpty()){	info =  mes2;}		else{	info =  info + " | "+mes2;}	
 				}	
 				String tempseg = segpair.seg1.replaceAll(".", " "); 	 tempseg = tempseg.replaceAll("/", " ");
@@ -593,39 +628,53 @@ public class TMXHandler {
 				}
 
 				if (!normS.isEmpty() && !normT.isEmpty() && !normT.equals(normS) && (FCStringUtils.countTokens(normS)<minTuvLen || FCStringUtils.countTokens(normT)<minTuvLen)){
-					if (clean)
+					if (clean){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 					if (info.isEmpty()){	info = mes4+minTuvLen ;}		else{	info = info + " | "+mes4+minTuvLen ;}
 				}
 
 				ratio = (float)segpair.seg1.length()/(float)segpair.seg2.length();
 				if (!normS.isEmpty() && !normT.isEmpty() && !normT.equals(normS) && (ratio>maxTuLenRatio || ratio < minTuLenRatio)){
-					if (clean)
+					if (clean){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 					if (info.isEmpty()){	info = mes5+  minTuLenRatio +mes5a+ maxTuLenRatio;}	
 					else{	info = info + " | "+mes5+  minTuLenRatio +mes5a+ maxTuLenRatio ;}
 				}
 				String num1=segpair.seg1.replaceAll("\\D+","");
 				String num2=segpair.seg2.replaceAll("\\D+","");
 				if (!num1.equals(num2) && !normS.isEmpty() && !normT.isEmpty()){
-					if (clean)
+					if (clean){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
-					if (ksn)
+					}
+					if (ksn){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 					if (info.isEmpty()){	info =  mes6;}		else{	info =  info + " | "+mes6;}	
 				}
 				if (symb){
-					if (!ContentNormalizer.leaveSymbols(segpair.seg1).equals(ContentNormalizer.leaveSymbols(segpair.seg2)))
+					if (!ContentNormalizer.leaveSymbols(segpair.seg1).equals(ContentNormalizer.leaveSymbols(segpair.seg2))){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 				}
 				boolean dup=false;
 				String temp = segpair.seg1+Constants.TAB+segpair.seg2; 
 				if (!normS.isEmpty() && !normT.isEmpty() && !normS.equals(normT) && segs.contains(temp)){
 					dup=true;
-					if (clean)
+					if (clean){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
-					if (!keepdup)
+					}
+					if (!keepdup){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 					if (info.isEmpty()){	info =  mes77;}		else{	info =  info + " | "+mes77;}
 
 				}else{
@@ -633,12 +682,15 @@ public class TMXHandler {
 				}
 				String normtemp = normS+Constants.TAB+normT;
 				if (!normS.isEmpty() && !normT.isEmpty() && !normS.equals(normT) && normsegs.contains(normtemp) && !dup){
-					if (clean)
+					if (clean && !keepneardup){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
-					if (!keepneardup)
+					}
+					if (!keepneardup){
+						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
+					}
 					if (info.isEmpty()){	info =  mes7;}		else{	info =  info + " | "+mes7;}
-
 				}else{
 					/*boolean check =false;
 					String identifiedlanguage1 = _langDetector.detect(segpair.seg1);

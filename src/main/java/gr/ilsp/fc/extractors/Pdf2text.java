@@ -54,8 +54,8 @@ public class Pdf2text {
 	private static double align_thr_fully = 0.6;
 	private static double caps_thr = 0.75;
 	private static boolean sort_sections=false;// false;
-	
-		//private static int window=15;
+
+	//private static int window=15;
 	//private static double w1=2* (double) window;
 	//private static double w2= (double) window / 2;
 	//private static ArrayList<String> lastchars=new ArrayList<String>(Arrays.asList(".", "!", "?", ";")); 
@@ -205,7 +205,7 @@ public class Pdf2text {
 				return data;
 			}
 		}
-		
+
 		return data;
 	}
 
@@ -424,7 +424,10 @@ public class Pdf2text {
 			represent_textline_fonts();
 		else
 			represent_textline_heights();
-
+		if (linedata.size()>1000){
+			LOGGER.info("no text");
+			return 0;
+		}
 		float x1, x2, y1, y2, x11, x22, y11, y22;
 		ArrayList<Integer> indeces= new ArrayList<Integer>();
 		for (int ii=0;ii<linedata.size()-1;ii++){
@@ -1482,7 +1485,7 @@ public class Pdf2text {
 			else{
 				thr_spaces_per_line[linecounter]=(float) Statistics.otsu(candidate_spaces,0.4*Statistics.getMean(char_widths.toArray(new Double[char_widths.size()])));	
 			}
-			
+
 		}
 		//based on the estimated threshold per text-line, required white spaces are added.
 		//System.out.println("BASED ON THE ESTIMATED THRESHOLD PER TEXT-LINE, REQUIRED WHITESPACES ARE ADDED.");

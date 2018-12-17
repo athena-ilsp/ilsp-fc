@@ -405,6 +405,58 @@ public class TMXHandlerUtils {
 	}
 
 
+	public static List<SegPair>  getTUsFromTMX(File tmxFile, String lang1, String lang2) {
+		List<SegPair> segpairs = new ArrayList<SegPair>();
+		Tmx tmx;
+		try {
+			tmx = TmxMarshallerUnmarshaller.getInstance().unmarshal(new FileReader(tmxFile));
+			List<Tu> tus = tmx.getBody().getTu();
+			boolean found=true;
+			for (Tu tu: tus) {
+				List<Object> tuProps = tu.getNoteOrProp();
+				found=true;
+				String type="", info="";
+				Double score=0.0, lengthRatio=0.0;
+				for (Object obProp : tuProps) {
+					Prop prop = (Prop) obProp;
+					
+					if (prop.getType().equals("score")) {
+						score  = Double.parseDouble(prop.getContent().get(0));
+					}
+					if (prop.getType().equals("type")) {
+						type  = prop.getContent().get(0);
+					}
+					if (prop.getType().equals("lengthRatio")) {
+						lengthRatio  = Double.parseDouble(prop.getContent().get(0));
+					}
+					if (prop.getType().equals("info")) {
+						if (prop.getContent().isEmpty())
+							info = "";
+						else{
+							info  = prop.getContent().get(0);
+							if (info.contains("duplicate") || info.contains("non-letters")  || info.contains("equal TUVs") )  
+								found=false;
+						}
+					}
+				}
+				if (found){
+					segpairs.add(new SegPair(StringUtils.join(createSegmentList(tu, lang1), Constants.SPACE), 
+							StringUtils.join(createSegmentList(tu, lang2), Constants.SPACE),
+							score, type, "", "", "", "", "",lengthRatio,info));
+				}
+				//String seg1, String seg2, double score, String type, String method, String l1url, String l2url, String license, String other, double ratio, String annot
+			}
+			LOGGER.debug("Examining " + tmxFile.getAbsolutePath() + Constants.SPACE + tus.size());
+		} catch (FileNotFoundException e) {
+			LOGGER.warn("Problem in reading "+ tmxFile.getAbsolutePath());
+			e.printStackTrace();
+		}
+		return segpairs;
+	}
+	
+	
+	
+	
 	/**
 	 * selects TUs of a tmxfile depending on their annotation
 	 * @param tmxFile
@@ -424,7 +476,7 @@ public class TMXHandlerUtils {
 				List<String> segmentList1 = new ArrayList<String>();
 				List<String> segmentList2 = new ArrayList<String>();
 				List<Object> tuProps = tu.getNoteOrProp();
-				String type="", l1url="", l2url="";
+				String type="", l1url="", l2url="", an="";
 				double score = 0;
 				found=true;
 				for (Object obProp : tuProps) {
@@ -436,15 +488,19 @@ public class TMXHandlerUtils {
 					if (prop.getType().equals(L2URL)) 
 						l2url = prop.getContent().get(0);
 					if (prop.getType().equals(INFO)){
-						if (prop.getContent().isEmpty())
+						System.out.println(prop.getContent());
+						if (prop.getContent().isEmpty()){
 							found = true;
-						else{
-							if (info.isEmpty())
+							an = "";
+						}else{
+							if (info.isEmpty()){
 								found=true;
-							else{
+								an = "";
+							}else{
 								String annot = prop.getContent().get(0);
+								an=annot;
 								for (String infoitem:info){
-									if (annot.contains(infoitem)){
+									if (!annot.contains(infoitem)){
 										found = false;
 										break;
 									}
@@ -465,10 +521,10 @@ public class TMXHandlerUtils {
 						segmentList2.add(segment);
 					}
 				}
-
+				System.out.println(an);
 				segpairs.add(new SegPair(StringUtils.join(segmentList1, Constants.SPACE), 
 						StringUtils.join(segmentList2, Constants.SPACE),
-						score, type, "", l1url, l2url,  "", "",0,""));
+						score, type, "", l1url, l2url,  "", an, 0,""));
 			}
 			LOGGER.debug("Examining " + tmxfile.getAbsolutePath() + Constants.SPACE + tus.size());
 
@@ -884,7 +940,7 @@ public class TMXHandlerUtils {
 		}
 		return sampleList;
 	}
-	
+
 	/**
 	 * gets distinct-Random- SegPairs from the SegPairList and "writes them" in a textfile (properties are tab-separated)
 	 * @param alignmentList
@@ -911,9 +967,9 @@ public class TMXHandlerUtils {
 		}
 		return sampleList;
 	}
-	
-	
-	
+
+
+
 	public static boolean checkurl(String seg) {
 		List<String> tokens = FCStringUtils.getTokens(seg);
 		double len= (double)seg.length();
