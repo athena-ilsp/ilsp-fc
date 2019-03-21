@@ -129,6 +129,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 			LOGGER.trace(String.format("Parsing %s", fetchedDatum.getUrl()));
 		}
 		LOGGER.debug(fetchedDatum.getUrl());
+		//System.out.println(fetchedDatum.getUrl());
 		// Provide clues to the parser about the format of the content.
 		Metadata metadata = new Metadata();
 		metadata.add(Metadata.RESOURCE_NAME_KEY, fetchedDatum.getUrl());
