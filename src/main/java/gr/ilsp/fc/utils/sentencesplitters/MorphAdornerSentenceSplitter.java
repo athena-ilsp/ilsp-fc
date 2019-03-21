@@ -23,6 +23,7 @@ import edu.northwestern.at.morphadorner.corpuslinguistics.tokenizer.DefaultWordT
 import edu.northwestern.at.morphadorner.corpuslinguistics.tokenizer.ICU4JBreakIteratorWordTokenizer;
 import edu.northwestern.at.morphadorner.corpuslinguistics.tokenizer.PreTokenizer;
 import edu.northwestern.at.morphadorner.corpuslinguistics.tokenizer.WordTokenizer;
+import gr.ilsp.nlp.commons.Constants;
 
 public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 
@@ -45,7 +46,8 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 
 	Matcher startsWithNumberMatcher = Pattern.compile("[0-9].*").matcher("");
 	Matcher endsWithNumberMatcher = Pattern.compile(".*[0-9][%‰‱°\\,\\.]*").matcher("");
-	
+	private static final String COLON = ":"; 	
+	private static final String REPL = "\u2AF6"; // One day, this will hurt you thrice :-)
 	// Compiled regular expression to match
 	// an abbreviation.
 	Matcher abbreviationMatcher = Pattern.compile(
@@ -112,8 +114,16 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 	public List<String> getSentences(String text, int paragraphMode)
 			throws IOException {
 		
-		List<List<String>> splitterSents = splitter.extractSentences(text, tokenizer);
-		logger.debug(splitterSents.toString());
+		//List<List<String>> splitterSents = splitter.extractSentences(text, tokenizer);
+		
+		List<List<String>> splitterSents = new ArrayList<List<String>>();
+		if (splitOnColon) {
+			text = splitOnColon(text, splitterSents);
+		} else {
+			splitterSents = splitter.extractSentences(text, tokenizer);
+		}
+				
+		//logger.debug(splitterSents.toString());
 		List<String> paraSents = new ArrayList<String>();
 
 		// No need to bother looking for offsets if sentsize = 1
@@ -194,6 +204,34 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 		return paraSents;
 	}
 
+	/**
+	 * @param text
+	 * @param splitterSents
+	 * @return
+	 */
+	private String splitOnColon(String text, List<List<String>> splitterSents) {
+		text = StringUtils.replace(text, (COLON + Constants.SPACE), (REPL + Constants.SPACE));
+		for (List<String> sentence : splitter.extractSentences(text, tokenizer)) {
+			List<String> tempSent = new ArrayList<String>();
+			for (int i = 0; i < sentence.size(); i++) {
+				if (sentence.get(i).contains(REPL)) {
+					tempSent.add(sentence.get(i).replace(REPL, COLON));
+				} else {
+					tempSent.add(sentence.get(i));						
+				}
+			}
+			splitterSents.add(tempSent);
+		}
+		text = StringUtils.replace(text, (REPL + Constants.SPACE), (COLON + Constants.SPACE));
+		return text;
+	}
+
+	
+	
+	
+	
+	
+	
 	private boolean isTokenNotToBeSplit(String string1, String string2) {		
 		if (endsWithNumberMatcher.reset(string1).matches() &&  startsWithNumberMatcher.reset(string2).matches() ) {
 			return true;
