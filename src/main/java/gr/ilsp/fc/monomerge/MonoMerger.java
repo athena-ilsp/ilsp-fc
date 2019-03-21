@@ -442,6 +442,7 @@ public class MonoMerger {
 				}
 				filecounter++;
 			}
+			bw.close();
 		} catch (FileNotFoundException e1) {
 			LOGGER.error("file "+ corpuspar + " does not exist!");// TODO Auto-generated catch block
 			e1.printStackTrace();
