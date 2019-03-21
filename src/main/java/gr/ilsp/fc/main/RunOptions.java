@@ -118,7 +118,7 @@ public class RunOptions {
 	private int _maxSampleSize = 1500;		//no more than this value
 	
 	//monomerge params
-	private String _corpuslevel="doc";
+	private String _corpuslevel="par";
 
 	//alignment params
 	private List<String> alignerIds = Arrays.asList(new String[] {"hunalign","maligna"});
@@ -592,7 +592,8 @@ public class RunOptions {
 	}
 
 	private void getMonoMergeParams(CommandLine line) {
-		_corpuslevel =  line.getOptionValue("corpuslevel");
+		if (line.hasOption("corpuslevel"))
+			_corpuslevel =  line.getOptionValue("corpuslevel");
 	}
 
 	private boolean isValidOperationsSequence(String operation) {
