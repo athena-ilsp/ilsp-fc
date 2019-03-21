@@ -39,7 +39,8 @@ public class CybozuLangDetector extends LangDetector {
 	@Override
 	public void initialize() throws Exception {
 		try {
-			URL urldir = CybozuLangDetector.class.getResource("/profiles");
+			//URL urldir = CybozuLangDetector.class.getResource("/profiles");
+			URL urldir = CybozuLangDetector.class.getResource("/ilspacqprofiles");
 			File resdir = null;
 			if (urldir.getProtocol()=="jar"){
 				File tempDir = DirUtils.createTempDir();
@@ -51,7 +52,9 @@ public class CybozuLangDetector extends LangDetector {
 			}	
 			logger.debug("tempdir is " + resdir);
 			DetectorFactory.loadProfile(resdir);
-
+			if (urldir.getProtocol()=="jar"){
+				FileUtils.forceDeleteOnExit(resdir);
+			}
 		} catch (LangDetectException e) {
 			logger.error("Cannot initialize language identifier." );
 			throw new Exception(e.getMessage());			
