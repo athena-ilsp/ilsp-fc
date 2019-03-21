@@ -25,6 +25,7 @@ public abstract class SentenceSplitter {
      */
     public static final int IGNORE_NEWLINES = 3 ;
 
+    protected Boolean splitOnColon = true ;
 	
 	public abstract List<String> getSentences(String text, int paragraphMode) throws IOException;
 
@@ -36,6 +37,23 @@ public abstract class SentenceSplitter {
 		this.abbreviationsURL = abbreviationsURL;
 	}
 
+	/**
+	 * @return the splitOnColon
+	 */
+	protected  Boolean getSplitOnColon() {
+		return splitOnColon;
+	}
 
+
+	/**
+	 * @param splitOnColon the splitOnColon to set
+	 */
+	protected void setSplitOnColon(Boolean splitOnColon) {
+		this.splitOnColon = splitOnColon;
+	}
+
+
+	
+	
 
 }
