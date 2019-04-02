@@ -632,7 +632,10 @@ public class Exporter {
 			id++;
 			//LOGGER.info("EXPORTED:\t"+url+"\t"+identifiedlanguage);
 			LOGGER.debug("EXPORTED:\t"+url+"\t"+identifiedlanguage);
-			if (textExport) TextExporter(outputDirPath,cleanText,id-1, identifiedlanguage);
+			if (textExport){
+				TextExporter(outputDirPath,cleanText,id-1, identifiedlanguage);
+				//TextExporter1(outputDirPath,cleanText,url);
+			}
 		}
 		iter.close();
 		classIter.close();
@@ -861,9 +864,33 @@ public class Exporter {
 	public static void TextExporter(Path outpath, String text, int id, String identifiedlanguage){
 		Path txt_file = new Path(outpath,identifiedlanguage+Constants.HYPHEN+id+appTXText);
 		try {
+			//String text1 = text;
 			BufferedWriter wrt = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txt_file.toUri().getPath()),"UTF-8"));
-			text = text.replaceAll("<boiler>.*</boiler>\r\n", "");
+			//String[] lines = text.split("\n");
+			text = text.replaceAll("<boiler.*</boiler>", "");
+			/*text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");*/
 			text = text.replaceAll("<[^<]*>", "");
+			//for (String line:lines){
+			//	if (line.startsWith("<boiler"))
+			//		continue;
+			//	text = text+"\n"+line.substring(line.indexOf(">"),line.lastIndexOf("<"));
+			//}
 			wrt.write(text);
 			wrt.close();			
 		} catch (UnsupportedEncodingException e) {
@@ -876,6 +903,66 @@ public class Exporter {
 	}
 
 
+	/**
+	 * generates a text file containing the main text of the webpage  
+	 * @param outpath
+	 * @param text
+	 * @param id
+	 * @param identifiedlanguage
+	 */
+	public static void TextExporter1(Path outpath, String text, String url){
+		String filename = url.substring(url.lastIndexOf("/")+1);
+		//System.out.println(filename);
+		if (filename.isEmpty()){
+			filename = url.substring(0, url.length()-2);
+			filename = filename.substring(filename.lastIndexOf("/")+1);
+		}
+		if (filename.contains("?")){
+			filename = filename.replaceAll("\\?", "");
+		}
+		if (filename.length()>100){
+			filename=filename.substring(0,100);
+		}
+		//System.out.println(filename);
+		Path txt_file = new Path(outpath,filename+appTXText);
+		try {
+			BufferedWriter wrt = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txt_file.toUri().getPath()),"UTF-8"));
+			text = text.replaceAll("<boiler.*</boiler>", "");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("\n\n","\n");
+			text = text.replaceAll("<[^<]*>", "");
+			//for (String line:lines){
+			//	if (line.startsWith("<boiler"))
+			//		continue;
+			//	text = text+"\n"+line.substring(line.indexOf(">"),line.lastIndexOf("<"));
+			//}
+			wrt.write(text);
+			wrt.close();			
+		} catch (UnsupportedEncodingException e) {
+			LOGGER.error(e.getMessage());			
+		} catch (FileNotFoundException e) {
+			LOGGER.error(e.getMessage());
+		} catch (IOException e) {
+			LOGGER.error(e.getMessage());
+		}
+	}
+	
+	
 	public static Boolean XMLExporter(Path outputdirPath, String format, String title, String eAddress,
 			String[] langs, String identifiedlanguage, String html_text, String cleaned_text, int id, String pubDate, String author,String publisher,  
 			String domain, String subdomain, ArrayList<String> terms, ArrayList<String[]> topic,
