@@ -197,7 +197,7 @@ public class DepthPostCounter {
 				total.set(ii+1, total.get(ii+1)+temp.get(ls[ii])+"\t");
 			}
 		}
-		FileUtils.writeLines(resi, total);
+		FileUtils.writeLines(resi, total, "\n");
 	}
 
 	private void storeStats(File csvfile, int depth) throws IOException {
@@ -218,7 +218,7 @@ public class DepthPostCounter {
 			if (resu.containsKey(ls[ii]))
 				total.add(ls[ii]+"\t"+resu.get(ls[ii]));
 		}
-		FileUtils.writeLines(resi, total);
+		FileUtils.writeLines(resi, total, "\n");
 
 		if (depth>1){
 			total = new ArrayList<String>();
@@ -236,7 +236,7 @@ public class DepthPostCounter {
 				if (resu.containsKey(ls[ii]))
 					total.add(ls[ii]+"\t"+resu.get(ls[ii]));
 			}
-			FileUtils.writeLines(resi, total);
+			FileUtils.writeLines(resi, total, "\n");
 		}
 	}
 
@@ -311,7 +311,7 @@ public class DepthPostCounter {
 			e.printStackTrace();
 		}
 		try {
-			FileUtils.writeLines(outfile, res);
+			FileUtils.writeLines(outfile, res, "\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing "+outfile.getAbsolutePath());
 			e.printStackTrace();
@@ -333,7 +333,7 @@ public class DepthPostCounter {
 			}
 		}
 		try {
-			FileUtils.writeLines(output, res);
+			FileUtils.writeLines(output, res, "\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing "+output.getAbsolutePath());
 			e.printStackTrace();
@@ -406,7 +406,7 @@ public class DepthPostCounter {
 		for (int ii=0;ii<ls.length;ii++){
 			total.add(ls[ii]+"\t"+resu.get(ls[ii]));
 		}
-		FileUtils.writeLines(resi, total);
+		FileUtils.writeLines(resi, total, "\n");
 	}
 
 }

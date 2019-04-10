@@ -103,10 +103,10 @@ public class DGTHandler {
 			ra[ii] = ratios.get(ii);
 		LOGGER.info(TAB_SEPARATOR+"MEAN value:"+TAB_SEPARATOR+ Statistics.getMean(ra)+TAB_SEPARATOR);
 		LOGGER.info(TAB_SEPARATOR+"STD value:"+TAB_SEPARATOR+ Statistics.getStdDev(ra)+TAB_SEPARATOR);
-		FileUtils.writeLines(tusfile, "UTF-8", tus);
-		FileUtils.writeLines(ratiosfile, "UTF-8",ratios);
-		FileUtils.writeLines(li1tuvsfile,"UTF-8", l1tuvs);
-		FileUtils.writeLines(li2tuvsfile, "UTF-8",l2tuvs);
+		FileUtils.writeLines(tusfile, "UTF-8", tus, "\n");
+		FileUtils.writeLines(ratiosfile, "UTF-8",ratios, "\n");
+		FileUtils.writeLines(li1tuvsfile,"UTF-8", l1tuvs, "\n");
+		FileUtils.writeLines(li2tuvsfile, "UTF-8",l2tuvs,"\n");
 	}
 
 	private void tuFilteredStats(File tmxFile) throws IOException  {
@@ -277,12 +277,12 @@ public class DGTHandler {
 			ra[ii] = ratios.get(ii);
 		LOGGER.info(TAB_SEPARATOR+"MEAN value:"+TAB_SEPARATOR+ Statistics.getMean(ra)+TAB_SEPARATOR);
 		LOGGER.info(TAB_SEPARATOR+"STD value:"+TAB_SEPARATOR+ Statistics.getStdDev(ra)+TAB_SEPARATOR);
-		FileUtils.writeLines(ratiosfile, "UTF-8",ratios);
-		FileUtils.writeLines(tusfile, "UTF-8",tus);
-		FileUtils.writeLines(li1tuvsfile, "UTF-8",l1tuvs);
-		FileUtils.writeLines(li2tuvsfile, "UTF-8",l2tuvs);
-		//FileUtils.writeLines(li1toktuvsfile, "UTF-8",l1toktuvs);
-		//FileUtils.writeLines(li2toktuvsfile, "UTF-8",l2toktuvs);
+		FileUtils.writeLines(ratiosfile, "UTF-8",ratios, "\n");
+		FileUtils.writeLines(tusfile, "UTF-8",tus,"\n");
+		FileUtils.writeLines(li1tuvsfile, "UTF-8",l1tuvs,"\n");
+		FileUtils.writeLines(li2tuvsfile, "UTF-8",l2tuvs,"\n");
+		//FileUtils.writeLines(li1toktuvsfile, "UTF-8",l1toktuvs,"\n");
+		//FileUtils.writeLines(li2toktuvsfile, "UTF-8",l2toktuvs,"\n");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -344,8 +344,8 @@ public class DGTHandler {
 		}catch(Exception e){
 			System.out.println(e);
 		}
-		FileUtils.writeLines(li1tuvsfile, l1tuvs);
-		FileUtils.writeLines(li2tuvsfile, l2tuvs);
+		FileUtils.writeLines(li1tuvsfile, l1tuvs,"\n");
+		FileUtils.writeLines(li2tuvsfile, l2tuvs,"\n");
 	}*/
 
 	private void setInFile(File inFile) {

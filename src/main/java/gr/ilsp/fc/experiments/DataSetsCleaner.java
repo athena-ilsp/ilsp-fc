@@ -41,13 +41,13 @@ public class DataSetsCleaner {
 		if (process.equals("1")){
 			LOGGER.info("Parts deduplication. The parts are defined by columns. It is expected a tab separated text file as input");
 			newdataset=removeIdenticalPartsPerDataSet(list1,cols1);
-			FileUtils.writeLines(outfile1, newdataset);
+			FileUtils.writeLines(outfile1, newdataset,"\n");
 		}
 		if (process.equals("2")){
 			LOGGER.info("Comparison of two files. Common parts are excluded from the first file");
 			List<String> list2 = FileUtils.readLines(infile2);
 			newdataset=removeCommonPartsFromDataSets(list1,cols1,list2,cols2);
-			FileUtils.writeLines(outfile1, newdataset);
+			FileUtils.writeLines(outfile1, newdataset,"\n");
 		}
 	}
 
