@@ -36,7 +36,7 @@ public class EvalSetExtractor {
 			}
 		}
 		FileUtils.write (evalFile, StringUtils.join(new String[] {l1, l2, "Score" }, Constants.TAB)+NEW_LINE, false);
-		FileUtils.writeLines(evalFile, outLines, true);
+		FileUtils.writeLines(evalFile, outLines, "\n",true);
 	}
 	
 	public static void main(String[] args) throws IOException {

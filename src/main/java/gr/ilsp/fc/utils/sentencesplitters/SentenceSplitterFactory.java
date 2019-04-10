@@ -75,7 +75,7 @@ public class SentenceSplitterFactory {
 				}
 			}
 			File tempFile = File.createTempFile(lang + PREFIX, SUFFIX);
-			FileUtils.writeLines(tempFile, UTF_8, abbrs); 
+			FileUtils.writeLines(tempFile, UTF_8, abbrs,"\n"); 
 			tempFile.deleteOnExit();
 			return tempFile.toURI().toURL();
 		} catch (IOException e) {
