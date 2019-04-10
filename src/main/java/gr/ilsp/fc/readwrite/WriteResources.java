@@ -19,7 +19,7 @@ public class WriteResources {
 			lines.add(xmlFile.getAbsolutePath().replace("\\","/"));
 		}
 		try {
-			FileUtils.writeLines(outputFile, lines);
+			FileUtils.writeLines(outputFile, lines,"\n");
 		} catch (IOException e) {
 			System.err.println("problem in writing file "+ outputFile.getAbsolutePath());
 			e.printStackTrace();
@@ -45,7 +45,7 @@ public class WriteResources {
 			}
 			lines.add("</html>");
 			try {
-				FileUtils.writeLines(outputFileHTML, lines);
+				FileUtils.writeLines(outputFileHTML, lines,"\n");
 			} catch (IOException e) {
 				System.err.println("problem in writing file "+ outputFileHTML.getAbsolutePath());
 				e.printStackTrace();

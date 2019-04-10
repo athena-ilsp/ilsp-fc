@@ -122,14 +122,14 @@ public class CesAlignProcessor extends AbstractScanner {
 					paragraphs.add(pElement.getTextContent().trim());
 				}
 			}
-			FileUtils.writeLines(txtFile, paragraphs);
+			FileUtils.writeLines(txtFile, paragraphs,"\n");
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			logger.error(e.getMessage());
 		}
 	}
 
 //	private void runAligner(List<File> inputFiles, File cesAlignList, File outputTMXList, File outputHTMLTMXList, String[] langs) throws IOException {
-//		FileUtils.writeLines(cesAlignList, inputFiles);
+//		FileUtils.writeLines(cesAlignList, inputFiles,"\n");
 //		AlignerFactory alignerFactory = new AlignerFactory();
 //		Aligner aligner = alignerFactory.getAligner("maligna");
 //		Properties properties = new Properties();
@@ -250,14 +250,15 @@ public class CesAlignProcessor extends AbstractScanner {
 			FileUtils.write(allL1Segments, "<setting>fc-all</setting>\n", true);
 			FileUtils.write(allL1Segments, "<eAddress>"+ eAddress1+"</eAddress>\n", true);
 			FileUtils.write(allL1Segments, "<language iso639=\""+ L1 + "\"/>\n", true);
-			FileUtils.writeLines(allL1Segments, l1segments, true);
+			FileUtils.writeLines(allL1Segments, l1segments, "\n", true);
 
 			FileUtils.write(allL2Segments, "<aligFile>" + cesAlignFile.getAbsolutePath()+ "</aligFile>\n", true);
 			FileUtils.write(allL2Segments, "<file>" + l2File.getAbsolutePath() + "</file>\n", true);
 			FileUtils.write(allL2Segments, "<setting>fc-all</setting>\n", true);
 			FileUtils.write(allL2Segments, "<eAddress>"+ eAddress2+"</eAddress>\n", true);
 			FileUtils.write(allL2Segments, "<language iso639=\""+ L2 + "\"/>\n", true);
-			FileUtils.writeLines(allL2Segments, l2segments, true);
+			FileUtils.writeLines(allL2Segments, l2segments, "\n", true);
+			
 		}
 	}
 

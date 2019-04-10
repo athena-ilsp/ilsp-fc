@@ -373,7 +373,7 @@ public class MonoMerger {
 
 		File sitesFile = new File(corpusdoc.getAbsolutePath()+SITES);
 		try {
-			FileUtils.writeLines(sitesFile, sites);
+			FileUtils.writeLines(sitesFile, sites,"\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -452,7 +452,7 @@ public class MonoMerger {
 		}
 		File sitesFile = new File(corpuspar.getAbsolutePath()+SITES);
 		try {
-			FileUtils.writeLines(sitesFile, sites);
+			FileUtils.writeLines(sitesFile, sites, "\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -519,7 +519,7 @@ public class MonoMerger {
 		}
 		File sitesFile = new File(corpusdoc.getAbsolutePath()+SITES);
 		try {
-			FileUtils.writeLines(sitesFile, sites);
+			FileUtils.writeLines(sitesFile, sites, "\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
 			e.printStackTrace();

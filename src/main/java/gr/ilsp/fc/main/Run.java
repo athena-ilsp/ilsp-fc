@@ -249,7 +249,7 @@ public class Run {
 							try {
 								List<String> cesAlignPaths = aligner.getCesAlignPaths(outTextList, langs);
 								if (!cesAlignPaths.isEmpty()){
-									FileUtils.writeLines(new File(FilenameUtils.concat(outTextList.getAbsolutePath(),run_options.getAgentName()+Constants.UNDERSCORE+langext+XMLlist)), cesAlignPaths);
+									FileUtils.writeLines(new File(FilenameUtils.concat(outTextList.getAbsolutePath(),run_options.getAgentName()+Constants.UNDERSCORE+langext+XMLlist)), cesAlignPaths, "\n");
 									//outTextList = new File(outTextList+langext+XMLlist);
 									outTextList = new File(FilenameUtils.concat(outTextList.getAbsolutePath(),run_options.getAgentName()+Constants.UNDERSCORE+langext+XMLlist));
 								}else{
