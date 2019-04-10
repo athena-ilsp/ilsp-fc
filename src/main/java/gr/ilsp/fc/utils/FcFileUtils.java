@@ -46,6 +46,7 @@ public class FcFileUtils {
 	private static final Logger logger = LoggerFactory.getLogger(FcFileUtils.class
 			.getName());
 	private static final String TMX_EXTENSION = ".tmx";
+	private static final String XML_EXTENSION = ".xml";
 	private static final String ZIP=".zip";
 	private static final String LANGUAGE_ELE = "language";
 	private static final String LANGUAGE_ATT = "iso639";
@@ -129,7 +130,7 @@ public class FcFileUtils {
 
 	
 	/**
-	 * Cluster files in groups based on the last past of their names
+	 * Cluster files in groups based on the last part of their names
 	 * @param tmxfiles
 	 * @param doctypes
 	 * @return
@@ -142,7 +143,7 @@ public class FcFileUtils {
 		}
 		for (File file:tmxfiles){
 			for (int ii=0;ii<types.length;ii++){
-				if (file.getName().endsWith(Constants.UNDERSCORE+types[ii]+TMX_EXTENSION)){
+				if (file.getName().endsWith(Constants.UNDERSCORE+types[ii]+TMX_EXTENSION) || file.getName().endsWith(Constants.UNDERSCORE+types[ii]+XML_EXTENSION+TMX_EXTENSION)){
 					if (filegroups.containsKey(types[ii])){
 						List<File> filesgroup = filegroups.get(types[ii]);
 						filesgroup.add(file);
