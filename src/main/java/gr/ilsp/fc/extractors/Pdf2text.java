@@ -1210,7 +1210,7 @@ public class Pdf2text {
 		float previous_line_vertical_end=-10000000;
 		for (int ii=1;ii<chardata.size();ii++){
 			character = chardata.get(ii).character;
-			character = ContentNormalizer.normalizeText1(character);
+			character = ContentNormalizer.normalizeText(character);
 			boolean found=false;
 			if (character.equals(Constants.SPACE) 
 					& (chardata.get(ii-1).character.equals("fi")

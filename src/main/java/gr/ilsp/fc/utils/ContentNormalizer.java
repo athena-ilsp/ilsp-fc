@@ -7,18 +7,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.lang.StringUtils;
 
 public class ContentNormalizer {
 	// U+D800..U+DB7F     High Surrogates     896 Code points, 0     Assigned characters
-    // U+DB80..U+DBFF     High Private Use Surrogates     128 Code points, 0     Assigned characters
-    // U+DC00..U+DFFF     Low Surrogates     1,024     0    Assigned characters
-    //static Matcher surrogatesMatcher =  Pattern.compile("[\\uD800-\\uDBFF\\uDC00-\\uDFFF]").matcher("");
-    //static Matcher surrogatesMatcher =  Pattern.compile("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]").matcher("");
+	// U+DB80..U+DBFF     High Private Use Surrogates     128 Code points, 0     Assigned characters
+	// U+DC00..U+DFFF     Low Surrogates     1,024     0    Assigned characters
+	//static Matcher surrogatesMatcher =  Pattern.compile("[\\uD800-\\uDBFF\\uDC00-\\uDFFF]").matcher("");
+	//static Matcher surrogatesMatcher =  Pattern.compile("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]").matcher("");
 	static Matcher surrogatesMatcher =  Pattern.compile("[\\uD800-\\uDFFF]").matcher("");
-	
+
 	private static final String boiler_st = "<boiler";
 	/*public static void main(String[] args){
 		String s = args[0];//"s offensichtlich unbegründet a";
@@ -192,15 +193,20 @@ public class ContentNormalizer {
 
 
 	public static String normalizeText(String text){
-		
+
 		if (StringUtils.isBlank(text))
 			return "";
-		
-        text = surrogatesMatcher.reset(text).replaceAll("");
-		
+
+		text = surrogatesMatcher.reset(text).replaceAll("");
+
 		for (String s:invalidChars.keySet()){
 			text = text.replaceAll(s, invalidChars.get(s));
 		}
+		text = unescapedhtml(text);
+	//	text=text.replaceAll("&apos;",Constants.SPACE);		text=text.replaceAll("&quot;",Constants.SPACE);
+	//	text=text.replaceAll("&amp;",Constants.SPACE);		text=text.replaceAll("&lt",Constants.SPACE);
+	//	text=text.replaceAll("&gt",Constants.SPACE);		text=text.replaceAll("&#",Constants.SPACE);
+		
 		text = text.replaceAll("\t", Constants.SPACE);
 		text = text.replaceAll("(\\s){2,}", Constants.SPACE);
 		text = text.replaceAll("\r\n", "\n");
@@ -219,28 +225,6 @@ public class ContentNormalizer {
 	}
 
 
-public static String normalizeText1(String text){
-		
-		 text = surrogatesMatcher.reset(text).replaceAll("");
-		
-		for (String s:invalidChars.keySet()){
-			text = text.replaceAll(s, invalidChars.get(s));
-		}
-		text = text.replaceAll("\t", Constants.SPACE);
-		text = text.replaceAll("(\\s){2,}", Constants.SPACE);
-		text = text.replaceAll("<text> ", "<text>");
-		text = text.replaceAll("<boiler> ", "<boiler>");
-		text = text.replaceAll(" </text>", "</text>");
-		text = text.replaceAll(" </boiler> ", "</boiler>");
-		text = text.replaceAll("<text></text>", "");
-		text = text.replaceAll("<boiler></boiler>", "");
-		text = text.replaceAll("( \n)", "\n");
-		text = text.replaceAll("(\n){2,}","\n");
-		return text;
-	}
-
-	
-	
 	private static final String XML10PATTERN = "[^"
 			+ "\u0009\r\n"
 			+ "\u0020-\uD7FF"
@@ -334,14 +318,14 @@ public static String normalizeText1(String text){
 		//text=text.replaceAll("'","");
 		return text;
 	}
-	
+
 	/**
 	 * removes non-letters and a few "special" chars 
 	 * @param text
 	 * @return
 	 */
 	public static String normtext(String text) {
-		
+
 		text=text.replaceAll("&apos;",Constants.SPACE);		text=text.replaceAll("&quot;",Constants.SPACE);
 		text=text.replaceAll("&amp;",Constants.SPACE);		text=text.replaceAll("&lt",Constants.SPACE);
 		text=text.replaceAll("&gt",Constants.SPACE);		text=text.replaceAll("&#",Constants.SPACE);
@@ -354,10 +338,10 @@ public static String normalizeText1(String text){
 		return text;
 	}
 
-public static String normtext1(String text) {
+	public static String normtext1(String text) {
 		text=text.replaceAll("&apos;",Constants.SPACE);		text=text.replaceAll("&quot;",Constants.SPACE);
 		text=text.replaceAll("&amp;",Constants.SPACE);		text=text.replaceAll("&lt",Constants.SPACE);
-		text=text.replaceAll("&gt",Constants.SPACE);			text=text.replaceAll("&#",Constants.SPACE);
+		text=text.replaceAll("&gt",Constants.SPACE);		text=text.replaceAll("&#",Constants.SPACE);
 		//if (text.contains("&")){
 		//	System.out.println(text);
 		//}
@@ -366,7 +350,7 @@ public static String normtext1(String text) {
 		text=text.toLowerCase();
 		return text;
 	}
-	
+
 	public static String removeBoilerPars(String content) {
 		content = content.replaceAll(boiler_st+"\\.*", "");
 		content=content.replaceAll("(\\n){2,}", "");
@@ -400,19 +384,19 @@ public static String normtext1(String text) {
 		text=text.replaceAll(".*[\\u10A0-\\u10FF].*",Constants.SPACE).trim();
 		text=text.replaceAll(".*[\\u0400-\\u04FF].*",Constants.SPACE).trim();
 		text=text.replaceAll(".*[\\u0530-\\u058F].*",Constants.SPACE).trim();				
-						
+
 		text=text.replaceAll("(\\s){2,}", Constants.SPACE).trim();
 		text=text.toLowerCase();
 		return text;
 	}
 
-/**
- * keeps only letters of the basic latin charset
- * @param text
- * @return
- */
+	/**
+	 * keeps only letters of the basic latin charset
+	 * @param text
+	 * @return
+	 */
 	public static String basiclatin(String text) {
-		String text1 = text;
+		//String text1 = text;
 		text=text.replaceAll("&apos;",Constants.SPACE);		text=text.replaceAll("&quot;",Constants.SPACE);
 		text=text.replaceAll("&amp;",Constants.SPACE);		text=text.replaceAll("&lt",Constants.SPACE);
 		text=text.replaceAll("&gt",Constants.SPACE);		text=text.replaceAll("&#",Constants.SPACE);
@@ -423,4 +407,12 @@ public static String normtext1(String text) {
 		text=text.toLowerCase();
 		return text;
 	}
+	
+	public static String unescapedhtml(String text) {
+		text=text.replaceAll("&apos;","'");		text=text.replaceAll("&quot;","\"");
+		text=text.replaceAll("&amp;","&");		text=text.replaceAll("&lt","<");
+		text=text.replaceAll("&gt",">");		text=text.replaceAll("&#",Constants.SPACE);
+		return text;
+	}
+	
 }
