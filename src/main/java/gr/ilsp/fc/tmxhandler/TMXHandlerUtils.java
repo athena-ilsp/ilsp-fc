@@ -73,7 +73,7 @@ public class TMXHandlerUtils {
 
 	public static void main(String[] args) {
 
-		TMXHandlerUtils.checkurl("http://greece.greekreporter.com/2017/01/19/it-will-take-21-vears-until-unemplovment-in-greece-returns-to-normal-");		
+		TMXHandlerUtils.checkurl("http://greece.greekreporter.com/2017/01/19/it-will-take-21-vears-until-unemplovment-in-greece-returns-to-normal-", 0.5);		
 
 		String[] _targetedLangs= new String[2];
 		_targetedLangs[0]= "en"; _targetedLangs[1]= "es";
@@ -453,9 +453,6 @@ public class TMXHandlerUtils {
 		}
 		return segpairs;
 	}
-	
-	
-	
 	
 	/**
 	 * selects TUs of a tmxfile depending on their annotation
@@ -933,7 +930,7 @@ public class TMXHandlerUtils {
 			sampleList.add(a);
 		}
 		try {
-			FileUtils.writeLines(samplefile, sample);
+			FileUtils.writeLines(samplefile, sample,"\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing the sample file "+ samplefile.getAbsolutePath());
 			e.printStackTrace();
@@ -960,7 +957,7 @@ public class TMXHandlerUtils {
 			sampleList.add(a);
 		}
 		try {
-			FileUtils.writeLines(samplefile, sample);
+			FileUtils.writeLines(samplefile, sample,"\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing the sample file "+ samplefile.getAbsolutePath());
 			e.printStackTrace();
@@ -970,7 +967,7 @@ public class TMXHandlerUtils {
 
 
 
-	public static boolean checkurl(String seg) {
+	public static boolean checkurl(String seg, double d) {
 		List<String> tokens = FCStringUtils.getTokens(seg);
 		double len= (double)seg.length();
 		double len1 = 0;
@@ -978,12 +975,12 @@ public class TMXHandlerUtils {
 			if (ValidateUtils.isValidUrl(token))
 				len1 = len1+(double)token.length();
 		}
-		if ((len1/len)> 0.5)
+		if ((len1/len)> d)
 			return true;
 		return false;
 	}
 
-	public static boolean checkemail(String seg) {
+	public static boolean checkemail(String seg, double d) {
 		List<String> tokens = FCStringUtils.getTokens(seg);
 		double len= (double)seg.length();
 		double len1 = 0;
@@ -991,7 +988,7 @@ public class TMXHandlerUtils {
 			if (ValidateUtils.isValidEmailAddress(token))
 				len1 = len1+(double)token.length();
 		}
-		if ((len1/len)> 0.5)
+		if ((len1/len)> d)
 			return true;
 		return false;
 	}
@@ -1100,14 +1097,14 @@ public class TMXHandlerUtils {
 		List<String> res = getLangPart(alignmentList, true);
 		File filelang1 = new File(baseName.getAbsolutePath() + Constants.DOT+ ISOLangCodes.get2LetterCode(languages[0]));
 		try {
-			FileUtils.writeLines(filelang1, res);
+			FileUtils.writeLines(filelang1, res,"\n");
 		} catch (IOException e) {
 			LOGGER.warn("problem in writing "+ filelang1);
 		}
 		res = getLangPart(alignmentList, false);
 		File filelang2 = new File(baseName.getAbsolutePath() + Constants.DOT+ ISOLangCodes.get2LetterCode(languages[1]));
 		try {
-			FileUtils.writeLines(filelang2, res);
+			FileUtils.writeLines(filelang2, res,"\n");
 		} catch (IOException e) {
 			LOGGER.warn("problem in writing "+ filelang2);
 		}
