@@ -251,7 +251,7 @@ public class WriteBitexts {
 			cesAlignFiles.add(FilenameUtils.concat(outputDirName.getAbsolutePath(),filename).replace("\\","/"));
 		}
 		try {
-			FileUtils.writeLines(outputFile, cesAlignFiles);
+			FileUtils.writeLines(outputFile, cesAlignFiles, "\n");
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			System.err.println("Problem in writing file containing the list of paths of cesAlign files");
@@ -270,7 +270,7 @@ public class WriteBitexts {
 			}
 			cesAlignHTMLFiles.add("</html>");
 			try {
-				FileUtils.writeLines(outputFileHTML, cesAlignHTMLFiles);
+				FileUtils.writeLines(outputFileHTML, cesAlignHTMLFiles, "\n");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				System.err.println("Problem in writing file containing the list of links pointing to rendered cesAlign files");

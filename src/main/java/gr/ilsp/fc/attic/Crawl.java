@@ -784,7 +784,7 @@ public class Crawl {
 							line = line.replace(match, replacement);
 							newLines.add(line);
 						}
-						FileUtils.writeLines(outputListFile, newLines);
+						FileUtils.writeLines(outputListFile, newLines, "\n");
 					}
 				}
 				File[] allfiles= outputDir.listFiles();
@@ -799,7 +799,7 @@ public class Crawl {
 							line = line.replace(match, "");
 							newLines.add(line);
 						}
-						FileUtils.writeLines(curFile, newLines);
+						FileUtils.writeLines(curFile, newLines, "\n");
 					}
 				}
 			} catch (IOException e) {

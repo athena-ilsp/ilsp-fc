@@ -137,7 +137,7 @@ public class Operations {
 						cesAlignList.add(file.getAbsolutePath());
 					}
 				}
-				FileUtils.writeLines(docpairsFile, cesAlignList);
+				FileUtils.writeLines(docpairsFile, cesAlignList, "\n");
 				//aligner.processCesAlignList(docpairsFile, docpairsFile, options.getOutputFileHTMLTMX(),options.isOfflineXSLT(), options.useISO6393());
 				aligner.processCesAlignList(docpairsFile, options.getBaseName().getAbsolutePath(), options.isOfflineXSLT(), options.useISO6393());
 			} catch (IOException e) {
