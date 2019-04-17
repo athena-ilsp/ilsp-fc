@@ -146,7 +146,6 @@ public class MonoMerger {
 			monlingualCorpusInfo.setCreationDescription(creationDescription);
 			monlingualCorpusInfo.setName(FilenameUtils.getBaseName(corpusdoc.getAbsolutePath()));
 			monlingualCorpusInfo.setLang(language);
-			System.out.println(configuration.getString("resourceCreator.organization"));
 			monlingualCorpusInfo.setOrganization(configuration.getString("resourceCreator.organization"));
 			monlingualCorpusInfo.setOrganizationURL(configuration.getString("resourceCreator.organizationURL"));
 			monlingualCorpusInfo.setProjectId(configuration.getString("fundingProject.projectId"));
@@ -298,6 +297,7 @@ public class MonoMerger {
 		List<String> tempSentences = new ArrayList<String>();
 		List<String> sentences_keys = new ArrayList<String>();
 		Set<String> words = new HashSet<String>();
+		List<String> fetched_sites = new ArrayList<String>();
 		int totalTokens = 0 ;
 		int filecounter=0, paragraphcounter=0, thous=0, counter=0, sentencecounter=0;
 
@@ -312,12 +312,11 @@ public class MonoMerger {
 					thous++;
 				}
 				String docurl = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
+				String dochost="";
 				try {
-					String dochost= new URL(docurl).getHost();
+					dochost= new URL(docurl).getHost();
 					if (!inSites(dochost,sites))
 						continue;
-					if (!sites.contains(dochost))
-						sites.add(dochost);
 				} catch (MalformedURLException e) {
 					LOGGER.warn("not valid URL from file "+ xmlfile.getAbsolutePath());
 					//continue;
@@ -326,6 +325,7 @@ public class MonoMerger {
 				paragraphs=Arrays.asList(ReadResources.extractTextfromXML_clean(xmlfile.getAbsolutePath(),P_ELE,ooi_crawlinfo, false).split("\n"));
 				if (paragraphs.isEmpty())
 					continue;
+				
 				List<String> targetedparagraphs = new ArrayList<String>();
 				String normP="";
 				for (String paragraph:paragraphs){
@@ -337,6 +337,10 @@ public class MonoMerger {
 				}
 				if (targetedparagraphs.isEmpty())
 					continue;
+				
+				if (!fetched_sites.contains(dochost))
+					fetched_sites.add(dochost);
+				
 				filecounter++;
 
 				tempSentences = pars2sents(targetedparagraphs);
@@ -373,7 +377,7 @@ public class MonoMerger {
 
 		File sitesFile = new File(corpusdoc.getAbsolutePath()+SITES);
 		try {
-			FileUtils.writeLines(sitesFile, sites,"\n");
+			FileUtils.writeLines(sitesFile, fetched_sites,"\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -388,7 +392,7 @@ public class MonoMerger {
 	private int[] generateParLevelMonoCorpus(List<File> xmlfiles, File corpuspar) {
 		int[] sizes = new int[5]; //docs, paragraphs, sentences, tokens, lexicaltypes
 		List<String> paragraphs = new ArrayList<String>();
-		List<String> sites = new ArrayList<String>();
+		List<String> fetched_sites = new ArrayList<String>();
 		List<String> paragraphs_keys = new ArrayList<String>();
 		int totalTokens = 0 ;
 		int filecounter=0, paragraphcounter = 0, counter=0, thous=0;
@@ -404,12 +408,11 @@ public class MonoMerger {
 					thous++;
 				}
 				String docurl = ReadResources.extractNodefromXML(xmlfile.getAbsolutePath(), EADDRESS, false);
+				String dochost="";
 				try {
-					String dochost= new URL(docurl).getHost();
+					dochost= new URL(docurl).getHost();
 					if (!inSites(dochost,sites))
 						continue;
-					if (!sites.contains(dochost))
-						sites.add(dochost);
 				} catch (MalformedURLException e) {
 					LOGGER.warn("not valid URL from file "+ xmlfile.getAbsolutePath());
 					//continue;
@@ -424,7 +427,7 @@ public class MonoMerger {
 						continue;
 					String par_key = FCStringUtils.getHashKey(normP.toString());
 					if (paragraphs_keys.contains(par_key)){
-						System.out.println(paragraph);
+						//System.out.println(paragraph);
 						continue;
 					}
 					paragraphs_keys.add(par_key);
@@ -440,6 +443,8 @@ public class MonoMerger {
 					bw.write(paragraph+Constants.TAB+docurl+Constants.TAB+xmlfile.getName());
 					bw.newLine();
 				}
+				if (!fetched_sites.contains(dochost))
+					fetched_sites.add(dochost);
 				filecounter++;
 			}
 			bw.close();
@@ -452,7 +457,7 @@ public class MonoMerger {
 		}
 		File sitesFile = new File(corpuspar.getAbsolutePath()+SITES);
 		try {
-			FileUtils.writeLines(sitesFile, sites, "\n");
+			FileUtils.writeLines(sitesFile, fetched_sites, "\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -478,6 +483,7 @@ public class MonoMerger {
 	private int[] generateDocLevelMonoCorpus(List<File> xmlfiles, File corpusdoc) {
 		int[] sizes = new int[5]; //docs, paragraphs, sentences, tokens, lexicaltypes
 		List<String> paragraphs = new ArrayList<String>();
+		List<String> fetched_sites = new ArrayList<String>();
 		int totalTokens = 0 ;
 		int filecounter=0;
 		Set<String> words = new HashSet<String>();
@@ -496,9 +502,8 @@ public class MonoMerger {
 			if (paragraphs.isEmpty())
 				continue;
 
-			if (!sites.contains(dochost))
-				sites.add(dochost);
-
+			if (!fetched_sites.contains(dochost))
+				fetched_sites.add(dochost);
 
 			sizes[1] = sizes[1] + paragraphs.size();
 			try {
@@ -519,7 +524,7 @@ public class MonoMerger {
 		}
 		File sitesFile = new File(corpusdoc.getAbsolutePath()+SITES);
 		try {
-			FileUtils.writeLines(sitesFile, sites, "\n");
+			FileUtils.writeLines(sitesFile, fetched_sites, "\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -534,13 +539,8 @@ public class MonoMerger {
 
 	private static boolean inSites(String webpage1, List<String> sites) {
 		if (!sites.isEmpty()){
-			try {
-				if (!sites.contains(new URL(webpage1).getHost()))
-					return false;
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			if (!sites.contains(webpage1))
+				return false;
 		}
 		return true;
 	}
