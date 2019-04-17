@@ -1,7 +1,16 @@
 package gr.ilsp.fc.tmxhandler;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,15 +20,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.loomchild.maligna.coretypes.Alignment;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gr.ilsp.fc.aligner.factory.BilingualScoredTmxParser;
 import gr.ilsp.fc.aligner.factory.ILSPAlignment;
 import gr.ilsp.fc.corpora.BilingualCorpusInformation;
 import gr.ilsp.fc.corpora.BilingualTmxMetashareDescriptor;
+import gr.ilsp.fc.langdetect.LangDetectUtils;
+import gr.ilsp.fc.langdetect.LangDetector;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsNumStats;
@@ -27,18 +41,18 @@ import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsRatioStats;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.TUsScoreStats;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.FCStringUtils;
-import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.nlp.commons.Constants;
 
 public class TmxUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TmxUtils.class);
+	private static LangDetector langDetector;
 	private static final String TOK_EXT = ".tok";
 	private static final String TXT_EXT = ".txt";
 	private static final String LIST = "list";
 	private final static String SAMPLE = ".sample";
 	private final static String SITES = ".sites";
-
 
 	private final static String mes1 = "non-letters";
 	private final static String mes2 = "equal TUVs";
@@ -51,13 +65,420 @@ public class TmxUtils {
 	private final static String mes7 = "duplicate";
 	private final static String mes8 = "e-mail address";
 	private final static String mes9 = "url";
-	private final static double median_word_length=25;
-	private final static double max_word_length=30;
+
+	//private static int MIN_TOKEN_LEN=3;	//tokens with less than MIN_TOKEN_LEN are excluded
+	//private static float QUANT_RATE= (float) 0.01;
+	//private static int QAUNT_DEFAULT=1; // quantization interval 
+
 
 	public static void main(String[] args) throws Exception{  //throws Exception
+
+		process2305(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/2305-2315/source/aligned/culture-C-all-sk-en-aligned.txt"), "sk", "en");
+		System.exit(0);
 		
+		String[] targetedLangs = {"en", "nb", "et", "cs", "da", "fi", "hu", "nl", "sv", "el", "bg", "ro", "sl", "pl", "pt", "de", "es", "fr", "it" };
+		
+		langDetector = LangDetectUtils.loadLangDetectors(targetedLangs,"langdetect");
+
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2nb.text.tmx"), "en", "nb");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2et.text.tmx"), "en", "et");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2cs.text.tmx"), "en", "cs");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2da.text.tmx"), "en", "da");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2fi.text.tmx"), "en", "fi");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2hu.text.tmx"), "en", "hu");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2nl.text.tmx"), "en", "nl");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2sv.text.tmx"), "en", "sv");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2el.text.tmx"), "en", "el");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2bg.text.tmx"), "en", "bg");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2ro.text.tmx"), "en", "ro");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2sl.text.tmx"), "en", "sl");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2pl.text.tmx"), "en", "pl");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2pt.text.tmx"), "en", "pt");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.de2en.text.tmx"), "de", "en");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.es2en.text.tmx"), "es", "en");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.fr2en.text.tmx"), "fr", "en");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.it2en.text.tmx"), "it", "en");
+
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2de.text.tmx"), "en", "de");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2es.text.tmx"), "en", "es");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2fr.text.tmx"), "en", "fr");
+		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2it.text.tmx"), "en", "it");
+		System.exit(0);
+
+
+		File f1 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_1775/en_terms.txt");
+		File f2 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_1775/sl_terms.txt");
+		File f3 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_1775/en-sl_terms.txt");
+		List<String> l1 = FileUtils.readLines(f1);
+		List<String> l2 = FileUtils.readLines(f2);
+		List<String> l3 = new ArrayList<String>();
+		if (l1.size()!=l2.size()){
+			System.out.println("check list size");
+			System.exit(0);
+		}
+		for (int ii=0;ii<l1.size();ii++){
+			//String[] t1 = l1.get(ii).split(",");
+			//String[] t2 = l2.get(ii).split(",");
+			//for (int jj=0;jj<t1.length;jj++){
+			//	String temp= t1[jj].trim();
+			//	for (int kk=0;kk<t2.length;kk++){
+			//		l3.add(temp+"\t"+t2[kk].trim());
+			//	}
+			//}
+			String t1 = l1.get(ii).trim();
+			String t2 = l2.get(ii).trim();
+			if (t1.equals(t2)){
+				System.out.println(t1);
+				continue;
+			}
+			if (t1.isEmpty() || t2.isEmpty()){
+				System.out.println(t1);
+				System.out.println(t2);
+				continue;
+			}
+			String t = t1+"\t"+t2;
+			if (l3.contains(t))
+				continue;
+			l3.add(t);
+		}
+
+		FileUtils.writeLines(f3, l3,"\n");
+		System.exit(0);
+
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/_1997-en-fr/eng-fra.tmx"), "eng", "fra");
+		System.exit(0);
+
+		File infile = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/_1999-en-it/txt");
+		String[] langs1 = new String[2];
+		langs1[0] = "it"; langs1[1] = "en";
+		File newfile1 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/_1999-en-it/txt/eng-ita.tmx.ita.txt");
+		File newfile2 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/_1999-en-it/txt/eng-ita.tmx.eng.txt");
+		List<SegPair> segpairslist1 = txts2tmx(newfile1, newfile2);
+		List<ILSPAlignment> alignments = segpair2ILSPAlignment(segpairslist1);
+		generateCorpus(alignments, langs1, "", new File(FilenameUtils.concat(infile.getAbsolutePath(), "_g.tmx")),"", "", "");
+		System.exit(0);
+
+
+
+
+		/*		List<String> aaa = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/_1993-en-es/_g.tmx"));
+		List<String> bbb = new ArrayList<String>();
+		for (String line:aaa){
+			if (line.contains("type=\"info\"><")){
+				line="";
+			}
+			if (line.contains("type=\"l1-url\"><")){
+				line="";
+			}
+			if (line.contains("type=\"l2-url\"><")){
+				line="";
+			}
+			if (line.contains("type=\"license\"><")){
+				line="";
+			}
+			if (line.contains("type=\"score\"><")){
+				line="";
+			}
+			if (line.contains("type=\"type\"><")){
+				line="";
+			}
+			if (!line.isEmpty())
+				bbb.add(line);
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/_1993-en-es/_g1.tmx"), bbb,"\n");
+		System.exit(0);*/
+
+
+		//List<SegPair> segpairs1 = tmx2tmx(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_790-834/source/eng-pol.tmx"));
+
+		//List<SegPair> segpairs1=xlif2tmx(infile);
+
+
+
+
+
+
+
+
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/dan-eng.tmx"), "eng", "dan");
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/deu-eng.tmx"), "eng", "deu");
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/ces-eng.tmx"), "eng", "ces");
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/eng-nld.tmx"), "eng", "nld");
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/eng-spa.tmx"), "eng", "spa");
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/eng-fra.tmx"), "eng", "fra");
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/eng-ita.tmx"), "eng", "ita");
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/eng-por.tmx"), "eng", "por");
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/eng-hun.tmx"), "eng", "hun");
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/eng-swe.tmx"), "eng", "swe");
+		System.exit(0);
+
+
+		String[] langs11 = new String[2];
+		langs11[0] = "en"; langs11[1] = "el";
+		File infile11 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/el-sub/1968/final");
+		File newfile11 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/el-sub/1968/final/txt.en");
+		File newfile21 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/el-sub/1968/final/txt.el");
+		List<SegPair> segpairslist11 = txts2tmx(newfile11, newfile21);
+		List<ILSPAlignment> alignments1 = segpair2ILSPAlignment(segpairslist11);
+		generateCorpus(alignments1, langs11, "", new File(FilenameUtils.concat(infile11.getAbsolutePath(), "_g.tmx")),"", "", "");
+		System.exit(0);
+
+		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_1160-1166/eng-ron_corpus.tmx"), "en", "ro");
+		System.exit(0);
+
+
+
+
+		//tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_710-821/821.en-hr.tmx"), "en", "hr");
+		processTatoeba(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/tatoeba/_1028/tatoeba.org.2018.en-fr.tmx"), "en", "fr");
+		System.exit(0);
+		process988(); //from "dirty" ILSP-like tmx to clean ILSP-like tmx
+		System.exit(0);
+
+
+		File infilea = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_790-834/source/eng-pol.tmx");
+		List<SegPair> segpairs1a = tmx2tmx(infilea);
+		List<ILSPAlignment> alignmentsa = segpair2ILSPAlignment(segpairs1a);
+		String[] langs1a = new String[2]; langs1a[0]="en"; langs1a[1] = "hr";
+		generateCorpus(alignmentsa, langs1a, "", new File(FilenameUtils.concat(infilea.getAbsolutePath(), "_g.tmx")),"", "", "");
+		System.exit(0);
+
+
+
+
+		List<String> el1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_462-954/processed/results-attributes/ceval/ell-eng_corpus.el"));
+		List<String> en1 =FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_462-954/processed/results-attributes/ceval/ell-eng_corpus.en"));
+
+		List<String> el2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_719-941/processed/results-attributes/ceval/_g.tmx.el"));
+		List<String> en2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_719-941/processed/results-attributes/ceval/_g.tmx.en"));
+		int count=0;
+		for (int ii=0;ii<el2.size();ii++){
+			String el = el2.get(ii);
+			String en = en2.get(ii);
+			for (int jj=0;jj<el1.size();jj++){
+				if (el1.get(jj).equals(el) && en1.get(jj).equals(en)){
+					count++;
+					break;
+				}
+			}
+		}
+		System.out.println(count+ " \tfrom\t" + el2.size());
+
+		System.exit(0);
+
+
+
+
+
+
+		/*File infile = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/D-2-1/514/output_www-hcr-hr_eng-hr_eng-hrv.tmx");
+		String[] langs1 = new String[2];
+		langs1[0] = "en"; langs1[1] = "hr";
+		String domain1="", creationModeDescription1="", organization1="", lic1="";
+		process514(infile, langs1, domain1, creationModeDescription1, organization1, lic1);
+		System.exit(0);*/
+
+		/*tmx2txts1(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/D-2-1/514/output_www-hcr-hr_eng-hr_eng-hrv.tmx"), "en", "hr"); 
+		System.exit(0);
+
+		tmx2txts1(new File("C:/Users/vpapa/ELRC/subcontracts/archive (2)/BoG_TM_Recent Publications.tmx"), "el", "en");
+		System.exit(0);*/
+
+		tmx2txts2(new File("C:/Users/vpapa/ELRC/subcontracts/691__en-pl_cleared/source/NFZ_tm.tmx"), "pl", "en");
+		System.exit(0);
+
+
+		File filet = new File("C:/Users/vpapa/ELRC/tld/pl/crawls/www-paih-gov-pl/new-tmxmerge_new_www-paih-gov-pl_eng-pol_sample_en.txt");
+		List<String> samples3 = FileUtils.readLines(filet);
+		List<String> newsamples = new ArrayList<String>();
+		int countert=1;
+		for (String sample:samples3){
+			sample = "<seg id=\""+countert+"\">"+sample+"</seg>";
+			countert++;
+			newsamples.add(sample);
+		}
+		FileUtils.writeLines(filet, newsamples,"\n");
+		System.exit(0);
+
+		String tpath = "C:/Users/vpapa/ELRC/tld/pl/crawls/www-paih-gov-pl/";
+		String nsamples= "new-tmxmerge_new_www-paih-gov-pl_eng-pol_sample.csv";
+		File tsamples= new File(FilenameUtils.concat(tpath, nsamples));
+		List<String> samples = FileUtils.readLines(tsamples);
+		List<String> samples1 = new ArrayList<String>();
+		List<String> samples2 = new ArrayList<String>();
+		for (String sample:samples){
+			String[] parts = sample.split("\t");
+			samples1.add(parts[0]);
+			samples2.add(parts[1]);
+		}
+		FileUtils.writeLines(new File(tsamples.getAbsolutePath()+"_1"), samples1,"\n");
+		FileUtils.writeLines(new File(tsamples.getAbsolutePath()+"_2"), samples2,"\n");
+		System.exit(0);
+
+		String[] pllangs = new String[1];
+		pllangs[0]="pl";
+		int counterfalselang=0;
+		LangDetector langDetector = LangDetectUtils.loadLangDetectors(pllangs,"langdetect");
+		List<String> enlines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/www-paih-gov-pl/new-tmxmerge_new_www-paih-gov-pl_eng-pol.en"));
+		//List<String> enlines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/tld_en-pl_tld_en-pl_eng-pol.en"));
+		List<String> langfalses = new ArrayList<String>();
+		for (int ii=0;ii<enlines.size();ii++){
+			/*String lang = langDetector.detect(pllines.get(ii));
+			if (!lang.equals("pol")){
+				System.out.println(lang+"\t"+pllines.get(ii));
+				langfalses.add(lang+"\t"+pllines.get(ii));
+				counterfalselang++;
+				//continue;
+			}*/
+			String lang = langDetector.detect(enlines.get(ii));
+			if (!lang.equals("eng")){
+				System.out.println(lang+" :\t\t"+enlines.get(ii));
+				langfalses.add(lang+"\t"+enlines.get(ii));
+				counterfalselang++;
+			}
+		}
+		System.out.println(counterfalselang);
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/www-paih-gov-pl/en.langfalses"), langfalses,"\n");
+		System.exit(0);
+
+		String line2;
+		int countergov=0;
+		BufferedReader bufferreader = new BufferedReader(new FileReader("C:/Users/vpapa/ELRC/tld/pl/tld_en-pl_tld_en-pl_eng-pol.tmx"));
+		line2 = bufferreader.readLine();
+		while (line2 != null) {     
+			if (line2.contains("l1-url") && line2.contains(".gov.")){
+				System.out.println(line2);
+				countergov++;
+			}
+			line2 = bufferreader.readLine();
+		}
+		System.out.println(countergov);
+		System.exit(0);
+
+		List<SegPair> tus = TMXHandlerUtils.getTUsFromTMX(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/152/source/law_ell-eng.tmx"), new ArrayList<String>(), "en", "el");
+		List<String> sites = new ArrayList<String>();
+		for (SegPair tu:tus){
+			String temphost1="", temphost2="";
+			try {
+				temphost1 = new URL(tu.l1url).getHost();
+				temphost2 = new URL(tu.l2url).getHost();
+			} catch (MalformedURLException e) {
+				continue;
+				//LOGGER.debug("no protocol of acquired files " +temphost1 + " or " + temphost2);			//e.printStackTrace();
+			}
+			//if (noannot && !align.getInfo().isEmpty())
+			//	continue;
+			if (!sites.contains(temphost1))
+				sites.add(temphost1);
+			if (!sites.contains(temphost2))
+				sites.add(temphost2);
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/152/source/sites.txt"), sites,"\n");
+		System.exit(0);
+
+
+		String[] ext = new String[1];
+		ext[0] = "tmx";
+		File indir = new File("C:/Users/vpapa/ELRC/tld/pl/crawls");
+		List<File> files = (List<File>) FileUtils.listFiles(indir, ext, false) ;
+		String lang1 = "eng";
+		String lang2 = "pl";
+		for (File file:files){
+			List<SegPair> segpairs =  TMXHandlerUtils.getTUsFromTMX(file, false, lang1,  lang2);
+			double t = 0;
+			if (segpairs.size()<10)
+				t = segpairs.size();
+			else
+				t = Math.round(segpairs.size()*0.1);
+			int sampleSize = (int)Math.min(t,300);
+			System.out.println(sampleSize+"\t"+segpairs.size());
+			File temp = new File(FilenameUtils.concat(indir.getAbsolutePath(),"clean_samples"));
+			File samplefile = new File(FilenameUtils.concat(temp.getAbsolutePath(),file.getName()+".csv"));
+			TMXHandlerUtils.generateSampleSegs(segpairs, sampleSize, samplefile);
+		}
+
+		System.exit(0); 
+
+
+
+
+
+		File tmxFile = new File("C:/Users/vpapa/ELRC/tld/hr/crawls/webcorpus_v1_ILSP-FC_eng-hrv.tmx");
+		List<SegPair>  totalTUs = GetTMXsubset.getTUsFromTMX(tmxFile, "eng", "hrv"); 
+		List<SegPair>  newTUs = new ArrayList<SegPair>();
+		for (SegPair segpair:totalTUs){
+			if (segpair.annot.isEmpty()){
+				newTUs.add(segpair);
+			}
+		}
+
+
+
+		int total_counter=0, clean_counter=0;
+		int dups_counter=0, neardups_counter=0, iden_counter=0, empty_counter=0, len_counter=0, ratio_counter = 0, num_counter=0;
+		int email_counter=0, url_counter=0;
+		int mix_counter=0;
+
+
+		BufferedReader br = new BufferedReader(new FileReader(tmxFile));
+		String line1;
+		while ((line1 = br.readLine()) != null) {
+			if (line1.contains("type=\"info\">")){
+				total_counter++;
+				if (line1.contains("type=\"info\"><")){
+					clean_counter++;
+					continue;
+				}
+				if (line1.contains("type=\"info\">duplicate</prop>"))
+					dups_counter++;
+				if (line1.contains("type=\"info\">near-duplicate</prop>"))
+					neardups_counter++;
+				if (line1.contains("type=\"info\">non-letters</prop>"))
+					empty_counter++;
+				if (line1.contains("type=\"info\">equal TUVs</prop>"))
+					iden_counter++;
+				if (line1.contains("type=\"info\">different numbers in TUVs</prop>"))
+					num_counter++;
+				if (line1.contains("type=\"info\">e-mail address</prop>"))
+					email_counter++;
+				if (line1.contains("type=\"info\">url</prop>"))
+					url_counter++;
+				if (line1.contains("type=\"info\">very short segments, shorter than ") && !line1.contains("|"))
+					len_counter++;
+				if (line1.contains("type=\"info\">charlength ratio of TUVs is lower than ") && !line1.contains("|"))
+					ratio_counter++;
+				if (line1.contains("|"))
+					mix_counter++;
+			}
+		}
+		br.close();
+		System.out.println("total:\t"+ total_counter);
+		System.out.println("clean:\t"+ clean_counter);
+		System.out.println("duplicate:\t"+ dups_counter);
+		System.out.println("near-duplicate:\t"+ neardups_counter);
+		System.out.println("non-letters:\t"+ empty_counter);
+		System.out.println("equal TUVs:\t"+ iden_counter);
+		System.out.println("different numbers in TUVs:\t"+ num_counter);
+		System.out.println("e-mail address:\t"+ email_counter);
+		System.out.println("url:\t"+ url_counter);
+		System.out.println("very short segments:\t"+ len_counter);
+		System.out.println("charlength ratio of TUVs is lower than:\t"+ ratio_counter);
+		System.out.println("more than 1 types of annotation:\t"+ mix_counter);
+		System.exit(0);
+
+
+		List<String> wholetmx = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/webcorpus_v1_ILSP-FC_eng-hrv.tmx"));
+		int counter=0;
+		for (String line:wholetmx){
+			if (line.contains("<info><"))
+				counter++;
+		}
+		System.out.println(counter);
+
+		System.exit(0);
+
 		File ej = new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/crawls/law_crawls_eng-el");
-		
+
 		File[] ejfs = ej.listFiles();
 		for (File ejf:ejfs){
 			if (ejf.isDirectory()){
@@ -68,22 +489,22 @@ public class TmxUtils {
 			}
 		}
 		System.exit(0);
-		
+
 		List<String> res1_el =   FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt1_ILSP-FC_ell-eng.el"));
 		List<String> res1_en =   FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt1_ILSP-FC_ell-eng.en"));
 		List<String> res04_el =  FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt04_ILSP-FC_ell-eng.el"));
 		List<String> res04_en =  FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt04_ILSP-FC_ell-eng.en"));
 		//List<String> res1_all =  FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt04_ILSP-FC_ell-eng.en"));
-		
-		
+
+
 		for (int ii=0;ii<res1_el.size();ii++){
 			if (res04_el.contains(res1_el.get(ii)) && res04_en.contains(res1_en.get(ii)) )
 				continue;
 			System.out.println(res1_el.get(ii)+"\t"+res1_en.get(ii));
 		}
-		
+
 		System.exit(0);
-		
+
 		List<String> websites = null;
 		try {
 			websites = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-HR/total_run/output_NEWALIGN_ILSP-FC_eng-hrv.sites.txt"));
@@ -91,10 +512,10 @@ public class TmxUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		List<SegPair> tus = TMXHandlerUtils.getTUsFromTMX(new File("C:/Users/vpapa/ELRC/EN-HR/total_run/output_NEWALIGN_ILSP-FC_eng-hrv.tmx"), new ArrayList<String>(), "en", "hr");
-		
-		
+
+		//List<SegPair> tus = TMXHandlerUtils.getTUsFromTMX(new File("C:/Users/vpapa/ELRC/EN-HR/total_run/output_NEWALIGN_ILSP-FC_eng-hrv.tmx"), new ArrayList<String>(), "en", "hr");
+
+
 		for (String website:websites){
 			int matches=0;
 			for (SegPair tu:tus){
@@ -110,11 +531,11 @@ public class TmxUtils {
 			}
 			System.out.println(website+"\t"+matches);
 		}
-		
+
 		System.exit(0);
-		
-		
-/*		
+
+
+		/*		
 		File file11 = new File("C:/Users/vpapa/ELRC/created_datasets/datasets_v2/culture_v2_elrc_ell-eng.tmx");
 		List<String> sites = ReadResources.extractListFromNodesOfXML(file11.getAbsolutePath(), "prop", true);
 		List<String> aaa =new ArrayList<String>();
@@ -164,8 +585,8 @@ public class TmxUtils {
 			bg_lines.add(ContentNormalizer.normalizeText(temp[0]));
 			en_lines.add(ContentNormalizer.normalizeText(temp[1]));
 		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/190/TELECOMMUNICATIONS AND BROADBAND/merged_bg.txt"), bg_lines);
-		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/190/TELECOMMUNICATIONS AND BROADBAND/merged_en.txt"), en_lines);
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/190/TELECOMMUNICATIONS AND BROADBAND/merged_bg.txt"), bg_lines,"\n");
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/190/TELECOMMUNICATIONS AND BROADBAND/merged_en.txt"), en_lines,"\n");
 		System.exit(0);*/
 
 		File inFile1 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_226/Convention against torture");
@@ -228,6 +649,420 @@ public class TmxUtils {
 
 	}
 
+
+	private static void process2305(File file, String lang1, String lang2) throws Exception {
+		List<String> lines = FileUtils.readLines(file);
+		List<String> lines1 = new ArrayList<String>();
+		List<String> lines2 = new ArrayList<String>();
+		for (String line:lines){
+			String[] temp = line.split("\t");
+			lines1.add(temp[0].trim());
+			lines2.add(temp[1].trim());
+		}
+		File file1 = new File(file.getAbsolutePath()+"."+lang1);
+		File file2 = new File(file.getAbsolutePath()+"."+lang2);
+		FileUtils.writeLines(file1, lines1);
+		FileUtils.writeLines(file2, lines2);
+		
+		List<SegPair> segpairslist = txts2tmx(file1, file2);
+		List<ILSPAlignment> als = segpair2ILSPAlignment(segpairslist);
+
+		String[] langs1a = new String[2]; langs1a[0]=lang1; langs1a[1] = lang2;
+		generateCorpus(als, langs1a, "", new File(file.getAbsolutePath()+".tmx"),"", "", "");
+		
+	}
+
+
+	private static void parseWikimedia(File infile, String l1, String l2) throws IOException {
+		BufferedWriter out1= new BufferedWriter(new FileWriter(new File(infile.getAbsolutePath()+".log"))); 
+		LOGGER.info("-------\t"+infile.getName()+"\t----------");
+		List<String> lines=  FileUtils.readLines(infile, Constants.UTF8);
+		List<String> lines1= new ArrayList<String>();
+		List<String> lines2= new ArrayList<String>();
+		
+		int id1 = 0, id2 = 0;
+		int totalcounter = 0, paircounter=0;
+		boolean found1 = false, found2 = false, tufound=false;
+		String ntext1="", ntext2="", l11="", l22="";
+		String ntext3 = "";
+		//String string_key3="", string_key2="";
+		for (int ii=0;ii<lines.size()-1;ii++){
+			String line= lines.get(ii).trim();
+			if (line.startsWith("<tu srclang=") && !tufound){
+				id1=ii;
+				tufound=true;
+				continue;
+			}
+			if (line.equals("</tu>")){
+				id2=ii;
+				tufound=false;
+				totalcounter++;
+			}
+			if (id1>0 && id2>0){
+				tufound=false;
+				found1 = false;
+				found2 = false;
+				String text1="", text2 = "", text3 = "";
+				for (int jj=id1+1;jj<id2;jj++){
+					String line1 = lines.get(jj).trim();
+					String line11 = lines.get(jj+1).trim();
+					String line12 = lines.get(jj+2).trim();
+					if (line1.contains("<tuv xml:lang=\""+l1+"\">") && line11.contains("<prop type=\"origin\">source</prop>")){
+						found1 = true;
+						text1 = line12.substring(line.indexOf(">")+1, line12.lastIndexOf("<"));
+						text1 = ContentNormalizer.unescapedhtml(text1);
+						text1 = ContentNormalizer.normalizeText(text1);
+						text1 = text1.replaceAll("\\[\\d\\]", Constants.SPACE);
+						text1 = text1.replaceAll("\\[\\d\\d\\]", Constants.SPACE);
+						text1 = text1.replaceAll("\\[\\d\\d\\d\\]", Constants.SPACE);
+						text1 = text1.replaceAll("(\\s){2,}", Constants.SPACE).trim();
+						l11 = ISOLangCodes.get2LetterCode(langDetector.detect(text1));
+						ntext1 =  ContentNormalizer.normtext(text1);
+						continue;
+					}
+
+					if (line1.contains("<tuv xml:lang=\""+l2+"\">") && line11.contains("<prop type=\"origin\">mt</prop>")){
+						text3 = line12.substring(line.indexOf(">")+1, line12.lastIndexOf("<"));
+						text3 = ContentNormalizer.unescapedhtml(text3);
+						text3 = ContentNormalizer.normalizeText(text3);
+						text3 = text3.replaceAll("\\[\\d\\]", Constants.SPACE);
+						text3 = text3.replaceAll("\\[\\d\\d\\]", Constants.SPACE);
+						text3 = text3.replaceAll("\\[\\d\\d\\d\\]", Constants.SPACE);
+						text3 = text3.replaceAll("(\\s){2,}", Constants.SPACE).trim();
+						ntext3 =  ContentNormalizer.normtext(text3);
+						/*byte[] texthashkey3 = DedupUtils.calculateMD5(ntext3, MIN_TOKEN_LEN); //TODO should text be stemmed?
+						string_key3="";
+						for (int kk=0;kk<texthashkey3.length;kk++) {
+							string_key3 += texthashkey3[kk];
+						}*/
+						continue;
+					}
+
+					if (line1.contains("<tuv xml:lang=\""+l2+"\">") && line11.contains("<prop type=\"origin\">user</prop>")){
+						text2 = line12.substring(line.indexOf(">")+1, line12.lastIndexOf("<"));
+						text2 = ContentNormalizer.unescapedhtml(text2);
+						text2 = ContentNormalizer.normalizeText(text2);
+						text2 = text2.replaceAll("\\[\\d\\]", Constants.SPACE);
+						text2 = text2.replaceAll("\\[\\d\\d\\]", Constants.SPACE);
+						text2 = text2.replaceAll("\\[\\d\\d\\d\\]", Constants.SPACE);
+						text2 = text2.replaceAll("(\\s){2,}", Constants.SPACE).trim();
+
+						l22 = ISOLangCodes.get2LetterCode(langDetector.detect(text2));
+						ntext2 =  ContentNormalizer.normtext(text2);
+
+						/*byte[] texthashkey2 = DedupUtils.calculateMD5(ntext2, MIN_TOKEN_LEN); //TODO should text be stemmed?
+						string_key2="";
+						for (int kk=0;kk<texthashkey2.length;kk++) {
+							string_key2 += texthashkey2[kk];
+						}
+						 */
+						found2 = true;
+						break;
+					}
+				}
+				if (found1 && found2 ){
+					paircounter++;
+					if ( ntext1.isEmpty() || ntext2.isEmpty()){
+						//LOGGER.info(ii+"\t"+text1+"\t"+text2+"\tEMPTY");
+						out1.write(ii+"\t"+text1+"\t"+text2+"\tEMPTY\n");
+					}else{
+						if (ntext1.equals(ntext2)){
+							//LOGGER.info(ii+"\t"+text1+"\t"+text2+"\t EQUAL");
+							out1.write(ii+"\t"+text1+"\t"+text2+"\tEQUAL\n");	
+						}else{
+							if (ntext3.equals(ntext2)){
+								//LOGGER.info(ii+"\t"+text3+"\t"+text2+"\tMT");
+								out1.write(ii+"\t"+text3+"\t"+text2+"\tMT\n");
+							}else{
+								if (TMXHandlerUtils.checkemail(text1, 0.4) || TMXHandlerUtils.checkemail(text2, 0.4)
+										||	TMXHandlerUtils.checkurl(text1, 0.4) || TMXHandlerUtils.checkurl(text2, 0.4)
+										|| ntext1.contains("wikimedia") || ntext2.contains("wikimedia")){
+									//LOGGER.info(ii+"\t"+text1+"\t"+text2+"\tE-MAIL/URL");
+									out1.write(ii+"\t"+text1+"\t"+text2+"\tE-MAIL/URL\n");
+								}else{
+									if ((double)ntext1.length()<=(double)text1.length()*0.7 || (double)ntext2.length()<=(double)text2.length()*0.7){
+										//LOGGER.info(ii+"\t"+text1+"\t"+text2+"\tMANY NUMBERS/SYMBOLS");
+										out1.write(ii+"\t"+text1+"\t"+text2+"\tMANY NUMBERS/SYMBOLS\n");
+									}else{
+										if (!l11.equals(l1) || !l22.equals(l2)){
+											//LOGGER.info(ii+"\t"+text1+"\t"+text2+"\tNOT IN TARGETED LANGS");
+											out1.write(ii+"\t"+text1+"\t"+text2+"\tNOT IN TARGETED LANGS\n");
+										}
+										else{
+											lines1.add(text1);
+											lines2.add(text2);
+											id1=0;
+											id2=0;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		out1.close();
+		if (lines1.size()==lines2.size()){
+			List<String> lines3 = new ArrayList<String>();
+			for (int ii=0;ii<lines1.size();ii++){
+				lines3.add(lines1.get(ii)+Constants.TAB+lines2.get(ii));
+			}
+			FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+l1+"-"+l2), lines3,"\n");
+		}
+		FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+l1), lines1,"\n");	
+		FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+l2), lines2,"\n");
+		LOGGER.info("total TUs:\t"+ totalcounter);
+		LOGGER.info("valid TUs:\t"+ paircounter);
+		LOGGER.info("passed TUs:\t"+ lines2.size());
+	}
+
+
+	private static void processTatoeba(File file, String lang1, String lang2) throws Exception {
+		List<String> lines = FileUtils.readLines(file);
+		List<String> l1s = new ArrayList<String>();
+		List<String> l2s = new ArrayList<String>();
+		List<String> totalls = new ArrayList<String>();
+
+		boolean tu=false, l1=false, l2 = false;
+		for (String line:lines){
+			line = line.trim();
+			//System.out.println(line);
+			if (line.equals("<tu>")){
+				tu=true;
+			}
+			if (line.equals("</tu>")){
+				tu=false;
+			}
+			if (tu){
+				if (line.equals("<tuv xml:lang=\""+lang1+"\">")){
+					l1 = true;
+					l2 = false;
+				}
+				if (line.equals("<tuv xml:lang=\""+lang2+"\">")){
+					l2 = true;
+					l1 = false;
+				}
+				if (line.startsWith("<seg>")){
+					if (l1)
+						l1s.add(line.substring(5, line.length()-6));
+					if(l2)	
+						l2s.add(line.substring(5, line.length()-6));
+				}
+			}
+			if (!tu){
+				for (String l1p:l1s){
+					for (String l2p:l2s){
+						String tmp = l1p+"\t"+l2p;
+						if (!totalls.contains(tmp))
+							totalls.add(tmp);
+						else{
+							System.out.println(tmp);
+						}
+					}
+				}
+				l1s.clear();
+				l2s.clear();
+			}
+
+		}
+		File out=new File(file.getAbsolutePath()+".list");
+		File out1=new File(out.getAbsolutePath()+".1");
+		File out2=new File(out.getAbsolutePath()+".2");
+		FileUtils.writeLines(out, totalls,"\n");
+		lines = FileUtils.readLines(out);
+		List<String> l1list = new ArrayList<String>();
+		List<String> l2list = new ArrayList<String>();
+		for (String line:lines){
+			String[] parts = line.split("\t");
+			l1list.add(parts[0]);
+			l2list.add(parts[1]);
+		}
+		FileUtils.writeLines(out1, l1list,"\n");
+		FileUtils.writeLines(out2, l2list,"\n");
+		List<SegPair> segpairslist = txts2tmx(out1, out2);
+		List<ILSPAlignment> als = segpair2ILSPAlignment(segpairslist);
+
+		String[] langs1a = new String[2]; langs1a[0]=lang1; langs1a[1] = lang2;
+		generateCorpus(als, langs1a, "", new File(out.getAbsolutePath()+".tmx"),"", "", "");
+	}
+
+
+	private static void tmx2txts2(File file, String l1, String l2) throws IOException {
+		List<String> lines = FileUtils.readLines(file);
+		List<String> l1s = new ArrayList<String>();
+		List<String> l2s = new ArrayList<String>();
+		boolean t1=false;
+		int l1c = 0, l2c = 0;
+		String temp="";
+		boolean rejected  = false;
+		int counter = 0;
+		for (String line:lines){
+			line = line.trim();
+			System.out.println(line);
+			if (line.startsWith("<seg>"))
+				counter++;
+			else
+				continue;
+			if (counter % 2 == 0)
+				l2s.add(line.substring(5, line.length()-6));
+			else
+				l1s.add(line.substring(5, line.length()-6));
+		}
+		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l1), l1s,"\n");
+		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l2), l2s,"\n");
+	}
+
+
+	private static void generateCorpus(List<ILSPAlignment> alignmentList,  String[] langs,  String domain,  File outTMX,  String creationModeDescription, String organization, String lic ){
+		BilingualCorpusInformation bilingualCorpusInfo= bilinfo( alignmentList,  langs,  domain,  outTMX,  creationModeDescription,organization,lic);
+		String baseName = outTMX.getAbsolutePath();
+		File baseNamef = new File(outTMX.getAbsolutePath());
+		if (bilingualCorpusInfo!=null){
+
+			TMXHandler.generateMergedTMX(outTMX, langs, bilingualCorpusInfo, new File(outTMX.getAbsolutePath()+".html"));
+
+			LOGGER.info("Generating language files");
+			TMXHandlerUtils.splitIntolangFiles(alignmentList, langs, baseNamef);
+
+			int sampleSizeCe = (int)((double)alignmentList.size()*0.1);
+			int sampleSize = Math.min(1500, sampleSizeCe);
+			File samplefile = new File(baseName + SAMPLE);
+			LOGGER.info("Generating sample file " + samplefile.getAbsolutePath());
+			TMXHandlerUtils.generateSample(alignmentList, sampleSize, samplefile);
+
+			BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
+			File metadataFile = new File(baseName+ ".md.xml");
+			LOGGER.info("Generating metadata descriptor " + metadataFile);
+			bilingualTmxMetashareDescriptor.setOutFile(metadataFile);
+			bilingualTmxMetashareDescriptor.setMetadataLang("en");
+			bilingualTmxMetashareDescriptor.run();	
+		}else{
+			LOGGER.info("No proper TUs found.");
+		}
+	}
+
+
+
+	private static List<ILSPAlignment> segpair2ILSPAlignment(List<SegPair> segpairs){
+		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
+		for (SegPair segpair:segpairs){
+			ILSPAlignment alignment = new ILSPAlignment();
+			alignment.addSourceSegment(segpair.seg1);
+			alignment.addTargetSegment(segpair.seg2);
+			alignment.setScore((float)segpair.score);
+			alignment.setType(segpair.type);
+			alignment.setLengthRatio(Double.toString(segpair.ratio));
+			alignment.setInfo(segpair.annot);
+			alignmentList.add(alignment);
+		}
+		return alignmentList;
+	}
+
+
+	private static void process988() {
+		//List<String> info = new ArrayList<String>();
+		String lang1 = "en", lang2 = "hr";
+		File tmxFile = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_988-989/processed/output_www-mvep-hr_eng-hr_eng-hrv.tmx");
+		//List<SegPair> segs = TMXHandlerUtils.getTUsFromTMX(tmxFile, info, lang1, lang2);
+		List<SegPair> segs = TMXHandlerUtils.getTUsFromTMX(tmxFile, false, lang1, lang2);
+		List<String> segsl1 = new ArrayList<String>();
+		List<String> segsl2 = new ArrayList<String>();
+		for (SegPair seg:segs){
+			segsl1.add(seg.seg1);
+			segsl2.add(seg.seg2);
+		}
+		List<ILSPAlignment> alignmentsa = segpair2ILSPAlignment(segs);
+		String[] langs1a = new String[2]; langs1a[0]="en"; langs1a[1] = "hr";
+		generateCorpus(alignmentsa, langs1a, "", new File(FilenameUtils.concat(tmxFile.getParent(), "_g.tmx")),"", "", "");
+
+	}
+
+
+	private static void process514(File infile, String[] langs, String domain, String creationModeDescription, String organization, String lic) {
+		List<ILSPAlignment> alignmentList = new ArrayList<ILSPAlignment>();
+		File outTMX = new File(FilenameUtils.concat(infile.getParent(),"output_"+langs[0]+"-"+langs[1]+".tmx"));
+		File  baseNamef = new File(outTMX.getAbsolutePath());
+		String baseName = baseNamef.getName();
+		File outHTML = new File(FilenameUtils.concat(infile.getParent(),"output_"+langs[0]+"-"+langs[1]+".tmx.html"));
+
+		List<SegPair> tus1 = TMXHandlerUtils.getTUsFromTMX(infile, langs[0], langs[1]);
+		for (SegPair segpair:tus1){
+			ILSPAlignment alignment = new ILSPAlignment();
+			alignment.addSourceSegment(segpair.seg1);
+			alignment.addTargetSegment(segpair.seg2);
+			alignment.setScore((float)segpair.score);
+			alignment.setType(segpair.type);
+			alignment.setLengthRatio(Double.toString(segpair.ratio));
+			alignment.setInfo(segpair.annot);
+			alignmentList.add(alignment);
+		}
+
+		BilingualCorpusInformation bilingualCorpusInfo= bilinfo( alignmentList,  langs,  domain,  outTMX,  creationModeDescription,organization,lic);
+		if (bilingualCorpusInfo!=null){
+
+			TMXHandler.generateMergedTMX(outTMX, langs, bilingualCorpusInfo, outHTML);
+
+			LOGGER.info("Generating language files");
+			TMXHandlerUtils.splitIntolangFiles(alignmentList, langs, baseNamef);
+
+			int sampleSizeCe = (int)((double)alignmentList.size()*0.1);
+			int sampleSize = Math.min(1500, sampleSizeCe);
+			File samplefile = new File(baseName + SAMPLE);
+			LOGGER.info("Generating sample file " + samplefile.getAbsolutePath());
+			TMXHandlerUtils.generateSample(alignmentList, sampleSize, samplefile);
+
+			BilingualTmxMetashareDescriptor bilingualTmxMetashareDescriptor = new BilingualTmxMetashareDescriptor(bilingualCorpusInfo);
+			File metadataFile = new File(baseName+ ".md.xml");
+			LOGGER.info("Generating metadata descriptor " + metadataFile);
+			bilingualTmxMetashareDescriptor.setOutFile(metadataFile);
+			bilingualTmxMetashareDescriptor.setMetadataLang("en");
+			bilingualTmxMetashareDescriptor.run();	
+		}else{
+			LOGGER.info("No proper TUs found.");
+		}
+
+
+	}
+
+	private static void tmx2txts1(File file, String l1, String l2) throws IOException {
+		List<String> lines = FileUtils.readLines(file);
+		List<String> l1s = new ArrayList<String>();
+		List<String> l2s = new ArrayList<String>();
+		boolean t1=false;
+		int l1c = 0, l2c = 0;
+		String temp="";
+		boolean rejected  = false;
+		for (String line:lines){
+			line = line.trim();
+			if (line.contains("type=\"info\">")){
+				if (line.contains("duplicate") | line.contains("non-letters") | line.contains("equal TUVs")){
+					rejected  = true;
+				}else
+					rejected  = false;
+			}
+			if (rejected)
+				continue;
+			if (line.startsWith("<seg>")){
+				temp = line.substring(5, line.length()-6);
+				if (!t1){
+					t1=true;
+					l1s.add(temp);
+					l1c = l1c + temp.split(" ").length;
+				}else{
+					t1=false;
+					l2s.add(temp);
+					l2c = l2c + temp.split(" ").length;
+				}
+			}
+		}
+		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l1), l1s,"\n");
+		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l2), l2s,"\n");
+		System.out.println(l1+":\t"+l1c);
+		System.out.println(l2+":\t"+l2c);
+		System.out.println(l1c+l2c);
+	}
+
 	private static List<SegPair> tmxiel2tmx(File inFile1) {
 		List<SegPair> segpairslist = new ArrayList<SegPair>();
 		List<SegPair> newsegpairslist = new ArrayList<SegPair>();
@@ -268,6 +1103,7 @@ public class TmxUtils {
 			}
 			boolean t1=false, t2=false; 
 			for (String t:ts){
+				t=t.trim();
 				if (t.startsWith("<seg>") && !t1 ){ //
 					ls1.add(ContentNormalizer.normalizeText(t.substring(5, t.length()-6)) );
 					t1=true;
@@ -325,6 +1161,7 @@ public class TmxUtils {
 					"", "","", "", "", "", ratio,"");
 			segpairslist.add(s);
 		}
+		//System.out.println("000");
 		return segpairslist;
 	}
 
@@ -395,33 +1232,33 @@ public class TmxUtils {
 		List<List<String>> tokedsegs = TMXHandlerUtils.getTokedSegs(segsl1, segsl2, lang1,lang2);
 		File l1file= new File(tmxFile.getAbsolutePath()+TOK_EXT+lang1);
 		LOGGER.info("Writing file "+ l1file.getAbsolutePath() + " for tokenized segments in "+lang1);
-		FileUtils.writeLines(l1file, tokedsegs.get(0));
+		FileUtils.writeLines(l1file, tokedsegs.get(0),"\n");
 		File l2file= new File(tmxFile.getAbsolutePath()+TOK_EXT+lang2);
 		LOGGER.info("Writing file "+ l2file.getAbsolutePath() + " for tokenized segments in "+lang2);
-		FileUtils.writeLines(l2file, tokedsegs.get(1));
+		FileUtils.writeLines(l2file, tokedsegs.get(1),"\n");
 
 		//--------------segments in 2 two text files (1 for each language)
 		l1file= new File(tmxFile.getAbsolutePath()+Constants.DOT+lang1);
 		LOGGER.info("Writing file "+ l1file.getAbsolutePath() + " for segments in "+lang1);
-		FileUtils.writeLines(l1file, segsl1);
+		FileUtils.writeLines(l1file, segsl1,"\n");
 		l2file= new File(tmxFile.getAbsolutePath()+Constants.DOT+lang2);
 		LOGGER.info("Writing file "+ l2file.getAbsolutePath() + " for segments in "+lang2);
-		FileUtils.writeLines(l2file, segsl2);
+		FileUtils.writeLines(l2file, segsl2,"\n");
 
 		//----------segments and props in a text file (tab separated)
 		File tsvFile = new File(tmxFile.getAbsolutePath()+Constants.DOT+LIST);
 		List<String> outLines = TMXHandlerUtils.getSegsAndProps(segs, lang1, lang2);
-		FileUtils.writeLines(tsvFile, outLines);
+		FileUtils.writeLines(tsvFile, outLines,"\n");
 
 		//------------Sample---------------------------
 		List<String> sampleSegs = TMXHandlerUtils.getSampleSegs(segs, samplesize);
 		File sampleFile = new File(tmxFile.getAbsolutePath()+SAMPLE+samplesize+TXT_EXT);
-		FileUtils.writeLines(sampleFile, sampleSegs);
+		FileUtils.writeLines(sampleFile, sampleSegs,"\n");
 
 		//---------------- Sites
 		List<String> sites = TMXHandlerUtils.getSitesFromSegPairs(segs, false);
 		File sitesFile = new File(tmxFile.getAbsolutePath()+SITES+samplesize+TXT_EXT);
-		FileUtils.writeLines(sitesFile, sites);
+		FileUtils.writeLines(sitesFile, sites,"\n");
 	}
 
 
@@ -453,14 +1290,14 @@ public class TmxUtils {
 				//	continue;
 				if (info.isEmpty()){	info =  mes2;}		else{	info =  info + " | "+mes2;}	
 			}
-			if (TMXHandlerUtils.checkemail(segpair.seg1) || TMXHandlerUtils.checkemail(segpair.seg2)){
+			if (TMXHandlerUtils.checkemail(segpair.seg1, 0.5) || TMXHandlerUtils.checkemail(segpair.seg2, 0.5)){
 				//if (clean)
 				//	continue;
 				//if (!keepem)
 				//	continue;
 				if (info.isEmpty()){	info =  mes8;}		else{	info =  info + " | "+mes8;}	
 			}
-			if (TMXHandlerUtils.checkurl(segpair.seg1) || TMXHandlerUtils.checkurl(segpair.seg2)){
+			if (TMXHandlerUtils.checkurl(segpair.seg1, 0.5) || TMXHandlerUtils.checkurl(segpair.seg2, 0.5)){
 				//if (clean)
 				//	continue;
 				//if (!keepem)
@@ -754,10 +1591,10 @@ public class TmxUtils {
 		}
 		File l1file= new File(tmxFile.getAbsolutePath()+PUNCT_STR+l1);
 		LOGGER.info("Writing file "+ l1file.getAbsolutePath() + " for segments in "+l1);
-		FileUtils.writeLines(l1file, l1segs);
+		FileUtils.writeLines(l1file, l1segs,"\n");
 		File l2file= new File(tmxFile.getAbsolutePath()+PUNCT_STR+l2);
 		LOGGER.info("Writing file "+ l2file.getAbsolutePath() + " for segments in "+l2);
-		FileUtils.writeLines(l2file, l2segs);
+		FileUtils.writeLines(l2file, l2segs,"\n");
 	}*/
 
 
@@ -790,7 +1627,7 @@ public class TmxUtils {
 		}
 		LOGGER.info("Writing file "+ evalFile.getAbsolutePath() + " with all results and information.");
 		FileUtils.write (evalFile, StringUtils.join(new String[] {"id", l1, l2, "alignerScore", "lengthRatio", "info" }, TAB_STR)+NEWLINE_STR, false);
-		FileUtils.writeLines(evalFile, outLines, true);
+		FileUtils.writeLines(evalFile, outLines, "\n",true);
 	}*/
 
 
@@ -799,11 +1636,11 @@ public class TmxUtils {
 	 * @param tmxfile
 	 * @param l1
 	 * @param l2
-	 *//*
+	 */
 
 	public static void tmx2txts(File tmxfile, String l1, String l2){
-		File l1File = new File(FilenameUtils.concat(tmxfile.getParent(),l1+textext));
-		File l2File = new File(FilenameUtils.concat(tmxfile.getParent(),l2+textext));
+		File l1File = new File(FilenameUtils.concat(tmxfile.getParent(),tmxfile.getName()+"."+l1+TXT_EXT));
+		File l2File = new File(FilenameUtils.concat(tmxfile.getParent(),tmxfile.getName()+"."+l2+TXT_EXT));
 		List<String> sourcesegs = new ArrayList<String>();
 		List<String> l1segs =  new ArrayList<String>();
 		List<String> targetsegs = new ArrayList<String>();
@@ -811,7 +1648,7 @@ public class TmxUtils {
 
 		Reader reader = null;
 		try {
-			reader = new InputStreamReader(new FileInputStream(tmxfile.getAbsolutePath()), UTF_8);
+			reader = new InputStreamReader(new FileInputStream(tmxfile.getAbsolutePath()), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			LOGGER.error("problem in reading due to encoding issue");
 			e.printStackTrace();
@@ -835,16 +1672,25 @@ public class TmxUtils {
 				l1segs.add(sourcesegs.get(0));
 			targetsegs = alignment.getTargetSegmentList();
 			if (targetsegs.size()>0)
-				l1segs.add(targetsegs.get(0));
+				l2segs.add(targetsegs.get(0));
 		}
 		try {
-			FileUtils.writeLines(l1File, l1segs);
-			FileUtils.writeLines(l2File, l2segs);
+			FileUtils.writeLines(l1File, l1segs,"\n");
+			FileUtils.writeLines(l2File, l2segs,"\n");
+			String res = FileUtils.readFileToString(l1File);
+			res = res.replaceAll("\r\n", "\n");
+			FileUtils.write(l1File, res);
+			res = FileUtils.readFileToString(l2File);
+			res = res.replaceAll("\r\n", "\n");
+			FileUtils.write(l2File, res);
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}*/
+
+
+	}
 
 
 }

@@ -238,12 +238,12 @@ public class TMXHandler {
 			public boolean accept(File arg0, String arg1) {
 				//return (arg1.endsWith(TMXEXT) & arg1.contains(ISOLangCodes.get3LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get3LetterCode(languages[1])));
 				//return (arg1.endsWith(TMXEXT) & arg1.contains(ISOLangCodes.get2LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get2LetterCode(languages[1])));
-				
+
 				return (arg1.endsWith(TMXEXT) && ( 
 						(arg1.contains(ISOLangCodes.get3LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get3LetterCode(languages[1])))
 						|| (arg1.contains(ISOLangCodes.get2LetterCode(languages[0])) & arg1.contains(ISOLangCodes.get2LetterCode(languages[1])))
 						));
-				
+
 			}
 		};
 		/*filter = new FilenameFilter() {			
@@ -268,7 +268,7 @@ public class TMXHandler {
 		for (int ii=startcoun;ii<endcoun;ii++){
 			types[ii] = Constants.UNDERSCORE+Character.toString(doctypes.charAt(ii-startcoun))+XMLEXT+TMXEXT;
 		}
-		
+
 		List<File> tmxfiles = new ArrayList<File>();
 		if (inputFile.isDirectory()){
 			List<File> tfs = FcFileUtils.listFiles(inputFile, filter,true);
@@ -386,7 +386,7 @@ public class TMXHandler {
 				bilingualCorpusInfo.setAvailability(UNKNOWN_STR);
 			if (oxslt) 
 				outHTML =  new File(baseName.getAbsolutePath() + HTML);
-			
+
 			//generateMergedTMX(outTMX, languages, bilingualCorpusInfo, outHTML);
 			generateMergedTMX(outTMX, langs, bilingualCorpusInfo, outHTML);
 
@@ -398,10 +398,10 @@ public class TMXHandler {
 			File samplefile = new File(baseName.getAbsolutePath() + SAMPLE);
 			LOGGER.info("Generating sample file " + samplefile.getAbsolutePath());
 			TMXHandlerUtils.generateSample(alignmentList, sampleSize, samplefile);
-			
+
 			try {
-				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITES), sites_all);
-				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITESN), sites_noannot);
+				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITES), sites_all,"\n");
+				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITESN), sites_noannot,"\n");
 			} catch (IOException e1) {
 				LOGGER.error("problem in writing lists of sites");
 				e1.printStackTrace();
@@ -560,7 +560,7 @@ public class TMXHandler {
 				}
 				String info="";
 				boolean addr=false;
-				if (TMXHandlerUtils.checkemail(segpair.seg1) || TMXHandlerUtils.checkemail(segpair.seg2)){
+				if (TMXHandlerUtils.checkemail(segpair.seg1, 0.5) || TMXHandlerUtils.checkemail(segpair.seg2, 0.5)){
 					addr=true;
 					if (clean){
 						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
@@ -572,7 +572,7 @@ public class TMXHandler {
 					}
 					if (info.isEmpty()){	info =  mes8;}		else{	info =  info + " | "+mes8;}	
 				}
-				if (TMXHandlerUtils.checkurl(segpair.seg1) || TMXHandlerUtils.checkurl(segpair.seg2)){
+				if (TMXHandlerUtils.checkurl(segpair.seg1, 0.5) || TMXHandlerUtils.checkurl(segpair.seg2, 0.5)){
 					addr=true;
 					if (clean){
 						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
@@ -681,6 +681,16 @@ public class TMXHandler {
 					segs.add(temp);
 				}
 				String normtemp = normS+Constants.TAB+normT;
+//------------------------------------
+				/*if (segpair.seg1.contains("(") || segpair.seg1.contains(")") || segpair.seg2.contains("(") || segpair.seg2.contains(")")
+						|| segpair.seg1.contains("[") || segpair.seg1.contains("]") || segpair.seg2.contains("[") || segpair.seg2.contains("]")){
+					if (clean){
+						LOGGER.debug(segpair.seg1+ "\t"+segpair.seg2);
+						continue;
+					}
+				}*/
+//----------------------------------------------------
+
 				if (!normS.isEmpty() && !normT.isEmpty() && !normS.equals(normT) && normsegs.contains(normtemp) && !dup){
 					if (clean && !keepneardup){
 						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
@@ -709,7 +719,7 @@ public class TMXHandler {
 					}else*/
 					normsegs.add(normtemp);
 				}
-				
+
 				//System.out.println(segpair.seg1+"\t"+ContentNormalizer.leaveSymbols(segpair.seg1));
 				//System.out.println(segpair.seg2+"\t"+ContentNormalizer.leaveSymbols(segpair.seg2));
 
