@@ -319,7 +319,7 @@ public class GetTMXsubset {
 			//	continue;
 			//}
 			String info="";
-			if (TMXHandlerUtils.checkemail(segpair.seg1) || TMXHandlerUtils.checkemail(segpair.seg2)){
+			if (TMXHandlerUtils.checkemail(segpair.seg1, 0.5) || TMXHandlerUtils.checkemail(segpair.seg2, 0.5)){
 				if (clean){
 					logger.info("CUT:\t"+segpair.seg1+"\t"+segpair.seg2);
 					continue;
@@ -327,7 +327,7 @@ public class GetTMXsubset {
 				if (!keepem)
 					continue;	
 			}
-			if (TMXHandlerUtils.checkurl(segpair.seg1) || TMXHandlerUtils.checkurl(segpair.seg2)){
+			if (TMXHandlerUtils.checkurl(segpair.seg1, 0.5) || TMXHandlerUtils.checkurl(segpair.seg2, 0.5)){
 				if (clean){
 					logger.info("CUT:\t"+segpair.seg1+"\t"+segpair.seg2);
 					continue;
