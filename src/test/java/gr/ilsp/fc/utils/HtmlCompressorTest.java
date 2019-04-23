@@ -27,7 +27,7 @@ public class HtmlCompressorTest {
 	public void testCompress() {
 		logger.info("HtmlCompression of a web page...");
 		
-		HtmlCompressor compressor = new HtmlCompressor();
+		/*HtmlCompressor compressor = new HtmlCompressor();
 		compressor.setGenerateStatistics(true);
 		String html = null;
 		String urlstr = "http://nlp.ilsp.gr/xslt/ilspds-fc/1210.xml.html";
@@ -45,7 +45,7 @@ public class HtmlCompressorTest {
         "Compression time: %,d ms, Original size: %,d Kbytes, Compressed size: %,d Kbytes", 
         compressor.getStatistics().getTime(), 
         compressor.getStatistics().getOriginalMetrics().getFilesize()/1024,  
-        compressor.getStatistics().getCompressedMetrics().getFilesize()/1024 ));
+        compressor.getStatistics().getCompressedMetrics().getFilesize()/1024 ));*/
 		
 	}
 

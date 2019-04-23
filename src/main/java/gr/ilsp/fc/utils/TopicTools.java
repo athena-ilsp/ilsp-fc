@@ -31,7 +31,6 @@ public class TopicTools {
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	private static final String XML_EXTENSION = ".xml";
 
-
 	/**
 	 * Returns the stems of the text (in language) based on a naive analyzer of this language
 	 * @param text
@@ -253,15 +252,11 @@ public class TopicTools {
 		if (!topicFile.exists())
 			return null;
 
-		//BufferedReader in;
-		//try {
-		//in = new BufferedReader(new InputStreamReader(new FileInputStream(topicFile.getAbsolutePath()), "UTF-8"));
-		String  a, b, c, d, b_or = Constants.EMPTY_STRING; 
+		String a, b, c, d, b_or = Constants.EMPTY_STRING;
 		List<String> topiclines;
 		try {
 			topiclines = FileUtils.readLines(new File(topicFile.getAbsolutePath()));
 			for (String str:topiclines) {
-				//System.out.println(str);
 				// Do not bother with commented out or empty lines
 				if (skipLineM.reset(str).matches()) 
 					continue;
@@ -321,20 +316,6 @@ public class TopicTools {
 			LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
 			e.printStackTrace();
 		}
-
-		//while ((str = in.readLine()) != null) {
-
-		//in.close();
-		//} catch (UnsupportedEncodingException e) {
-		//	LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
-		//	e.printStackTrace();
-		//} catch (FileNotFoundException e) {
-		//	LOGGER.warn("File "+ topicFile.getAbsolutePath()+ " does not exist.");
-		//	e.printStackTrace();
-		//} catch (IOException e) {
-		//	LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
-		//	e.printStackTrace();
-		//}
 		System.out.println("-----------------------");
 		return topicterms;
 	}
