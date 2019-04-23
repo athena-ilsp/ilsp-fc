@@ -240,7 +240,7 @@ public class MorphAdornerSentenceSplitter extends SentenceSplitter {
 	}
 
 	private boolean isTokenNotToBeSplit(String string) {
-		//logger.info(string +  " " + abbreviationMatcher.reset(string).matches() );
+		//logger.info(string + Constants.SPACE + abbreviationMatcher.reset(string).matches() );
 		return 
 				abbreviationMatcher.reset(string).matches() 	
 				|| 

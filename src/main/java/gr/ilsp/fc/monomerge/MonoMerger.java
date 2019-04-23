@@ -213,7 +213,7 @@ public class MonoMerger {
 	 * Selects the cesDoc files (in the targeted language) in the targeted directory or the list of the targeted directories. 
 	 * @return
 	 */
-	private static List<File> selectCesDocFiles(File inputFile, String language) {
+	public static List<File> selectCesDocFiles(File inputFile, String language) {
 		
 		List<File> xmlfiles = new ArrayList<File>();
 		if (inputFile.isDirectory())

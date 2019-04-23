@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 //import java.util.UUID;
 
+
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -322,12 +323,6 @@ public class Run {
 			tmxmerge=true;
 		}
 		
-		/*File [] files = run_options.getOutputFile().getParentFile().listFiles();
-		for (File file:files){
-			if (file.getName().endsWith(".txt"))
-				file.delete();	
-		}*/
-		
 		//constructs monolingual corpora 
 		if (operations.contains(MONO_MERGE_operation)){
 			LOGGER.info("---------------------------------------------------");
@@ -338,6 +333,7 @@ public class Run {
 				mm.setTargetDir(exp.getOutputDir());
 			else
 				mm.setTargetDir(run_options.getInputDir());
+			LOGGER.info("Targeted files are in "+ mm.getTargetDir());
 			mm.setCC(run_options.getCC());
 			mm.setUserTopic(run_options.getUserTopic());
 			SentenceSplitterFactory sentenceSplitterFactory = new SentenceSplitterFactory();
@@ -349,10 +345,30 @@ public class Run {
 				mm.setLanguage(lang);
 				mm.setBaseName(new File(run_options.getBaseName()+Constants.UNDERSCORE+lang));
 				mm.setSentenceSplitter(sentenceSplitterFactory.getSentenceSplitter(lang));
+				List<File> infiles = MonoMerger.selectCesDocFiles(mm.getTargetDir(), lang);
+				if (infiles.isEmpty()){
+					LOGGER.info("No files of language "+ lang + " in targeted directory");
+					continue;
+				}
+				mm.setInFiles(infiles);
 				mm.merge();
 			}
-			monomerge=true;
+			monomerge=true;	
 		}
+		if (crawl)
+			LOGGER.info("Crawling done");
+		if (export)
+			LOGGER.info("Export done");
+		if (dedup)
+			LOGGER.info("(near)Deduplication done");
+		if (pairdetect)
+			LOGGER.info("Pair Detection done");
+		if (align)
+			LOGGER.info("Alignment Detection done");
+		if (monomerge)
+			LOGGER.info("Generation of monolingual corpora done");
+		if (tmxmerge)
+			LOGGER.info("Generation of parallel corpora done");
 	}
 
 	/**

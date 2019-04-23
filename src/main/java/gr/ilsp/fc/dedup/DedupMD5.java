@@ -48,8 +48,7 @@ public class DedupMD5 {
 		if (files.size()<2){
 			LOGGER.info("The input list contains less than 2 files.");
 			return;
-		}
-		else
+		}else
 			LOGGER.info(files.size()+" files will be processed.");
 		
 		long start = System.currentTimeMillis();

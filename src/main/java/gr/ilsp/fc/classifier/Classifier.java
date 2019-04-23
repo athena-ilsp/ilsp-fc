@@ -222,8 +222,11 @@ public class Classifier implements Serializable{
 	 * @param isContent
 	 * @return
 	 */
-	public static Double[][] rankText(String str, String language, double w,ArrayList<String[]> topic, String[] classes, boolean isContent){
+	public static Double[][] rankText(String inputstr, String language, double w,ArrayList<String[]> topic, String[] classes, boolean isContent){
 		int uniqueTermsFound = 0;
+		
+		String str = inputstr.replaceAll("[^\\p{L} ]", Constants.SPACE).trim();
+		
 		//stem the input str
 		ArrayList<String> stems =new ArrayList<String>();
 		try {
@@ -243,7 +246,8 @@ public class Classifier implements Serializable{
 			scores[ii][0] = 0.0;	scores[ii][1] = 0.0;
 		}		
 		scores[classes.length][0]=0.0;  scores[classes.length][1]=0.0;
-		if (words_num==0.0) return scores;
+		if (words_num==0.0)
+			return scores;
 
 		String[] tempstr = new String[1];		String term, term_class, term_lang;
 		double weight=0, matches, term_score; 
@@ -282,7 +286,7 @@ public class Classifier implements Serializable{
 				//get the subclass of the term
 				term_class = tempstr[2];
 				if (term_class.contains(";")){
-					String[] term_classes = term_class.split(";");
+					String[] term_classes = term_class.split(Constants.SEMICOLON);
 					int term_classes_amount = term_classes.length;
 					for (int mm=0;mm<term_classes_amount;mm++){
 						index = Arrays.binarySearch(classes, term_classes[mm]);
@@ -411,7 +415,7 @@ public class Classifier implements Serializable{
 		boolean result = false;
 		if  (_targetlangKeys[m].isEmpty())
 			return result;
-		String[] keys= _targetlangKeys[m].split(",");
+		String[] keys= _targetlangKeys[m].split(Constants.COMMA);
 		String[] words= text.toLowerCase().split(Constants.SPACE);
 		if (words.length>10)
 			return result;
