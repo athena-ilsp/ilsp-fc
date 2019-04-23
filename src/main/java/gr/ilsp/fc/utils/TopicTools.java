@@ -7,13 +7,8 @@ import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.nlp.commons.Constants;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -35,7 +30,7 @@ public class TopicTools {
 	//private static int MAX_CONTENT_TERMS = Crawler.config.getInt("classifier.min_content_terms.value");
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	private static final String XML_EXTENSION = ".xml";
-	private static final String  COLON =" : ";
+
 
 	/**
 	 * Returns the stems of the text (in language) based on a naive analyzer of this language
@@ -188,8 +183,8 @@ public class TopicTools {
 			term_lang=tempstr[3];
 			if (!term_lang.equals(lang))
 				continue;
-			Pattern pattern = Pattern.compile(" "+term+" ");	
-			Matcher matcher = pattern.matcher(" "+par_text+" ");
+			Pattern pattern = Pattern.compile(Constants.SPACE+term+Constants.SPACE);	
+			Matcher matcher = pattern.matcher(Constants.SPACE+par_text+Constants.SPACE);
 			if (matcher.find() & weight>0){
 				found=found+Constants.SEMICOLON+tempstr[4];
 			}
@@ -225,7 +220,7 @@ public class TopicTools {
 								continue;
 							}
 						}
-						corpus = corpus+attrs[jj]+COLON+texts[jj]+"\n";
+						corpus = corpus+attrs[jj]+Constants.COLON +texts[jj]+"\n";
 						pars.add(texts[jj]);
 					}
 				}else{
@@ -251,6 +246,7 @@ public class TopicTools {
 	 * @param langs
 	 */
 	public static ArrayList<String[]> analyzeTopic(File topicFile, String[] targetlanguages ) {		
+		System.out.println("------------TOPIC TERMS-----------");
 		ArrayList<String[]> topicterms = new ArrayList<String[]>();
 		if (topicFile==null)
 			return null;
@@ -260,7 +256,7 @@ public class TopicTools {
 		//BufferedReader in;
 		//try {
 		//in = new BufferedReader(new InputStreamReader(new FileInputStream(topicFile.getAbsolutePath()), "UTF-8"));
-		String  a, b, c, d, b_or=Constants.EMPTY_STRING; 
+		String  a, b, c, d, b_or = Constants.EMPTY_STRING; 
 		List<String> topiclines;
 		try {
 			topiclines = FileUtils.readLines(new File(topicFile.getAbsolutePath()));
@@ -269,8 +265,8 @@ public class TopicTools {
 				// Do not bother with commented out or empty lines
 				if (skipLineM.reset(str).matches()) 
 					continue;
-				a=str.subSequence(0, str.indexOf(":")).toString().trim();
-				b=str.subSequence(str.indexOf(":")+1, str.indexOf("=")).toString().toLowerCase().trim();
+				a=str.subSequence(0, str.indexOf(Constants.COLON)).toString().trim();
+				b=str.subSequence(str.indexOf(Constants.COLON)+1, str.indexOf("=")).toString().toLowerCase().trim();
 				b_or=b;
 
 				int ind=str.indexOf(">");
@@ -315,8 +311,11 @@ public class TopicTools {
 						topicterms.add(new String[] {a,b,c,LangDetectUtils.updateLanguages(d,true),b_or});
 					}
 				}
-				if (flag)
-					topicterms.add(new String[] {a,b,c,LangDetectUtils.updateLanguages(d,true),b_or});
+				if (flag){
+					String l = LangDetectUtils.updateLanguages(d,true);
+					topicterms.add(new String[] {a,b,c,l,b_or});
+					LOGGER.info(a + Constants.TAB + b + Constants.TAB + c + Constants.TAB + l + Constants.TAB + b_or);
+				}
 			}
 		} catch (IOException e) {
 			LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
@@ -336,6 +335,7 @@ public class TopicTools {
 		//	LOGGER.warn("Problem in reading "+ topicFile.getAbsolutePath());
 		//	e.printStackTrace();
 		//}
+		System.out.println("-----------------------");
 		return topicterms;
 	}
 
@@ -399,7 +399,7 @@ public class TopicTools {
 
 					b="";
 					//concatenate stems
-					for (String s:stems){ b=b.concat(" "+s);}
+					for (String s:stems){ b=b.concat(Constants.SPACE+s);}
 					b = b.trim();
 					if (ind>=0)
 						c=str.subSequence(str.indexOf("=")+1, str.indexOf(">")).toString().trim();
