@@ -213,9 +213,9 @@ public class MalignaAligner extends Aligner {
 	private Writer getSingleWriter(File outFile) throws UnsupportedEncodingException, FileNotFoundException {
 		Writer writer;
 		if (outFile!=null) {
-			writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile),"UTF-8"), true);
+			writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile),Constants.UTF8), true);
 		} else {
-			writer = new PrintWriter(new OutputStreamWriter((System.out),"UTF-8"), true);
+			writer = new PrintWriter(new OutputStreamWriter((System.out),Constants.UTF8), true);
 		}
 		return writer;
 	}

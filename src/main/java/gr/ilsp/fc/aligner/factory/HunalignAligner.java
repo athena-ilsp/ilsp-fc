@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import gr.ilsp.nlp.commons.Constants;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -146,7 +147,7 @@ public class HunalignAligner extends Aligner {
 	 * and an AlignmentStats instance
 	 */
 	public Object[] hunalignOutputToAlignmentList(File hunalignfile, List<String> slSents, List<String> tlSents) throws IOException{
-		List<String> content=FileUtils.readLines(hunalignfile);
+		List<String> content=FileUtils.readLines(hunalignfile,Constants.UTF8);
 
 		//logger.info(hunalignfile.getAbsolutePath());
 		//logger.info(content.toString());
@@ -209,7 +210,7 @@ public class HunalignAligner extends Aligner {
                  InputStreamReader(p.getErrorStream()));
             // read the output from the command
             while ((s = stdInput.readLine()) != null) {
-            	FileUtils.write(outFile, s+"\n", true);
+            	FileUtils.write(outFile, s+"\n", Constants.UTF8, true);
             }
             // read any errors from the attempted command
             while ((s = stdError.readLine()) != null) {
@@ -260,9 +261,9 @@ public class HunalignAligner extends Aligner {
 	private Writer getSingleWriter(File outFile) throws UnsupportedEncodingException, FileNotFoundException {
 		Writer writer;
 		if (outFile!=null) {
-			writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile),"UTF-8"), true);
+			writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile),Constants.UTF8), true);
 		} else {
-			writer = new PrintWriter(new OutputStreamWriter((System.out),"UTF-8"), true);
+			writer = new PrintWriter(new OutputStreamWriter((System.out),Constants.UTF8), true);
 		}
 		return writer;
 	}

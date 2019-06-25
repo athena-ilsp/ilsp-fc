@@ -6,7 +6,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -18,7 +18,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.List;
-
+import gr.ilsp.nlp.commons.Constants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -209,7 +209,8 @@ public class IOtools{
 	 */
 	public static boolean writeToFile(String fName, StringBuffer sb){
 		try{
-			BufferedWriter out=new BufferedWriter(new FileWriter(fName));
+			//BufferedWriter out=new BufferedWriter(new FileWriter(fName));
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fName),Constants.UTF8));
 			out.write(sb.toString());
 			out.flush();
 			out.close();
@@ -228,7 +229,8 @@ public class IOtools{
 		for(String str:lstr)
 			sb.append(str+System.getProperty("line.separator"));
 		try{
-			BufferedWriter out=new BufferedWriter(new FileWriter(fName));
+			//BufferedWriter out=new BufferedWriter(new FileWriter(fName));
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fName),Constants.UTF8));
 			out.write(sb.toString().trim());
 			out.flush();
 			out.close();
@@ -384,14 +386,14 @@ public class IOtools{
 
 	public static void tmxTOhtml(String inFile, String outFile) {
 		try {
-			Source xmlSource = new StreamSource(new FileInputStream(inFile), "UTF-8");					
-			Source xsltSource = new StreamSource(new URL("http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl").openStream(), "UTF-8");
+			Source xmlSource = new StreamSource(new FileInputStream(inFile), Constants.UTF8);					
+			Source xsltSource = new StreamSource(new URL("http://nlp.ilsp.gr/xslt/ilsp-fc/tmx2html.xsl").openStream(), Constants.UTF8);
 			TransformerFactory transFact = 
 					//TransformerFactory.newInstance();
 					new net.sf.saxon.TransformerFactoryImpl();
 			Transformer transformer = transFact.newTransformer(xsltSource);
-			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-			OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8");
+			transformer.setOutputProperty(OutputKeys.ENCODING, Constants.UTF8);
+			OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(outFile), Constants.UTF8);
 			transformer.transform(xmlSource, new StreamResult(out));
 		} catch (TransformerConfigurationException e) {
 			e.printStackTrace();

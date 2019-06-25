@@ -128,7 +128,7 @@ public abstract class Aligner {
 				return;
 			}else{
 				try {
-					lines = FileUtils.readLines(cesAlignList);
+					lines = FileUtils.readLines(cesAlignList,Constants.UTF8);
 				} catch (IOException e) {
 					logger.error("problem in reading the file " +cesAlignList.getAbsolutePath() +" list of detected pairs");
 					e.printStackTrace();
@@ -268,7 +268,7 @@ public abstract class Aligner {
 
 		PrintWriter tmxWriter;
 		try {
-			tmxWriter = new PrintWriter(outputTMXList, "UTF-8");
+			tmxWriter = new PrintWriter(outputTMXList, Constants.UTF8);
 			tmxWriter.print(tmxContent.toString());
 			tmxWriter.close();
 		} catch (FileNotFoundException e) {
@@ -403,7 +403,7 @@ public abstract class Aligner {
 		String runpath="";
 		String path = CrawlerUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		try {
-			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
+			File decodedPath = new File(URLDecoder.decode(path, Constants.UTF8));
 			runpath= decodedPath.getParent();
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
