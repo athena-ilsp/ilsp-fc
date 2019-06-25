@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import gr.ilsp.nlp.commons.Constants;
 import org.apache.commons.io.FileUtils;
 
 public class WriteResources {
@@ -19,7 +19,7 @@ public class WriteResources {
 			lines.add(xmlFile.getAbsolutePath().replace("\\","/"));
 		}
 		try {
-			FileUtils.writeLines(outputFile, lines,"\n");
+			FileUtils.writeLines(outputFile, Constants.UTF8, lines,"\n");
 		} catch (IOException e) {
 			System.err.println("problem in writing file "+ outputFile.getAbsolutePath());
 			e.printStackTrace();
@@ -45,7 +45,7 @@ public class WriteResources {
 			}
 			lines.add("</html>");
 			try {
-				FileUtils.writeLines(outputFileHTML, lines,"\n");
+				FileUtils.writeLines(outputFileHTML, Constants.UTF8, lines,"\n");
 			} catch (IOException e) {
 				System.err.println("problem in writing file "+ outputFileHTML.getAbsolutePath());
 				e.printStackTrace();

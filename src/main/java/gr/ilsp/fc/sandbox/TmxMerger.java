@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ public class TmxMerger {
 	public void mergeTmxFiles(File tmxFileList, File mergedFile) throws IOException {
 		List<File> tmxFiles = new ArrayList<File>();
 		logger.info("Parsing " + tmxFileList.getAbsolutePath()); 
-		for (String tmxLine : FileUtils.readLines(tmxFileList)) {
+		for (String tmxLine : FileUtils.readLines(tmxFileList, Constants.UTF8)) {
 			tmxFiles.add(new File(tmxLine.trim()));
 		}
 		mergeTmxFiles(tmxFiles, mergedFile);

@@ -4,6 +4,8 @@ package gr.ilsp.fc.sandbox;
  * 
  */
 
+import gr.ilsp.nlp.commons.Constants;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -36,7 +38,7 @@ public abstract class AbstractScanner {
 
 	private Options options;
 
-	private String inputEnc = "UTF-8";
+	private String inputEnc = Constants.UTF8;
 
 	private File inputDir = null;
 
@@ -56,7 +58,7 @@ public abstract class AbstractScanner {
 		options = new Options();		
 
 		options.addOption(new Option("h", "help", false, "help"));
-		options.addOption(new Option("ie", "inputEnc", true, "Input encoding (default is " + inputEnc + ")"));
+		options.addOption(new Option("ie", "inputEnc", true, "Input encoding (default is " + Constants.UTF8 + ")"));
 		
 		Option inputDirOp = new Option("id", "inputDir", true, "Input dir (default is " + inputDir + ")");
 		inputDirOp.setRequired(true);		

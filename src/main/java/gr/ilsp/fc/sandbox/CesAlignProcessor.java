@@ -122,14 +122,14 @@ public class CesAlignProcessor extends AbstractScanner {
 					paragraphs.add(pElement.getTextContent().trim());
 				}
 			}
-			FileUtils.writeLines(txtFile, paragraphs,"\n");
+			FileUtils.writeLines(txtFile, Constants.UTF8, paragraphs,"\n");
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			logger.error(e.getMessage());
 		}
 	}
 
 //	private void runAligner(List<File> inputFiles, File cesAlignList, File outputTMXList, File outputHTMLTMXList, String[] langs) throws IOException {
-//		FileUtils.writeLines(cesAlignList, inputFiles,"\n");
+//		FileUtils.writeLines(cesAlignList, Constants.UTF8, inputFiles,"\n");
 //		AlignerFactory alignerFactory = new AlignerFactory();
 //		Aligner aligner = alignerFactory.getAligner("maligna");
 //		Properties properties = new Properties();
@@ -151,9 +151,9 @@ public class CesAlignProcessor extends AbstractScanner {
 		int l2id =1 ;
 		DocumentBuilder dBuilder;
 		dBuilder = dbFactory.newDocumentBuilder();
-		FileUtils.write(allL1Segments, null);
-		FileUtils.write(allL2Segments, null);
-		FileUtils.write(malignaCorpus, null);
+		FileUtils.write(allL1Segments, null, Constants.UTF8);
+		FileUtils.write(allL2Segments, null, Constants.UTF8);
+		FileUtils.write(malignaCorpus, null, Constants.UTF8);
 		for (File cesAlignFile: cesAlignFiles) {
 
 			Document cesAligndoc = dBuilder.parse(cesAlignFile);
@@ -233,7 +233,7 @@ public class CesAlignProcessor extends AbstractScanner {
 									l2File.getAbsolutePath() + "\t" +
 									l1Text + "\t" + l2Text + "\t" + 
 									score + "\t"+
-									cesAlignFile.getAbsolutePath() + "\n"	), true);
+									cesAlignFile.getAbsolutePath() + "\n"), Constants.UTF8, true);
 				} else {
 					logger.debug("Skipping tu of length " + tuvNodesLength+"");
 				}
@@ -245,19 +245,19 @@ public class CesAlignProcessor extends AbstractScanner {
 			//			<eAddress>http://tourism.hanko.fi/kavelyreitit-luonnossa/</eAddress>
 			//			<language iso639="fi"/>
 
-			FileUtils.write(allL1Segments, "<aligFile>" + cesAlignFile.getAbsolutePath() + "</aligFile>\n", true);
-			FileUtils.write(allL1Segments, "<file>" + l1File.getAbsolutePath() + "</file>\n", true);
-			FileUtils.write(allL1Segments, "<setting>fc-all</setting>\n", true);
-			FileUtils.write(allL1Segments, "<eAddress>"+ eAddress1+"</eAddress>\n", true);
-			FileUtils.write(allL1Segments, "<language iso639=\""+ L1 + "\"/>\n", true);
-			FileUtils.writeLines(allL1Segments, l1segments, "\n", true);
+			FileUtils.write(allL1Segments, "<aligFile>" + cesAlignFile.getAbsolutePath() + "</aligFile>\n", Constants.UTF8, true);
+			FileUtils.write(allL1Segments, "<file>" + l1File.getAbsolutePath() + "</file>\n", Constants.UTF8, true);
+			FileUtils.write(allL1Segments, "<setting>fc-all</setting>\n", Constants.UTF8, true);
+			FileUtils.write(allL1Segments, "<eAddress>"+ eAddress1+"</eAddress>\n", Constants.UTF8, true);
+			FileUtils.write(allL1Segments, "<language iso639=\""+ L1 + "\"/>\n", Constants.UTF8, true);
+			FileUtils.writeLines(allL1Segments, Constants.UTF8, l1segments, "\n", true);
 
-			FileUtils.write(allL2Segments, "<aligFile>" + cesAlignFile.getAbsolutePath()+ "</aligFile>\n", true);
-			FileUtils.write(allL2Segments, "<file>" + l2File.getAbsolutePath() + "</file>\n", true);
-			FileUtils.write(allL2Segments, "<setting>fc-all</setting>\n", true);
-			FileUtils.write(allL2Segments, "<eAddress>"+ eAddress2+"</eAddress>\n", true);
-			FileUtils.write(allL2Segments, "<language iso639=\""+ L2 + "\"/>\n", true);
-			FileUtils.writeLines(allL2Segments, l2segments, "\n", true);
+			FileUtils.write(allL2Segments, "<aligFile>" + cesAlignFile.getAbsolutePath()+ "</aligFile>\n", Constants.UTF8, true);
+			FileUtils.write(allL2Segments, "<file>" + l2File.getAbsolutePath() + "</file>\n", Constants.UTF8, true);
+			FileUtils.write(allL2Segments, "<setting>fc-all</setting>\n", Constants.UTF8, true);
+			FileUtils.write(allL2Segments, "<eAddress>"+ eAddress2+"</eAddress>\n", Constants.UTF8, true);
+			FileUtils.write(allL2Segments, "<language iso639=\""+ L2 + "\"/>\n", Constants.UTF8, true);
+			FileUtils.writeLines(allL2Segments, Constants.UTF8, l2segments, "\n", true);
 			
 		}
 	}

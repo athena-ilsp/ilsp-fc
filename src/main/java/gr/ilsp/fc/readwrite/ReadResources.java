@@ -407,7 +407,7 @@ public class ReadResources {
 		//checks BOM
 		byte[] bts;
 		try {
-			bts = line.getBytes("UTF-8");
+			bts = line.getBytes(Constants.UTF8);
 			if (bts[0] == (byte) 0xEF && bts[1] == (byte) 0xBB && bts[2]==(byte) 0xBF) {
 				byte[] bts2 = new byte[bts.length-3];
 				for (int i = 3; i<bts.length;i++)
