@@ -66,7 +66,7 @@ public class ChineseSentenceSplitter extends SentenceSplitter {
 
 		int lastCh = -1;
 		for (Character c : content) {
-			// EncodingPrintWriter.out.println("Char is |" + c + "|", "UTF-8");
+			// EncodingPrintWriter.out.println("Char is |" + c + "|", Constants.UTF8);
 			String newChar = c.toString();
 
 			if (sentenceEnd == false) {
@@ -76,7 +76,7 @@ public class ChineseSentenceSplitter extends SentenceSplitter {
 					sentenceString += newChar;
 					sentenceEnd = true;
 				} else if ( ! segmented && fullStopsSet.contains(c)) {
-					// EncodingPrintWriter.out.println("  End of sent char", "UTF-8");
+					// EncodingPrintWriter.out.println("  End of sent char", Constants.UTF8);
 					sentenceString += newChar;
 					sentenceEnd = true;
 				} else {
@@ -85,11 +85,11 @@ public class ChineseSentenceSplitter extends SentenceSplitter {
 			} else { // sentenceEnd == true
 				if (rightMarkSet.contains(c)) {
 					sentenceString += newChar;
-					// EncodingPrintWriter.out.println("  Right mark char", "UTF-8");
+					// EncodingPrintWriter.out.println("  Right mark char", Constants.UTF8);
 				} else if (newChar.matches("\\s")) {
 					sentenceString += newChar;
 				} else if (fullStopsSet.contains(c)) {
-					// EncodingPrintWriter.out.println("  End of sent char (2+)", "UTF-8");
+					// EncodingPrintWriter.out.println("  End of sent char (2+)", Constants.UTF8);
 					sentenceString += newChar;
 				} else { // otherwise
 					if (sentenceString.length() > 0) {

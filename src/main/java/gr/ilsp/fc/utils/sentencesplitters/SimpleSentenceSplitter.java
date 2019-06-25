@@ -126,7 +126,7 @@ public class SimpleSentenceSplitter extends SentenceSplitter {
         
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("nbabbrs_and_inits.txt");
 		try {
-			List<String> lines = IOUtils.readLines(inputStream, "UTF-8");
+			List<String> lines = IOUtils.readLines(inputStream, Constants.UTF8);
 			for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
 				honorifics.add(iterator.next().trim());
 			}

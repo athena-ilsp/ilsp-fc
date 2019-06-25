@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import gr.ilsp.nlp.commons.Constants;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 public class SentenceSplitterFactory {
 
-	private static final String UTF_8 = "UTF-8";
 	private static final String SUFFIX = ".txt";
 	private static final String PREFIX = "-abbrs-";
 	private static final String NBABBR_STR = "=0";
@@ -75,7 +74,7 @@ public class SentenceSplitterFactory {
 				}
 			}
 			File tempFile = File.createTempFile(lang + PREFIX, SUFFIX);
-			FileUtils.writeLines(tempFile, UTF_8, abbrs,"\n"); 
+			FileUtils.writeLines(tempFile, Constants.UTF8, abbrs,"\n"); 
 			tempFile.deleteOnExit();
 			return tempFile.toURI().toURL();
 		} catch (IOException e) {
