@@ -5,6 +5,7 @@ import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -77,7 +78,7 @@ public class CrawlUtils {
 			TupleEntryCollector writer = urlSink.openForWrite(conf);
 			//SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
 			ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
-			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
+			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),Constants.UTF8));
 			String line = "";
 			List<String> seedUrls = new ArrayList<String>();
 			int linecounter=0;
@@ -138,7 +139,7 @@ public class CrawlUtils {
 			//SimpleUrlNormalizer normalizer = new SimpleUrlNormalizer();
 			ILSPFCUrlNormalizer normalizer = new ILSPFCUrlNormalizer();
 			//CrawlDbDatum datum = new CrawlDbDatum(normalizer.normalize("http://" + targetDomain), 0, 0, UrlStatus.UNFETCHED, 0,0.0);
-			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),"utf8"));
+			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(urls),Constants.UTF8));
 			String line = "";
 			//UrlValidator urlValidator = new UrlValidator(UrlValidator.NO_FRAGMENTS);
 			List<String> seedUrls = new ArrayList<String>();
@@ -202,7 +203,7 @@ public class CrawlUtils {
 		}
 		csvtext = csvtext+logpair;
 		try {
-			FileUtils.writeStringToFile(csvfile, csvtext);
+			FileUtils.writeStringToFile(csvfile, csvtext, Constants.UTF8);
 		} catch (IOException e) {
 			LOGGER.error("problem in writing the file "+csvfile.getAbsolutePath());
 			e.printStackTrace();
@@ -212,7 +213,7 @@ public class CrawlUtils {
 	/*private static String addSeeds(String csvtext, File seedFile) {
 		List<String> urlLines;
 		try {
-			urlLines = FileUtils.readLines(seedFile);
+			urlLines = FileUtils.readLines(seedFile,Constants.UTF8);
 			for (String urlLine:urlLines){
 				if (skipLineM.reset(urlLine).matches()) 
 					continue;
@@ -263,7 +264,7 @@ public class CrawlUtils {
 		String runpath="";
 		String path = CrawlUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		try {
-			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
+			File decodedPath = new File(URLDecoder.decode(path, Constants.UTF8));
 			runpath= decodedPath.getParent();
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

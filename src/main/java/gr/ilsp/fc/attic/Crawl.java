@@ -2,6 +2,7 @@ package gr.ilsp.fc.attic;
 
 import gr.ilsp.fc.aligner.factory.Aligner;
 import gr.ilsp.fc.aligner.factory.AlignerFactory;
+import gr.ilsp.nlp.commons.Constants;
 import gr.ilsp.fc.bitext.BitextUtils;
 import gr.ilsp.fc.bitext.BitextsTranslationLinks;
 import gr.ilsp.fc.bitext.PairDetector;
@@ -778,13 +779,13 @@ public class Crawl {
 					if (outputListFile==null)
 						continue;
 					if (outputListFile.exists() && outputListFile.canWrite()) {
-						List<String> lines = FileUtils.readLines(outputListFile);
+						List<String> lines = FileUtils.readLines(outputListFile,Constants.UTF8);
 						List<String> newLines = new ArrayList<>();
 						for (String line: lines) {
 							line = line.replace(match, replacement);
 							newLines.add(line);
 						}
-						FileUtils.writeLines(outputListFile, newLines, "\n");
+						FileUtils.writeLines(outputListFile, Constants.UTF8, newLines, "\n");
 					}
 				}
 				File[] allfiles= outputDir.listFiles();
@@ -792,14 +793,14 @@ public class Crawl {
 					String curfilename=allfiles[ii].getName();
 					if (curfilename.endsWith(XML_EXTENSION) && curfilename.contains(UNDERSCORE_STR)) {
 						File curFile =  new File(allfiles[ii].getAbsolutePath());
-						List<String> lines = FileUtils.readLines(curFile);
+						List<String> lines = FileUtils.readLines(curFile,Constants.UTF8);
 						List<String> newLines = new ArrayList<>();
 						for (String line: lines) {
 							//line = line.replace(match, replacement);
 							line = line.replace(match, "");
 							newLines.add(line);
 						}
-						FileUtils.writeLines(curFile, newLines, "\n");
+						FileUtils.writeLines(curFile, Constants.UTF8, newLines, "\n");
 					}
 				}
 			} catch (IOException e) {
@@ -834,7 +835,7 @@ public class Crawl {
 		String runpath="";
 		String path = Crawler.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		try {
-			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
+			File decodedPath = new File(URLDecoder.decode(path, Constants.UTF8));
 			runpath= decodedPath.getParent();
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

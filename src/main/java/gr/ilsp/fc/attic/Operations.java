@@ -6,7 +6,7 @@ import gr.ilsp.fc.dedup.Deduplicator;
 import gr.ilsp.fc.exporter.Exporter;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.tmxhandler.TMXHandler;
-
+import gr.ilsp.nlp.commons.Constants;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -137,7 +137,7 @@ public class Operations {
 						cesAlignList.add(file.getAbsolutePath());
 					}
 				}
-				FileUtils.writeLines(docpairsFile, cesAlignList, "\n");
+				FileUtils.writeLines(docpairsFile, Constants.UTF8, cesAlignList, "\n");
 				//aligner.processCesAlignList(docpairsFile, docpairsFile, options.getOutputFileHTMLTMX(),options.isOfflineXSLT(), options.useISO6393());
 				aligner.processCesAlignList(docpairsFile, options.getBaseName().getAbsolutePath(), options.isOfflineXSLT(), options.useISO6393());
 			} catch (IOException e) {
