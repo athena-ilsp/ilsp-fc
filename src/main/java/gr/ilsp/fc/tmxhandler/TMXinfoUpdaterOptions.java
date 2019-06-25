@@ -90,7 +90,7 @@ public class TMXinfoUpdaterOptions {
 			//	_maxTULenRatio = Double.parseDouble(cmdline.getOptionValue("maxlr"));
 			if(cmdline.hasOption( "psi")){
 				try {
-					 List<String> lines= FileUtils.readLines(new File(cmdline.getOptionValue("psi")));
+					 List<String> lines= FileUtils.readLines(new File(cmdline.getOptionValue("psi")), Constants.UTF8);
 					for (String line:lines){
 						String[] info = line.toLowerCase().split(Constants.TAB);
 						//System.out.println(line);

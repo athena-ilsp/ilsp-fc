@@ -730,7 +730,7 @@ public class TMXHandlerUtils {
 	public static List<SegPair>  udpateTMX_psi(File tmxFile, File psiInfo, String lang1, String lang2, boolean lic){
 		Map<String, String> psi = new HashMap<String, String>();
 		try {
-			List<String> temp = FileUtils.readLines(psiInfo);
+			List<String> temp = FileUtils.readLines(psiInfo, Constants.UTF8);
 			for (String line:temp){
 				String[] lineparts = line.trim().split(Constants.SPACE);
 				psi.put(lineparts[0], lineparts[1].toLowerCase());
@@ -930,7 +930,7 @@ public class TMXHandlerUtils {
 			sampleList.add(a);
 		}
 		try {
-			FileUtils.writeLines(samplefile, sample,"\n");
+			FileUtils.writeLines(samplefile, Constants.UTF8, sample,"\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing the sample file "+ samplefile.getAbsolutePath());
 			e.printStackTrace();
@@ -957,7 +957,7 @@ public class TMXHandlerUtils {
 			sampleList.add(a);
 		}
 		try {
-			FileUtils.writeLines(samplefile, sample,"\n");
+			FileUtils.writeLines(samplefile, Constants.UTF8, sample,"\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing the sample file "+ samplefile.getAbsolutePath());
 			e.printStackTrace();
@@ -1097,14 +1097,14 @@ public class TMXHandlerUtils {
 		List<String> res = getLangPart(alignmentList, true);
 		File filelang1 = new File(baseName.getAbsolutePath() + Constants.DOT+ ISOLangCodes.get2LetterCode(languages[0]));
 		try {
-			FileUtils.writeLines(filelang1, res,"\n");
+			FileUtils.writeLines(filelang1, Constants.UTF8, res,"\n");
 		} catch (IOException e) {
 			LOGGER.warn("problem in writing "+ filelang1);
 		}
 		res = getLangPart(alignmentList, false);
 		File filelang2 = new File(baseName.getAbsolutePath() + Constants.DOT+ ISOLangCodes.get2LetterCode(languages[1]));
 		try {
-			FileUtils.writeLines(filelang2, res,"\n");
+			FileUtils.writeLines(filelang2, Constants.UTF8, res,"\n");
 		} catch (IOException e) {
 			LOGGER.warn("problem in writing "+ filelang2);
 		}

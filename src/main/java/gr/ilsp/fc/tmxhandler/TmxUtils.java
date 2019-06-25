@@ -5,10 +5,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -73,11 +74,40 @@ public class TmxUtils {
 
 	public static void main(String[] args) throws Exception{  //throws Exception
 
-		process2305(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/2305-2315/source/aligned/culture-C-all-sk-en-aligned.txt"), "sk", "en");
+		/*tmx2txts2(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/Ministarstvo poljoprivrede HR-EN_final.tmx.UTF-8"), "en", "hr");
+		tmx2txts2(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/Regionalno HR-EN_final.tmx.UTF-8"), "hr", "en");
+		System.exit(0);*/
+		
+		/*cleanTXTs(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts"));
+		System.exit(0);*/
+		
+		File fffile1 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Regionalno_part2/txt/Regionalno HR-EN_final.tmx.UTF-8.en.cl_2");
+		File fffile2 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Regionalno_part2/txt/Regionalno HR-EN_final.tmx.UTF-8.hr.cl_2");
+		File fffile3 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Regionalno_part2/Regionalno HR-EN_final.tmx.UTF-8.en.cl.p2");
+		List<SegPair> fpairs = txts2tmx(fffile1, fffile2);
+		List<ILSPAlignment> faalignments = segpair2ILSPAlignment(fpairs);
+		String[] fllangs1 = new String[2]; fllangs1[0] = "en"; fllangs1[1] = "hr";
+		generateCorpus(faalignments, fllangs1, "", new File(fffile3.getAbsolutePath()+ "_u.tmx"),"", "", "");
 		System.exit(0);
 		
-		String[] targetedLangs = {"en", "nb", "et", "cs", "da", "fi", "hu", "nl", "sv", "el", "bg", "ro", "sl", "pl", "pt", "de", "es", "fr", "it" };
 		
+	
+		
+		
+
+		File ffile = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/si.program-podezelja/en-sl.clean1.15.tsv");
+		String llang1 = "en", llang2 = "sl";
+		laserout2txts(ffile, llang1, llang2);
+		File file1 = new File(ffile.getAbsolutePath()+"."+llang1);
+		File file2 = new File(ffile.getAbsolutePath()+"."+llang2);
+		List<SegPair> pairs = txts2tmx(file1, file2);
+		List<ILSPAlignment> aalignments = segpair2ILSPAlignment(pairs);
+		String[] llangs1 = new String[2]; llangs1[0] = llang1; llangs1[1] = llang2;
+		generateCorpus(aalignments, llangs1, "", new File(ffile.getAbsolutePath()+ "_u.tmx"),"", "", "");
+		System.exit(0);
+
+		String[] targetedLangs = {"en", "nb", "et", "cs", "da", "fi", "hu", "nl", "sv", "el", "bg", "ro", "sl", "pl", "pt", "de", "es", "fr", "it" };
+
 		langDetector = LangDetectUtils.loadLangDetectors(targetedLangs,"langdetect");
 
 		parseWikimedia(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/wikimedia/sources/cx-corpora.en2nb.text.tmx"), "en", "nb");
@@ -109,8 +139,8 @@ public class TmxUtils {
 		File f1 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_1775/en_terms.txt");
 		File f2 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_1775/sl_terms.txt");
 		File f3 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_1775/en-sl_terms.txt");
-		List<String> l1 = FileUtils.readLines(f1);
-		List<String> l2 = FileUtils.readLines(f2);
+		List<String> l1 = FileUtils.readLines(f1, Constants.UTF8);
+		List<String> l2 = FileUtils.readLines(f2, Constants.UTF8);
 		List<String> l3 = new ArrayList<String>();
 		if (l1.size()!=l2.size()){
 			System.out.println("check list size");
@@ -142,7 +172,7 @@ public class TmxUtils {
 			l3.add(t);
 		}
 
-		FileUtils.writeLines(f3, l3,"\n");
+		FileUtils.writeLines(f3, Constants.UTF8, l3,"\n");
 		System.exit(0);
 
 		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/_1997-en-fr/eng-fra.tmx"), "eng", "fra");
@@ -157,48 +187,6 @@ public class TmxUtils {
 		List<ILSPAlignment> alignments = segpair2ILSPAlignment(segpairslist1);
 		generateCorpus(alignments, langs1, "", new File(FilenameUtils.concat(infile.getAbsolutePath(), "_g.tmx")),"", "", "");
 		System.exit(0);
-
-
-
-
-		/*		List<String> aaa = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/_1993-en-es/_g.tmx"));
-		List<String> bbb = new ArrayList<String>();
-		for (String line:aaa){
-			if (line.contains("type=\"info\"><")){
-				line="";
-			}
-			if (line.contains("type=\"l1-url\"><")){
-				line="";
-			}
-			if (line.contains("type=\"l2-url\"><")){
-				line="";
-			}
-			if (line.contains("type=\"license\"><")){
-				line="";
-			}
-			if (line.contains("type=\"score\"><")){
-				line="";
-			}
-			if (line.contains("type=\"type\"><")){
-				line="";
-			}
-			if (!line.isEmpty())
-				bbb.add(line);
-		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/_1993-en-es/_g1.tmx"), bbb,"\n");
-		System.exit(0);*/
-
-
-		//List<SegPair> segpairs1 = tmx2tmx(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_790-834/source/eng-pol.tmx"));
-
-		//List<SegPair> segpairs1=xlif2tmx(infile);
-
-
-
-
-
-
-
 
 		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/dan-eng.tmx"), "eng", "dan");
 		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/pgv-non-ilsp-region/pgv/deu-eng.tmx"), "eng", "deu");
@@ -226,16 +214,6 @@ public class TmxUtils {
 		tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_1160-1166/eng-ron_corpus.tmx"), "en", "ro");
 		System.exit(0);
 
-
-
-
-		//tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_710-821/821.en-hr.tmx"), "en", "hr");
-		processTatoeba(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/tatoeba/_1028/tatoeba.org.2018.en-fr.tmx"), "en", "fr");
-		System.exit(0);
-		process988(); //from "dirty" ILSP-like tmx to clean ILSP-like tmx
-		System.exit(0);
-
-
 		File infilea = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_790-834/source/eng-pol.tmx");
 		List<SegPair> segpairs1a = tmx2tmx(infilea);
 		List<ILSPAlignment> alignmentsa = segpair2ILSPAlignment(segpairs1a);
@@ -243,14 +221,11 @@ public class TmxUtils {
 		generateCorpus(alignmentsa, langs1a, "", new File(FilenameUtils.concat(infilea.getAbsolutePath(), "_g.tmx")),"", "", "");
 		System.exit(0);
 
+		List<String> el1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_462-954/processed/results-attributes/ceval/ell-eng_corpus.el"), Constants.UTF8);
+		List<String> en1 =FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_462-954/processed/results-attributes/ceval/ell-eng_corpus.en"), Constants.UTF8);
 
-
-
-		List<String> el1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_462-954/processed/results-attributes/ceval/ell-eng_corpus.el"));
-		List<String> en1 =FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_462-954/processed/results-attributes/ceval/ell-eng_corpus.en"));
-
-		List<String> el2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_719-941/processed/results-attributes/ceval/_g.tmx.el"));
-		List<String> en2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_719-941/processed/results-attributes/ceval/_g.tmx.en"));
+		List<String> el2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_719-941/processed/results-attributes/ceval/_g.tmx.el"), Constants.UTF8);
+		List<String> en2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_719-941/processed/results-attributes/ceval/_g.tmx.en"), Constants.UTF8);
 		int count=0;
 		for (int ii=0;ii<el2.size();ii++){
 			String el = el2.get(ii);
@@ -266,30 +241,12 @@ public class TmxUtils {
 
 		System.exit(0);
 
-
-
-
-
-
-		/*File infile = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/D-2-1/514/output_www-hcr-hr_eng-hr_eng-hrv.tmx");
-		String[] langs1 = new String[2];
-		langs1[0] = "en"; langs1[1] = "hr";
-		String domain1="", creationModeDescription1="", organization1="", lic1="";
-		process514(infile, langs1, domain1, creationModeDescription1, organization1, lic1);
-		System.exit(0);*/
-
-		/*tmx2txts1(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/D-2-1/514/output_www-hcr-hr_eng-hr_eng-hrv.tmx"), "en", "hr"); 
-		System.exit(0);
-
-		tmx2txts1(new File("C:/Users/vpapa/ELRC/subcontracts/archive (2)/BoG_TM_Recent Publications.tmx"), "el", "en");
-		System.exit(0);*/
-
 		tmx2txts2(new File("C:/Users/vpapa/ELRC/subcontracts/691__en-pl_cleared/source/NFZ_tm.tmx"), "pl", "en");
 		System.exit(0);
 
 
 		File filet = new File("C:/Users/vpapa/ELRC/tld/pl/crawls/www-paih-gov-pl/new-tmxmerge_new_www-paih-gov-pl_eng-pol_sample_en.txt");
-		List<String> samples3 = FileUtils.readLines(filet);
+		List<String> samples3 = FileUtils.readLines(filet, Constants.UTF8);
 		List<String> newsamples = new ArrayList<String>();
 		int countert=1;
 		for (String sample:samples3){
@@ -297,30 +254,15 @@ public class TmxUtils {
 			countert++;
 			newsamples.add(sample);
 		}
-		FileUtils.writeLines(filet, newsamples,"\n");
-		System.exit(0);
-
-		String tpath = "C:/Users/vpapa/ELRC/tld/pl/crawls/www-paih-gov-pl/";
-		String nsamples= "new-tmxmerge_new_www-paih-gov-pl_eng-pol_sample.csv";
-		File tsamples= new File(FilenameUtils.concat(tpath, nsamples));
-		List<String> samples = FileUtils.readLines(tsamples);
-		List<String> samples1 = new ArrayList<String>();
-		List<String> samples2 = new ArrayList<String>();
-		for (String sample:samples){
-			String[] parts = sample.split("\t");
-			samples1.add(parts[0]);
-			samples2.add(parts[1]);
-		}
-		FileUtils.writeLines(new File(tsamples.getAbsolutePath()+"_1"), samples1,"\n");
-		FileUtils.writeLines(new File(tsamples.getAbsolutePath()+"_2"), samples2,"\n");
+		FileUtils.writeLines(filet, Constants.UTF8, newsamples,"\n");
 		System.exit(0);
 
 		String[] pllangs = new String[1];
 		pllangs[0]="pl";
 		int counterfalselang=0;
 		LangDetector langDetector = LangDetectUtils.loadLangDetectors(pllangs,"langdetect");
-		List<String> enlines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/www-paih-gov-pl/new-tmxmerge_new_www-paih-gov-pl_eng-pol.en"));
-		//List<String> enlines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/tld_en-pl_tld_en-pl_eng-pol.en"));
+		List<String> enlines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/www-paih-gov-pl/new-tmxmerge_new_www-paih-gov-pl_eng-pol.en"), Constants.UTF8);
+		//List<String> enlines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/tld_en-pl_tld_en-pl_eng-pol.en"), Constants.UTF8);
 		List<String> langfalses = new ArrayList<String>();
 		for (int ii=0;ii<enlines.size();ii++){
 			/*String lang = langDetector.detect(pllines.get(ii));
@@ -338,7 +280,7 @@ public class TmxUtils {
 			}
 		}
 		System.out.println(counterfalselang);
-		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/www-paih-gov-pl/en.langfalses"), langfalses,"\n");
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/www-paih-gov-pl/en.langfalses"), Constants.UTF8, langfalses,"\n");
 		System.exit(0);
 
 		String line2;
@@ -373,7 +315,7 @@ public class TmxUtils {
 			if (!sites.contains(temphost2))
 				sites.add(temphost2);
 		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/152/source/sites.txt"), sites,"\n");
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/152/source/sites.txt"), Constants.UTF8, sites,"\n");
 		System.exit(0);
 
 
@@ -467,7 +409,7 @@ public class TmxUtils {
 		System.exit(0);
 
 
-		List<String> wholetmx = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/webcorpus_v1_ILSP-FC_eng-hrv.tmx"));
+		List<String> wholetmx = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/webcorpus_v1_ILSP-FC_eng-hrv.tmx"), Constants.UTF8);
 		int counter=0;
 		for (String line:wholetmx){
 			if (line.contains("<info><"))
@@ -490,11 +432,11 @@ public class TmxUtils {
 		}
 		System.exit(0);
 
-		List<String> res1_el =   FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt1_ILSP-FC_ell-eng.el"));
-		List<String> res1_en =   FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt1_ILSP-FC_ell-eng.en"));
-		List<String> res04_el =  FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt04_ILSP-FC_ell-eng.el"));
-		List<String> res04_en =  FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt04_ILSP-FC_ell-eng.en"));
-		//List<String> res1_all =  FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt04_ILSP-FC_ell-eng.en"));
+		List<String> res1_el =   FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt1_ILSP-FC_ell-eng.el"), Constants.UTF8);
+		List<String> res1_en =   FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt1_ILSP-FC_ell-eng.en"), Constants.UTF8);
+		List<String> res04_el =  FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt04_ILSP-FC_ell-eng.el"), Constants.UTF8);
+		List<String> res04_en =  FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt04_ILSP-FC_ell-eng.en"), Constants.UTF8);
+		//List<String> res1_all =  FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-EL/ejustice/resfilt04_ILSP-FC_ell-eng.en"), Constants.UTF8);
 
 
 		for (int ii=0;ii<res1_el.size();ii++){
@@ -507,7 +449,7 @@ public class TmxUtils {
 
 		List<String> websites = null;
 		try {
-			websites = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-HR/total_run/output_NEWALIGN_ILSP-FC_eng-hrv.sites.txt"));
+			websites = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-HR/total_run/output_NEWALIGN_ILSP-FC_eng-hrv.sites.txt"), Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -574,7 +516,7 @@ public class TmxUtils {
 		System.exit(0);*/
 
 
-		/*List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/190/TELECOMMUNICATIONS AND BROADBAND/merged.txt"), "UTF-8");
+		/*List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/190/TELECOMMUNICATIONS AND BROADBAND/merged.txt"), Constants.UTF8);
 		List<String> bg_lines = new ArrayList<String>();
 		List<String> en_lines = new ArrayList<String>();
 
@@ -585,8 +527,8 @@ public class TmxUtils {
 			bg_lines.add(ContentNormalizer.normalizeText(temp[0]));
 			en_lines.add(ContentNormalizer.normalizeText(temp[1]));
 		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/190/TELECOMMUNICATIONS AND BROADBAND/merged_bg.txt"), bg_lines,"\n");
-		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/190/TELECOMMUNICATIONS AND BROADBAND/merged_en.txt"), en_lines,"\n");
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/190/TELECOMMUNICATIONS AND BROADBAND/merged_bg.txt"), Constants.UTF8, bg_lines,"\n");
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/190/TELECOMMUNICATIONS AND BROADBAND/merged_en.txt"), Constants.UTF8, en_lines,"\n");
 		System.exit(0);*/
 
 		File inFile1 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_226/Convention against torture");
@@ -647,11 +589,171 @@ public class TmxUtils {
 			LOGGER.info("No proper TUs found.");
 		}
 
+
+		//tmx2txts(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_710-821/821.en-hr.tmx"), "en", "hr");
+		processTatoeba(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/tatoeba/_1028/tatoeba.org.2018.en-fr.tmx"), "en", "fr");
+		System.exit(0);
+		process988(); //from "dirty" ILSP-like tmx to clean ILSP-like tmx
+		System.exit(0);
+
+		process2333( new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/2333-/2333_.txt"));
+		System.exit(0);
+
+		process1803(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_1803-1957-1958/processed/IER-Banking.tbx"), "en", "ro");
+		System.exit(0);
+
+		process2305(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/2305-2315/source/aligned/culture-C-all-sk-en-aligned.txt"), "sk", "en");
+		System.exit(0);
+	}
+
+
+	private static void cleanTXTs(File indir) throws IOException {
+
+		String a = "<bpt", b = "</bpt>", c = "<ept", d = "</ept>", e="&lt;JUMP&gt;", f ="<ph", g = "</ph>" ;
+		File[] files = indir.listFiles();
+		for (File file:files){
+			List<String> lines = FileUtils.readLines(file);
+			
+			List<String> newlines = new ArrayList<String>();
+			String text="";
+			int ind1, ind2, jj=-1;
+			for (String line:lines){
+				jj++;
+				line = line.replaceAll(e, " ");
+				String temp = line;
+				for (int ii=1;ii<1000;ii++){
+					ind1 = temp.indexOf(a);
+					ind2 = temp.indexOf(b);
+					if (ind1<ind2 && ind1>=0 &&ind2>=0){
+						temp = temp.substring(0, ind1)+ temp.substring(ind2+b.length());
+						temp = temp.trim();
+					
+					}else{
+						break;
+					}
+				}
+				for (int ii=1;ii<1000;ii++){
+					ind1 = temp.indexOf(c);
+					ind2 = temp.indexOf(d);
+					if (ind1<ind2 && ind1>=0 &&ind2>=0){
+						temp = temp.substring(0, ind1)+ temp.substring(ind2+d.length());
+						temp = temp.trim();
+					}else{
+						break;
+					}
+				}
+				for (int ii=1;ii<1000;ii++){
+					ind1 = temp.indexOf(f);
+					ind2 = temp.indexOf(g);
+					if (ind1<ind2 && ind1>=0 &&ind2>=0){
+						temp = temp.substring(0, ind1)+ temp.substring(ind2+g.length());
+						temp = temp.trim();
+					}else{
+						break;
+					}
+				}
+				text = temp.replaceAll("\t", Constants.SPACE);
+				text = text.replaceAll("(\\s){2,}", Constants.SPACE);
+				System.out.println(line);
+				System.out.println(text);
+				newlines.add(text);
+			}
+			System.out.println(lines.size());
+			System.out.println(newlines.size());
+			FileUtils.writeLines(new File(file.getAbsolutePath()+".cl"), newlines, "\n");
+		}
+	}
+
+
+	private static void process2333(File infile1) throws IOException {
+		List<String> entries = FileUtils.readLines(infile1, Constants.UTF8);
+		List<String> res=  new ArrayList<String>();
+		//int count11=0;
+		for (String entry:entries){
+			if (entry.contains("̶") )
+				continue;
+			String[] temp = entry.split("\t");
+			temp[0] = temp[0].replaceAll("\\(.*\\)", "").trim();
+			temp[0]  = temp[0] .replaceAll("(\\s){2,}", Constants.SPACE);
+			temp[1] = temp[1].replaceAll("\\(.*\\)", "").trim();
+			temp[1]  = temp[1] .replaceAll("(\\s){2,}", Constants.SPACE);
+			String hr = temp[0].trim();
+			String en = temp[1].trim();
+			String[] hrl = hr.split(";");
+			String[] enl = en.split(";");
+			List<String> hrs = Arrays.asList(hrl);
+			List<String> ens = Arrays.asList(enl);
+
+			for (int ii=0;ii<hrs.size();ii++){
+				String t =hrs.get(ii).trim(); 
+				if (t.length()>3){
+					if (ens.contains(t))
+						continue;
+					for (int jj=0;jj<ens.size();jj++){
+						String tt = ens.get(jj).trim();
+						if (tt.length()>3){
+							if (!t.equals(tt)){
+								String aa = t+"\t"+tt;
+								if (!res.contains(aa)){
+									res.add(aa);
+								}
+							}
+						}
+					}
+				}
+			}
+
+		}
+		//System.out.println(count11);
+		FileUtils.writeLines(new File(infile1.getAbsolutePath()+".ready"), Constants.UTF8, res, "\n");
+		System.exit(0);
+
+
+	}
+
+
+	private static void laserout2txts(File file, String lang1, String lang2) throws IOException {
+		List<String> lines = FileUtils.readLines(file, Constants.UTF8);
+		List<String> l1 = new ArrayList<String>();
+		List<String> l2 = new ArrayList<String>();
+		for (String line:lines){
+			String[] temp = line.split("\t");
+			l1.add(temp[1].trim());
+			l2.add(temp[2].trim());
+		}
+		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+lang1), Constants.UTF8, l1, "\n");
+		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+lang2), Constants.UTF8, l2, "\n");
+	}
+
+
+	private static void process1803(File file, String l1, String l2) throws IOException {
+		List<String> lines = FileUtils.readLines(file, Constants.UTF8);
+		List<String> res = new ArrayList<String>(); 
+		String t1 = "<langSet xml:lang=\""+l1+"\">";
+		String t2 = "<langSet xml:lang=\""+l2+"\">";
+		String start = "<langSet xml:lang="; 
+		boolean found = true;
+		for (String line:lines){
+
+			if (line.contains(start)){
+				if (!line.contains(t1) && !line.contains(t2)){
+					found =false;
+				}else{
+					found = true;
+					res.add(line);
+				}
+			}else{
+				if (found){
+					res.add(line);
+				}
+			}
+		}
+		FileUtils.writeLines(new File(file.getAbsolutePath()+".bil"), Constants.UTF8, res, "\n");
 	}
 
 
 	private static void process2305(File file, String lang1, String lang2) throws Exception {
-		List<String> lines = FileUtils.readLines(file);
+		List<String> lines = FileUtils.readLines(file, Constants.UTF8);
 		List<String> lines1 = new ArrayList<String>();
 		List<String> lines2 = new ArrayList<String>();
 		for (String line:lines){
@@ -661,25 +763,27 @@ public class TmxUtils {
 		}
 		File file1 = new File(file.getAbsolutePath()+"."+lang1);
 		File file2 = new File(file.getAbsolutePath()+"."+lang2);
-		FileUtils.writeLines(file1, lines1);
-		FileUtils.writeLines(file2, lines2);
-		
+		FileUtils.writeLines(file1, Constants.UTF8, lines1, "\n");
+		FileUtils.writeLines(file2, Constants.UTF8, lines2, "\n");
+
 		List<SegPair> segpairslist = txts2tmx(file1, file2);
 		List<ILSPAlignment> als = segpair2ILSPAlignment(segpairslist);
 
 		String[] langs1a = new String[2]; langs1a[0]=lang1; langs1a[1] = lang2;
 		generateCorpus(als, langs1a, "", new File(file.getAbsolutePath()+".tmx"),"", "", "");
-		
+
 	}
 
 
 	private static void parseWikimedia(File infile, String l1, String l2) throws IOException {
-		BufferedWriter out1= new BufferedWriter(new FileWriter(new File(infile.getAbsolutePath()+".log"))); 
+		//BufferedWriter out1= new BufferedWriter(new FileWriter(new File(infile.getAbsolutePath()+".log"))); 
+		BufferedWriter out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(infile.getAbsolutePath()+".log"),Constants.UTF8));
+
 		LOGGER.info("-------\t"+infile.getName()+"\t----------");
 		List<String> lines=  FileUtils.readLines(infile, Constants.UTF8);
 		List<String> lines1= new ArrayList<String>();
 		List<String> lines2= new ArrayList<String>();
-		
+
 		int id1 = 0, id2 = 0;
 		int totalcounter = 0, paircounter=0;
 		boolean found1 = false, found2 = false, tufound=false;
@@ -808,10 +912,10 @@ public class TmxUtils {
 			for (int ii=0;ii<lines1.size();ii++){
 				lines3.add(lines1.get(ii)+Constants.TAB+lines2.get(ii));
 			}
-			FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+l1+"-"+l2), lines3,"\n");
+			FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+l1+"-"+l2), Constants.UTF8, lines3,"\n");
 		}
-		FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+l1), lines1,"\n");	
-		FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+l2), lines2,"\n");
+		FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+l1), Constants.UTF8, lines1,"\n");	
+		FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+l2), Constants.UTF8, lines2,"\n");
 		LOGGER.info("total TUs:\t"+ totalcounter);
 		LOGGER.info("valid TUs:\t"+ paircounter);
 		LOGGER.info("passed TUs:\t"+ lines2.size());
@@ -819,7 +923,7 @@ public class TmxUtils {
 
 
 	private static void processTatoeba(File file, String lang1, String lang2) throws Exception {
-		List<String> lines = FileUtils.readLines(file);
+		List<String> lines = FileUtils.readLines(file, Constants.UTF8);
 		List<String> l1s = new ArrayList<String>();
 		List<String> l2s = new ArrayList<String>();
 		List<String> totalls = new ArrayList<String>();
@@ -869,8 +973,8 @@ public class TmxUtils {
 		File out=new File(file.getAbsolutePath()+".list");
 		File out1=new File(out.getAbsolutePath()+".1");
 		File out2=new File(out.getAbsolutePath()+".2");
-		FileUtils.writeLines(out, totalls,"\n");
-		lines = FileUtils.readLines(out);
+		FileUtils.writeLines(out, Constants.UTF8, totalls,"\n");
+		lines = FileUtils.readLines(out, Constants.UTF8);
 		List<String> l1list = new ArrayList<String>();
 		List<String> l2list = new ArrayList<String>();
 		for (String line:lines){
@@ -878,8 +982,8 @@ public class TmxUtils {
 			l1list.add(parts[0]);
 			l2list.add(parts[1]);
 		}
-		FileUtils.writeLines(out1, l1list,"\n");
-		FileUtils.writeLines(out2, l2list,"\n");
+		FileUtils.writeLines(out1, Constants.UTF8, l1list,"\n");
+		FileUtils.writeLines(out2, Constants.UTF8, l2list,"\n");
 		List<SegPair> segpairslist = txts2tmx(out1, out2);
 		List<ILSPAlignment> als = segpair2ILSPAlignment(segpairslist);
 
@@ -889,7 +993,7 @@ public class TmxUtils {
 
 
 	private static void tmx2txts2(File file, String l1, String l2) throws IOException {
-		List<String> lines = FileUtils.readLines(file);
+		List<String> lines = FileUtils.readLines(file, Constants.UTF8);
 		List<String> l1s = new ArrayList<String>();
 		List<String> l2s = new ArrayList<String>();
 		boolean t1=false;
@@ -909,8 +1013,8 @@ public class TmxUtils {
 			else
 				l1s.add(line.substring(5, line.length()-6));
 		}
-		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l1), l1s,"\n");
-		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l2), l2s,"\n");
+		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l1), Constants.UTF8, l1s,"\n");
+		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l2), Constants.UTF8, l2s,"\n");
 	}
 
 
@@ -1026,7 +1130,7 @@ public class TmxUtils {
 	}
 
 	private static void tmx2txts1(File file, String l1, String l2) throws IOException {
-		List<String> lines = FileUtils.readLines(file);
+		List<String> lines = FileUtils.readLines(file, Constants.UTF8);
 		List<String> l1s = new ArrayList<String>();
 		List<String> l2s = new ArrayList<String>();
 		boolean t1=false;
@@ -1056,8 +1160,8 @@ public class TmxUtils {
 				}
 			}
 		}
-		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l1), l1s,"\n");
-		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l2), l2s,"\n");
+		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l1), Constants.UTF8, l1s,"\n");
+		FileUtils.writeLines(new File(file.getAbsolutePath()+"."+l2), Constants.UTF8, l2s,"\n");
 		System.out.println(l1+":\t"+l1c);
 		System.out.println(l2+":\t"+l2c);
 		System.out.println(l1c+l2c);
@@ -1097,7 +1201,7 @@ public class TmxUtils {
 		for (File tmx:tmxs){
 			List<String> ts = null;
 			try {
-				ts = FileUtils.readLines(tmx, "UTF-8");
+				ts = FileUtils.readLines(tmx, Constants.UTF8);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -1166,8 +1270,12 @@ public class TmxUtils {
 	}
 
 	private static List<SegPair> txts2tmx(File inFile1, File inFile2) throws Exception{
-		List<String> ls1 = FileUtils.readLines(inFile1);
-		List<String> ls2 = FileUtils.readLines(inFile2);
+		List<String> ls1 = FileUtils.readLines(inFile1, Constants.UTF8);
+		List<String> ls2 = FileUtils.readLines(inFile2, Constants.UTF8);
+		if (ls1.size()!=ls2.size()){
+			LOGGER.error("now equal nums of sens");
+			return null;
+		}
 		List<SegPair> segpairslist = new ArrayList<SegPair>();
 		for (int ii=0;ii<ls1.size();ii++){
 			String seg1 = ContentNormalizer.normalizeText(ls1.get(ii));
@@ -1183,7 +1291,7 @@ public class TmxUtils {
 	}
 
 	private static List<SegPair> txt2tmx(File infile, String sep) throws Exception{
-		List<String> segpairs = FileUtils.readLines(infile);
+		List<String> segpairs = FileUtils.readLines(infile, Constants.UTF8);
 		List<SegPair> segpairslist = new ArrayList<SegPair>();
 		for (String segpair:segpairs){
 			String[] temp = segpair.split(sep);
@@ -1232,33 +1340,33 @@ public class TmxUtils {
 		List<List<String>> tokedsegs = TMXHandlerUtils.getTokedSegs(segsl1, segsl2, lang1,lang2);
 		File l1file= new File(tmxFile.getAbsolutePath()+TOK_EXT+lang1);
 		LOGGER.info("Writing file "+ l1file.getAbsolutePath() + " for tokenized segments in "+lang1);
-		FileUtils.writeLines(l1file, tokedsegs.get(0),"\n");
+		FileUtils.writeLines(l1file, Constants.UTF8, tokedsegs.get(0),"\n");
 		File l2file= new File(tmxFile.getAbsolutePath()+TOK_EXT+lang2);
 		LOGGER.info("Writing file "+ l2file.getAbsolutePath() + " for tokenized segments in "+lang2);
-		FileUtils.writeLines(l2file, tokedsegs.get(1),"\n");
+		FileUtils.writeLines(l2file, Constants.UTF8, tokedsegs.get(1),"\n");
 
 		//--------------segments in 2 two text files (1 for each language)
 		l1file= new File(tmxFile.getAbsolutePath()+Constants.DOT+lang1);
 		LOGGER.info("Writing file "+ l1file.getAbsolutePath() + " for segments in "+lang1);
-		FileUtils.writeLines(l1file, segsl1,"\n");
+		FileUtils.writeLines(l1file, Constants.UTF8, segsl1,"\n");
 		l2file= new File(tmxFile.getAbsolutePath()+Constants.DOT+lang2);
 		LOGGER.info("Writing file "+ l2file.getAbsolutePath() + " for segments in "+lang2);
-		FileUtils.writeLines(l2file, segsl2,"\n");
+		FileUtils.writeLines(l2file, Constants.UTF8, segsl2,"\n");
 
 		//----------segments and props in a text file (tab separated)
 		File tsvFile = new File(tmxFile.getAbsolutePath()+Constants.DOT+LIST);
 		List<String> outLines = TMXHandlerUtils.getSegsAndProps(segs, lang1, lang2);
-		FileUtils.writeLines(tsvFile, outLines,"\n");
+		FileUtils.writeLines(tsvFile, Constants.UTF8, outLines,"\n");
 
 		//------------Sample---------------------------
 		List<String> sampleSegs = TMXHandlerUtils.getSampleSegs(segs, samplesize);
 		File sampleFile = new File(tmxFile.getAbsolutePath()+SAMPLE+samplesize+TXT_EXT);
-		FileUtils.writeLines(sampleFile, sampleSegs,"\n");
+		FileUtils.writeLines(sampleFile, Constants.UTF8, sampleSegs,"\n");
 
 		//---------------- Sites
 		List<String> sites = TMXHandlerUtils.getSitesFromSegPairs(segs, false);
 		File sitesFile = new File(tmxFile.getAbsolutePath()+SITES+samplesize+TXT_EXT);
-		FileUtils.writeLines(sitesFile, sites,"\n");
+		FileUtils.writeLines(sitesFile, Constants.UTF8, sites,"\n");
 	}
 
 
@@ -1591,10 +1699,10 @@ public class TmxUtils {
 		}
 		File l1file= new File(tmxFile.getAbsolutePath()+PUNCT_STR+l1);
 		LOGGER.info("Writing file "+ l1file.getAbsolutePath() + " for segments in "+l1);
-		FileUtils.writeLines(l1file, l1segs,"\n");
+		FileUtils.writeLines(l1file, Constants.UTF8, l1segs,"\n");
 		File l2file= new File(tmxFile.getAbsolutePath()+PUNCT_STR+l2);
 		LOGGER.info("Writing file "+ l2file.getAbsolutePath() + " for segments in "+l2);
-		FileUtils.writeLines(l2file, l2segs,"\n");
+		FileUtils.writeLines(l2file, Constants.UTF8, l2segs,"\n");
 	}*/
 
 
@@ -1627,7 +1735,7 @@ public class TmxUtils {
 		}
 		LOGGER.info("Writing file "+ evalFile.getAbsolutePath() + " with all results and information.");
 		FileUtils.write (evalFile, StringUtils.join(new String[] {"id", l1, l2, "alignerScore", "lengthRatio", "info" }, TAB_STR)+NEWLINE_STR, false);
-		FileUtils.writeLines(evalFile, outLines, "\n",true);
+		FileUtils.writeLines(evalFile, Constants.UTF8, outLines, "\n",true);
 	}*/
 
 
@@ -1648,7 +1756,7 @@ public class TmxUtils {
 
 		Reader reader = null;
 		try {
-			reader = new InputStreamReader(new FileInputStream(tmxfile.getAbsolutePath()), "UTF-8");
+			reader = new InputStreamReader(new FileInputStream(tmxfile.getAbsolutePath()), Constants.UTF8);
 		} catch (UnsupportedEncodingException e) {
 			LOGGER.error("problem in reading due to encoding issue");
 			e.printStackTrace();
@@ -1675,14 +1783,14 @@ public class TmxUtils {
 				l2segs.add(targetsegs.get(0));
 		}
 		try {
-			FileUtils.writeLines(l1File, l1segs,"\n");
-			FileUtils.writeLines(l2File, l2segs,"\n");
-			String res = FileUtils.readFileToString(l1File);
+			FileUtils.writeLines(l1File, Constants.UTF8, l1segs,"\n");
+			FileUtils.writeLines(l2File, Constants.UTF8, l2segs,"\n");
+			String res = FileUtils.readFileToString(l1File, Constants.UTF8);
 			res = res.replaceAll("\r\n", "\n");
-			FileUtils.write(l1File, res);
-			res = FileUtils.readFileToString(l2File);
+			FileUtils.write(l1File, res, Constants.UTF8);
+			res = FileUtils.readFileToString(l2File, Constants.UTF8);
 			res = res.replaceAll("\r\n", "\n");
-			FileUtils.write(l2File, res);
+			FileUtils.write(l2File, res, Constants.UTF8);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

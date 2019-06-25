@@ -203,7 +203,7 @@ public class GetTMXsubsetOptions {
 			
 			if(cmdline.hasOption( "sites")){
 				try {
-					_sites = FileUtils.readLines(new File(cmdline.getOptionValue("sites")));
+					_sites = FileUtils.readLines(new File(cmdline.getOptionValue("sites")), Constants.UTF8);
 				} catch (IOException e) {
 					LOGGER.error("Text file containing a list of accepted websites does not exist.");	
 					e.printStackTrace();
@@ -211,7 +211,7 @@ public class GetTMXsubsetOptions {
 			}
 			if(cmdline.hasOption( "psi")){
 				try {
-					 List<String> lines= FileUtils.readLines(new File(cmdline.getOptionValue("psi")));
+					 List<String> lines= FileUtils.readLines(new File(cmdline.getOptionValue("psi")), Constants.UTF8);
 					 _psi = new HashMap<String, String>();
 					for (String line:lines){
 						String[] info = line.toLowerCase().split(Constants.TAB);

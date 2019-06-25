@@ -265,7 +265,7 @@ public class TMXHandlerOptions {
 				_maxsize = Integer.parseInt(line.getOptionValue("size")); 
 			if(line.hasOption( "sites")){
 				try {
-					_sites = FileUtils.readLines(new File(line.getOptionValue("sites")));
+					_sites = FileUtils.readLines(new File(line.getOptionValue("sites")), Constants.UTF8);
 				} catch (IOException e) {
 					LOGGER.error("Text file containing a list of accepted websites does not exist.");	
 					e.printStackTrace();

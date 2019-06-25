@@ -276,7 +276,7 @@ public class TMXHandler {
 		}else{ //it is considered a text file containing a list with full paths of targeted directories (a full path per line)
 			List<String> targetdirs;
 			try {
-				targetdirs = FileUtils.readLines(inputFile);
+				targetdirs = FileUtils.readLines(inputFile, Constants.UTF8);
 				for (String targetdir:targetdirs){
 					LOGGER.info("finding files from "+ targetdir);
 					List<File> tfs = FcFileUtils.listFiles(new File(targetdir), filter,true);
@@ -400,8 +400,8 @@ public class TMXHandler {
 			TMXHandlerUtils.generateSample(alignmentList, sampleSize, samplefile);
 
 			try {
-				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITES), sites_all,"\n");
-				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITESN), sites_noannot,"\n");
+				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITES), Constants.UTF8, sites_all,"\n");
+				FileUtils.writeLines(new File(baseName.getAbsolutePath() + SITESN), Constants.UTF8, sites_noannot,"\n");
 			} catch (IOException e1) {
 				LOGGER.error("problem in writing lists of sites");
 				e1.printStackTrace();
