@@ -1,5 +1,7 @@
 package gr.ilsp.fc.utils;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -75,7 +77,7 @@ public class AnalyzerTest {
 	
 	private List<Pair<String, String>> getTokenStemsForLang(InputStream in) throws IOException {
 		List<Pair<String, String>> tokenStems = new ArrayList<Pair<String, String>>();
-		for (String line:  IOUtils.readLines(in, "UTF-8")) {
+		for (String line:  IOUtils.readLines(in, Constants.UTF8)) {
 			if (StringUtils.isAnyBlank(line) || line.startsWith("#")) {
 				continue;
 			} else {

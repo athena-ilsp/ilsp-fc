@@ -156,6 +156,6 @@ public class ExtendedLinksExtractorTest {
 //
 //String lang = "";
 //
-//_metadata.set(Metadata.CONTENT_ENCODING, "UTF-8");
+//_metadata.set(Metadata.CONTENT_ENCODING, Constants.UTF8);
 //_metadata.set(Metadata.COMMENT,filename);
 //ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);

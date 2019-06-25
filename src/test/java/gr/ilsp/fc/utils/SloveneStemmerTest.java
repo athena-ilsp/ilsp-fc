@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
+import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +46,7 @@ public class SloveneStemmerTest {
 	public void testStem() throws Exception {
 		File sloveneTestsFile = new File("src/test/resources/slovese-stemmer-tests.txt");
 		logger.info("Reading test case file: " + sloveneTestsFile);
-		List<String> lines = FileUtils.readLines(sloveneTestsFile, "UTF-8");
+		List<String> lines = FileUtils.readLines(sloveneTestsFile, Constants.UTF8);
 		
 		AnalyzerFactory analyzerFactory = new AnalyzerFactory();
 		Analyzer analyzer = analyzerFactory.getAnalyzer("slv");

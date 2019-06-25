@@ -5,6 +5,7 @@ package gr.ilsp.fc.utils;
 
 import gr.ilsp.fc.utils.AnalyzerFactory;
 import gr.ilsp.fc.utils.CroatianStemmer;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -51,8 +52,8 @@ public class CroatianStemmerTest {
 	 */
 	@Test
 	public void testStem() throws Exception {
-		String inCharsetName = "UTF-8";
-		String outCharsetName = "UTF-8";
+		String inCharsetName = Constants.UTF8;
+		String outCharsetName = Constants.UTF8;
 		String inFilename = "src/test/resources/vecernji.hr.stem";
 		String outFilename = "src/test/resources/vecernji.hr.test";
 		logger.info("Reading: " + inFilename);
