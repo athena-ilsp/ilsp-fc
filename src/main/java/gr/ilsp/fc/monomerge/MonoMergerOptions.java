@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -124,7 +125,7 @@ public class MonoMergerOptions {
 			
 			if(line.hasOption( "sites")){
 				try {
-					_sites = FileUtils.readLines(new File(line.getOptionValue("sites")));
+					_sites = FileUtils.readLines(new File(line.getOptionValue("sites")), Constants.UTF8);
 				} catch (IOException e) {
 					LOGGER.error("Text file containing a list of accepted websites does not exist.");	
 					e.printStackTrace();

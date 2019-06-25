@@ -221,7 +221,7 @@ public class MonoMerger {
 		else{ //it is considered a text file containing a list with full paths of targeted directories (a full path per line)
 			List<String> targetdirs;
 			try {
-				targetdirs = FileUtils.readLines(inputFile);
+				targetdirs = FileUtils.readLines(inputFile, Constants.UTF8);
 				for (String targetdir:targetdirs){
 					LOGGER.info("finding files from "+ targetdir);
 					List<File> tfs = FcFileUtils.getCesDocs(inputFile, language);
@@ -249,7 +249,7 @@ public class MonoMerger {
 		FileOutputStream fos;
 		try {
 			fos = new FileOutputStream(corpusdoc);
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, Constants.UTF8));
 			for (File xmlfile:xmlfiles){
 				counter++;
 				if (counter/1000>thous){
@@ -306,9 +306,9 @@ public class MonoMerger {
 						if (!words.contains(tok))
 							words.add(tok);
 					}
-					bw.write(sentence+Constants.TAB+docurl+Constants.TAB+xmlfile.getName());
+					bw.write(sentence+Constants.TAB+docurl+Constants.TAB+xmlfile.getName()+"\n");
 					//bw.write(sentence);
-					bw.newLine();
+					//bw.newLine();
 				}
 			}
 			bw.close();
@@ -323,7 +323,7 @@ public class MonoMerger {
 
 		File sitesFile = new File(corpusdoc.getAbsolutePath()+SITES);
 		try {
-			FileUtils.writeLines(sitesFile, fetched_sites,"\n");
+			FileUtils.writeLines(sitesFile, Constants.UTF8, fetched_sites,"\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -346,7 +346,8 @@ public class MonoMerger {
 		FileOutputStream fos;
 		try {
 			fos = new FileOutputStream(corpuspar);
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, Constants.UTF8));
+			
 			for (File xmlfile:xmlfiles){
 				counter++;
 				if (counter/1000>thous){
@@ -386,9 +387,9 @@ public class MonoMerger {
 						if (!words.contains(tok))
 							words.add(tok);
 					}
-					bw.write(paragraph+Constants.TAB+docurl+Constants.TAB+xmlfile.getName());
+					bw.write(paragraph+Constants.TAB+docurl+Constants.TAB+xmlfile.getName()+"\n");
 					//bw.write(paragraph);
-					bw.newLine();
+					//bw.newLine();
 				}
 				if (!fetched_sites.contains(dochost))
 					fetched_sites.add(dochost);
@@ -404,7 +405,7 @@ public class MonoMerger {
 		}
 		File sitesFile = new File(corpuspar.getAbsolutePath()+SITES);
 		try {
-			FileUtils.writeLines(sitesFile, fetched_sites,"\n");
+			FileUtils.writeLines(sitesFile, Constants.UTF8, fetched_sites,"\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -471,7 +472,7 @@ public class MonoMerger {
 		}
 		File sitesFile = new File(corpusdoc.getAbsolutePath()+SITES);
 		try {
-			FileUtils.writeLines(sitesFile, fetched_sites,"\n");
+			FileUtils.writeLines(sitesFile, Constants.UTF8, fetched_sites,"\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing file "+ sitesFile.getAbsolutePath());// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -686,7 +687,7 @@ public class MonoMerger {
 		}else{ //it is considered a text file containing a list with full paths of targeted directories (a full path per line)
 			List<String> targetdirs;
 			try {
-				targetdirs = FileUtils.readLines(inputFile);
+				targetdirs = FileUtils.readLines(inputFile, Constants.UTF8);
 				for (String targetdir:targetdirs){
 					LOGGER.info("finding files from "+ targetdir);
 					List<File> tfs = FcFileUtils.listFiles(new File(targetdir), cesDocLangfilter,true);
