@@ -100,7 +100,7 @@ public class DepthPostCounter {
 			File[] outputs= input2.listFiles();
 			List<String> domains = new ArrayList<String>();
 			for (File file:outputs){
-				List<String> lines1 = FileUtils.readLines(file);
+				List<String> lines1 = FileUtils.readLines(file,Constants.UTF8);
 				for (String line:lines1){
 					if (line.startsWith("target")){
 						String a = line.split("\t")[1];
@@ -117,7 +117,7 @@ public class DepthPostCounter {
 					}
 				}
 			}
-			List<String> lines = FileUtils.readLines(csvfile);
+			List<String> lines = FileUtils.readLines(csvfile,Constants.UTF8);
 			for (int ii=0;ii<lines.size();ii++){
 				String[] t= lines.get(ii).split("\t");
 				for (int jj=0;jj<domains.size();jj++){
@@ -197,11 +197,11 @@ public class DepthPostCounter {
 				total.set(ii+1, total.get(ii+1)+temp.get(ls[ii])+"\t");
 			}
 		}
-		FileUtils.writeLines(resi, total, "\n");
+		FileUtils.writeLines(resi, Constants.UTF8, total, "\n");
 	}
 
 	private void storeStats(File csvfile, int depth) throws IOException {
-		List<String> lines = FileUtils.readLines(csvfile) ;
+		List<String> lines = FileUtils.readLines(csvfile, Constants.UTF8) ;
 		String[] ls = LangDetectUtils.updateLanguages(langs,true).split(";");
 		Map<String, Integer> resu = new HashMap<String, Integer>();
 		for (int ii=0;ii<ls.length;ii++){
@@ -218,7 +218,7 @@ public class DepthPostCounter {
 			if (resu.containsKey(ls[ii]))
 				total.add(ls[ii]+"\t"+resu.get(ls[ii]));
 		}
-		FileUtils.writeLines(resi, total, "\n");
+		FileUtils.writeLines(resi, Constants.UTF8, total, "\n");
 
 		if (depth>1){
 			total = new ArrayList<String>();
@@ -236,7 +236,7 @@ public class DepthPostCounter {
 				if (resu.containsKey(ls[ii]))
 					total.add(ls[ii]+"\t"+resu.get(ls[ii]));
 			}
-			FileUtils.writeLines(resi, total, "\n");
+			FileUtils.writeLines(resi, Constants.UTF8, total, "\n");
 		}
 	}
 
@@ -254,7 +254,7 @@ public class DepthPostCounter {
 		Map<String, String> url_lang = new HashMap<String,String>();
 		List<String> res= new ArrayList<String>();
 		try {
-			List<String> lines = FileUtils.readLines(infile);
+			List<String> lines = FileUtils.readLines(infile,Constants.UTF8);
 			List<String> urls = new ArrayList<String>();
 			String cycle_key="";
 			for (String line:lines){
@@ -311,7 +311,7 @@ public class DepthPostCounter {
 			e.printStackTrace();
 		}
 		try {
-			FileUtils.writeLines(outfile, res, "\n");
+			FileUtils.writeLines(outfile, Constants.UTF8, res, "\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing "+outfile.getAbsolutePath());
 			e.printStackTrace();
@@ -325,7 +325,7 @@ public class DepthPostCounter {
 			if (!csvfile.getName().endsWith(Constants.DOT+CSV))
 				continue;
 			try {
-				List<String> lines = FileUtils.readLines(csvfile);
+				List<String> lines = FileUtils.readLines(csvfile,Constants.UTF8);
 				res.addAll(lines);
 			} catch (IOException e) {
 				LOGGER.error("problem in reading "+csvfile.getAbsolutePath());
@@ -333,7 +333,7 @@ public class DepthPostCounter {
 			}
 		}
 		try {
-			FileUtils.writeLines(output, res, "\n");
+			FileUtils.writeLines(output, Constants.UTF8, res, "\n");
 		} catch (IOException e) {
 			LOGGER.error("problem in writing "+output.getAbsolutePath());
 			e.printStackTrace();
@@ -366,7 +366,7 @@ public class DepthPostCounter {
 		File resi = new File(FilenameUtils.concat(inn.getParent(), timeStamp+Constants.HYPHEN+FC+Constants.HYPHEN+inn.getName()+Constants.HYPHEN+RES+Constants.DOT+CSV));
 
 		for (File file:outputs){
-			List<String> lines= FileUtils.readLines(file) ;
+			List<String> lines= FileUtils.readLines(file,Constants.UTF8) ;
 			List<String> found = new ArrayList<String>();
 			for (String line:lines){
 				if (line.startsWith("\t") || line.startsWith("staring"))
@@ -406,7 +406,7 @@ public class DepthPostCounter {
 		for (int ii=0;ii<ls.length;ii++){
 			total.add(ls[ii]+"\t"+resu.get(ls[ii]));
 		}
-		FileUtils.writeLines(resi, total, "\n");
+		FileUtils.writeLines(resi, Constants.UTF8, total, "\n");
 	}
 
 }

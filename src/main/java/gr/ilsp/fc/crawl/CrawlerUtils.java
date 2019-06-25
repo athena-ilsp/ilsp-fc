@@ -3,6 +3,7 @@ package gr.ilsp.fc.crawl;
 import gr.ilsp.fc.datums.CrawlDbDatum;
 import gr.ilsp.fc.operations.ILSPFCUrlNormalizer;
 import gr.ilsp.fc.readwrite.ReadResources;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -207,7 +208,7 @@ public class CrawlerUtils {
 		}
 		csvtext = csvtext+logpair;
 		try {
-			FileUtils.writeStringToFile(csvfile, csvtext);
+			FileUtils.writeStringToFile(csvfile, csvtext, Constants.UTF8);
 		} catch (IOException e) {
 			LOGGER.error("problem in writing the file "+csvfile.getAbsolutePath());
 			e.printStackTrace();
@@ -217,7 +218,7 @@ public class CrawlerUtils {
 	/*private static String addSeeds(String csvtext, File seedFile) {
 		List<String> urlLines;
 		try {
-			urlLines = FileUtils.readLines(seedFile);
+			urlLines = FileUtils.readLines(seedFile,Constants.UTF8);
 			for (String urlLine:urlLines){
 				if (skipLineM.reset(urlLine).matches()) 
 					continue;
@@ -268,7 +269,7 @@ public class CrawlerUtils {
 		String runpath="";
 		String path = CrawlerUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		try {
-			File decodedPath = new File(URLDecoder.decode(path, "UTF-8"));
+			File decodedPath = new File(URLDecoder.decode(path, Constants.UTF8));
 			runpath= decodedPath.getParent();
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

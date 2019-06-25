@@ -184,7 +184,7 @@ public class DedupUtils {
 			text = ReadResources.extractTextfromXML_clean(file.getAbsolutePath(),P_ELE,ooi_crawlinfo, false);
 		if (input_type.endsWith(txtext)){
 			try {
-				text = FileUtils.readFileToString(file);
+				text = FileUtils.readFileToString(file, Constants.UTF8);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -218,7 +218,7 @@ public class DedupUtils {
 			//langIdentified = file.getName().split(HYPHEN)[0];
 		}		
 		if (input_type.endsWith(txtext)){
-			text = FileUtils.readFileToString(file);
+			text = FileUtils.readFileToString(file, Constants.UTF8);
 			//langIdentified = LangDetectUtils.detectLanguage(text);
 			langIdentified = langDetector.detect(text);
 			if (langsTBFI.contains(langIdentified)) {
