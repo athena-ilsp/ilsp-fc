@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.POITextExtractor;
@@ -37,7 +38,7 @@ public class MSO2text {
 		try {
 			Map<String, String> docdata = run1(infile);
 			if (!docdata.isEmpty())
-				FileUtils.writeStringToFile(new File(args[1]), docdata.get("content"));
+				FileUtils.writeStringToFile(new File(args[1]), docdata.get("content"), Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

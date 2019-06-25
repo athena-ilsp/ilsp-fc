@@ -79,7 +79,7 @@ public class Pdf2text {
 					if (StringUtils.isEmpty(content))
 						LOGGER.info("No valid text from "+ filename);
 					else
-						FileUtils.writeStringToFile(new File(input.getAbsolutePath()+TXT_EXT), content);
+						FileUtils.writeStringToFile(new File(input.getAbsolutePath()+TXT_EXT), content, Constants.UTF8);
 
 					LOGGER.debug("done");
 				}

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -36,7 +37,7 @@ public class PlainText2text {
 		try {
 			Map<String, String> txtdata = run1(infile);
 			if (!txtdata.isEmpty())
-				FileUtils.writeStringToFile(new File(args[1]), txtdata.get(attr_content));
+				FileUtils.writeStringToFile(new File(args[1]), txtdata.get(attr_content), Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -56,7 +57,7 @@ public class PlainText2text {
 		txtdata.put(attr_keywords,  "");
 
 		try {
-			String content = FileUtils.readFileToString(file);
+			String content = FileUtils.readFileToString(file, Constants.UTF8);
 			String[] pars = content.split("\n");
 			String cleancontent = "";
 			for (String par:pars){
