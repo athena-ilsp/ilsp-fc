@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gr.ilsp.fc.utils.AnalyzerTest;
+import gr.ilsp.nlp.commons.Constants;
 
 public class SentenceSplitterTest {
 	
@@ -68,7 +69,7 @@ public class SentenceSplitterTest {
 
 	private List<Pair<String, Integer>> getStringSents(InputStream in) throws IOException {
 		List<Pair<String, Integer>> stringSents = new ArrayList<Pair<String, Integer>>();
-		for (String line:  IOUtils.readLines(in, "UTF-8")) {
+		for (String line:  IOUtils.readLines(in, Constants.UTF8)) {
 			if (StringUtils.isAnyBlank(line) || line.startsWith("#")) {
 				continue;
 			} else {

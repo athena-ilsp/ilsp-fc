@@ -98,7 +98,7 @@ public class LangDetectorFactoryTest {
 				int hits = 0;
 				InputStream in  =  LangDetectorFactory.class.getResource("/rs_ba_hr_corpus/"+fileName).openStream();
 				try {
-					List<String> lines =  IOUtils.readLines(in, "UTF-8");
+					List<String> lines =  IOUtils.readLines(in, Constants.UTF8);
 					HashMap<String, Integer> misses = new HashMap<String, Integer>();
 					for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
 						String line =  iterator.next();
@@ -144,7 +144,7 @@ public class LangDetectorFactoryTest {
 			int hits = 0;
 			InputStream in  =  LangDetectorFactory.class.getResource("/rs_ba_hr_corpus/"+fileName).openStream();
 			try {
-				List<String> lines =  IOUtils.readLines(in, "UTF-8");
+				List<String> lines =  IOUtils.readLines(in, Constants.UTF8);
 				HashMap<String, Integer> misses = new HashMap<String, Integer>();
 				for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
 					String line =  iterator.next();
@@ -198,7 +198,7 @@ public class LangDetectorFactoryTest {
 		String testFile = "/lang-detection/tests.txt";
 		logger.info("Started testing language detector" );
 		InputStream in  =  AnalyzerTest.class.getResource(testFile).openStream();
-		for (String line:  IOUtils.readLines(in, "UTF-8")) {
+		for (String line:  IOUtils.readLines(in, Constants.UTF8)) {
 			if (StringUtils.isAnyBlank(line) || line.startsWith("#")) {
 				continue;
 			} else {
@@ -228,7 +228,7 @@ public class LangDetectorFactoryTest {
 				int instances = 0;
 				int hits = 0;
 				logger.debug("Started testing language detector on {} ", testFile );
-				for (String line:  IOUtils.readLines(in, "UTF-8")) {
+				for (String line:  IOUtils.readLines(in, Constants.UTF8)) {
 					if (StringUtils.isAnyBlank(line) || line.startsWith(Constants.BAR)) {
 						continue;
 					} else {
