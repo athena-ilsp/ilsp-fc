@@ -16,6 +16,8 @@
  */
 package gr.ilsp.fc.operations;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -87,7 +89,7 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
     private String encodeCodePoint(int codepoint) {
         try {
             int[] codepoints = { codepoint };
-            byte[] bytes = new String(codepoints, 0, 1).getBytes("UTF-8");
+            byte[] bytes = new String(codepoints, 0, 1).getBytes(Constants.UTF8);
             
             StringBuilder result = new StringBuilder();
             for (byte value : bytes) {
@@ -144,7 +146,7 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
         }
         
         try {
-            return URLDecoder.decode(url, "UTF-8");
+            return URLDecoder.decode(url, Constants.UTF8);
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("Unexpected exception during URL decoding: " + e);
             return url;

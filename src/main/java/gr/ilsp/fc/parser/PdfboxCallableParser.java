@@ -6,6 +6,8 @@ package gr.ilsp.fc.parser;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 
 
+import gr.ilsp.nlp.commons.Constants;
+
 //import java.io.BufferedReader;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -18,6 +20,7 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
 
 
 
@@ -35,6 +38,7 @@ import org.apache.tika.parser.Parser;
 //import org.apache.tika.detect.DefaultDetector;
 //import org.apache.tika.detect.Detector;
 //import org.apache.tika.mime.MimeTypes;
+
 
 
 
@@ -108,7 +112,7 @@ public class PdfboxCallableParser implements Callable<ExtendedParsedDatum> {
 
 			String lang = "";
 
-			_metadata.set(Metadata.CONTENT_ENCODING, "UTF-8");
+			_metadata.set(Metadata.CONTENT_ENCODING, Constants.UTF8);
 			_metadata.set(Metadata.COMMENT,filename);
 			//ExtendedOutlink[] outlinks = ExtendedLinksExtractor.getLinks(_input,_metadata);
 			ExtendedOutlink[] outlinks=new ExtendedOutlink[0];

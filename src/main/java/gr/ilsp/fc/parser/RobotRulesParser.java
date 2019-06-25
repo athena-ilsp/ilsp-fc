@@ -297,7 +297,7 @@ public class RobotRulesParser extends BaseRobotsParser {
         if ((bytesLen >= 3) && (content[0] == (byte)0xEF) && (content[1] == (byte)0xBB) && (content[2] == (byte)0xBF)) {
             offset = 3;
             bytesLen -= 3;
-            encoding = "UTF-8";
+            encoding = Constants.UTF8;
         }
         
         String contentAsStr;
@@ -495,7 +495,7 @@ public class RobotRulesParser extends BaseRobotsParser {
         String path = token.getData();
         
         try {
-            path = URLDecoder.decode(path, "UTF-8");
+            path = URLDecoder.decode(path, Constants.UTF8);
             
             if (path.length() == 0) {
                 // Disallow: <nothing> => allow all.
@@ -527,7 +527,7 @@ public class RobotRulesParser extends BaseRobotsParser {
          String path = token.getData();
          
          try {
-             path = URLDecoder.decode(path, "UTF-8");
+             path = URLDecoder.decode(path, Constants.UTF8);
          } catch (Exception e) {
              reportWarning("Error parsing robots rules - can't decode path: " + path, state.getUrl());
          }
