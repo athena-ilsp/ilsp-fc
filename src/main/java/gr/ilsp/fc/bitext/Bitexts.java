@@ -124,7 +124,7 @@ public class Bitexts {
 			OutputStreamWriter xmlFileListWrt = null;
 			try {
 				xmlFileListWrt = new OutputStreamWriter(new FileOutputStream
-						(FilenameUtils.concat(xmldir.getPath(),fileFinger)),"UTF-8");
+						(FilenameUtils.concat(xmldir.getPath(),fileFinger)),Constants.UTF8);
 				int eventType=0;
 				XMLInputFactory2 xmlif = null;
 				xmlif = (XMLInputFactory2) XMLInputFactory2.newInstance();
@@ -135,7 +135,7 @@ public class Bitexts {
 				xmlif.setProperty(XMLInputFactory2.IS_COALESCING, Boolean.FALSE);
 				xmlif.configureForSpeed();
 				XMLStreamReader2 xmlr = (XMLStreamReader2) xmlif.
-						createXMLStreamReader(new FileInputStream(FilenameUtils.concat(xmldir.getPath(),files[ii])),"UTF-8");
+						createXMLStreamReader(new FileInputStream(FilenameUtils.concat(xmldir.getPath(),files[ii])),Constants.UTF8);
 				while (xmlr.hasNext()) {
 					eventType = xmlr.next();
 					if (eventType == XMLEvent2.START_ELEMENT){

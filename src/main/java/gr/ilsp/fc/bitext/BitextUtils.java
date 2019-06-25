@@ -346,7 +346,7 @@ public class BitextUtils {
 		HashMap<String, String> res=new HashMap<String,String>();
 		List<String> a;
 		try {
-			a = FileUtils.readLines(new File(docpairsfile));
+			a = FileUtils.readLines(new File(docpairsfile),Constants.UTF8);
 			for (String t:a){
 				String[] l=t.split(Constants.SPACE);
 				res.put(l[0], l[1]);

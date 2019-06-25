@@ -29,6 +29,7 @@ import gr.ilsp.metashare.ResourceInfoType;
 import gr.ilsp.metashare.ResourceInfoType.ResourceComponentType;
 import gr.ilsp.metashare.TargetResourceInfoType;
 import gr.ilsp.metashare.TextFormatInfoType;
+import gr.ilsp.nlp.commons.Constants;
 
 /**
  * Abstract class for metashare descriptors
@@ -37,7 +38,7 @@ import gr.ilsp.metashare.TextFormatInfoType;
 
 public abstract class MetashareDescriptor {
 
-	private static final String UTF_8 = "UTF-8";
+	//private static final String UTF_8 = Constants.UTF8;
 	private static final String TEXT = "text";
 	private static final String RESOURCE_TYPE = "corpus";
 	private static final String ENG = "eng";
@@ -108,7 +109,7 @@ public abstract class MetashareDescriptor {
 		textFormatInfoType.setMimeType(getMimetype());
 		
 		CharacterEncodingInfoType characterEncodingInfoType = objectFactory.createCharacterEncodingInfoType();
-		characterEncodingInfoType.setCharacterEncoding(UTF_8);
+		characterEncodingInfoType.setCharacterEncoding(Constants.UTF8);
 
 		createDomainInfo(objectFactory, corpusTextInfo);
 

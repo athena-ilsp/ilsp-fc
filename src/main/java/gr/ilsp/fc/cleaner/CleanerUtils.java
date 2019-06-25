@@ -122,10 +122,10 @@ public class CleanerUtils {
 		String content="";
 		try {
 			input.reset();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(input,"UTF-8"));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(input,Constants.UTF8));
 			String[] content1 = numExtr.getText(reader, true).split("\n");
 			input.reset();
-			reader = new BufferedReader(new InputStreamReader(input,"UTF-8"));
+			reader = new BufferedReader(new InputStreamReader(input,Constants.UTF8));
 			String[] content2 = arcExtr.getText(reader, false).split("\n");
 			content = combineNumArt(content1, content2);
 			if (!keepBoiler) {

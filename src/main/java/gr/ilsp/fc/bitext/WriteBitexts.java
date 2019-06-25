@@ -88,11 +88,11 @@ public class WriteBitexts {
 				try {
 					xslTransformer.transform(cesAlignFile, cesAlignHtmlFile);
 					//String cesAlignText = ReadResources.readFileAsString(cesAlignHtmlFile.getAbsolutePath());
-					String cesAlignText = FileUtils.readFileToString(cesAlignHtmlFile);
+					String cesAlignText = FileUtils.readFileToString(cesAlignHtmlFile, Constants.UTF8);
 					cesAlignText = cesAlignText.replace(FilenameUtils.concat(resultsDir, f1).replace("\\", "/")+appXMLext, f1+appXMLHTMLext);
 					cesAlignText = cesAlignText.replace(FilenameUtils.concat(resultsDir, f2).replace("\\", "/")+appXMLext, f2+appXMLHTMLext);
 					OutputStreamWriter tmpwrt;
-					tmpwrt = new OutputStreamWriter(new FileOutputStream(cesAlignHtmlFile.getAbsolutePath()),"UTF-8");
+					tmpwrt = new OutputStreamWriter(new FileOutputStream(cesAlignHtmlFile.getAbsolutePath()),Constants.UTF8);
 					tmpwrt.write(cesAlignText);
 					tmpwrt.close();
 				} catch (MalformedURLException e) {
@@ -122,7 +122,7 @@ public class WriteBitexts {
 		XMLOutputFactory2 xof = (XMLOutputFactory2) XMLOutputFactory2.newInstance();
 		OutputStreamWriter wrt;
 		try {
-			wrt = new OutputStreamWriter(new FileOutputStream(cesAlignFile),"UTF-8");
+			wrt = new OutputStreamWriter(new FileOutputStream(cesAlignFile),Constants.UTF8);
 			XMLStreamWriter2 xtw = (XMLStreamWriter2) xof.createXMLStreamWriter(wrt);
 			xtw.writeStartDocument();
 			xtw.writeStartElement("cesAlign");
@@ -166,7 +166,7 @@ public class WriteBitexts {
 		XMLStreamWriter2 xtw = null;
 		OutputStreamWriter wrt = null;
 		try {
-			wrt = new OutputStreamWriter(new FileOutputStream(cesAlignFile.getAbsolutePath()),"UTF-8");
+			wrt = new OutputStreamWriter(new FileOutputStream(cesAlignFile.getAbsolutePath()),Constants.UTF8);
 			xtw1 = (XMLStreamWriter2)
 					xof.createXMLStreamWriter(wrt);
 			PrettyPrintHandler handler = new PrettyPrintHandler(xtw1 );
@@ -219,13 +219,13 @@ public class WriteBitexts {
 		xtw.writeStartElement("translation");
 		xtw.writeAttribute("trans.loc", f1.getAbsolutePath().replace("\\","/"));
 		xtw.writeAttribute("xml:lang", l1);
-		xtw.writeAttribute("wsd", "UTF-8");
+		xtw.writeAttribute("wsd", Constants.UTF8);
 		xtw.writeAttribute("n", "1");
 		xtw.writeEndElement();
 		xtw.writeStartElement("translation");
 		xtw.writeAttribute("trans.loc", f2.getAbsolutePath().replace("\\","/"));
 		xtw.writeAttribute("xml:lang", l2);
-		xtw.writeAttribute("wsd", "UTF-8");
+		xtw.writeAttribute("wsd", Constants.UTF8);
 		xtw.writeAttribute("n", "2");
 		xtw.writeEndElement();
 		xtw.writeEndElement();
@@ -251,7 +251,7 @@ public class WriteBitexts {
 			cesAlignFiles.add(FilenameUtils.concat(outputDirName.getAbsolutePath(),filename).replace("\\","/"));
 		}
 		try {
-			FileUtils.writeLines(outputFile, cesAlignFiles, "\n");
+			FileUtils.writeLines(outputFile, Constants.UTF8, cesAlignFiles, "\n");
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			System.err.println("Problem in writing file containing the list of paths of cesAlign files");
@@ -270,7 +270,7 @@ public class WriteBitexts {
 			}
 			cesAlignHTMLFiles.add("</html>");
 			try {
-				FileUtils.writeLines(outputFileHTML, cesAlignHTMLFiles, "\n");
+				FileUtils.writeLines(outputFileHTML, Constants.UTF8, cesAlignHTMLFiles, "\n");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				System.err.println("Problem in writing file containing the list of links pointing to rendered cesAlign files");
@@ -280,7 +280,7 @@ public class WriteBitexts {
 	}
 	
 	/*try {
-	Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF-8"));
+	Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),Constants.UTF8));
 	LOGGER.info("items in document pair list:\t"+bitexts.size());
 	for (int ii=bitexts.size()-1;ii>-1;ii--){
 		LOGGER.info(ii);
@@ -297,7 +297,7 @@ public class WriteBitexts {
 }*/
 	
 	/*try {
-		Writer out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileHTML),"UTF-8"));
+		Writer out1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileHTML),Constants.UTF8));
 		if (bitexts.size()>0){
 			out1.write(XMLNS);
 			for (int ii=bitexts.size()-1;ii>-1;ii--){
