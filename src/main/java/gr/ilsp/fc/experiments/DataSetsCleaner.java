@@ -37,17 +37,17 @@ public class DataSetsCleaner {
 
 	private void createSets() throws IOException {
 		List<String> newdataset = new ArrayList<String>();
-		List<String> list1 = FileUtils.readLines(infile1);
+		List<String> list1 = FileUtils.readLines(infile1,Constants.UTF8);
 		if (process.equals("1")){
 			LOGGER.info("Parts deduplication. The parts are defined by columns. It is expected a tab separated text file as input");
 			newdataset=removeIdenticalPartsPerDataSet(list1,cols1);
-			FileUtils.writeLines(outfile1, newdataset,"\n");
+			FileUtils.writeLines(outfile1, Constants.UTF8, newdataset,"\n");
 		}
 		if (process.equals("2")){
 			LOGGER.info("Comparison of two files. Common parts are excluded from the first file");
-			List<String> list2 = FileUtils.readLines(infile2);
+			List<String> list2 = FileUtils.readLines(infile2,Constants.UTF8);
 			newdataset=removeCommonPartsFromDataSets(list1,cols1,list2,cols2);
-			FileUtils.writeLines(outfile1, newdataset,"\n");
+			FileUtils.writeLines(outfile1, Constants.UTF8, newdataset,"\n");
 		}
 	}
 
