@@ -16,12 +16,15 @@
  */
 package gr.ilsp.fc.utils;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import java.io.IOException;
 //import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+
 
 
 import org.apache.tika.metadata.CreativeCommons;
@@ -292,7 +295,7 @@ public class LicenseParser {
 			hcon.setReadTimeout(5000);
 			hcon.setUseCaches(false);
 			hcon.setRequestProperty("User-Agent","ISPL");
-			hcon.setRequestProperty("Accept-Charset","utf-8");
+			hcon.setRequestProperty("Accept-Charset",Constants.UTF8);
 			hcon.setRequestProperty("Keep-Alive","300");
 			//
 			

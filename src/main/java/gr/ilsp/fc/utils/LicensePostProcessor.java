@@ -1,7 +1,5 @@
 package gr.ilsp.fc.utils;
 
-import gr.ilsp.fc.readwrite.WriteResources;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -9,7 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import gr.ilsp.nlp.commons.Constants;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.jdom.Attribute;
@@ -146,7 +144,7 @@ public class LicensePostProcessor {
 		for (File curFile: dirfiles) {
 			//if (curFile.getName().endsWith("xml") & !curFile.getName().contains(UNDERSCORE_STR)){
 			if (curFile.getName().endsWith("xml") )	{
-				String text = FileUtils.readFileToString(curFile);
+				String text = FileUtils.readFileToString(curFile, Constants.UTF8);
 				text = text.replace("<distributor>ILSP project</distributor>",
 						"<distributor>QTLP</distributor>");
 				text = text.replace("<distributor>QTLP/ILSP</distributor>",
@@ -166,7 +164,7 @@ public class LicensePostProcessor {
 					text=text.replace("        <availability>Under review</availability>\r\n", "");
 				}
 				//WriteResources.writetextfile(curFile.getAbsolutePath(),text);
-				FileUtils.writeStringToFile(curFile, text);
+				FileUtils.writeStringToFile(curFile, text, Constants.UTF8);
 //	text.replace("<availability>Under review</availability>",);
 			}
 		}

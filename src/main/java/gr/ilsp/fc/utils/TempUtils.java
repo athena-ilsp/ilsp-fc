@@ -5,6 +5,7 @@ import gr.ilsp.fc.bitext.Bitexts;
 import gr.ilsp.fc.bitext.Bitexts.DocVector;
 import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.cleaner.CleanerUtils.ParsAttr;
+import gr.ilsp.fc.dedup.DedupUtils;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.tmxhandler.TMXHandlerUtils;
@@ -12,6 +13,7 @@ import gr.ilsp.fc.tmxhandler.TMXHandlerUtils.SegPair;
 import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -25,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -129,78 +132,722 @@ public class TempUtils {
 		return newlangStrinb.trim();
 	}
 
+	public static void main(String[] args) throws Exception {
 
-
-
-	public static void main(String[] args) throws IOException {
-		String ooi_crawlinfo = "crawlinfo";
-		String P_ELE = "p";
-		File indir = new File("C:/Users/vpapa/test/ILSP_20170203_113925/5beb49a6-30b8-484a-bc6b-8d6b581fd2e9/xml");
-		File[] xmlfiles = indir.listFiles();
-		for (int ii=0;ii<xmlfiles.length;ii++){
-			String basename = FilenameUtils.getBaseName(xmlfiles[ii].getAbsolutePath());
-			if (basename.contains(Constants.UNDERSCORE))
+		//processTLDlist(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1912run_0-01_sites.txt"));
+		List<String> websites1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1912run_0-01_sites.txt_f.txt"), Constants.UTF8) ; 
+		List<String> oldwebsites1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1655run_sites.txt_f.txt"), Constants.UTF8) ;
+		boolean found1 = false;
+		for (String website:websites1){
+			found1 = false;
+			for (String oldwebsite:oldwebsites1){
+				if (oldwebsite.contains(website)){
+					found1 =true;
+					break;
+				}
+			}
+			if (!found1)
+				System.out.println(website);
+		}
+		System.exit(0);
+		
+		
+		
+		
+		List<String> bucksites = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1655run_sites.txt_b.txt"), Constants.UTF8);
+		double thr_l = 0.9, thr_h = 1.2, thr_size_l = 0, thr_size_h = 1000; 
+		String thr1 = Double.toString(thr_l);
+		String thr2 = Double.toString(thr_h);
+		String thr3 = Double.toString(thr_size_l);
+		String thr4 = Double.toString(thr_size_h);
+		String tld_sites = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1655run_sites.txt_f.txt"), Constants.UTF8);
+		String bucksele_sites = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1655run_sites.txt_b_selected.txt"), Constants.UTF8);
+		
+		File filteredfile = new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1655run_sites.txt_b_"+thr1+"-"+thr2+"_"+thr3+"-"+thr4+".txt");
+		FileOutputStream fos = new FileOutputStream(filteredfile);
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, Constants.UTF8));
+		
+		int counter=0;
+		for (String bucksite:bucksites){
+			if (bucksite.contains("wrzuta") || bucksite.contains("sex"))
 				continue;
-			String text= "";
-			if (xmlfiles[ii].getName().endsWith("xml")){
-				text = ReadResources.extractTextfromXML_clean(xmlfiles[ii].getAbsolutePath(),P_ELE,ooi_crawlinfo, false);
-				File txtfile = new File(FilenameUtils.concat(xmlfiles[ii].getParent(),basename+".txt"));
-				FileUtils.writeStringToFile(txtfile, text);
+			String[] t = bucksite.split("\t");
+			if (tld_sites.contains(t[0]) || bucksele_sites.contains(t[0]))
+				continue;
+			double n1 = Double.parseDouble(t[1].trim().split(Constants.SPACE)[1]);
+			double n2 = Double.parseDouble(t[2].trim().split(Constants.SPACE)[1]);
+			if (n1<thr_size_h && n2<thr_size_h && n1>thr_size_l && n2>thr_size_l){
+				double n3 = n1/n2;
+				if (n3<=thr_h && n3>=thr_l){
+					counter++;
+					bw.write(t[0]+"\n");
+					//System.out.println(bucksite);
+				}
 			}
 		}
+		bw.close();
+		System.exit(0);
+		
+		
+		List<String> sites1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/tmxs/sites.txt"), Constants.UTF8);
+		File[] tmxs = new File("C:/Users/vpapa/ELRC/tld/pl/crawls/tmxs").listFiles();
+		for (String site:sites1){
+			boolean found = false;
+			for (File tmx:tmxs){
+				if (tmx.getName().contains(site)){
+					found=true;
+					String t = FileUtils.readFileToString(tmx, Constants.UTF8);
+					String t1 = t.substring(0, t.indexOf(" TUs with no annotation,"));
+					String res = t1.substring(t1.lastIndexOf(Constants.SPACE));
+					System.out.println(site +"\t"+res );
+				}
+			}
+			if (!found)
+				System.out.println("eeeee "+ site);
+		}
+		
+		System.exit(0);
+		
+		File indir = new File("C:/Users/vpapa/Downloads/archive (13)/culture_elrc-corpus_doc_ell_v2");
+		String[] ext = new String[1];
+		Map<String, Integer> sites = new HashMap<String, Integer>();
+		ext[0]= "xml";
+		List<File> xmlfiles = (List<File>) FileUtils.listFiles(indir, ext, false);
+		for (File file:xmlfiles){
+			System.out.println(file.getName());
+			String eaddress = ReadResources.extractNodefromXML(file.getAbsolutePath(), "eAddress", false);
+			URL url = null;
+			
+			 try {
+				url = new URL(eaddress);
+			} catch (MalformedURLException e) {
+				continue;
+				//url="";
+			}
+			
+			String site = url.getAuthority();
+			//System.out.println(site);
+			int num=1;
+			if (sites.containsKey(site))
+				num = sites.get(site)+1;
+			sites.put(site, num);
+		}
+		Set<String> si=sites.keySet();
+		Iterator<String> si1 = si.iterator();
+		String s;
+		System.out.println("site\t# of webpages");
+		while (si1.hasNext()){									
+			 s= si1.next();			
+			 System.out.println(s +"\t"+sites.get(s));
+		}
+		System.exit(0);
+		
+		//fromTMXtoTXTs_ENpart(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/webcorpus_v2_ILSP-FC_eng-hrv.tmx"));
+		//System.exit(0);
+
+		processTLDlist(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1655run_sites.txt"));
+		//System.exit(0);
+		List<String> res = processBuckList(new File("C://Users//vpapa//ELRC//2015_22.stats.joined"), new File("C://Users//vpapa//ELRC//2015_40.stats.joined"), ".pl", " pl ", " en ");
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1655run_sites.txt_b.txt"), Constants.UTF8, res,"\n");
+		System.exit(0);
+
+		List<String> websites = getUniqueSites(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1655run_sites.txt"));
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1655run_sites.txt_f.txt"), Constants.UTF8, websites,"\n");
+		System.exit(0);
+
+		fromTXTtoTXTs_ENpart(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/webcorpus_v2_ILSP-FC_eng-hrv.en"));
+		System.exit(0);
+
+		processTLDlist(new File("C:/Users/vpapa/ELRC/tld/el/crawls/1486runs_sites.txt"));
+		System.exit(0);
+		processBuckList(new File("C://Users//vpapa//ELRC//2015_22.stats.joined"), new File("C://Users//vpapa//ELRC//2015_40.stats.joined"), ".gr", " el ", " en ");
+		System.exit(0);
+
+		/*championlist(new File("C:/Users/vpapa/vpapa/ntinos_group.txt"));
+		System.exit(0);*/
+		checkparacrawl(new File("C:/Users/vpapa/ELRC/paracrawl/paracrawl.2016.es.clean"));
+		System.exit(0);		
+		getURLsfromTMX(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/merge2_default_hr/total_tld_en-hr_clean_default_ILSP-FC_eng-hrv.tmx"));
+		System.exit(0);
+
+		getURLsfromPairedCesDoc(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/merge2_default_hr/total_tld_en-hr_clean_default_ILSP-FC_eng-hrv.tmx"));
 		System.exit(0);
 
 
-		/*String domain = ".hr ";
-		String tlang1 = " hr ";
-		String tlang2 = " en ";
-		List<String> cb = FileUtils.readLines(new File("C://Users//vpapa//ELRC//2015_22.stats.joined"));
-		List<String> cb1 = FileUtils.readLines(new File("C://Users//vpapa//ELRC//2015_40.stats.joined"));
-		List<String> hren_list = new ArrayList<String>();
-		for (String line:cb){
-			if (line.contains(domain) && line.contains(tlang1) && line.contains(tlang2)){
 
-				String[] t = line.split(Constants.SPACE);
-				if (hren_list.contains(t[1]))
+		diffwebsites();
+		System.exit(0);
+
+		parselogfiles(new File("C:/Users/vpapa/ELRC/EN-HR/total_run/crawled/logs"));
+		System.exit(0);
+
+		fromCesDoc2xml(new File("C:/Users/vpapa/test/ILSP_20170203_113925/5beb49a6-30b8-484a-bc6b-8d6b581fd2e9/xml"));
+		System.exit(0);
+
+
+
+		getStatsOnELRCDatasets(new File("C://Users//vpapa//ELRC//20170406_ELRC_SHARE_OVERVIEW.txt"));
+		System.exit(0);
+
+		List<String> newcommands = getNewCommands(new File("C:/Users/vpapa/test/test_pdf/crawldirs_culture_el.txt"));
+		System.exit(0);
+
+		processSL_NAP();
+		System.exit(0);
+
+		getStatsFromDepthOutput(new File("C:/Users/vpapa/test/depth/audi/outputs"));
+		System.exit(0);
+
+		List<String> el = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_GR.txt"), Constants.UTF8);
+		List<String> en = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_EN.txt"), Constants.UTF8);
+		List<String> ent = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_TransEN.txt"), Constants.UTF8);
+		List<String> eval = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/testEL-EN.tsv"), Constants.UTF8);
+		evalDonatedSet(el, en, ent, eval);
+		System.exit(0);
+
+		checkRightsInCesDoc(new File(args[0]));
+		System.exit(0);
+
+		fetchURL("http://www.ilsp.gr/el/infoprojects/meta");
+		System.exit(0);
+
+		cleanABUSets();
+		System.exit(0);
+
+		generateABUsets( new File(args[0]), new File(args[1]));
+		System.exit(0);
+
+		renameCESfiles(new File(args[0]),   new File(args[1]), args[2], "_");
+		System.exit(0);
+
+		processABUsets("C:/Users/vpapa/ABU/tourism/datasets/");
+		System.exit(0);
+
+		processABUsets1("C:/Users/vpapa/ABU/tourism/datasets/");
+		System.exit(0);
+
+		checkLvEn();
+		System.exit(0);
+
+		iroEval();
+		System.exit(0);
+
+		globalVoicesCheck(args);
+		System.exit(0);
+
+		iroSets();
+		System.exit(0);
+
+		try {
+			several_specific_helpful_tasks();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
+	@SuppressWarnings("resource")
+	private static void fromTXTtoTXTs_ENpart(File txtfile) throws IOException {
+
+		File dirtxtfile = new File(txtfile.getAbsolutePath()+"_txts");
+		dirtxtfile.mkdir();
+		int counter=0;
+		BufferedReader br = new BufferedReader(new FileReader(txtfile));
+		String line;
+		File txtf ;
+		while ((line = br.readLine()) != null) {
+			line=line.trim();
+			txtf = new File(FilenameUtils.concat(dirtxtfile.getAbsolutePath(),Integer.toString(counter)));
+			FileUtils.writeStringToFile(txtf, line, Constants.UTF8);
+			counter++;
+		}
+	}
+
+	private static void fromTMXtoTXTs_ENpart(File file) {
+		// TODO Auto-generated method stub
+
+	}
+
+
+	private static void processTLDlist(File file) throws IOException {
+		List<String> sites = FileUtils.readLines(file, Constants.UTF8);
+		List<String> finsites = new ArrayList<String>();
+		List<String> nakedsites = new ArrayList<String>();
+		String qq="";
+		for (String site:sites){
+			if (finsites.contains(site))
+				continue;
+			qq=site;
+			if (qq.startsWith("www."))
+				qq=qq.substring(4);
+			if (nakedsites.contains(qq))
+				continue;
+			nakedsites.add(qq);
+			finsites.add(site);
+		}
+		File res = new File(file.getAbsolutePath()+"_f.txt");
+		FileUtils.writeLines(res, Constants.UTF8, finsites,"\n");
+	}
+
+	private static void iroSets() {
+		List<String> res=new ArrayList<String>();	
+		int group=4;
+		try {
+			List<String> tusinfo = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/eng-fra_culture_aupdih.csv"), Constants.UTF8);
+			String[][] tus=new String[tusinfo.size()][2];
+			//String[] itus=new String[tusinfo.size()];
+			int counter=0;
+			for (String tu:tusinfo){
+				if (counter==0){
+					counter++;
 					continue;
-				hren_list.add(t[1]);
-				int index1 = line.indexOf(tlang1);
-				String subline1 = line.substring(index1+4);
-				int index11 = subline1.indexOf(Constants.SPACE);
+				}
+				String[] temp7 = tu.split("\t");
+				tus[counter][0] = temp7[3];
+				tus[counter][1] = temp7[4];
+				//itus[counter] = temp[6];
+				counter++;
+			}
+			//FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_charRatios.csv"), Constants.UTF8, Arrays.asList(itus),"\n");
 
-				int index2 = line.indexOf(tlang2);
-				String subline2 = line.substring(index2+4);
-				int index22 = subline2.indexOf(Constants.SPACE);
-				if (index22<0)
-					index22 = subline2.length();
-				subline1 = t[1]+"\t"+tlang1+subline1.substring(0, index11)+"\t"+tlang2+subline2.substring(0,index22);
-				subline1.replaceAll(Constants.SPACE, "\t");
-				System.out.println(subline1);	
+			List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture.txt"), Constants.UTF8);
+			counter=0;
+			for (String line:lines){
+				if (counter==0){
+					counter++;
+					continue;
+				}
+				String[] temp8 = line.split("\t");
+				if (!temp8[group].trim().isEmpty()){
+					//System.out.println(temp[group]);
+					int ind = Integer.parseInt(temp8[group].trim()) ;
+					res.add(temp8[group].trim()+"\t"+tus[ind][0]+"\t"+tus[ind][1]);
+				}	
+			}
+			FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_g"+Integer.toString(group+1)+".csv"), Constants.UTF8, res,"\n");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+	private static void globalVoicesCheck(String[] args) {
+		//HashMap<String,String> truepairs = BitextUtils.getTruePairs( "C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\docpairs_true_ell-eng.txt");
+		//HashMap<String,String> foundpairs = BitextUtils.getTruePairs( "C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\docpairs_found_noURL_ell-eng.txt");
+		//HashMap<String, DocVector> features = Bitexts.extractXML_Features(new File("C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\pairs"));
+		HashMap<String,String> truepairs = BitextUtils.getTruePairs( args[0]);
+		HashMap<String,String> foundpairs = BitextUtils.getTruePairs( args[1]);
+		HashMap<String, DocVector> features = Bitexts.extractXML_Features(new File(args[2]), null);
+		Set<String> ts=truepairs.keySet();
+		Iterator<String> itt = ts.iterator();
+		while (itt.hasNext()){
+			String td1 = itt.next();
+			String td2 = truepairs.get(td1);
+			double len = features.get(td1).numToksnoOOI + features.get(td2).numToksnoOOI;
+			Set<String> fs=foundpairs.keySet();
+			Iterator<String> itf = fs.iterator();
+			boolean found = false;
+			while (itf.hasNext()){
+				String fd1 = itf.next();
+				String fd2 = foundpairs.get(fd1);
+				if ((td1.equals(fd1) && td2.equals(fd2)) || (td1.equals(fd2) && td2.equals(fd1))){
+					found =true;
+					break;
+				}
+			}
+			if (found){
+				System.out.println("1\t"+td1+"\t"+td2+"\t"+len);	
+			}else{
+				System.out.println("0\t"+td1+"\t"+td2+"\t"+len);
 			}
 		}
-		for (String line:cb1){
-			if (line.contains(domain) && line.contains(tlang1) && line.contains(tlang2)){
-				String[] t = line.split(Constants.SPACE);
-				if (hren_list.contains(t[1]))
-					continue;
-				hren_list.add(t[1]);
-				hren_list.add(t[1]);
-				int index1 = line.indexOf(tlang1);
-				String subline1 = line.substring(index1+4);
-				int index11 = subline1.indexOf(Constants.SPACE);
+	}
 
-				int index2 = line.indexOf(tlang2);
-				String subline2 = line.substring(index2+4);
-				int index22 = subline2.indexOf(Constants.SPACE);
-				if (index22<0)
-					index22 = subline2.length();
-				subline1 = t[1]+"\t"+tlang1+subline1.substring(0, index11)+"\t"+tlang2+subline2.substring(0,index22);
-				subline1.replaceAll(Constants.SPACE, "\t");
-				System.out.println(subline1);	
+	private static void iroEval() throws IOException {
+		File evalfile = new File("C:/Users/vpapa/ELRC/eval_tests/eng-fra_culture_aupdih_evalset_iro");
+		File pairsfile = new File("C:/Users/vpapa/ELRC/eval_tests/eng-fra_culture_aupdih.csv");
+		File resultfile = new File("C:/Users/vpapa/ELRC/eval_tests/eng-fra_culture_aupdih_final.csv");
+		List<String> eval_lines = FileUtils.readLines(evalfile, Constants.UTF8);
+		List<String> all_lines = FileUtils.readLines(pairsfile, Constants.UTF8);
+		String[] id=null;
+		String evalres="id\tl1\tl2\tseg1\tseg2\ttype\tcharLengthRatio\twordLengthRatio\talignerScore\tevalscore\n";
+		for (String t:eval_lines){
+			id=t.split("\t");
+			for (String tt:all_lines){
+				if (tt.startsWith(id[0]+"\t")){
+					evalres = evalres+tt+"\t"+id[3]+"\n";
+					continue;
+				}
 			}
 		}
-		System.exit(0);*/
+		FileUtils.writeStringToFile(resultfile, evalres, Constants.UTF8);
+	}
 
+	private static void checkLvEn() throws IOException {
+		List<String> l1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/TILDE/archive/State_related_content_from_Latvian_Web.en-lv.en"), Constants.UTF8);
+		List<String> l2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/TILDE/archive/State_related_content_from_Latvian_Web.en-lv.lv"), Constants.UTF8);
+		System.out.println(l1.size()+"\t"+l2.size());
+		List<String> l1_l2 = new ArrayList<String>();
+		Set<String> segs = new HashSet<String>();
+		for (int ii=0; ii<l1.size();ii++){
+			String normS = ContentNormalizer.normtext(l1.get(ii));
+			String normT = ContentNormalizer.normtext(l2.get(ii));
+			if ( normS.isEmpty() || normT.isEmpty())
+				continue;			
+			if (normS.equals(normT))
+				continue;
+			/*if (Statistics.editDist(normS,normT)<5){ //FIXME add as parameter, check its influence
+				LOGGER.warn("Discard due to high similarity of TUVs ");
+				LOGGER.warn("\t"+ l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}*/
+
+			if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normS)))>15){
+				LOGGER.warn("Discard due to long tokens in a TUV ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}
+			if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normT)))>15){
+				LOGGER.warn("Discard due to long tokens in a TUV ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}
+			/*if (FCStringUtils.countTokens(normS)<2){
+				LOGGER.warn("Discard due to length (in tokens) of a TUV ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}
+			if (FCStringUtils.countTokens(normT)<2){
+				LOGGER.warn("Discard due to length (in tokens) of a TUV ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}*/
+			float ratio = (float)normS.length()/(float)normT.length();
+			if (ratio>3 || ratio < 0.3){
+				LOGGER.warn("Discard due to charlength ratio of TUVs ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+			}
+			/*String num1=l1.get(ii).replaceAll("\\D+","");
+			String num2=l2.get(ii).replaceAll("\\D+","");
+			if (!num1.equals(num2)){
+				//double temp=Statistics.editDist(num1, num2) / (double) Math.min(num1.length(),num2.length());
+				//if (temp>0.35){
+				LOGGER.warn("Discard due to different numbers in TUVs ");
+				LOGGER.warn("\t"+l1.get(ii));
+				LOGGER.warn("\t"+ l2.get(ii));
+				continue;
+				//}
+			}*/
+
+			String temp6 = normS+"\t"+normT;
+			if (!segs.contains(temp6)){
+				segs.add(temp6);
+				l1_l2.add(l1.get(ii).trim()+"\t"+l2.get(ii).trim());
+			}
+		}
+		System.out.println(segs.size());
+	}
+
+	private static void processABUsets1(String path) throws IOException {
+		List<String> trainset = FileUtils.readLines(new File(path+"trainset.tcv"), Constants.UTF8);
+		List<String> engtrains = new ArrayList<String>();
+		List<String> elltrains = new ArrayList<String>();
+		List<String> trains = new ArrayList<String>();
+		//String path = "C:/Users/vpapa/ABU/tourism/datasets/";
+		List<String> engset = FileUtils.readLines(new File(path+"tourism_eng.txt"), Constants.UTF8);
+		List<String> newengset = new ArrayList<String>();
+		List<String> ellset = FileUtils.readLines(new File(path+"tourism_ell.txt"), Constants.UTF8);
+		List<String> newellgset = new ArrayList<String>();
+		List<String> devset = FileUtils.readLines(new File(path+"devset.tcv"), Constants.UTF8);
+		List<String> engdevs = new ArrayList<String>();
+		List<String> elldevs = new ArrayList<String>();
+		List<String> devs = new ArrayList<String>();
+		List<String> testset1 =new ArrayList<String>();
+		List<String> testset =new ArrayList<String>();
+
+		Integer[] temp= new Integer[6];
+		List<String> l33 = new ArrayList<String>();
+		List<String> l22 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/culture_en-el.processed.tsv"), Constants.UTF8);
+		for (String line:l22){
+			String[] temp3 = line.split("\t");
+			if (temp[5].equals("NULL")){
+				l33.add(line); //System.out.println(temp[0]+"\t"+temp[3]+"\t"+temp[4]);
+			}
+		}
+		l22=null;
+		List<String> l11 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/tourism_en-el.processed.tsv"), Constants.UTF8);
+		for (String line:l11){
+			String[] temp4 = line.split("\t");
+			if (temp[5].equals("NULL")){
+				l33.add(line); //System.out.println(temp[0]+"\t"+temp[3]+"\t"+temp[4]);
+			}
+		}
+		List<String> dev1 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/devset.txt"), Constants.UTF8);
+		List<String> devset1 =new ArrayList<String>();
+		for (String line:dev1){
+			int ind=Integer.parseInt(line);
+			devset1.add(l33.get(ind));
+
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/devset.tcv"), Constants.UTF8, devset,"\n");
+
+		List<String> test1 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/testset.txt"), Constants.UTF8);
+
+		for (String line:test1){
+			int ind=Integer.parseInt(line);
+			testset.add(l33.get(ind));
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/testset.tcv"), Constants.UTF8, testset,"\n");
+
+		List<String> trainset1 = new ArrayList<String>();
+		for (String line:l33){
+			if (testset.contains(line) || devset.contains(line))
+				continue;
+			trainset.add(line);
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/trainset.tcv"), Constants.UTF8, trainset,"\n");
+
+		for (String line1:dev1){
+			String id1 = line1.split("\t")[0];
+			for (String line2:test1){
+				String id2 = line2.split("\t")[0];
+				if (id1.equals(id2)){
+					System.out.println("OOOOPS");
+				}
+			}
+		}		
+	}
+
+	private static void processABUsets(String path) throws IOException {
+		//String path = "C:/Users/vpapa/ABU/tourism/datasets/";
+		List<String> trainset = FileUtils.readLines(new File(path+"trainset.tcv"), Constants.UTF8);
+		List<String> engtrains = new ArrayList<String>();
+		List<String> elltrains = new ArrayList<String>();
+		List<String> trains = new ArrayList<String>();
+		for (String train:trainset){
+			engtrains.add(train.split("\t")[1]);
+			elltrains.add(train.split("\t")[2]);
+			trains.add(train.split("\t")[1]+Constants.SPACE+train.split("\t")[2]);
+		}
+		List<String> devset = FileUtils.readLines(new File(path+"devset.tcv"), Constants.UTF8);
+		List<String> engdevs = new ArrayList<String>();
+		List<String> elldevs = new ArrayList<String>();
+		List<String> devs = new ArrayList<String>();
+		for (String dev:devset){
+			engdevs.add(dev.split("\t")[1]);
+			elldevs.add(dev.split("\t")[2]);
+			devs.add(dev.split("\t")[1]+Constants.SPACE+dev.split("\t")[2]);
+		}
+		List<String> testset = FileUtils.readLines(new File(path+"testset.tcv"), Constants.UTF8);
+		List<String> engtests = new ArrayList<String>();
+		List<String> elltests = new ArrayList<String>();
+		List<String> tests = new ArrayList<String>();
+		for (String test:testset){
+			engtests.add(test.split("\t")[1]);
+			elltests.add(test.split("\t")[2]);
+			tests.add(test.split("\t")[1]+Constants.SPACE+test.split("\t")[2]);
+		}
+		for (String train:trains){
+			String temp2 = ContentNormalizer.normtext(train);
+			for (String test:tests){
+				String temp1 = ContentNormalizer.normtext(test);
+				if (temp2.equals(temp1)){
+					System.out.println(train+"\t"+test);
+				}
+			}
+		}
+	}
+
+	private static void cleanABUSets() throws IOException {
+		List<String> templines = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/datasets/abu/last_testset.tcv"), Constants.UTF8);
+		List<String> tep = new ArrayList<String>();		for (String line:templines)		{			tep.add(line.split("\t")[1]); 		}	
+		templines = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/datasets/abu/last_devset.tcv"), Constants.UTF8);
+		List<String> dep = new ArrayList<String>();		for (String line:templines)		{			dep.add(line.split("\t")[1]); 		}
+		List<String> mono = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/datasets/abu/last_tourism_eng.txt"), Constants.UTF8);
+		System.out.println(mono.size());
+		mono = cleanABUMonoSets(mono, tep,  dep);
+		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/datasets/abu/last_tourism-culture_eng.txt"), Constants.UTF8, mono,"\n");		
+	}
+
+	private static void fetchURL(String string) throws IOException {
+		//URL url = new URL("https://github.com/bixo/bixo/blob/master/examples/src/test/java/bixo/examples/crawl/DemoCrawlWorkflowLRTest.java");
+		//System.out.println(url.getPath());
+		//url = new URL("http://www.antagonistikotita.gr/epanek/proskliseis.asp?id=49&cs=");
+		//System.out.println(url.getPath());
+		//url = new URL("http://www.ilsp.gr/el/infoprojects/meta");
+		//System.out.println(url.getPath());
+		URL url = new URL(string);
+		URLConnection conn = url.openConnection();
+		InputStream ins = conn.getInputStream();
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		byte[] buf = new byte[4096];
+		int r;
+		while ((r = ins.read(buf)) != -1) {
+			bos.write(buf, 0, r);
+		}
+		ins.close();
+		final byte[] data = bos.toByteArray();
+
+		InputStream is = new ByteArrayInputStream(data, 0, data.length);
+
+		String content = CleanerUtils.getContent(is, true);
+		System.out.println(content);
+	}
+
+	private static void checkRightsInCesDoc(File file) throws IOException {
+		List<String> dirs= FileUtils.readLines(file, Constants.UTF8);
+		FilenameFilter filter = new FilenameFilter() {
+			public boolean accept(File arg0, String arg1) {
+				return (arg1.endsWith(appXMLext) & !arg1.contains(UNDERSCORE_STR));
+			}
+		};
+		for (String dir:dirs){
+			List<File> cesDocFiles = FcFileUtils.listFiles(new File(dir), filter,true);
+			HashMap<String, ParsAttr> boilerpars_attrs = CleanerUtils.getParsAttrs((ArrayList<File>) cesDocFiles, "crawlinfo", "boilerplate", true);
+			Set<String> pars = boilerpars_attrs.keySet();
+			Iterator<String> it_pars = pars.iterator();
+			String key, norm_key;
+			double thr = cesDocFiles.size()/10;
+			System.out.println(dir);
+			System.out.println("-------------------------------------------------");
+			while (it_pars.hasNext()){
+				key = it_pars.next();
+				if (boilerpars_attrs.get(key).filenames.size()<thr)
+					continue;
+				norm_key = ContentNormalizer.normalizeText(key);
+				norm_key =  ContentNormalizer.normtext1(norm_key);
+				if (norm_key.isEmpty())
+					continue;
+				String[] words = norm_key.split(Constants.SPACE); 
+				if (words.length<2)
+					continue;
+
+				Double[] temp1 = new Double[boilerpars_attrs.get(key).par_endids.size()];
+				for (int ii=0;ii<boilerpars_attrs.get(key).par_endids.size();ii++)
+					temp1[ii] = boilerpars_attrs.get(key).par_startids.get(ii)/(boilerpars_attrs.get(key).par_endids.get(ii)+boilerpars_attrs.get(key).par_startids.get(ii));
+
+				if (Statistics.getMean(temp1)<0.8)
+					continue;
+				if (norm_key.contains(COPYRIGHT_STR) || norm_key.contains(RIGHTS_STR)){
+					System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!"+key+"!!!!!!!!!!!!!!!!!!!!!!!!");
+					break;
+				}
+				System.out.println(key);
+			}	
+		}
+	}
+
+	private static void getStatsFromDepthOutput(File inn) throws IOException {
+		//File inn= new File("C:/Users/vpapa/test/depth/audi/outputs");
+		String langs = "af;ar;bg;bn;ca;cs;cy;da;de;el;en;es;et;eu;fa;fi;fr;ga;gl;gu;he;hi;hr;hu;id;it;ja;kn;ko;lt;lv;mk;ml;mr;mt;ne;nl;no;pa;pl;pt;ro;ru;sk;sl;so;sq;sv;sw;ta;te;th;tl;tr;uk;ur;vi;zh-cn;zh-tw";
+		String[] ls = LangDetectUtils.updateLanguages(langs,true).split(";");
+		Map<String, String> resu = new HashMap<String, String>();
+		resu.put("site", "");		resu.put("depth", "");		resu.put("minlen", "");		for (int ii=0;ii<ls.length;ii++){resu.put(ls[ii], "");}
+		File[] outputs= inn.listFiles();
+		File resi = new File(inn.getAbsolutePath()+"_res");
+
+		for (File file:outputs){
+			List<String> lines= FileUtils.readLines(file, Constants.UTF8) ;
+			List<String> found = new ArrayList<String>();
+			for (String line:lines){
+				if (line.startsWith("\t") || line.startsWith("staring"))
+					continue;
+				if (line.startsWith("target"))	{			//newlines.add(line.split("\t")[1]);
+					resu.put("site", resu.get("site")+line.split("\t")[1]+"\t");
+					continue;
+				}
+				if (line.startsWith("crawled"))	{			//newlines.add(line.split("\t")[1]);
+					//total[1] = total[1]+line.split("\t")[1]+"\t";
+					resu.put("depth", resu.get("depth")+line.split("\t")[1]+"\t");
+					continue;
+				}
+				if (line.startsWith("minimum"))	{			//newlines.add(line.split("\t")[1]);
+					//total[2] = total[2]+line.split("\t")[1]+"\t";
+					resu.put("minlen", resu.get("minlen")+line.split("\t")[1]+"\t");
+					continue;
+				}
+				if (line.startsWith("number")){
+					System.out.println(line);
+					String[] t = line.split("\t");
+					String l = t[0].split(Constants.SPACE)[4];
+					resu.put(l, resu.get(l)+t[1]+"\t");
+					found.add(l);
+				}
+			}
+			for (int ii=0;ii<ls.length;ii++){
+				if (found.contains(ls[ii]))
+					continue;
+				resu.put(ls[ii], resu.get(ls[ii])+"0"+"\t");
+			}
+		}
+		List<String> total = new ArrayList<String>();
+		total.add("site"+"\t"+resu.get("site"));
+		total.add("depth"+"\t"+resu.get("depth"));
+		total.add("minlen"+"\t"+resu.get("minlen"));
+		for (int ii=0;ii<ls.length;ii++){
+			total.add(ls[ii]+"\t"+resu.get(ls[ii]));
+		}
+		FileUtils.writeLines(resi, Constants.UTF8, total,"\n");		
+	}
+
+	private static void getURLsfromPairedCesDoc(File in10) {
+		//File in10 = new File ("C:/Users/vpapa/test/depth/polinst/polinst-hu_20161122_202939/6227940e-3987-4fe4-abad-75b13faa45d3/xml");
+		String lang11 = "eng";
+		String lang22 = "hun";
+		File[] files10 = in10.listFiles();
+		System.out.println(lang11+"\t"+lang22);
+		for (File file:files10){
+			String filename =file.getName(); 
+			if (filename.endsWith("xml") && filename.contains(UNDERSCORE_STR) && filename.contains(lang11) && filename.contains(lang22)){
+				String[] parts = filename.split(UNDERSCORE_STR);
+				File newfile = new File(FilenameUtils.concat(file.getParent(),parts[0]+".xml"));
+				String url1 = ReadResources.extractNodefromXML(newfile.getAbsolutePath(), "eAddress", false);
+				newfile = new File(FilenameUtils.concat(file.getParent(),parts[1]+".xml"));
+				url1 = url1+"\t"+ReadResources.extractNodefromXML(newfile.getAbsolutePath(), "eAddress",false);
+				System.out.println(url1);
+			}
+		}
+	}
+
+	private static List<String> getNewCommands(File file) throws IOException {
+		List<String> commands = FileUtils.readLines(file, Constants.UTF8);
+		List<String> newcommands = new ArrayList<String>();
+		for (String command:commands){
+			File t1 = new File(command);
+			String t2 = t1.getParentFile().getName();
+			t2 = t2.substring(0, t2.indexOf("_"));
+			String t3 = t1.getParentFile().getParent();
+			t3=t3.replace("\\", "/");
+			//.replaceAll("\\", "/");
+			String a = " java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar ";  
+			a = a + " -export -i \""+command + "\" -lang \"eng;ell\" -len 0 -mtlen 100 -dom \"culture\" -bs \"" + t3 + "/output_"+ t2+"\"" ;
+			a = a + " >\"" + t3+ "/log_export_"+t2+ "\"";
+			newcommands.add(a);
+
+			a = " java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar ";  
+			a = a + " -export -offline -i \""+command +"/pdf"+ "\" -lang \"eng;ell\" -len 0 -mtlen 100 -dom \"culture\" -bs \"" + t3 + "/output_"+ t2+"\"" ;
+			a = a + " -o \""+command +"/xml\"" ; 
+			a = a + " >\"" + t3+ "/log_export_offline_"+t2+ "\"";
+			newcommands.add(a);
+
+			a = " java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar ";  
+			a = a + " -dedup -i \""+command +"/xml"+ "\" -lang \"eng;ell\" -bs \"" + t3 + "/output_"+ t2+"\"" ;
+			a = a + " >\"" + t3+ "/log_dedup_"+t2+ "\"";
+			newcommands.add(a);
+		}
+		FileUtils.writeLines(new File(file.getAbsolutePath()+".txt"), Constants.UTF8, newcommands,"\n");
+		return null;
+	}
+
+	private static void getStatsOnELRCDatasets(File infile) throws IOException {
 		String cri1 = "Corpus";
 		String cri2 = "Translation Units";
 		List<String> ilsp = new ArrayList();	ilsp.add("Greece");		ilsp.add("Poland");			ilsp.add("Croatia");	ilsp.add("Slovenia");		ilsp.add("Slovakia");	ilsp.add("Bulragia");	ilsp.add("Cyprus");		ilsp.add("Romania");
@@ -208,8 +855,8 @@ public class TempUtils {
 		List<String> elda = new ArrayList(); 	elda.add("France");		elda.add("Belgium");		elda.add("Spain");		elda.add("France, Spain");	elda.add("France, Malta"); elda.add("Ireland");	elda.add("Italy"); 		elda.add("Malta");		elda.add("Portugal");
 		List<String> dfki = new ArrayList();	dfki.add("Austria");	dfki.add("Czech Republic"); dfki.add("Germany");	dfki.add("Hungary");		dfki.add("Luxembourg");	dfki.add("Netherlands"); 
 
-		File infile = new File("C://Users//vpapa//ELRC//20170406_ELRC_SHARE_OVERVIEW.txt");
-		List<String>  datalines = FileUtils.readLines(infile);
+		//File infile = new File("C://Users//vpapa//ELRC//20170406_ELRC_SHARE_OVERVIEW.txt");
+		List<String>  datalines = FileUtils.readLines(infile, Constants.UTF8);
 		List<String>  selectedlines = new ArrayList<String>(); 
 		List<String>  selectedlines1 = new ArrayList<String>();
 		for (String line:datalines){
@@ -246,11 +893,11 @@ public class TempUtils {
 
 			}
 		}
-		FileUtils.writeLines(new File(infile.getAbsolutePath()+"_"+cri1+"_"+cri2), selectedlines);
-		FileUtils.writeLines(new File(infile.getAbsolutePath()+"_"+cri1+"_mono"), selectedlines1);
+		FileUtils.writeLines(new File(infile.getAbsolutePath()+"_"+cri1+"_"+cri2), Constants.UTF8, selectedlines,"\n");
+		FileUtils.writeLines(new File(infile.getAbsolutePath()+"_"+cri1+"_mono"), Constants.UTF8, selectedlines1,"\n");
 
 		Map<String, Integer[]> langmono_num = new HashMap<String,Integer[]>();
-		List<String> tulines1 = FileUtils.readLines(new File(infile.getAbsolutePath()+"_"+cri1+"_mono"));
+		List<String> tulines1 = FileUtils.readLines(new File(infile.getAbsolutePath()+"_"+cri1+"_mono"), Constants.UTF8);
 
 		for (String tus:tulines1){
 			Integer[] temp_langmono= new Integer[3];
@@ -282,7 +929,7 @@ public class TempUtils {
 		Map<String, Integer[]> lic_num = new HashMap<String,Integer[]>();
 
 		//Map<String, Integer> serv_num = new HashMap<String,Integer>();
-		List<String> tulines = FileUtils.readLines(new File(infile.getAbsolutePath()+"_"+cri1+"_"+cri2));
+		List<String> tulines = FileUtils.readLines(new File(infile.getAbsolutePath()+"_"+cri1+"_"+cri2), Constants.UTF8);
 		for (String tus:tulines){
 			Integer[] temp_lang=new Integer[3]; Integer[] temp_country=new Integer[3]; Integer[] temp_lic= new Integer[3]; 
 			for (int ii=0;ii<temp_lang.length;ii++){
@@ -387,795 +1034,472 @@ public class TempUtils {
 		System.out.println("dfki"+"\t" + partners.get("dfki")[0]+"\t"+partners.get("dfki")[1]+"\t"+partners.get("dfki")[2]);
 		System.out.println("tilde"+"\t" + partners.get("tilde")[0]+"\t"+partners.get("tilde")[1]+"\t"+partners.get("tilde")[2]);
 
+	}
 
-		System.exit(0);
-
-
-
-
-
-		/*List<String> cb = FileUtils.readLines(new File("C://Users//vpapa//ELRC//2015_22.stats.joined"));
-		List<String> cb1 = FileUtils.readLines(new File("C://Users//vpapa//ELRC//2015_40.stats.joined"));
+	private static List<String> processBuckList(File file1, File file2, String domain, String tlang1, String tlang2) throws IOException {
+		//String domain = ".hr ";
+		//String tlang1 = " hr ";
+		//String tlang2 = " en ";
+		List<String> cb = FileUtils.readLines(file1, Constants.UTF8);
+		List<String> cb1 = FileUtils.readLines(file2, Constants.UTF8);
 		List<String> hren_list = new ArrayList<String>();
+		List<String> hren_list1 = new ArrayList<String>();
+		List<String> res_list = new ArrayList<String>();
+		String naked="";
 		for (String line:cb){
-			if (line.contains(".hr") && line.contains(" hr ") && line.contains(" en ")){
+			if (line.contains(domain) && line.contains(tlang1) && line.contains(tlang2)){
+				//System.out.println(line);
+				if (line.contains("blogspot") || line.contains("webstatsdomain") || line.contains("forum") || line.contains("blog."))
+					continue;
 				String[] t = line.split(Constants.SPACE);
+				if (t[1].length()>30){
+					System.out.println("eeee      "+line);
+					continue;
+				}
 				if (hren_list.contains(t[1]))
 					continue;
+				naked=t[1];
+				if (t[1].startsWith("www."))
+					naked = t[1].substring(4);
+				if (hren_list1.contains(naked))
+					continue;
 				hren_list.add(t[1]);
-				System.out.println(line);
+				hren_list1.add(naked);
+
+				int index1 = line.indexOf(tlang1);
+				String subline1 = line.substring(index1+4);
+				int index11 = subline1.indexOf(Constants.SPACE);
+				if (index11<0)
+					index11 = subline1.length();
+				int index2 = line.indexOf(tlang2);
+				String subline2 = line.substring(index2+4);
+				int index22 = subline2.indexOf(Constants.SPACE);
+				if (index22<0)
+					index22 = subline2.length();
+				subline1 = t[1]+"\t"+tlang1+subline1.substring(0, index11)+"\t"+tlang2+subline2.substring(0,index22);
+				subline1.replaceAll(Constants.SPACE, "\t");
+				System.out.println(subline1);	
+				res_list.add(subline1);
 			}
 		}
 		for (String line:cb1){
-			if (line.contains(".hr") && line.contains(" hr ") && line.contains(" en ")){
+			if (line.contains(domain) && line.contains(tlang1) && line.contains(tlang2)){
+				//System.out.println(line);
+				if (line.contains("blogspot") || line.contains("webstatsdomain") || line.contains("forum") || line.contains("blog."))
+					continue;
 				String[] t = line.split(Constants.SPACE);
+
+				if (t[1].length()>30){
+					//System.out.println("eeee      "+line);
+					continue;
+				}
 				if (hren_list.contains(t[1]))
 					continue;
+				naked=t[1];
+				if (t[1].startsWith("www."))
+					naked = t[1].substring(4);
+				if (hren_list1.contains(naked))
+					continue;
 				hren_list.add(t[1]);
-				System.out.println(line);
+				hren_list1.add(naked);
+
+				int index1 = line.indexOf(tlang1);
+				String subline1 = line.substring(index1+4);
+				int index11 = subline1.indexOf(Constants.SPACE);
+				if (index11<0)
+					index11 = subline1.length();
+				int index2 = line.indexOf(tlang2);
+				String subline2 = line.substring(index2+4);
+				int index22 = subline2.indexOf(Constants.SPACE);
+				if (index22<0)
+					index22 = subline2.length();
+				subline1 = t[1]+"\t"+tlang1+subline1.substring(0, index11)+"\t"+tlang2+subline2.substring(0,index22);
+				subline1.replaceAll(Constants.SPACE, "\t");
+				System.out.println(subline1);	
+				res_list.add(subline1);
 			}
 		}
-		FileUtils.writeLines(new File("C://Users//vpapa//ELRC//hr-en_2015_22.stats.joined-2015_40.stats.joined"), hren_list);
-		List<String> aa = FileUtils.readLines(new File("C://Users//vpapa//ELRC//ipr//HOMES//log_rights_homes"));
-		List<String> right_list= new ArrayList<String>();
-		for (String line:aa){
-			if (line.contains("FOUND")){
-				String[] parts = line.split("\t");
-				if (!right_list.contains(parts[1]))
-					right_list.add(parts[1]);
-			}
-		}
-		FileUtils.writeLines(new File("C://Users//vpapa//ELRC//ipr//HOMES//rights_links.txt"), right_list);
-		System.exit(0); */
-		//String aa = FileUtils.readFileToString(new File("C://Users//vpapa//ELRC//ipr//keywords.txt"));
-		//aa= ContentNormalizer.formatString(aa);
-		//FileUtils.writeStringToFile(new File("C://Users//vpapa//ELRC//ipr//keywords_norm.txt"), aa);
+		return res_list;
+	}
 
-		/*File[] ff= new File("C://Users//vpapa//ELRC//ipr//HOMES").listFiles();
-		List<String> all = new ArrayList<String>();
-		for (File f:ff){
-			List<String> ll = FileUtils.readLines(f);
-			all.addAll(ll);
-		}
-		FileUtils.writeLines(new File("C://Users//vpapa//ELRC//ipr//HOMES//all.txt"), all);*/
-
-		List<String> rightslist = FileUtils.readLines(new File("C://Users//vpapa//ELRC//ipr//keywords.txt"));
-
-		List<String> rights = new ArrayList<String>();
-		for (String right:rightslist){
-			right=ContentNormalizer.formatString(right);
-			if (!rights.contains(rights)){
-				System.out.println(right);
-				rights.add(right);
-			}
-		}
-		FileUtils.writeLines(new File("C://Users//vpapa//ELRC//ipr//keywords_norm.txt"),rights);
-		System.exit(0);
-
-		List<String> commands = FileUtils.readLines(new File("C:/Users/vpapa/test/test_pdf/crawldirs_culture_el.txt"));
-		List<String> newcommands = new ArrayList<String>();
-		for (String command:commands){
-			File t1 = new File(command);
-			String t2 = t1.getParentFile().getName();
-			t2 = t2.substring(0, t2.indexOf("_"));
-			String t3 = t1.getParentFile().getParent();
-			t3=t3.replace("\\", "/");
-			//.replaceAll("\\", "/");
-			String a = " java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar ";  
-			a = a + " -export -i \""+command + "\" -lang \"eng;ell\" -len 0 -mtlen 100 -dom \"culture\" -bs \"" + t3 + "/output_"+ t2+"\"" ;
-			a = a + " >\"" + t3+ "/log_export_"+t2+ "\"";
-			newcommands.add(a);
-
-			a = " java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar ";  
-			a = a + " -export -offline -i \""+command +"/pdf"+ "\" -lang \"eng;ell\" -len 0 -mtlen 100 -dom \"culture\" -bs \"" + t3 + "/output_"+ t2+"\"" ;
-			a = a + " -o \""+command +"/xml\"" ; 
-			a = a + " >\"" + t3+ "/log_export_offline_"+t2+ "\"";
-			newcommands.add(a);
-
-			a = " java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar ";  
-			a = a + " -dedup -i \""+command +"/xml"+ "\" -lang \"eng;ell\" -bs \"" + t3 + "/output_"+ t2+"\"" ;
-			a = a + " >\"" + t3+ "/log_dedup_"+t2+ "\"";
-			newcommands.add(a);
-
-
-		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/test/test_pdf/export-on-off_dedup_commands_culture_el.txt"), newcommands);
-		System.exit(0);
-
-
-
-		processSL_NAP();
-		System.exit(0);
-
-		List<String> ll1 = FileUtils.readLines(new File("C:/Users/vpapa/JRX-Resources/JREeurovoc/en-eurovoc-1.0/resources/ThesaurusStructure/desc_en_original.xml"));
-		List<String> ll2 = FileUtils.readLines(new File("C:/Users/vpapa/JRX-Resources/JREeurovoc/en-eurovoc-1.0/resources/ThesaurusStructure/desc_en.xml"));
-		for (String t:ll1){
-			if (!ll2.contains(t))
-				System.out.println(t);
-		}
-
-		System.exit(0);
-
-		File in10 = new File ("C:/Users/vpapa/test/depth/polinst/polinst-hu_20161122_202939/6227940e-3987-4fe4-abad-75b13faa45d3/xml");
-		String lang11 = "eng";
-		String lang22 = "hun";
-		File[] files10 = in10.listFiles();
-		System.out.println(lang11+"\t"+lang22);
-		for (File file:files10){
-			String filename =file.getName(); 
-			if (filename.endsWith("xml") && filename.contains(UNDERSCORE_STR) && filename.contains(lang11) && filename.contains(lang22)){
-				String[] parts = filename.split(UNDERSCORE_STR);
-				File newfile = new File(FilenameUtils.concat(file.getParent(),parts[0]+".xml"));
-				String url1 = ReadResources.extractNodefromXML(newfile.getAbsolutePath(), "eAddress", false);
-				newfile = new File(FilenameUtils.concat(file.getParent(),parts[1]+".xml"));
-				url1 = url1+"\t"+ReadResources.extractNodefromXML(newfile.getAbsolutePath(), "eAddress",false);
-				System.out.println(url1);
-			}
-		}
-		System.exit(0);
-
-
-		File inn= new File("C:/Users/vpapa/test/depth/audi/outputs");
-		String langs = "af;ar;bg;bn;ca;cs;cy;da;de;el;en;es;et;eu;fa;fi;fr;ga;gl;gu;he;hi;hr;hu;id;it;ja;kn;ko;lt;lv;mk;ml;mr;mt;ne;nl;no;pa;pl;pt;ro;ru;sk;sl;so;sq;sv;sw;ta;te;th;tl;tr;uk;ur;vi;zh-cn;zh-tw";
-		String[] ls = LangDetectUtils.updateLanguages(langs,true).split(";");
-		Map<String, String> resu = new HashMap<String, String>();
-		resu.put("site", "");		resu.put("depth", "");		resu.put("minlen", "");		for (int ii=0;ii<ls.length;ii++){resu.put(ls[ii], "");}
-		File[] outputs= inn.listFiles();
-		File resi = new File(inn.getAbsolutePath()+"_res");
-
-		for (File file:outputs){
-			List<String> lines= FileUtils.readLines(file) ;
-			List<String> found = new ArrayList<String>();
-			for (String line:lines){
-				if (line.startsWith("\t") || line.startsWith("staring"))
-					continue;
-				if (line.startsWith("target"))	{			//newlines.add(line.split("\t")[1]);
-					resu.put("site", resu.get("site")+line.split("\t")[1]+"\t");
-					continue;
-				}
-				if (line.startsWith("crawled"))	{			//newlines.add(line.split("\t")[1]);
-					//total[1] = total[1]+line.split("\t")[1]+"\t";
-					resu.put("depth", resu.get("depth")+line.split("\t")[1]+"\t");
-					continue;
-				}
-				if (line.startsWith("minimum"))	{			//newlines.add(line.split("\t")[1]);
-					//total[2] = total[2]+line.split("\t")[1]+"\t";
-					resu.put("minlen", resu.get("minlen")+line.split("\t")[1]+"\t");
-					continue;
-				}
-				if (line.startsWith("number")){
-					System.out.println(line);
-					String[] t = line.split("\t");
-					String l = t[0].split(Constants.SPACE)[4];
-					resu.put(l, resu.get(l)+t[1]+"\t");
-					found.add(l);
-				}
-			}
-			for (int ii=0;ii<ls.length;ii++){
-				if (found.contains(ls[ii]))
-					continue;
-				resu.put(ls[ii], resu.get(ls[ii])+"0"+"\t");
-			}
-		}
-		List<String> total = new ArrayList<String>();
-		total.add("site"+"\t"+resu.get("site"));
-		total.add("depth"+"\t"+resu.get("depth"));
-		total.add("minlen"+"\t"+resu.get("minlen"));
-		for (int ii=0;ii<ls.length;ii++){
-			total.add(ls[ii]+"\t"+resu.get(ls[ii]));
-		}
-		FileUtils.writeLines(resi, total);
-		System.exit(0);
-
-		List<String> cur = FileUtils.readLines(new File("C:/Users/vpapa/JRX-Resources/JREeurovoc/en-eurovoc-1.0/resources/ThesaurusStructure/desc_en.xml"));
-		List<String> or  = FileUtils.readLines(new File("C:/Users/vpapa/JRX-Resources/JREeurovoc/en-eurovoc-1.0/resources/ThesaurusStructure/desc_en_original.xml"));
-
-		for (String line_or:or){
-			if (!cur.contains(line_or)){
-				System.out.println(line_or);
-			}
-		}
-		System.exit(0);
-
-		String[] ext2=new String[1];
-		ext2[0]="docx";
-		List<File> jpgfiles = (List<File>) FileUtils.listFiles(new File("C:\\Users\\vpapa\\p_61\\xaris\\Vouli\\1994-1996 ΟΛΟΚΛΗΡΩΜΕΝΑ"), ext2, true);
-		int jpgcounter=0;
-		for (File file:jpgfiles){
-			//if (file.getName().contains("_p"))
-			//	continue;
-			if (!file.getAbsolutePath().contains("0020"))
+	private static void fromCesDoc2xml(File file) throws IOException {
+		String ooi_crawlinfo = "crawlinfo";
+		String P_ELE = "p";
+		File indir = new File("C:/Users/vpapa/test/ILSP_20170203_113925/5beb49a6-30b8-484a-bc6b-8d6b581fd2e9/xml");
+		File[] xmlfiles = indir.listFiles();
+		for (int ii=0;ii<xmlfiles.length;ii++){
+			String basename = FilenameUtils.getBaseName(xmlfiles[ii].getAbsolutePath());
+			if (basename.contains(Constants.UNDERSCORE))
 				continue;
-			jpgcounter++;
-		}
-		System.out.println(jpgcounter);
-		System.exit(0);
-
-		String[] ext=new String[1];
-		ext[0]="txt";
-		List<File> txtfiles = (List<File>) FileUtils.listFiles(new File("F:\\EROTISEIS_IST_4-6-15_processed\\txt_v0"), ext, true);
-		for (File txtfile:txtfiles){
-			List<String> lines = FileUtils.readLines(txtfile);
-			List<String> newlines = new ArrayList<String>();
-			String line1="";
-			System.out.println(txtfile.getName());
-			for (String line:lines){
-				line1 = line.replaceAll("[^\\p{L}&^\\p{N} ]", "").trim();
-				line1=line1.replaceAll("(\\s)", "").trim();
-				line1=line1.replaceAll("(\\^)", "").trim();
-				//line1=line1.replaceAll("(\\s){2,}", "").trim();
-				//System.out.println(line+"\t"+line1);
-
-				if ((double)line1.length()/(double)line.length()<0.6){
-					System.out.println("CUT:\t"+line+"\t"+line1);
-					continue;
-				}
-				if (line1.length()<10)
-					line1 = line1.replaceAll("[\\p{IsLatin} ]", "").trim();
-				if (line1.length()<2){
-					System.out.println("CUT:\t"+line);
-					continue;
-				}
-				newlines.add(line);
+			String text= "";
+			if (xmlfiles[ii].getName().endsWith("xml")){
+				text = ReadResources.extractTextfromXML_clean(xmlfiles[ii].getAbsolutePath(),P_ELE,ooi_crawlinfo, false);
+				File txtfile = new File(FilenameUtils.concat(xmlfiles[ii].getParent(),basename+".txt"));
+				FileUtils.writeStringToFile(txtfile, text, Constants.UTF8);
 			}
-			File newfile = new File(FilenameUtils.concat(txtfile.getParentFile().getParent(),txtfile.getName()));
-			FileUtils.writeLines(newfile, newlines);
-		}
-
-		System.exit(0);
-
-		List<String> el = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_GR.txt"));
-		List<String> en = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_EN.txt"));
-		List<String> ent = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_TransEN.txt"));
-		List<String> eval = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/testEL-EN.tsv"));
-
-
-		evalDonatedSet(el, en, ent, eval);
-
-
-		//ArrayList<File> cesDocFiles=FcFileUtils.getCesDocFiles(
-		//		new File("C:/Users/vpapa/test/test_20160928_110951/c74a9565-16c3-4fca-a869-b29b02ee169d/xml"));
-
-		//List<String> dirs= FileUtils.readLines(new File("C:/Users/vpapa/test/fraser1/License_test_dirs.txt"));
-		List<String> dirs= FileUtils.readLines(new File(args[0]));
-		FilenameFilter filter = new FilenameFilter() {			
-			public boolean accept(File arg0, String arg1) {
-				return (arg1.endsWith(appXMLext) & !arg1.contains(UNDERSCORE_STR));
-			}
-		};
-
-
-		for (String dir:dirs){
-			//ArrayList<File> cesDocFiles=FcFileUtils.getCesDocFiles(new File(dir));
-			List<File> cesDocFiles = FcFileUtils.listFiles(new File(dir), filter,true);
-
-			HashMap<String, ParsAttr> boilerpars_attrs = CleanerUtils.getParsAttrs((ArrayList<File>) cesDocFiles, "crawlinfo", "boilerplate", true);
-			Set<String> pars = boilerpars_attrs.keySet();
-			Iterator<String> it_pars = pars.iterator();
-			String key, norm_key;
-			double thr = cesDocFiles.size()/10;
-			System.out.println(dir);
-			System.out.println("-------------------------------------------------");
-			while (it_pars.hasNext()){
-				key = it_pars.next();
-				if (boilerpars_attrs.get(key).filenames.size()<thr)
-					continue;
-				norm_key = ContentNormalizer.normalizeText(key);
-				norm_key =  ContentNormalizer.normtext1(norm_key);
-				if (norm_key.isEmpty())
-					continue;
-				String[] words = norm_key.split(Constants.SPACE); 
-				if (words.length<2)
-					continue;
-
-				Double[] temp1 = new Double[boilerpars_attrs.get(key).par_endids.size()];
-				for (int ii=0;ii<boilerpars_attrs.get(key).par_endids.size();ii++)
-					temp1[ii] = boilerpars_attrs.get(key).par_startids.get(ii)/(boilerpars_attrs.get(key).par_endids.get(ii)+boilerpars_attrs.get(key).par_startids.get(ii));
-
-				if (Statistics.getMean(temp1)<0.8)
-					continue;
-				if (norm_key.contains(COPYRIGHT_STR) || norm_key.contains(RIGHTS_STR)){
-					System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!"+key+"!!!!!!!!!!!!!!!!!!!!!!!!");
-					break;
-				}
-				System.out.println(key);
-			}	
-		}
-
-
-
-
-
-
-
-		//List<String> el       = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_GR.txt"));
-		//List<String> en       = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_EN.txt"));
-		List<String> en_trans = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_TransEN.txt"));
-
-		List<String> el_en = new ArrayList<String>();
-		Random rand=new Random();
-		String sent="";
-		int randomNum=0;
-		for (int ii=0;ii<el.size();ii++){
-			sent = el.get(ii)+"\t";
-			randomNum = rand.nextInt((1 - 0) + 1) + 0;
-			System.out.println(randomNum);
-			if (randomNum==0)
-				sent = sent+en.get(ii)+"\t\t"+en_trans.get(ii);
-			else
-				sent = sent+en_trans.get(ii)+"\t\t"+en.get(ii);
-			el_en.add(sent);
-		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/testEL-EN.tsv"), el_en);
-		// nextInt is normally exclusive of the top value,
-		// so add 1 to make it inclusive
-
-
-
-
-		System.exit(0);
-
-
-		File[] files = new File("C:/Users/vpapa/wmt16_bda/train/minelinks.com.lett").listFiles();
-		List<File> files1 = new ArrayList<File>();
-		List<File> files2 = new ArrayList<File>();
-		List<String> urls1 = new ArrayList<String>();
-		List<String> urls2 = new ArrayList<String>();
-		List<Record> records = new ArrayList<Record>();
-		String name="";
-		for (File file:files){
-			name =file.getName(); 
-			if (!name.endsWith("xml") || name.contains("_"))
-				continue;
-			if ( name.startsWith("en")){
-				files1.add(file); 	urls1.add(ReadResources.extractNodefromXML(file.getAbsolutePath(),"eAddress" ,false));
-			}
-			if ( name.startsWith("fr")){
-				files2.add(file);	urls2.add(ReadResources.extractNodefromXML(file.getAbsolutePath(),"eAddress" ,false));
-			}	
-		}
-		System.out.println(files1.size()+"\t"+urls1.size());		System.out.println(files2.size()+"\t"+urls2.size());
-		String key1pair="";
-		double mindist=6, dist = 6;
-		int c=0;
-		for (String n1:urls1){
-			c=0; 	mindist=6;
-			for (String n2:urls2){
-				dist = Statistics.editDist(n1, n2);
-				if (dist<mindist){
-					key1pair = n2;	 mindist = dist;
-				}else{
-					if (dist==mindist && !key1pair.isEmpty()){
-						key1pair=""; c++;
-					}
-				}
-			}
-			if (!key1pair.isEmpty() && c==0){
-				Record record = new Record(n1, key1pair, dist);
-				records.add(record);
-			}
-		}
-
-		//RecordComparator rc = new RecordComparator(Sort.ASCENDING, (new Field).D);
-		//Collections.sort(records, rc);
-
-		//Arrays.sort(theArray, new Comparator<String[]>(){
-
-
-		List<String> lines1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_EN.txt"));
-		List<String> lines2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/non-annot_TransEN.txt"));
-		List<String> lines1stem = new ArrayList<String>(); 
-		List<String> lines2stem = new ArrayList<String>();		
-
-		for (String line:lines1){
-			lines1stem.add(line);
-		}
-
-
-		File tmxFile = new File("C:/Users/vpapa/ELRC/donated/greek_anti-corruption/output_corpus1_tmxmerge_ell-eng.tmx");
-		String lang1 = "ell", lang2="eng";
-		double tr=0.18;
-
-		List<SegPair> segpairs = TMXHandlerUtils.getTUsFromTMX(tmxFile, false, lang1, lang2);
-		for (SegPair segpair:segpairs){
-			System.out.println(segpair.seg1+"\t"+segpair.seg2);
-		}
-
-
-		URL url = new URL("https://github.com/bixo/bixo/blob/master/examples/src/test/java/bixo/examples/crawl/DemoCrawlWorkflowLRTest.java");
-		System.out.println(url.getPath());
-		url = new URL("http://www.antagonistikotita.gr/epanek/proskliseis.asp?id=49&cs=");
-		System.out.println(url.getPath());
-		url = new URL("http://www.ilsp.gr/el/infoprojects/meta");
-		System.out.println(url.getPath());
-		System.exit(0);
-
-		URLConnection conn = url.openConnection();
-		InputStream ins = conn.getInputStream();
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		byte[] buf = new byte[4096];
-		int r;
-		while ((r = ins.read(buf)) != -1) {
-			bos.write(buf, 0, r);
-		}
-		ins.close();
-		final byte[] data = bos.toByteArray();
-
-		InputStream is = new ByteArrayInputStream(data, 0, data.length);
-
-		String content = CleanerUtils.getContent(is, true);
-		System.out.println(content);
-		System.exit(0);
-
-
-
-		List<String> templines = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/datasets/abu/last_testset.tcv"));
-		List<String> tep = new ArrayList<String>();		for (String line:templines)		{			tep.add(line.split("\t")[1]); 		}	
-
-		templines = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/datasets/abu/last_devset.tcv"));
-		List<String> dep = new ArrayList<String>();		for (String line:templines)		{			dep.add(line.split("\t")[1]); 		}
-
-		List<String> mono = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/datasets/abu/last_tourism_eng.txt"));
-		System.out.println(mono.size());
-		mono = cleanABUMonoSets(mono, tep,  dep);
-
-		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/datasets/abu/last_tourism-culture_eng.txt"), mono);
-
-		System.exit(0);
-		//----------------------------------------generateABUsets  
-		generateABUsets( new File(args[0]), new File(args[1]));
-
-		System.exit(0);
-		//----------------------------------------rename pdfs to re-export them  
-		renameCESfiles(new File(args[0]),   new File(args[1]), args[2], "_");
-		System.exit(0);
-		//-----------------------------------------------------
-		String path = "C:/Users/vpapa/ABU/tourism/datasets/";
-		List<String> trainset = FileUtils.readLines(new File(path+"trainset.tcv"));
-		List<String> engtrains = new ArrayList<String>();
-		List<String> elltrains = new ArrayList<String>();
-		List<String> trains = new ArrayList<String>();
-		for (String train:trainset){
-			engtrains.add(train.split("\t")[1]);
-			elltrains.add(train.split("\t")[2]);
-			trains.add(train.split("\t")[1]+Constants.SPACE+train.split("\t")[2]);
-		}
-		List<String> devset = FileUtils.readLines(new File(path+"devset.tcv"));
-		List<String> engdevs = new ArrayList<String>();
-		List<String> elldevs = new ArrayList<String>();
-		List<String> devs = new ArrayList<String>();
-		for (String dev:devset){
-			engdevs.add(dev.split("\t")[1]);
-			elldevs.add(dev.split("\t")[2]);
-			devs.add(dev.split("\t")[1]+Constants.SPACE+dev.split("\t")[2]);
-		}
-		List<String> testset = FileUtils.readLines(new File(path+"testset.tcv"));
-		List<String> engtests = new ArrayList<String>();
-		List<String> elltests = new ArrayList<String>();
-		List<String> tests = new ArrayList<String>();
-		for (String test:testset){
-			engtests.add(test.split("\t")[1]);
-			elltests.add(test.split("\t")[2]);
-			tests.add(test.split("\t")[1]+Constants.SPACE+test.split("\t")[2]);
-		}
-		for (String train:trains){
-			String temp2 = ContentNormalizer.normtext(train);
-			for (String test:tests){
-				String temp1 = ContentNormalizer.normtext(test);
-				if (temp2.equals(temp1)){
-					System.out.println(train+"\t"+test);
-				}
-			}
-		}
-
-
-		List<String> engset = FileUtils.readLines(new File(path+"tourism_eng.txt"));
-		List<String> newengset = new ArrayList<String>();
-
-
-		List<String> ellset = FileUtils.readLines(new File(path+"tourism_ell.txt"));
-		List<String> newellgset = new ArrayList<String>();
-
-		Integer[] temp= new Integer[6];
-		List<String> l33 = new ArrayList<String>();
-		List<String> l22 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/culture_en-el.processed.tsv"));
-		for (String line:l22){
-			String[] temp3 = line.split("\t");
-			if (temp[5].equals("NULL")){
-				l33.add(line); //System.out.println(temp[0]+"\t"+temp[3]+"\t"+temp[4]);
-			}
-		}
-		l22=null;
-		List<String> l11 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/tourism_en-el.processed.tsv"));
-		for (String line:l11){
-			String[] temp4 = line.split("\t");
-			if (temp[5].equals("NULL")){
-				l33.add(line); //System.out.println(temp[0]+"\t"+temp[3]+"\t"+temp[4]);
-			}
-		}
-		List<String> dev1 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/devset.txt"));
-		List<String> devset1 =new ArrayList<String>();
-		for (String line:dev1){
-			int ind=Integer.parseInt(line);
-			devset1.add(l33.get(ind));
-
-		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/devset.tcv"), devset);
-
-		List<String> test1 = FileUtils.readLines(new File("C:/Users/vpapa/ABU/tourism/testset.txt"));
-		List<String> testset1 =new ArrayList<String>();
-		for (String line:test1){
-			int ind=Integer.parseInt(line);
-			testset.add(l33.get(ind));
-		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/testset.tcv"), testset);
-
-		List<String> trainset1 = new ArrayList<String>();
-		for (String line:l33){
-			if (testset.contains(line) || devset.contains(line))
-				continue;
-			trainset.add(line);
-		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/ABU/tourism/trainset.tcv"), trainset);
-
-		for (String line1:dev1){
-			String id1 = line1.split("\t")[0];
-			for (String line2:test1){
-				String id2 = line2.split("\t")[0];
-				if (id1.equals(id2)){
-					System.out.println("OOOOPS");
-				}
-			}
-		}
-
-
-
-		System.exit(0);
-
-		List<String> l1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/TILDE/archive/State_related_content_from_Latvian_Web.en-lv.en"));
-		List<String> l2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/TILDE/archive/State_related_content_from_Latvian_Web.en-lv.lv"));
-		System.out.println(l1.size()+"\t"+l2.size());
-		List<String> l1_l2 = new ArrayList<String>();
-		Set<String> segs = new HashSet<String>();
-		for (int ii=0; ii<l1.size();ii++){
-			String normS = ContentNormalizer.normtext(l1.get(ii));
-			String normT = ContentNormalizer.normtext(l2.get(ii));
-			if ( normS.isEmpty() || normT.isEmpty())
-				continue;			
-			if (normS.equals(normT))
-				continue;
-			/*if (Statistics.editDist(normS,normT)<5){ //FIXME add as parameter, check its influence
-				LOGGER.warn("Discard due to high similarity of TUVs ");
-				LOGGER.warn("\t"+ l1.get(ii));
-				LOGGER.warn("\t"+ l2.get(ii));
-				continue;
-			}*/
-
-			if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normS)))>15){
-				LOGGER.warn("Discard due to long tokens in a TUV ");
-				LOGGER.warn("\t"+l1.get(ii));
-				LOGGER.warn("\t"+ l2.get(ii));
-				continue;
-			}
-			if (Statistics.getMedian(FCStringUtils.getTokensLength(FCStringUtils.getTokens(normT)))>15){
-				LOGGER.warn("Discard due to long tokens in a TUV ");
-				LOGGER.warn("\t"+l1.get(ii));
-				LOGGER.warn("\t"+ l2.get(ii));
-				continue;
-			}
-			/*if (FCStringUtils.countTokens(normS)<2){
-				LOGGER.warn("Discard due to length (in tokens) of a TUV ");
-				LOGGER.warn("\t"+l1.get(ii));
-				LOGGER.warn("\t"+ l2.get(ii));
-				continue;
-			}
-			if (FCStringUtils.countTokens(normT)<2){
-				LOGGER.warn("Discard due to length (in tokens) of a TUV ");
-				LOGGER.warn("\t"+l1.get(ii));
-				LOGGER.warn("\t"+ l2.get(ii));
-				continue;
-			}*/
-			float ratio = (float)normS.length()/(float)normT.length();
-			if (ratio>3 || ratio < 0.3){
-				LOGGER.warn("Discard due to charlength ratio of TUVs ");
-				LOGGER.warn("\t"+l1.get(ii));
-				LOGGER.warn("\t"+ l2.get(ii));
-				continue;
-			}
-			/*String num1=l1.get(ii).replaceAll("\\D+","");
-			String num2=l2.get(ii).replaceAll("\\D+","");
-			if (!num1.equals(num2)){
-				//double temp=Statistics.editDist(num1, num2) / (double) Math.min(num1.length(),num2.length());
-				//if (temp>0.35){
-				LOGGER.warn("Discard due to different numbers in TUVs ");
-				LOGGER.warn("\t"+l1.get(ii));
-				LOGGER.warn("\t"+ l2.get(ii));
-				continue;
-				//}
-			}*/
-
-			String temp6 = normS+"\t"+normT;
-			if (!segs.contains(temp6)){
-				segs.add(temp6);
-				l1_l2.add(l1.get(ii).trim()+"\t"+l2.get(ii).trim());
-			}
-		}
-		System.out.println(segs.size());
-		System.exit(0);
-
-		File evalfile = new File("C:/Users/vpapa/ELRC/eval_tests/eng-fra_culture_aupdih_evalset_iro");
-		File pairsfile = new File("C:/Users/vpapa/ELRC/eval_tests/eng-fra_culture_aupdih.csv");
-		File resultfile = new File("C:/Users/vpapa/ELRC/eval_tests/eng-fra_culture_aupdih_final.csv");
-		List<String> eval_lines = FileUtils.readLines(evalfile);
-		List<String> all_lines = FileUtils.readLines(pairsfile);
-		String[] id=null;
-		String evalres="id\tl1\tl2\tseg1\tseg2\ttype\tcharLengthRatio\twordLengthRatio\talignerScore\tevalscore\n";
-		for (String t:eval_lines){
-			id=t.split("\t");
-			for (String tt:all_lines){
-				if (tt.startsWith(id[0]+"\t")){
-					evalres = evalres+tt+"\t"+id[3]+"\n";
-					continue;
-				}
-			}
-		}
-		FileUtils.writeStringToFile(resultfile, evalres);
-		/*File source = new File(args[0]);
-		String[] ext = {"html", "xml"};
-		List<File>  sfiles = (List<File>) FileUtils.listFiles(source, ext, true);
-		System.out.println("total pairs "+sfiles.size());
-		String target = args[1];
-		try {
-			List<String> filenames = FileUtils.readLines(new File(args[2]));
-			System.out.println("in pairs "+filenames.size());
-			for (File file:sfiles){
-				if (filenames.contains(FilenameUtils.getBaseName(file.getName()))){
-					FileUtils.copyFile(file, new File(FilenameUtils.concat(target, file.getName())));
-				}
-			}
-		} catch (IOException e3) {
-			// TODO Auto-generated catch block
-			e3.printStackTrace();
-		}
-		System.exit(0);*/
-
-		//HashMap<String,String> truepairs = BitextUtils.getTruePairs( "C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\docpairs_true_ell-eng.txt");
-		//HashMap<String,String> foundpairs = BitextUtils.getTruePairs( "C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\docpairs_found_noURL_ell-eng.txt");
-		//HashMap<String, DocVector> features = Bitexts.extractXML_Features(new File("C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\pairs"));
-		HashMap<String,String> truepairs = BitextUtils.getTruePairs( args[0]);
-		HashMap<String,String> foundpairs = BitextUtils.getTruePairs( args[1]);
-		HashMap<String, DocVector> features = Bitexts.extractXML_Features(new File(args[2]), null);
-		Set<String> ts=truepairs.keySet();
-		Iterator<String> itt = ts.iterator();
-		while (itt.hasNext()){
-			String td1 = itt.next();
-			String td2 = truepairs.get(td1);
-			double len = features.get(td1).numToksnoOOI + features.get(td2).numToksnoOOI;
-			Set<String> fs=foundpairs.keySet();
-			Iterator<String> itf = fs.iterator();
-			boolean found = false;
-			while (itf.hasNext()){
-				String fd1 = itf.next();
-				String fd2 = foundpairs.get(fd1);
-				if ((td1.equals(fd1) && td2.equals(fd2)) || (td1.equals(fd2) && td2.equals(fd1))){
-					found =true;
-					break;
-				}
-			}
-			if (found){
-				System.out.println("1\t"+td1+"\t"+td2+"\t"+len);	
-			}else{
-				System.out.println("0\t"+td1+"\t"+td2+"\t"+len);
-			}
-		}
-		System.exit(0);
-
-
-		/*FilenameFilter filter = new FilenameFilter() {			
-			public boolean accept(File arg0, String arg1) {
-				return (arg1.endsWith(".xml.txt") );
-			}
-		};	
-
-		File t = new File("C:\\Users\\vpapa\\ELRC\\gv-data\\last_version\\pairs");
-
-		List<File> files=FcFileUtils.listFiles(t, filter, true);
-		System.out.println(files.size());
-		for (File file:files){
-			file.delete();
-		}
-		System.exit(0);*/
-
-		List<String> res=new ArrayList<String>();	
-		int group=4;
-		try {
-			List<String> tusinfo = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/eng-fra_culture_aupdih.csv"));
-			String[][] tus=new String[tusinfo.size()][2];
-			//String[] itus=new String[tusinfo.size()];
-			int counter=0;
-			for (String tu:tusinfo){
-				if (counter==0){
-					counter++;
-					continue;
-				}
-				String[] temp7 = tu.split("\t");
-				tus[counter][0] = temp7[3];
-				tus[counter][1] = temp7[4];
-				//itus[counter] = temp[6];
-				counter++;
-			}
-			//FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_charRatios.csv"), Arrays.asList(itus));
-
-			List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture.txt"));
-			counter=0;
-			for (String line:lines){
-				if (counter==0){
-					counter++;
-					continue;
-				}
-				String[] temp8 = line.split("\t");
-				if (!temp8[group].trim().isEmpty()){
-					System.out.println(temp[group]);
-					int ind = Integer.parseInt(temp8[group].trim()) ;
-					res.add(temp8[group].trim()+"\t"+tus[ind][0]+"\t"+tus[ind][1]);
-				}	
-			}
-			FileUtils.writeLines(new File("C:/Users/vpapa/Dropbox/ilsp-fc/201602_culture_eng_fra_eng_spa_datasets/sampling_eng-fra_culture_g"+Integer.toString(group+1)+".csv"), res);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		System.exit(0);
-
-		String filename="C:\\Users\\vpapa\\ABU\\spidextor_output.uniq.rand.filt.txt";
-		String inputLine;
-		BufferedReader in;
-		int count=0, count1=0;
-		try {
-			in = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
-			while ((inputLine = in.readLine()) != null) {
-				//String[] temp = inputLine.split("\t");
-				//double d= Double.parseDouble(temp[temp.length-1]);
-				//if (d>=0.35){
-				//	count1++;
-				//}
-				count++;
-			}
-			in.close();
-		} catch (FileNotFoundException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		//BufferedReader in = new BufferedReader(new InputStreamReader(genreFile.openStream()));
-		catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.exit(0);
-
-
-
-
-
-		String test="Tekki";
-		for (int ii=0;ii<test.length();ii++){
-			int int_value = (int) test.charAt(ii);
-			String unicode_value = Integer.toHexString(int_value);
-			System.out.println(unicode_value);
-			System.out.println();
-		}
-		try {
-			several_specific_helpful_tasks();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
+	private static void parselogfiles(File file) throws IOException {
+		File[] logs = file.listFiles();
+		for (int ii=0;ii<logs.length;ii++){
+			String temp = FileUtils.readFileToString(logs[ii], Constants.UTF8);
+			if (temp.contains("Exception in thread")){
+				System.out.println("Problem from "+ logs[ii].getName());
+				continue;
+			}
+			if (temp.contains("Merged TMX at")){
+				System.out.println("TUs from "+ logs[ii].getName());
+				continue;
+			}
+			if (temp.contains("CesDoc files generated: 0")){
+				System.out.println("noDoc from "+ logs[ii].getName());
+				continue;
+			}	
+			if (temp.contains("No pairs in")){
+				System.out.println("noPair from "+ logs[ii].getName());
+				continue;
+			}	
+			if (temp.contains("No proper TUs found.")){
+				System.out.println("noTUs from "+ logs[ii].getName());
+				continue;
+			}
+			System.out.println("What from "+ logs[ii].getName());
+		}
+	}
+
+	private static void diffwebsites() throws IOException {
+		List<String> websites = getUniqueSites(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/test_websites.txt"));
+		String a1 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_seeds1-100.txt"), Constants.UTF8);
+		String b1 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_seeds101-300.txt"), Constants.UTF8);
+		String c1 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_seeds101-300_part1.txt"), Constants.UTF8);
+		String d1 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_seeds300plus.txt"), Constants.UTF8);
+
+		String d2 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_seeds_prelast.txt"), Constants.UTF8);
+		String d3 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_seeds_prelast_v1.txt"), Constants.UTF8);
+
+		String i1 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_hr-en_extra_seeds.txt"), Constants.UTF8);
+		String i2 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_seeds_part2.txt"), Constants.UTF8);
+		String i3 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_seeds_part3.txt"), Constants.UTF8);
+		String i31 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_hr-en_seeds_part3.1.txt"), Constants.UTF8);
+		String i32 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/tld_hr-en_seeds_part3.2.txt"), Constants.UTF8);
+
+		String to1 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/seeds/total_en-hr-seeds"), Constants.UTF8);
+		String to2 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/seeds/new_selections_seeds.txt"), Constants.UTF8);
+		String to3 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/seeds/new_selections_seeds1.txt"), Constants.UTF8);
+		String to4 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/tld/hr/crawls/seeds/new_selections_seeds2.txt"), Constants.UTF8);
+
+		String f1 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/created_datasets/datasets_v2/culture_elrc_eng-hrv.tmx"), Constants.UTF8);
+		String g1 = FileUtils.readFileToString(new File("C:/Users/vpapa/ELRC/created_datasets/datasets_v2/pub_admin_v2_elrc_eng-hrv.tmx"), Constants.UTF8);
+		List<String> h1= FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-HR/total_run/output_NEWALIGN_ILSP-FC_eng-hrv.tmx"), Constants.UTF8);
+		List<String> h2 = new ArrayList<String>();
+		for (String l:h1){
+			if (l.contains("-url\""))
+				h2.add(l);
+		}
+		h1=null;
+		List<String> newwebsites =new ArrayList<String>();
+		int cou=0;
+		for (String website:websites){
+			cou++;
+			if (website.contains("blog") || website.contains("web."))
+				continue;
+			if (to1.contains(website))
+				continue;
+			if (to2.contains(website))
+				continue;
+			if (to3.contains(website))
+				continue;
+			if (to4.contains(website))
+				continue;
+
+			if (a1.contains(website))
+				continue;
+			if (b1.contains(website))
+				continue;
+			if (c1.contains(website))
+				continue;
+			if (d1.contains(website))
+				continue;
+			if (d2.contains(website))
+				continue;
+			if (d3.contains(website))
+				continue;
+			if (i1.contains(website))
+				continue;
+			if (i2.contains(website))
+				continue;
+			if (i3.contains(website))
+				continue;
+			if (i31.contains(website))
+				continue;
+			if (i32.contains(website))
+				continue;
+			if (f1.contains(website))
+				continue;
+			if (g1.contains(website))
+				continue;
+
+			boolean found=false;
+			for (String hh2:h2){
+				if (hh2.contains(website)){
+					found=true;
+					break;
+				}
+			}
+			if (newwebsites.contains(website))
+				continue;
+			if (found)
+				continue;
+			newwebsites.add(website);
+			System.out.println(website);
+		}		
+	}
+
+	private static List<String> getUniqueSites(File file) throws IOException {
+		List<String> initwebsites = FileUtils.readLines(file, Constants.UTF8);
+		List<String> websites = new ArrayList<String>();
+		for (int ii=0;ii<initwebsites.size();ii++){
+			String website=initwebsites.get(ii);
+			if (website.startsWith("#"))
+				continue;
+			String t = website.replaceAll("www.", "");
+			int int1 = t.indexOf(".");
+			int int2 = t.lastIndexOf(".");
+			if (int1<int2)
+				continue;
+			if (websites.contains(t))
+				continue;
+
+			websites.add(t);
+		}
+		return websites;
+	}
+
+	private static void getURLsfromTMX(File tmxfile) throws IOException {
+		List<String> urls = FileUtils.readLines(tmxfile, Constants.UTF8);
+		Set<String> uniqueurls = new HashSet<String>();
+		List<String> targeturls=new ArrayList<String>();
+
+		for (String url:urls){
+			if (url.contains("<prop type=\"l1-url\">") || url.contains("<prop type=\"l2-url\">")){
+				if (!uniqueurls.contains(url)){
+					uniqueurls.add(url);
+					//url=url.replaceAll("<prop type=\"l1-url\">", "");
+					//url= url.replaceAll("</prop>", "").trim();
+					targeturls.add(url);
+
+				}
+			}
+
+		}
+		File outfile = new File(tmxfile.getAbsolutePath()+".urls");
+		FileUtils.writeLines(outfile, Constants.UTF8, targeturls,"\n");
+
+	}
+
+	private static void checkparacrawl(File parcrawlfile) throws FileNotFoundException, IOException {
+		int counterpara = -1, counter_iden=0, counter_empty=0, counter_probl=0, counter_email=0, counter_url=0, counter_case=0, counter_ratio=0;
+		int counter_norm_empty=0, counter_norm_short=0, counter_norm_iden=0;
+		int counter_dups=0;
+		Set<String> passed = new HashSet<String>();
+		int min_tok_len=3;
+		try (BufferedReader br = new BufferedReader(new FileReader(parcrawlfile))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				counterpara++; 
+				line=line.trim();
+				if (line.isEmpty()){
+					counter_empty++;
+					continue;
+
+				}
+				String[] temp = line.split("\t");
+				if (temp.length!=2){
+					counter_probl++;
+					continue;
+				}
+				String temp1 = temp[0].trim();
+				String temp2 = temp[1].trim();
+				if (temp1.isEmpty() || temp2.isEmpty()){
+					System.out.println("EMPTY \t\t:\t\t"+ temp1+"\t"+temp2);
+					counter_empty++;
+					continue;
+				}
+				if (temp1.equals(temp2)){
+					System.out.println("IDENTICAL TUVs \t\t:\t\t"+ temp1+"\t"+temp2);
+					counter_iden++;
+					continue;
+				}
+
+				if (TMXHandlerUtils.checkemail(temp1, 0.5) || TMXHandlerUtils.checkemail(temp2, 0.5)){
+					System.out.println("MOSTLY EMAIL\t\t:\t\t"+ temp1+"\t"+temp2);
+					counter_email++;
+					continue;
+				}
+				if (TMXHandlerUtils.checkurl(temp1, 0.5) || TMXHandlerUtils.checkurl(temp2, 0.5)){
+					System.out.println("MOSTLY URL\t\t:\t\t" + temp1+"\t"+temp2);
+					counter_url++;
+					continue;
+				}
+				if (FCStringUtils.isAllUpperCase(temp1) * FCStringUtils.isAllUpperCase(temp2)<0){
+					System.out.println("CASE DIFF\t\t:\t\t" + temp1+"\t"+temp2);
+					counter_case++;
+					continue;
+				}
+
+				float ratio = (float)temp1.length()/(float)temp2.length();
+				if (ratio>=2 || ratio<= 0.5){
+					System.out.println("CHAR_RATIO > 2 \t\t:\t\t" + temp1+"\t"+temp2);
+					counter_ratio++;
+					continue;
+				}
+				String normS = ContentNormalizer.normtext(temp1);
+				String normT = ContentNormalizer.normtext(temp2);
+				if (normS.isEmpty() || normT.isEmpty()){
+					System.out.println("EMPTY_NORM_TUVS \t\t:\t\t" + temp1+"\t"+temp2);
+					counter_norm_empty++;
+					continue;
+				}
+				if (normS.equals(normT)){
+					System.out.println("IDENTICAL_NORM_TUVS \t\t:\t\t" + temp1+"\t"+temp2);
+					counter_norm_iden++;
+					continue;
+				}
+
+				int len1 = FCStringUtils.countTokens(normS);
+				int len2 = FCStringUtils.countTokens(normT);
+				if (len1<min_tok_len || len2<min_tok_len){
+					System.out.println("SHORT_NORM_TUVS "+min_tok_len+"\t\t:\t\t" + temp1+"\t"+temp2);
+					counter_norm_short++;
+					continue;
+				}
+
+				byte[] texthashkey = DedupUtils.calculateMD5(normT+"\t"+normS, min_tok_len-1); //TODO should text be stemmed?
+				String key="";
+				for (int jj=0;jj<texthashkey.length;jj++) {
+					key += texthashkey[jj];
+				}
+				if (passed.contains(key)){
+					System.out.println("DUPS\t\t:\t\t" + temp1+"\t"+temp2);
+					counter_dups++;
+					continue;
+				}
+				passed.add(key);
+			}
+		}
+
+		System.out.println("total: " + counterpara);
+		System.out.println("empty: " + counter_empty);
+		System.out.println("identical: " + counter_iden);
+		System.out.println("mostly URL: " + counter_url);
+		System.out.println("mostly EMAIL: " + counter_email);
+		System.out.println("case: " + counter_case);
+		System.out.println("empty_norm: " + counter_norm_empty);
+		System.out.println("identical_norm: " + counter_norm_iden);
+		System.out.println("short_norm: " + counter_norm_short);
+		System.out.println("dups_norm: " + counter_dups);
+
+		double filtered = counter_empty + counter_iden + counter_url + counter_email + counter_dups + counter_case + counter_norm_empty + counter_norm_iden + counter_norm_short;
+		double remained = counterpara - filtered;
+		System.out.println("remain: "+ remained);		
+	}
+
+
+
+
+	private static void championlist(File file) throws IOException {
+		List<String> teams = FileUtils.readLines(file, Constants.UTF8);
+		List<String> selected = new ArrayList<String>();
+		HashMap<Integer, List<String>> rounds = new HashMap<Integer, List<String>>();
+		int totalrounds = teams.size()-1;
+		for  (int ii=1;ii<=totalrounds;ii++)
+			rounds.put(ii, new ArrayList<String>());
+
+		List<String> matches = new ArrayList<String>();
+		List<String> selectedmatches = new ArrayList<String>();
+
+		boolean in=true;
+		int counter=1;
+		for (int team1=0;team1<teams.size();team1++){
+			for (int team2=0;team2<teams.size();team2++){
+				if (team1==team2)
+					continue;
+				if (selected.contains(teams.get(team1)) || selected.contains(teams.get(team2)))
+					continue;
+				if (in){
+					System.out.println(counter+". " + teams.get(team1) + " - " + teams.get(team2));
+					matches.add(teams.get(team1) + " - " + teams.get(team2));
+					counter++;
+				}else{
+					System.out.println(counter+". " + teams.get(team2) + " - " + teams.get(team1));
+					matches.add(teams.get(team2) + " - " + teams.get(team1));
+					counter++;
+				}
+				if (in)
+					in=false;
+				else
+					in=true;
+			}
+			selected.add(teams.get(team1));
+		}
+
+		for (int jj=1;jj<=totalrounds;jj++){
+			List<String> temp = rounds.get(jj);
+			List<String> tempteams = new ArrayList<String>();
+			for (int ii=0;ii<temp.size();ii++){
+				String[] t = temp.get(ii).split("-");
+				tempteams.add(t[0].trim());
+				tempteams.add(t[1].trim());
+			}
+			if (temp.size()>=8)
+				continue;
+			for (int ii=0;ii<matches.size();ii++){
+				if (selectedmatches.contains( matches.get(ii)))
+					continue;
+				String[] t = matches.get(ii).split("-");
+				if (tempteams.contains(t[0].trim()) || tempteams.contains(t[1].trim()))
+					continue;
+				if (temp.size()>=8)
+					break;
+				temp.add(matches.get(ii));
+				rounds.put(jj,temp);
+				selectedmatches.add(matches.get(ii));
+				tempteams.add(t[0].trim());
+				tempteams.add(t[1].trim());
+			}
+		}
+
+		for (int jj=1;jj<=totalrounds;jj++){
+			List<String> temp = rounds.get(jj);
+			System.out.println("--------------\t"+jj + "η ΑΓΩΝΙΣΤΙΚΗ\t-------------------------");
+			for (int ii=0;ii<temp.size();ii++)
+				System.out.println(temp.get(ii));
+		}
+
+		//check
+		for (int ii=0;ii<teams.size();ii++){
+			String team = teams.get(ii);
+			List<String> opps = new ArrayList<String>();
+			System.out.println(team);
+			opps.add(team);
+			for (int jj=1;jj<=totalrounds;jj++){
+				List<String> m = rounds.get(jj);
+				for (int kk=0;kk<m.size();kk++){
+					String[] a = m.get(kk).split("-");
+					if (a[0].trim().equals(team) || a[1].trim().equals(team)){
+						if (a[0].trim().equals(team))
+							opps.add(a[1].trim());
+						else
+							opps.add(a[0].trim());
+						Collections.sort(opps);
+					}
+				}
+			}
+			System.out.println(opps);
+		}
+
+	}
 
 	/**
 	 * process two TMX files EN-SL and SL-EN given by the SL NAP
@@ -1202,7 +1526,7 @@ public class TempUtils {
 				uniquepairs.add(pair);
 		}
 		LOGGER.info("number of unique TUs is "+ uniquepairs.size());
-		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/naps/SL/unique_EN-SL_pairs.txt"), uniquepairs);
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/naps/SL/unique_EN-SL_pairs.txt"), Constants.UTF8, uniquepairs,"\n");
 
 		int newsize1 =  7*uniquepairs.size()/15;
 		int newsize2 =  8*uniquepairs.size()/15;
@@ -1259,7 +1583,7 @@ public class TempUtils {
 		en_sl_lines_new.add("</body>");
 		en_sl_lines_new.add("</tmx>");
 		File en_sl_new1 = new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL_new1.tmx");
-		FileUtils.writeLines(en_sl_new1, "UTF-16LE", en_sl_lines_new);
+		FileUtils.writeLines(en_sl_new1, "UTF-16LE", en_sl_lines_new,"\n");
 		List<String> en_sl_pairs_new = pseudoparseTMX(en_sl_new1, "UTF-16LE");
 		int words=0;
 		for (String pair:en_sl_pairs_new){
@@ -1274,7 +1598,7 @@ public class TempUtils {
 		System.out.println(en_sl_pairs_new.get(0));
 		en_sl_lines.clear();
 		en_sl_lines_new.clear();
-		//FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL_new1.tmx"), "UTF-16LE", en_sl_lines_newRest);		
+		//FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL_new1.tmx"), "UTF-16LE", en_sl_lines_newRest,"\n");		
 
 		List<String> sl_en_lines = FileUtils.readLines(sl_en, "UTF-16LE");
 		System.out.println(sl_en_lines.size());
@@ -1324,7 +1648,7 @@ public class TempUtils {
 			}	
 		}
 		File en_sl_new2 = new File("C:/Users/vpapa/ELRC/naps/SL/EN-SL_new2.tmx");
-		FileUtils.writeLines(en_sl_new2, "UTF-16LE", sl_en_lines_new);	
+		FileUtils.writeLines(en_sl_new2, "UTF-16LE", sl_en_lines_new,"\n");	
 		List<String> en_sl_pairs_new2 = pseudoparseTMX(en_sl_new2, "UTF-16LE");
 
 		words=0;
@@ -1808,11 +2132,11 @@ public class TempUtils {
 
 		List<String> devlines = tu2line(de);
 		List<String> newdevlines = dedup(devlines);
-		//FileUtils.writeLines(new File(FilenameUtils.concat(tf.getParent(), "last_devset.tcv")), devlines);
+		//FileUtils.writeLines(new File(FilenameUtils.concat(tf.getParent(), "last_devset.tcv")), Constants.UTF8, devlines,"\n");
 
 		List<String> trainlines = tu2line(tr);
 		List<String> newtrainlines = dedup(trainlines);
-		//FileUtils.writeLines(new File(FilenameUtils.concat(tf.getParent(), "last_devset.tcv")), trainlines);
+		//FileUtils.writeLines(new File(FilenameUtils.concat(tf.getParent(), "last_devset.tcv")), Constants.UTF8, trainlines,"\n");
 
 		System.out.println("TEST:\t"+ newtestlines.size());
 		System.out.println("DEV:\t"+ newdevlines.size());
@@ -1831,9 +2155,9 @@ public class TempUtils {
 		System.out.println("--------------INTRA-DEDUP-----------------");
 
 		try {
-			FileUtils.writeLines(new File(FilenameUtils.concat(tf.getParent(), "last_testset.tcv")), newtestlines);
-			FileUtils.writeLines(new File(FilenameUtils.concat(tf.getParent(), "last_devset.tcv")), newdevlines);
-			FileUtils.writeLines(new File(FilenameUtils.concat(tf.getParent(), "last_trainset.tcv")), newtrainlines);
+			FileUtils.writeLines(new File(FilenameUtils.concat(tf.getParent(), "last_testset.tcv")), Constants.UTF8, newtestlines,"\n");
+			FileUtils.writeLines(new File(FilenameUtils.concat(tf.getParent(), "last_devset.tcv")), Constants.UTF8, newdevlines,"\n");
+			FileUtils.writeLines(new File(FilenameUtils.concat(tf.getParent(), "last_trainset.tcv")), Constants.UTF8, newtrainlines,"\n");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1992,7 +2316,7 @@ public class TempUtils {
 			System.out.println("tokens calculated.");
 		}
 		if (task==5){
-			String tmp1 = FileUtils.readFileToString(new File(removefilelist));
+			String tmp1 = FileUtils.readFileToString(new File(removefilelist), Constants.UTF8);
 			String[] filestoremove = tmp1.split("\n");	
 			ArrayList<String> filestoremoveList=new ArrayList<String>();
 			for (int ii=0;ii<filestoremove.length;ii++){
@@ -2027,7 +2351,7 @@ public class TempUtils {
 		int total_tmx=0, totaltmxfile=0; 
 		double sample_factor = 0.05, sample_factor1 = 0.05; 
 		try {
-			List<String> tmx_files=FileUtils.readLines(new File(tmx_listfile));
+			List<String> tmx_files=FileUtils.readLines(new File(tmx_listfile), Constants.UTF8);
 			for (int ii=0;ii<tmx_files.size();ii++){
 				if (!tmx_files.get(ii).startsWith("align"))
 					continue;
@@ -2087,7 +2411,7 @@ public class TempUtils {
 
 	private static void count_tmx_scores(String location, String tmx_list_file, String score_text) throws IOException {
 		String score="";
-		List<String> pairlist =  FileUtils.readLines(new File(FilenameUtils.concat(location,tmx_list_file)));
+		List<String> pairlist =  FileUtils.readLines(new File(FilenameUtils.concat(location,tmx_list_file)), Constants.UTF8);
 		for (int ii=0;ii<pairlist.size();ii++){
 			LOGGER.debug("ID:\t"+ii);
 			LOGGER.debug(FilenameUtils.concat(location,pairlist.get(ii)));
@@ -2098,7 +2422,7 @@ public class TempUtils {
 
 		}
 		//WriteResources.writetextfile(FilenameUtils.concat(location,score_text), score);
-		FileUtils.writeStringToFile(new File(FilenameUtils.concat(location,score_text)), score);
+		FileUtils.writeStringToFile(new File(FilenameUtils.concat(location,score_text)), score, Constants.UTF8);
 	}
 
 	private static void merge_outlist_files(String sourcedir, String newfile) throws IOException {
@@ -2109,12 +2433,12 @@ public class TempUtils {
 		String filename = FilenameUtils.concat(curdir.getAbsolutePath(),newfile);
 		for (File file:files){
 			if (file.getName().endsWith(".txt") & file.getName().startsWith("out")){
-				String text =FileUtils.readFileToString(file);
+				String text =FileUtils.readFileToString(file, Constants.UTF8);
 				whole_text=whole_text+"\n"+text;
 			}
 		}
 		//WriteResources.writetextfile(filename, whole_text);
-		FileUtils.writeStringToFile(new File(filename), whole_text);
+		FileUtils.writeStringToFile(new File(filename), whole_text, Constants.UTF8);
 	}
 
 	private static void check_bilingual_collection(String source_path,	String langs1, String output_list_file) throws IOException {
@@ -2122,7 +2446,7 @@ public class TempUtils {
 		String[] langs = langs1.split(";");
 		int[] tokens = new int[2];
 		ArrayList<String> fff = new ArrayList<String>();
-		List<String> pairs =FileUtils.readLines(new File(FilenameUtils.concat(source_path,output_list_file)));
+		List<String> pairs =FileUtils.readLines(new File(FilenameUtils.concat(source_path,output_list_file)), Constants.UTF8);
 
 		for (int ii=0; ii<pairs.size();ii++){
 			pairs.set(ii, pairs.get(ii).replace("/", "\\"));
@@ -2222,7 +2546,7 @@ public class TempUtils {
 		try {
 			File sourcedir = new File(sourcedir1);
 			File targetdir = new File(targetdir1);
-			String[] pairlist =FileUtils.readFileToString(new File(cesAling_listfile)).replace("/", "\\").split("\n");
+			String[] pairlist =FileUtils.readFileToString(new File(cesAling_listfile), Constants.UTF8).replace("/", "\\").split("\n");
 			String[] types = type.split(Constants.SPACE);
 			for (int ii=0;ii<pairlist.length;ii++){	
 				if (pairlist[ii].startsWith("pdfs"))
@@ -2310,7 +2634,7 @@ public class TempUtils {
 
 		int counter_tmx=0;
 		try {
-			String tmx_list = FileUtils.readFileToString(new File(FilenameUtils.concat(location,tmx_list_file)));
+			String tmx_list = FileUtils.readFileToString(new File(FilenameUtils.concat(location,tmx_list_file)), Constants.UTF8);
 			String[] pairlist = tmx_list.split("\r\n");
 			for (int ii=0;ii<pairlist.length;ii++){
 				XMLTextCharsCleaner.clean(FilenameUtils.concat(location,pairlist[ii]), FilenameUtils.concat(location,pairlist[ii]+"1"));
@@ -2419,7 +2743,7 @@ public class TempUtils {
 
 		String tmp1;
 		try {
-			tmp1 = FileUtils.readFileToString(new File(licensed_list));
+			tmp1 = FileUtils.readFileToString(new File(licensed_list), Constants.UTF8);
 			String[] filestoremove = tmp1.split("\n");	
 			ArrayList<String> filestoremoveList=new ArrayList<String>();
 			for (int ii=0;ii<filestoremove.length;ii++)
@@ -2474,7 +2798,7 @@ public class TempUtils {
 				urlList=urlList + pathstring+filesinXML[ii]+"\n";
 		}
 		//WriteResources.writetextfile(CC_list,urlList);
-		FileUtils.writeStringToFile(new File(nonCC_list), urlList);
+		FileUtils.writeStringToFile(new File(nonCC_list), urlList, Constants.UTF8);
 		writeHTMLfile(CC_list+appHTMLext,urlList,true);
 
 		temp_dir = xml_dir;
@@ -2487,7 +2811,7 @@ public class TempUtils {
 		}
 		//WriteResources.writetextfile(nonCC_list,urlList);
 
-		FileUtils.writeStringToFile(new File(nonCC_list), urlList);
+		FileUtils.writeStringToFile(new File(nonCC_list), urlList, Constants.UTF8);
 
 		writeHTMLfile(nonCC_list+appHTMLext,urlList,true);
 	}
@@ -2499,7 +2823,7 @@ public class TempUtils {
 		String[] urls=urlList.split("\n");
 		OutputStreamWriter xmlFileListWrt1;
 		try {
-			xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputfile1),"UTF-8");
+			xmlFileListWrt1 = new OutputStreamWriter(new FileOutputStream(outputfile1),Constants.UTF8);
 			xmlFileListWrt1.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 			for (int ii=0; ii<urls.length;ii++) {
 				String ttt;// = urls[ii];//.toString();
@@ -2551,7 +2875,7 @@ public class TempUtils {
 		int tokens_num=0;
 		for (int ii=0;ii<filesinXML.length;ii++){
 			if (filesinXML[ii].endsWith(exten)){
-				tmp1 = FileUtils.readFileToString(new File(FilenameUtils.concat(target_dir,filesinXML[ii])));
+				tmp1 = FileUtils.readFileToString(new File(FilenameUtils.concat(target_dir,filesinXML[ii])), Constants.UTF8);
 				String[] lines = tmp1.split("\n");
 				for (int jj=0;jj<lines.length;jj++){
 					if (lines[jj].contains("<p id=") & !lines[jj].contains(exclude_str)){
@@ -2571,7 +2895,7 @@ public class TempUtils {
 		int len = +HTTRACK1.length();
 		BufferedReader reader;
 		try {
-			reader = new BufferedReader(new InputStreamReader(input,"UTF-8"));
+			reader = new BufferedReader(new InputStreamReader(input,Constants.UTF8));
 			String nextLine="";
 			while((nextLine = reader.readLine())!=null){
 				int i1 = nextLine.indexOf(HTTRACK1);
@@ -2605,7 +2929,7 @@ public class TempUtils {
 					char[] buffer = new char[1024];
 					try {
 						Reader reader = new BufferedReader(
-								new InputStreamReader(is, "UTF-8"));
+								new InputStreamReader(is, Constants.UTF8));
 						int n;
 						while ((n = reader.read(buffer)) != -1) {
 							writer.write(buffer, 0, n);

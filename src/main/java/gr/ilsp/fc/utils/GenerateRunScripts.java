@@ -1,6 +1,7 @@
 package gr.ilsp.fc.utils;
 
 import gr.ilsp.fc.readwrite.ReadResources;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,7 +43,7 @@ public class GenerateRunScripts {
 		File sitelist1  = new File(args[1]); //file with list of websites to be crawled
 		List<String> sites1;
 		try {
-			sites1 = FileUtils.readLines(sitelist1);
+			sites1 = FileUtils.readLines(sitelist1, Constants.UTF8);
 			sites1 = getUniqueSites(sites1);
 			String commands = "";
 			for (int ii=0;ii<sites1.size();ii++){
@@ -68,7 +69,7 @@ public class GenerateRunScripts {
 				}
 			}
 			//WriteResources.writetextfile(outfile, commands);
-			FileUtils.writeStringToFile(new File(outfile), commands);
+			FileUtils.writeStringToFile(new File(outfile), commands, Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -105,7 +106,7 @@ public class GenerateRunScripts {
 		if (args.length>3){
 			File commandfile = new File(args[3]);
 			try {
-				command = FileUtils.readFileToString(commandfile).split(LineSeparator)[0];
+				command = FileUtils.readFileToString(commandfile, Constants.UTF8).split(LineSeparator)[0];
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

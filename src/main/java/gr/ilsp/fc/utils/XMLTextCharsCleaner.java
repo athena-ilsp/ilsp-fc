@@ -1,5 +1,7 @@
 package gr.ilsp.fc.utils;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,8 +33,8 @@ public class XMLTextCharsCleaner {
      private void initialize() {
          tidy = new Tidy();
 
-         tidy.setInputEncoding("UTF-8");
-         tidy.setOutputEncoding("UTF-8");
+         tidy.setInputEncoding(Constants.UTF8);
+         tidy.setOutputEncoding(Constants.UTF8);
          tidy.setXmlTags(true);
          tidy.setWraplen(Integer.MAX_VALUE);
          tidy.setForceOutput(true) ;

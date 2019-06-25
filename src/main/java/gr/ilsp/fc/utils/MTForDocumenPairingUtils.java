@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -97,7 +98,7 @@ public class MTForDocumenPairingUtils {
 	}
 
 	private static Map<String, String> getAlreadyPairedFiles(File outF) throws IOException {
-		List<String> lines = FileUtils.readLines(outF);
+		List<String> lines = FileUtils.readLines(outF, Constants.UTF8);
 		Map<String, String> pairedFilesMethodsMap = new HashMap<String, String>();
 		for (String line: lines ) {
 			String pair[] = FilenameUtils.getBaseName(new File(line.trim()).getName()).split("_");
@@ -108,13 +109,13 @@ public class MTForDocumenPairingUtils {
 	}
 
 	public static void cesDoc2Text(File xmlFile, File txtFile) throws IOException {
-		Document doc = Jsoup.parse(xmlFile, "UTF-8");
+		Document doc = Jsoup.parse(xmlFile, Constants.UTF8);
 		Elements ps = doc.select("p");
-		FileUtils.write(txtFile, "", "UTF-8", false);
-		for (Element p: ps) {		
-			FileUtils.write(txtFile, p.text()+"\n", "UTF-8", true);
+		FileUtils.write(txtFile, "", Constants.UTF8, false);
+		for (Element p: ps) {
+			FileUtils.write(txtFile, p.text()+"\n", Constants.UTF8, true);
 		}
-		FileUtils.write(txtFile, "\n", "UTF-8", true);
+		FileUtils.write(txtFile, "\n", Constants.UTF8, true);
 	}
 
 }

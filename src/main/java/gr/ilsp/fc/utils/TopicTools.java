@@ -229,7 +229,7 @@ public class TopicTools {
 		}
 		//WriteResources.writetextfile(corpusFile.getAbsolutePath(), corpus);
 		try {
-			FileUtils.writeStringToFile(corpusFile, corpus);
+			FileUtils.writeStringToFile(corpusFile, corpus, Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -255,7 +255,7 @@ public class TopicTools {
 		String a, b, c, d, b_or = Constants.EMPTY_STRING;
 		List<String> topiclines;
 		try {
-			topiclines = FileUtils.readLines(new File(topicFile.getAbsolutePath()));
+			topiclines = FileUtils.readLines(new File(topicFile.getAbsolutePath()), Constants.UTF8);
 			for (String str:topiclines) {
 				// Do not bother with commented out or empty lines
 				if (skipLineM.reset(str).matches()) 
@@ -343,7 +343,7 @@ public class TopicTools {
 			if (!fs.exists(p)) 
 				LOGGER.info("The file for topic definition does not exist.");
 			else {
-				BufferedReader in = new BufferedReader(new InputStreamReader(fs.open(p),"UTF-8"));
+				BufferedReader in = new BufferedReader(new InputStreamReader(fs.open(p),Constants.UTF8));
 				String str, a, b, c, d, b_or="";
 				while ((str = in.readLine()) != null) {
 					// Do not bother with commented out or empty lines

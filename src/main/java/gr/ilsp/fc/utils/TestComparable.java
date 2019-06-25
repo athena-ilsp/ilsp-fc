@@ -148,7 +148,7 @@ public class TestComparable {
 				);
 		Writer out;
 		try {
-			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("output.txt"),"UTF-8"));
+			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("output.txt"),Constants.UTF8));
 			for (int ii=0; ii<result.length;ii++){
 				Iterator<String> pairit2 = pairkeys.iterator();
 				while (pairit2.hasNext()){
@@ -403,7 +403,7 @@ public class TestComparable {
 	Set<String> keys_el=files_hist1.keySet();
 	Iterator<String> it_el = keys_el.iterator();
 	try {
-		out_lang1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(lang1+"_files_terms.txt"),"UTF-8"));
+		out_lang1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(lang1+"_files_terms.txt"),Constants.UTF8));
 		String string_key1="";
 		while (it_el.hasNext()){
 			string_key1 = it_el.next();
@@ -451,7 +451,7 @@ if (is != null) {
 	char[] buffer = new char[1024];
 	try {
 		Reader reader = new BufferedReader(
-				new InputStreamReader(is, "UTF-8"));
+				new InputStreamReader(is, Constants.UTF8));
 		int n;
 		while ((n = reader.read(buffer)) != -1) 
 			writer.write(buffer, 0, n);

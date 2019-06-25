@@ -4,6 +4,8 @@ package gr.ilsp.fc.utils;
  * 
  */
 
+import gr.ilsp.nlp.commons.Constants;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -36,7 +38,7 @@ public abstract class AbstractScannerApp {
 
 	private Options options;
 
-	private String inputEnc = "UTF-8";
+	private String inputEnc = Constants.UTF8;
 
 	private File inputDir = null;
 
