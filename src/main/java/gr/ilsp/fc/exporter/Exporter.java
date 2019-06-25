@@ -374,7 +374,7 @@ public class Exporter {
 		List<String> neg_words =new ArrayList<String>();
 		if (negWordsFile!= null) {
 			try {
-				neg_words = FileUtils.readLines(getNegWordsFile());
+				neg_words = FileUtils.readLines(getNegWordsFile(),Constants.UTF8);
 			} catch (IOException e) {
 				LOGGER.info("problem in reading file with negative words");
 				e.printStackTrace();
@@ -393,7 +393,7 @@ public class Exporter {
 			csvtext = csvtext+file_key+"\t"+map.get(file_key)+"\n";
 		}
 		try {
-			FileUtils.writeStringToFile(file, csvtext);
+			FileUtils.writeStringToFile(file, csvtext, Constants.UTF8);
 		} catch (IOException e) {
 			LOGGER.error("problem in writing the file "+file.getAbsolutePath());
 			e.printStackTrace();
@@ -539,7 +539,7 @@ public class Exporter {
 			}
 			if (textExport){
 				try {
-					FileUtils.writeStringToFile(new File(FilenameUtils.concat(outputDir.getAbsolutePath(),identifiedlanguage+"-"+id)), cleanText);
+					FileUtils.writeStringToFile(new File(FilenameUtils.concat(outputDir.getAbsolutePath(),identifiedlanguage+"-"+id)), cleanText, Constants.UTF8);
 				} catch (IOException e) {
 					LOGGER.warn("problem in writing text file for " + file.getAbsolutePath());
 					e.printStackTrace();
@@ -865,7 +865,7 @@ public class Exporter {
 		Path txt_file = new Path(outpath,identifiedlanguage+Constants.HYPHEN+id+appTXText);
 		try {
 			//String text1 = text;
-			BufferedWriter wrt = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txt_file.toUri().getPath()),"UTF-8"));
+			BufferedWriter wrt = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txt_file.toUri().getPath()),Constants.UTF8));
 			//String[] lines = text.split("\n");
 			text = text.replaceAll("<boiler.*</boiler>", "");
 			/*text = text.replaceAll("\n\n","\n");
@@ -926,7 +926,7 @@ public class Exporter {
 		//System.out.println(filename);
 		Path txt_file = new Path(outpath,filename+appTXText);
 		try {
-			BufferedWriter wrt = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txt_file.toUri().getPath()),"UTF-8"));
+			BufferedWriter wrt = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txt_file.toUri().getPath()),Constants.UTF8));
 			text = text.replaceAll("<boiler.*</boiler>", "");
 			text = text.replaceAll("\n\n","\n");
 			text = text.replaceAll("\n\n","\n");
@@ -1011,7 +1011,7 @@ public class Exporter {
 			}else{
 				OutputStreamWriter tmpwrt=null;
 				try {
-					tmpwrt = new OutputStreamWriter(new FileOutputStream(annotation.toUri().getPath()),"UTF-8");
+					tmpwrt = new OutputStreamWriter(new FileOutputStream(annotation.toUri().getPath()),Constants.UTF8);
 					tmpwrt.write(html_text);
 					tmpwrt.flush();
 					//tmpwrt.close();
@@ -1037,7 +1037,7 @@ public class Exporter {
 		XMLStreamWriter2 xtw = null;
 		OutputStreamWriter wrt = null;
 		try {
-			wrt = new OutputStreamWriter(new FileOutputStream(xml_file.toUri().getPath()),"UTF-8");
+			wrt = new OutputStreamWriter(new FileOutputStream(xml_file.toUri().getPath()),Constants.UTF8);
 			xtw1 = (XMLStreamWriter2)
 					xof.createXMLStreamWriter(wrt);
 			PrettyPrintHandler handler = new PrettyPrintHandler(xtw1 );
@@ -1808,7 +1808,7 @@ public class Exporter {
 		XMLStreamWriter2 xtw = null;
 		OutputStreamWriter wrt = null;
 		try {
-			wrt = new OutputStreamWriter(new FileOutputStream(xml_file),"UTF-8");
+			wrt = new OutputStreamWriter(new FileOutputStream(xml_file),Constants.UTF8);
 			xtw1 = (XMLStreamWriter2)
 					xof.createXMLStreamWriter(wrt);
 			PrettyPrintHandler handler = new PrettyPrintHandler(xtw1 );

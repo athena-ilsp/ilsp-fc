@@ -1,5 +1,7 @@
 package gr.ilsp.fc.exporter.pdf;
 
+import gr.ilsp.nlp.commons.Constants;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,7 +30,7 @@ public class PDFCorpus {
 	 */
 	protected static Matcher skipRuleM =  Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 	private static final Logger logger = LoggerFactory.getLogger(PDFCorpus.class);
-	String inCharsetName = "UTF-8";
+	//String inCharsetName = Constants.UTF8;
 	/**
 	 * @throws IOException 
 	 * @throws JDOMException 
@@ -67,7 +69,7 @@ public class PDFCorpus {
 		logger.info("Reading: " + corpusDescriptionFile);
 		BufferedReader br = null;  
 		try {  
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(corpusDescriptionFile), inCharsetName));
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(corpusDescriptionFile), Constants.UTF8));
 			String line;  
 			if (languages.size()>1) {
 				while ((line = br.readLine()) != null) {  
