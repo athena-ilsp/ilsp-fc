@@ -52,6 +52,6 @@ public class DGTHandlerUtils {
 			String p4 = part8b+UNDERSCORE+part5+HYPHEN+l+UNDERSCORE+part3;
 			commands.add(p1+SPACE+p2+ SPACE +p3 + SPACE +GT + p4);
 		}
-		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/DGT-TM/dgt_commands"), commands,"\n");
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/DGT-TM/dgt_commands"), Constants.UTF8, commands,"\n");
 	}*/
 }

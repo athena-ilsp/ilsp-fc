@@ -4,7 +4,7 @@ import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.FCStringUtils;
 import gr.ilsp.fc.utils.Statistics;
 import gr.ilsp.fc.utils.ValidateUtils;
-
+import gr.ilsp.nlp.commons.Constants;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -103,10 +103,10 @@ public class DGTHandler {
 			ra[ii] = ratios.get(ii);
 		LOGGER.info(TAB_SEPARATOR+"MEAN value:"+TAB_SEPARATOR+ Statistics.getMean(ra)+TAB_SEPARATOR);
 		LOGGER.info(TAB_SEPARATOR+"STD value:"+TAB_SEPARATOR+ Statistics.getStdDev(ra)+TAB_SEPARATOR);
-		FileUtils.writeLines(tusfile, "UTF-8", tus, "\n");
-		FileUtils.writeLines(ratiosfile, "UTF-8",ratios, "\n");
-		FileUtils.writeLines(li1tuvsfile,"UTF-8", l1tuvs, "\n");
-		FileUtils.writeLines(li2tuvsfile, "UTF-8",l2tuvs,"\n");
+		FileUtils.writeLines(tusfile, Constants.UTF8, tus, "\n");
+		FileUtils.writeLines(ratiosfile, Constants.UTF8, ratios, "\n");
+		FileUtils.writeLines(li1tuvsfile, Constants.UTF8, l1tuvs, "\n");
+		FileUtils.writeLines(li2tuvsfile, Constants.UTF8, l2tuvs,"\n");
 	}
 
 	private void tuFilteredStats(File tmxFile) throws IOException  {
@@ -277,12 +277,12 @@ public class DGTHandler {
 			ra[ii] = ratios.get(ii);
 		LOGGER.info(TAB_SEPARATOR+"MEAN value:"+TAB_SEPARATOR+ Statistics.getMean(ra)+TAB_SEPARATOR);
 		LOGGER.info(TAB_SEPARATOR+"STD value:"+TAB_SEPARATOR+ Statistics.getStdDev(ra)+TAB_SEPARATOR);
-		FileUtils.writeLines(ratiosfile, "UTF-8",ratios, "\n");
-		FileUtils.writeLines(tusfile, "UTF-8",tus,"\n");
-		FileUtils.writeLines(li1tuvsfile, "UTF-8",l1tuvs,"\n");
-		FileUtils.writeLines(li2tuvsfile, "UTF-8",l2tuvs,"\n");
-		//FileUtils.writeLines(li1toktuvsfile, "UTF-8",l1toktuvs,"\n");
-		//FileUtils.writeLines(li2toktuvsfile, "UTF-8",l2toktuvs,"\n");
+		FileUtils.writeLines(ratiosfile,Constants.UTF8, ratios, "\n");
+		FileUtils.writeLines(tusfile, Constants.UTF8, tus,"\n");
+		FileUtils.writeLines(li1tuvsfile, Constants.UTF8, l1tuvs,"\n");
+		FileUtils.writeLines(li2tuvsfile, Constants.UTF8, l2tuvs,"\n");
+		//FileUtils.writeLines(li1toktuvsfile, Constants.UTF8, l1toktuvs,"\n");
+		//FileUtils.writeLines(li2toktuvsfile, Constants.UTF8, l2toktuvs,"\n");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -344,8 +344,8 @@ public class DGTHandler {
 		}catch(Exception e){
 			System.out.println(e);
 		}
-		FileUtils.writeLines(li1tuvsfile, l1tuvs,"\n");
-		FileUtils.writeLines(li2tuvsfile, l2tuvs,"\n");
+		FileUtils.writeLines(li1tuvsfile, Constants.UTF8, l1tuvs,"\n");
+		FileUtils.writeLines(li2tuvsfile, Constants.UTF8, l2tuvs,"\n");
 	}*/
 
 	private void setInFile(File inFile) {
