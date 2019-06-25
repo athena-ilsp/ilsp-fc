@@ -221,7 +221,7 @@ public class NaiveBayesClassifier extends LangDetector {
 			int hits = 0;	
 			InputStream in  =  new FileInputStream(testFile);
 			try {
-				List<String> lines =  IOUtils.readLines(in, "UTF-8");
+				List<String> lines =  IOUtils.readLines(in, Constants.UTF8);
 				HashMap<String, Integer> misses = new HashMap<String, Integer>();
 				for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
 					String line =  iterator.next();
@@ -248,7 +248,7 @@ public class NaiveBayesClassifier extends LangDetector {
 	private void train (HashMap<String, File> langFilesHM, HashMap<String, HashMap<String, Double>> distr, File modelFile) throws IOException {
 		logger.debug("Saving model to " + langFilesHM.toString());
 		for (String lang: langFilesHM.keySet()) {
-			addCategory(lang, FileUtils.readLines(langFilesHM.get(lang), "UTF-8"), distr);
+			addCategory(lang, FileUtils.readLines(langFilesHM.get(lang), Constants.UTF8), distr);
 		}
 		HashMap<String, HashMap<String, Double>> parms = calculateParms(distr);
 		serializeClassifier(parms, modelFile);

@@ -55,7 +55,7 @@ public class GenreClassifier {
 		
 		List<String> genres_features=new ArrayList<String>();
 		try {
-			genres_features = FileUtils.readLines(new File(genres_file));
+			genres_features = FileUtils.readLines(new File(genres_file),Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -108,7 +108,7 @@ public class GenreClassifier {
 
 		logger.info("Reading genre file: " + genreFile);
 		List<String> tmp1 = ReadResources.readFileLineByLine(genreFile); 
-		//List<String> tmp1=FileUtils.readLines(genreFile);
+		//List<String> tmp1=FileUtils.readLines(genreFile,Constants.UTF8);
 		
 		for (int ii=0;ii<tmp1.size();ii++){
 			String[] tmp2 = tmp1.get(ii).split(genre_separator);

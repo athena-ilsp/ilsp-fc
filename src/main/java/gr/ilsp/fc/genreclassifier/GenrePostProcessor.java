@@ -111,7 +111,7 @@ public class GenrePostProcessor {
 
 	
 	private void run3() throws IOException {
-		List<String> genres_features=FileUtils.readLines(new File(this.keywords));
+		List<String> genres_features=FileUtils.readLines(new File(this.keywords),Constants.UTF8);
 		String[] genres = new String[genres_features.size()];
 		String[] features = new String[genres_features.size()];
 		for (int ii=0;ii<genres_features.size();ii++){
@@ -122,7 +122,7 @@ public class GenrePostProcessor {
 			else
 				features[ii]=Constants.SPACE;
 		}
-		List<String> files = FileUtils.readLines(new File(this.pairlist));
+		List<String> files = FileUtils.readLines(new File(this.pairlist),Constants.UTF8);
 		logger.info("Pairs are: "+ files.size());
 			
 		String doc_title1, doc_title2, doc_url1, doc_url2, text1, text2, doc_genre;
@@ -152,10 +152,10 @@ public class GenrePostProcessor {
 				f2 = FilenameUtils.concat(tempfile.getParent(),tmp[1]+appXMLext);	
 				f11 = FilenameUtils.concat(tempfile.getParent(),tmp[0]+appHTMLext);
 				f22 = FilenameUtils.concat(tempfile.getParent(),tmp[1]+appHTMLext);
-				text1 = FileUtils.readFileToString(new File(f11));
-				text2 = FileUtils.readFileToString(new File(f22));
+				text1 = FileUtils.readFileToString(new File(f11), Constants.UTF8);
+				text2 = FileUtils.readFileToString(new File(f22), Constants.UTF8);
 			}
-			text1 = FileUtils.readFileToString(new File(f1));
+			text1 = FileUtils.readFileToString(new File(f1), Constants.UTF8);
 			if (!tempfile.getAbsolutePath().contains("pdfs")){
 				if (text1.contains("iso639=\""+this.l1+"\"")){
 					f1 = FilenameUtils.concat(tempfile.getParent(),tmp[0]+appXMLext);
@@ -165,7 +165,7 @@ public class GenrePostProcessor {
 					f2 = FilenameUtils.concat(tempfile.getParent(),tmp[0]+appXMLext);
 				}
 			}
-			text2 = FileUtils.readFileToString(new File(f2));
+			text2 = FileUtils.readFileToString(new File(f2), Constants.UTF8);
 			if 	((!text1.contains(TagGenre3) & !text1.contains(TagGenre1+TagGenre2) & 
 					!text1.contains(TagGenre1+"Other"+TagGenre2)) | 
 				(!text2.contains(TagGenre3) & !text2.contains(TagGenre1+TagGenre2) &
@@ -293,7 +293,7 @@ public class GenrePostProcessor {
 
 	
 	private void run0()  throws IOException {
-		String tmp1 = FileUtils.readFileToString(new File(this.keywords));
+		String tmp1 = FileUtils.readFileToString(new File(this.keywords), Constants.UTF8);
 		String[] genres = tmp1.split("\n");;
 		for (int ii=0;ii<genres.length;ii++){
 			String[] temp= genres[ii].split("\t");
@@ -312,7 +312,7 @@ public class GenrePostProcessor {
 		for (int ii=0;ii<files.length;ii++){
 			if (files[ii].getName().contains(underscore))
 				continue;
-			tmp1 = FileUtils.readFileToString(files[ii]);
+			tmp1 = FileUtils.readFileToString(files[ii], Constants.UTF8);
 			text = ReadResources.extractTextfromXML_clean
 					(files[ii].getAbsolutePath(),paragraph,ooi_text, false);
 			StringTokenizer st = new StringTokenizer(text);
@@ -331,7 +331,7 @@ public class GenrePostProcessor {
 	}
 
 	private void run2() throws IOException {
-		String tmp1 = FileUtils.readFileToString(new File(this.keywords));
+		String tmp1 = FileUtils.readFileToString(new File(this.keywords), Constants.UTF8);
 		String[] genres_features = tmp1.split("\n");
 		String[] genres = new String[genres_features.length];
 		String[] features = new String[genres_features.length];
@@ -387,11 +387,11 @@ public class GenrePostProcessor {
 			}
 			tokens_in_genres[found]=tokens_in_genres[found]+st.countTokens();
 			files_in_genres[found]++;
-			tmp1 = FileUtils.readFileToString(files[ii]);
+			tmp1 = FileUtils.readFileToString(files[ii], Constants.UTF8);
 			String tmp2=tmp1.replace(TagGenre3, TagGenre1+ doc_genre+TagGenre2);
 			tmp2=tmp2.replace(TagGenre1+TagGenre2, TagGenre1+ doc_genre+TagGenre2);
 			//WriteResources.writetextfile(files[ii].getAbsolutePath(),tmp2);
-			FileUtils.writeStringToFile(files[ii], tmp2);
+			FileUtils.writeStringToFile(files[ii], tmp2, Constants.UTF8);
 			
 			//if (doc_genre.equals("Other"))
 			//		System.out.println(doc_url);
@@ -508,7 +508,7 @@ public class GenrePostProcessor {
 	static void writeTextFile(String filename,String text) {
 		Writer out;
 		try {
-			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),"UTF-8"));
+			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),Constants.UTF8));
 			out.write(text.trim());
 			out.close();
 		} catch (UnsupportedEncodingException e) {

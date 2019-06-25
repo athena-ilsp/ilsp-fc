@@ -28,17 +28,17 @@ public class GetTargetedSites {
 	private static final String COMMANDS= "commands";
 	private static final String QUOTE= "\"";
 	private static final String FORW=" &> ";
-	private static String destpath="\"/var/www/html/elrc4/ministries/eng-fra/";
-	
-		
+	private static String destpath="\"/var/www/html/tld/en-sk/";
+
+
 	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-crawl -export -dedup -pairdetect -align -tmxmerge -monomerge -f -k "
 			+ "-type p -cdl 100 -t 20 -len 0 -mtlen 100 -pdm \"aupdih\" -segtypes \"1:1\" "
-			+ "-mtuvl 3 -mpa \"0.16\" -minlr \"0.6\" -maxlr \"1.6\" -keepem -keepdup -keepiden"; //-p_r \"http://nlp.ilsp.gr/elrc\"
+			+ "-mtuvl 3 -mpa \"0.16\" -minlr \"0.6\" -maxlr \"1.6\" -clean ";//-keepem -keepdup -keepiden; //-p_r \"http://nlp.ilsp.gr/elrc\"
 
 	private static final String JAR_CRAWL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-crawl -f -k -type p -n 100 -t 20 -len 0 -mtlen 100 ";
-	
+
 	private static final String JAR_EXPORT = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-export "
 			+ " -i \"XXX\" -lang \"L1;L2\" -of "+destpath+ "output_YYY.txt\"  -dom ZZZ  &>"+ destpath +"log-export_YYY\"";
@@ -46,24 +46,113 @@ public class GetTargetedSites {
 	private static final String JAR_DEDUP = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-dedup "
 			+ " -o \"XXX\"  -lang \"L1;L2\"  -of "+destpath+ "output_YYY.txt\"  &>"+ destpath +"log-dedup_YYY\"";
-		
+
 	private static final String JAR_PAIR = "java -cp /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar gr.ilsp.fc.bitext.PairDetector -meth \"aupidh\""
 			+ " -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -of " + destpath + "output_YYY.txt\" &>"+destpath+"log-pairdetection_YYY\"";
-		
+
 	private static final String JAR_ALIGN = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ "-align -oxslt "
 			+ " -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -oft "+destpath+ "output_YYY.tmx.txt\" "
 			+ " -ofth "+destpath+ "output_YYY.tmx.html\" &> "+destpath+ "log-align_YYY\"";
-	
+
 	private static final String JAR_TMXMERGE = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
 			+ " -tmxmerge "
 			+ " -xslt -oxslt -pdm \"ZZZ\" -segtypes \"1:1\" -i \"XXX\" -lang \"L1;L2\" -o \"XXX\" -tmx  "+destpath+ "output_YYY.tmx\" "
 			+ " &> "+destpath+ "log-tmxmerge_YYY\"";
-	
+
 	private static String lang1="";
 	private static String lang2="";
 
-	public static void main(String[] args)  {
+	public static void main(String[] args) throws IOException  {
+
+		
+		/*String aaa = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar -export -dedup -pairdetect "
+				+ " -align -tmxmerge -k -type p -len 0 -mtlen 80 -pdm \"aupdih\" -segtypes \"1:1\" -mtuvl 3 -mpa \"0.16\" -minlr \"0.6\" -maxlr \"1.6\" -clean "
+				+ " -lang \"eng;pl\" -a AAAAA -bs \"/nfs-elrc/elrc_data/tld/en-pl-9-10-11-12-42/public_admin/crawls/output\" -i \"YYYYY\" &> "
+				+ "\"/nfs-elrc/elrc_data/tld/en-pl-9-10-11-12-42/public_admin/crawls/log_off_AAAAA\"";
+		
+		List<String> dirs = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/tmxs/en-pl_law_dirs"), Constants.UTF8);
+		List<String> agents = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/tmxs/en-pl_law_agents.txt"), Constants.UTF8);
+		List<String> cms = new ArrayList<String>();
+		for (int ii=0;ii<dirs.size();ii++){
+			String command = aaa;
+			String d = dirs.get(ii);
+			String a = agents.get(ii);
+			command = command.replaceAll("AAAAA", a);
+			command = command.replaceAll("YYYYY", d);
+			cms.add(command);
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/tmxs/en-pl_law_cms"), Constants.UTF8, cms,"\n");
+		System.exit(0);*/
+		
+		try {
+			input4AllTasksA(args);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.exit(0);
+
+		File dir = new File("C:/Users/vpapa/tender_xaris/20170801-1145/var/www/html/test/tender/results");
+
+		List<File> files = (List<File>) FileUtils.listFiles(dir, null , null);
+		for (File file:files){
+			if (file.getName().equals("xml"))
+				System.out.println(file.getAbsolutePath());
+		}
+
+
+		System.exit(0);
+
+
+		List<String> commands = new ArrayList<String>();	
+		try {
+			List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EUROPEANA/eng-ell/xmlDirList_culture.txt"), Constants.UTF8);
+			for (String line:lines){
+				File temp = new File(line).getParentFile();
+				String command = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
+
+						+ "-export " 
+
+						+ "-i " + "\"" + line + "\" " + " -lang \"en;hr\" " 
+
+						+ " -bs " + "\"" + temp.getParent()+"/out_" + "\" " 
+
+						+  "-a "+ "\"" + temp.getName() + "\" " 
+
+						+ "-dedup "
+
+						+ "-pairdetect -pdm auipdh " 
+
+						+ "-align "
+
+						+ "-tmxmerge "
+
+						+" >log_newExport_"+temp.getName()  ;
+				System.out.println(command);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+
+
+		/*	try {
+			List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/EN-HR/total_run/crawled/xmlDirList"), Constants.UTF8);
+			for (String line:lines){
+				File temp = new File(line).getParentFile().getParentFile();
+				String command = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar -align -lang \"en;hr\" -i "+
+						"\"" + line + "\" -bs \"out_align_" + temp.getName() +"\" >log_align_"+temp.getName()  ;
+				System.out.println(command);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		System.exit(0);
+
 		//getSeeds(args);
 		//input4SeedsAndAllTasks(args);
 		input4AllTasks(args);
@@ -74,12 +163,45 @@ public class GetTargetedSites {
 		//input4Align(args);
 		//input4TmxMerge(args);
 	}
-	
+
+	private static void input4AllTasksA(String[] args) throws Exception{
+		File sitesFile =new File(args[0]);
+		List<String> lines=new ArrayList<String>();
+		try {
+			lines = FileUtils.readLines(sitesFile, Constants.UTF8);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		lang1 = args[1];
+		lang2 = args[2];
+		File urlSeedFile = new File(args[0]);
+		File shellSiteFile = new File(args[5]);
+
+		String commands = "";
+		Set<String> hosts=new HashSet<String>();
+		for (String line:lines){
+			if (line.isEmpty() || line.startsWith("#"))
+				continue;
+			String host = new URL(line.trim()).getHost();
+			if (!hosts.contains(host)){
+				commands = commands+generateAllTasksCommand(host,urlSeedFile)+"\n";
+				hosts.add(host);
+			}
+		}
+		try {
+			FileUtils.writeStringToFile(shellSiteFile, commands, Constants.UTF8);
+		} catch (IOException e) {
+			System.err.println("Problem in writing commands");
+			e.printStackTrace();
+		}
+	}
+
 	private static void input4Dedup(String[] args) {
 		File indirsFile = new File(args[0]);
 		List<String> lines=new ArrayList<String>();
 		try {
-			lines = FileUtils.readLines(indirsFile);
+			lines = FileUtils.readLines(indirsFile, Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -96,14 +218,14 @@ public class GetTargetedSites {
 			temp_command=temp_command.replaceAll("YYY", temp1);
 			System.out.println(temp_command);
 		}
-		
+
 	}
 
 	private static void input4Export(String[] args) {
 		File indirsFile = new File(args[0]);
 		List<String> lines=new ArrayList<String>();
 		try {
-			lines = FileUtils.readLines(indirsFile);
+			lines = FileUtils.readLines(indirsFile, Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -128,7 +250,7 @@ public class GetTargetedSites {
 		File indirsFile = new File(args[0]);
 		List<String> lines=new ArrayList<String>();
 		try {
-			lines = FileUtils.readLines(indirsFile);
+			lines = FileUtils.readLines(indirsFile, Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -153,7 +275,7 @@ public class GetTargetedSites {
 		File indirsFile = new File(args[0]);
 		List<String> lines=new ArrayList<String>();
 		try {
-			lines = FileUtils.readLines(indirsFile);
+			lines = FileUtils.readLines(indirsFile, Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -176,7 +298,7 @@ public class GetTargetedSites {
 		File indirsFile = new File(args[0]);
 		List<String> lines=new ArrayList<String>();
 		try {
-			lines = FileUtils.readLines(indirsFile);
+			lines = FileUtils.readLines(indirsFile, Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -194,12 +316,12 @@ public class GetTargetedSites {
 			System.out.println(temp_command);
 		}
 	}
-	
+
 	private static void input4AllTasks(String[] args) {
 		File sitesFile =new File(args[0]);
 		List<String> lines=new ArrayList<String>();
 		try {
-			lines = FileUtils.readLines(sitesFile);
+			lines = FileUtils.readLines(sitesFile, Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -208,7 +330,7 @@ public class GetTargetedSites {
 		lang2 = args[2];
 		File urlSeedFile = new File(FilenameUtils.concat(sitesFile.getParent(), "total_"+lang1+Constants.HYPHEN+lang2+Constants.HYPHEN+SEEDS));
 		File shellSiteFile = new File(FilenameUtils.concat(sitesFile.getParent(), "total "+lang1+Constants.HYPHEN+lang2+Constants.HYPHEN+COMMANDS));
-				
+
 		String commands = "";
 		Set<String> hosts=new HashSet<String>();
 		for (String line:lines){
@@ -230,12 +352,12 @@ public class GetTargetedSites {
 		}
 		//WriteResources.writetextfile(shellSiteFile.getAbsolutePath(), commands);
 		try {
-			FileUtils.writeStringToFile(shellSiteFile, commands);
+			FileUtils.writeStringToFile(shellSiteFile, commands, Constants.UTF8);
 		} catch (IOException e) {
 			System.err.println("Problem in writing commands");
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private static String generateAllTasksCommand(String host, File urlSeedFile) {
@@ -244,21 +366,21 @@ public class GetTargetedSites {
 		String agent = t+"_"+lang1+Constants.HYPHEN+lang2;
 		String filter = "\".*"+t1+".*\"";
 		String dest = " -dest ";
-		String dest1 = "/var/www/html/elrc4/ejustice/"+lang1+Constants.HYPHEN+lang2+"/";
+		String dest1 = "/var/www/html/tld/en-sk/"+lang1+Constants.HYPHEN+lang2+"/";
 		String dest2 =  dest1+"output";// dest1+"output_"+agent;
 		String command = JAR_ALL + L + QUOTE+lang1 + Constants.SEMICOLON+ lang2 + QUOTE+ AGENT + agent +FILTER + filter + U +QUOTE+urlSeedFile.getAbsolutePath()+QUOTE +
 				dest+QUOTE+dest1+QUOTE + " -bs " + QUOTE+dest2+QUOTE + FORW +QUOTE+dest1+ "log_"+ agent + QUOTE; 
-						
+
 		return command;
 	}
-	
-	
+
+
 	private static void getSeeds(String[] args){
 		File candidateSitesFile =new File(args[0]);
 		//String[] lines = ReadResources.readFileLines(candidateSitesFile.getAbsolutePath());		//"C:/Users/vpapa/ELRC/EUROPEANA/museums1.csv"
 		List<String> lines=new ArrayList<String>();
 		try {
-			lines = FileUtils.readLines(candidateSitesFile);
+			lines = FileUtils.readLines(candidateSitesFile, Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -282,14 +404,14 @@ public class GetTargetedSites {
 		}
 		//WriteResources.writetextfile(urlSeedFile.getAbsolutePath(), seedurls);
 		try {
-			FileUtils.writeStringToFile(urlSeedFile, seedurls);
+			FileUtils.writeStringToFile(urlSeedFile, seedurls, Constants.UTF8);
 		} catch (IOException e) {
 			System.err.println("Problem in writing seedurls");
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 
 	private static Site parseLine2Site(String line, List<String> sitenames) {
 		line=line.substring(line.indexOf(Constants.COMMA)+1);
@@ -356,13 +478,13 @@ public class GetTargetedSites {
 		}
 	}
 
-	
+
 	private static void input4SeedsAndAllTasks(String[] args) {
 		File candidateSitesFile =new File(args[0]);
 		//String[] lines = ReadResources.readFileLines(candidateSitesFile.getAbsolutePath());		//"C:/Users/vpapa/ELRC/EUROPEANA/museums1.csv"
 		List<String> lines=new ArrayList<String>();
 		try {
-			lines = FileUtils.readLines(candidateSitesFile);
+			lines = FileUtils.readLines(candidateSitesFile, Constants.UTF8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -386,13 +508,13 @@ public class GetTargetedSites {
 		}
 		//WriteResources.writetextfile(urlSeedFile.getAbsolutePath(), seedurls);
 		try {
-			FileUtils.writeStringToFile(urlSeedFile, seedurls);
+			FileUtils.writeStringToFile(urlSeedFile, seedurls, Constants.UTF8);
 		} catch (IOException e) {
 			System.err.println("Problem in writing seedurls");
 			e.printStackTrace();
 		}
-		
-				
+
+
 		Collections.sort(sites, new SiteComparator());
 		String commands = "";
 		for (Site sitet:sites){
@@ -409,12 +531,12 @@ public class GetTargetedSites {
 		}
 		//WriteResources.writetextfile(shellSiteFile.getAbsolutePath(), commands);
 		try {
-			FileUtils.writeStringToFile(shellSiteFile, commands);
+			FileUtils.writeStringToFile(shellSiteFile, commands, Constants.UTF8);
 		} catch (IOException e) {
 			System.err.println("Problem in writing commands");
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 }

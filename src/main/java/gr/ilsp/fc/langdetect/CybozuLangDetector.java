@@ -6,6 +6,7 @@ package gr.ilsp.fc.langdetect;
 import gr.ilsp.fc.utils.DirUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.JarUtils;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.net.URL;
@@ -93,7 +94,7 @@ public class CybozuLangDetector extends LangDetector {
 	public void createNewLanguageProfile(String lang, File trainFile, File profileFile) throws Exception {
 		LangProfile langProfile = GenProfile.loadFromText(lang, trainFile);
 		String jsonProfile = JSON.encode(langProfile);
-		FileUtils.writeStringToFile(profileFile, jsonProfile);
+		FileUtils.writeStringToFile(profileFile, jsonProfile, Constants.UTF8);
 	}
 
 
@@ -103,7 +104,7 @@ public class CybozuLangDetector extends LangDetector {
 		File profileFile = new File(args[2]);
 		LangProfile langProfile = GenProfile.loadFromText(lang, trainFile);
 		String jsonProfile = JSON.encode(langProfile);
-		FileUtils.writeStringToFile(profileFile, jsonProfile);
+		FileUtils.writeStringToFile(profileFile, jsonProfile, Constants.UTF8);
 	}
 
 }

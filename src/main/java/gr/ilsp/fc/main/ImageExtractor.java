@@ -1,7 +1,7 @@
 package gr.ilsp.fc.main;
 
 import java.io.File;
-//import java.io.FileInputStream;
+import gr.ilsp.nlp.commons.Constants;
 //import java.io.FileNotFoundException;
 //import java.io.FileOutputStream;
 import java.io.FilenameFilter;
@@ -74,7 +74,7 @@ public class ImageExtractor {
 			String html, key;
 			for (int ii=0; ii<files.length ; ii++){
 				File htmlfile=new File(FilenameUtils.concat(xmldir.getAbsolutePath(),files[ii]));
-				html = FileUtils.readFileToString(htmlfile);
+				html = FileUtils.readFileToString(htmlfile, Constants.UTF8);
 				Document doc = Jsoup.parse(html);
 				List<String> images = ie.getImages(doc,keep);
 				if (!images.isEmpty()){
