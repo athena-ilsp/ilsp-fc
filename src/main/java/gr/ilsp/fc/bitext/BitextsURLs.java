@@ -4,6 +4,7 @@ import gr.ilsp.fc.bitext.Bitexts.DocVector;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.Statistics;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 public class BitextsURLs {
@@ -335,7 +337,13 @@ public class BitextsURLs {
 
 		if (checkUrslangPatterns(url1,url2))
 			return true;
-
+		String temp1 = FilenameUtils.removeExtension(new File(url1).getName());
+		String temp2 = FilenameUtils.removeExtension(new File(url2).getName());
+		if (checkUrsCommonPatterns(lang1, lang2,temp1,temp2))
+			return true;
+		if (checkUrslangPatterns(temp1,temp2))
+			return true;
+		
 		return found;
 	}
 
