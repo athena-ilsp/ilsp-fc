@@ -66,6 +66,8 @@ public class Deduplicator {
 			LOGGER.info("------------Deduplication by using lists and MD5 method.------------");
 			DedupMD5.dedup(targetDir, excludeSetFiles,  outTextList,outHTMLList,applyOfflineXSLT, MIN_TOK_LEN,inputType);
 			LOGGER.info("------------Deduplication based on common paragraphs.------------");
+			DedupMD5.dedupfull(targetDir, excludeSetFiles,  outTextList,outHTMLList,applyOfflineXSLT, MIN_TOK_LEN,inputType);
+			LOGGER.info("------------Deduplication based on common paragraphs.------------");
 			DedupParsMD5.dedup(targetDir, excludeSetFiles,  outTextList,outHTMLList,applyOfflineXSLT, MIN_PAR_LEN, IntersectionThr,inputType);
 		}
 		LOGGER.info("Completed in " + (System.currentTimeMillis()-startTime) + " milliseconds.");

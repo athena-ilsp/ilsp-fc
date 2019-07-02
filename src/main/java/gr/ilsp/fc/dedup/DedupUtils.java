@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.MD5Hash;
@@ -151,6 +152,27 @@ public class DedupUtils {
 		}
 	}
 
+	/**
+	 * holds filename, length of text, MD5hash of text
+	 * @author 
+	 *
+	 */
+	public static class TextFullAttr {
+		public String hashkeyText;
+		public int length;
+		public String filename;
+		public Set<String> textlist;
+		public String lang;
+
+		public TextFullAttr(int length, String filename, String hashkeyText, Set<String> textlist, String lang) {
+			this.length = length;
+			this.filename = filename;
+			this.hashkeyText = hashkeyText;
+			this.textlist = textlist;
+			this.lang = lang;
+		}
+	}
+	
 	private static class TokenComparator implements Comparator<Token> {
 		public int compare(Token t1, Token t2) {
 			return t2.cnt - t1.cnt;
@@ -203,6 +225,45 @@ public class DedupUtils {
 		return t;
 	}
 
+	
+	/**
+	 * returns the filename, length of text, quantized list and MD5, and language of text (in paragraphs with no crawlinfo attribute) of the input file
+	 * @param file
+	 * @param input_type 
+	 * @return
+	 */
+	public static TextFullAttr getTextFullAttrs(File file, int MIN_TOKEN_LEN, String input_type) {
+		String text="";
+		if (input_type.endsWith(xmlext))
+			text = ReadResources.extractTextfromXML_clean(file.getAbsolutePath(),P_ELE,ooi_crawlinfo, false);
+		if (input_type.endsWith(txtext)){
+			try {
+				text = FileUtils.readFileToString(file);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		LOGGER.debug(text);
+		String string_key="";
+		if (StringUtils.isBlank(text))
+			return null;
+		
+		string_key = calculateFullAttrs(text, MIN_TOKEN_LEN); //TODO should text be stemmed?
+		String key = string_key.substring(string_key.lastIndexOf("\n")+1, string_key.length()) ;
+		//System.out.println(string_key);
+		List<String> temp= Arrays.asList(string_key.substring(0, string_key.lastIndexOf("\n")).split("\n"));
+		Set<String> list = new HashSet<String>(); 
+        for (String x : temp) 
+            list.add(x); 
+		
+		String lang = ReadResources.extractAttrfromXML(file.getAbsolutePath(), "language", "iso639", true, true);
+		TextFullAttr t= new TextFullAttr(text.length(),file.getName(), key, list, lang);
+		return t;
+	}
+	
+	
+	
 	/**
 	 * extracts clean text from the cesDoc and returns an object which holds the filename, the length (in terms of tokens),
 	 * a list with lengths of paragraphs, a list with MD5hashes of paragraphs
@@ -277,5 +338,86 @@ public class DedupUtils {
 			files.add(file);
 		}
 		return files;
+	}
+	
+	/**
+	 * calculates Attrs for a  text	
+	 * @param text
+	 * @return
+	 */
+	private static String calculateFullAttrs(String text, int MIN_TOKEN_LEN) {
+		HashMap<String, Token> tokens = new HashMap<String, Token>();
+		StringBuffer curToken = new StringBuffer();
+		int maxFreq = 0;
+		for (int i = 0; i < text.length(); i++) {
+			char c = text.charAt(i);
+			if (Character.isLetterOrDigit(c)) {
+				curToken.append(Character.toLowerCase(c));
+			} else {
+				if (curToken.length() > 0) {
+					if (curToken.length() > MIN_TOKEN_LEN) {
+						// add it
+						String s = curToken.toString();
+						Token tok = tokens.get(s);
+						if (tok == null) {
+							tok = new Token(0, s);
+							tokens.put(s, tok);
+						}
+						tok.cnt++;
+						if (tok.cnt > maxFreq) maxFreq = tok.cnt;
+					}
+					curToken.setLength(0);
+				}
+			}
+		}
+		// check the last token
+		if (curToken.length() > MIN_TOKEN_LEN) {
+			// add it
+			String s = curToken.toString();
+			Token tok = tokens.get(s);
+			if (tok == null) {
+				tok = new Token(0, s);
+				tokens.put(s, tok);
+			}
+			tok.cnt++;
+			if (tok.cnt > maxFreq) maxFreq = tok.cnt;
+		}
+		Iterator<Token> it = tokens.values().iterator();
+		ArrayList<Token> profile = new ArrayList<Token>();
+		// calculate the QUANT value
+		int QUANT = Math.round(maxFreq * QUANT_RATE);
+		if (QUANT < QAUNT_DEFAULT) {
+			if (maxFreq > QAUNT_DEFAULT-1)
+				QUANT = QAUNT_DEFAULT;
+			else 
+				QUANT = 1;
+			//if (maxFreq < QAUNT_DEFAULT) QUANT = 1;
+		}
+
+		while(it.hasNext()) {
+			Token t = it.next();
+			// round down to the nearest QUANT
+			t.cnt = (t.cnt / QUANT) * QUANT;
+			// discard the frequencies below the QUANT
+			if (t.cnt < QUANT) {
+				continue;
+			}
+			profile.add(t);
+		}
+		if (profile.size()==0)
+			System.out.println("Empty profile");
+		Collections.sort(profile, new TokenComparator());
+		StringBuffer newText = new StringBuffer();
+		it = profile.iterator();
+		while (it.hasNext()) {
+			Token t = it.next();
+			if (newText.length() > 0) newText.append("\n");
+			newText.append(t.toString());
+		}
+		LOGGER.debug(newText.toString());
+		//return DigestUtils.md5Hex(newText.toString());
+		newText.append("\n");
+		newText.append(DigestUtils.md5Hex(newText.toString()));
+		return newText.toString();
 	}
 }
