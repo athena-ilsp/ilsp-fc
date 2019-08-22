@@ -35,6 +35,16 @@ public class BitextsURLs {
 	public static ArrayList<String[]> findpairsHRefLang(Map<String, String> hreflangIDPairs, HashMap<String, DocVector> features, List<String> targetlanguages) {
 		LOGGER.info("Examining pages based on links");
 		ArrayList<String[]> pairs = new ArrayList<String[]>();
+		if (hreflangIDPairs==null){
+			LOGGER.info("no links have been identified");
+			return pairs;
+		}
+		if (features==null){
+			LOGGER.info("no feauters have been extracted");
+			return pairs;
+		}
+		LOGGER.info("Examining pages based on links");
+		
 		Set<String> paired = new HashSet<>();
 		for (Map.Entry<String, String> entry : hreflangIDPairs.entrySet()) {
 			String id1_lang = entry.getKey();
@@ -63,7 +73,18 @@ public class BitextsURLs {
 				System.out.println("Multiple matches :" + id2_lang);
 				continue;
 			}
-			String temp[] = {id1_lang, id2_lang, lang1,lang2, pair_type_link, Double.toString(features.get(id1_lang).numToksnoOOI+features.get(id2_lang).numToksnoOOI)};
+			DocVector dv1  = features.get(id1_lang);
+			if (dv1==null){
+				System.out.println("no docvector for doc in " + id1_lang);
+				continue;
+			}
+			DocVector dv2  = features.get(id2_lang);
+			if (dv2==null){
+				System.out.println("no docvector for doc in " + id2_lang);
+				continue;
+			}
+			
+			String temp[] = {id1_lang, id2_lang, lang1,lang2, pair_type_link, Double.toString(dv1.numToksnoOOI+dv2.numToksnoOOI)};
 			if (id1_lang.compareTo(id2_lang)>0){
 				temp[0] = id2_lang;
 				temp[1] = id1_lang;
