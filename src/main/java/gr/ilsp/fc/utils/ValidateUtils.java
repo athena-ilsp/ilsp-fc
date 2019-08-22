@@ -3,6 +3,9 @@ package gr.ilsp.fc.utils;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -86,4 +89,37 @@ public class ValidateUtils {
 			}
 		return valid;
 	}
+
+	public static boolean isValidDate(String date) {
+		boolean  found = false;
+		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		try {
+			format.parse(date);
+			found = true;
+			return found;
+		} catch (ParseException e) {
+			found = false;
+		}
+		format = new SimpleDateFormat("dd-MM-yyyy");
+		try {
+			format.parse(date);
+			found = true;
+			return found;
+		} catch (ParseException e) {
+			found = false;
+		}
+		format = new SimpleDateFormat("dd.MM.yyyy");
+		try {
+			format.parse(date);
+			found = true;
+			return found;
+		} catch (ParseException e) {
+			found = false;
+		}
+		
+		return false;
+	}
+
+
 }
+
