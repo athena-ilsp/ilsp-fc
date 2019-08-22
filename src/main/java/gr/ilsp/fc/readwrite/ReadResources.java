@@ -36,8 +36,7 @@ public class ReadResources {
 	private static final String L_ATTR = "iso639";
 	private static final String appXMLext = ".xml";
 	private static final String ooi_crawlinfo = "crawlinfo";
-	private static final String UNDERSCORE = "_";
-	private static final String XML_EXTENSION = ".xml";
+		private static final String XML_EXTENSION = ".xml";
 	private static final String LANG_KEYS_RESOURCE = "langKeys.txt" ;
 	
 	public static String extractNodefromXML(String infile, String ele_name) {
@@ -360,7 +359,7 @@ public class ReadResources {
 	public static List<String> extactValueFromDocPair(List<File> tmxfiles, String nodeName) {
 		List<String> domain=new ArrayList<String>();
 		for (File tmxFile:tmxfiles){
-			File f = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[0])+XML_EXTENSION);
+			File f = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), Constants.UNDERSCORE)[0])+XML_EXTENSION);
 			String domain1 = ReadResources.extractNodefromXML(f.getAbsolutePath(), nodeName, false);
 			if (domain1.isEmpty())
 				domain1 = ReadResources.extractNodefromXML(f.getAbsolutePath(), nodeName, true);
@@ -368,7 +367,7 @@ public class ReadResources {
 				if (!domain.contains(domain1))
 					domain.add(domain1);
 			}
-			f = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), UNDERSCORE)[1])+XML_EXTENSION);
+			f = new File(FilenameUtils.concat(tmxFile.getParent(), StringUtils.split(tmxFile.getName(), Constants.UNDERSCORE)[1])+XML_EXTENSION);
 			domain1 = ReadResources.extractNodefromXML(f.getAbsolutePath(), nodeName, false);
 			if (!domain1.isEmpty())
 				domain1 = ReadResources.extractNodefromXML(f.getAbsolutePath(), nodeName, true);
