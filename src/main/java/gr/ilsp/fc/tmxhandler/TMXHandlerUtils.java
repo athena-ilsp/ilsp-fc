@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 //import java.net.MalformedURLException;
@@ -293,7 +294,8 @@ public class TMXHandlerUtils {
 		List<SegPair> segpairs = new ArrayList<SegPair>();
 		Tmx tmx;
 		try {
-			tmx = TmxMarshallerUnmarshaller.getInstance().unmarshal(new FileReader(tmxFile));
+			//tmx = TmxMarshallerUnmarshaller.getInstance().unmarshal(new FileReader(tmxFile));
+			tmx = TmxMarshallerUnmarshaller.getInstance().unmarshal(new InputStreamReader(new FileInputStream(tmxFile.getAbsolutePath()), Constants.UTF8));
 			int alignments = 0;
 			int sourceSegments = 0;
 			int targetSegments = 0;
@@ -356,6 +358,9 @@ public class TMXHandlerUtils {
 
 		} catch (FileNotFoundException e) {
 			LOGGER.warn("Problem in reading "+ tmxFile.getAbsolutePath());
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			LOGGER.warn("Problem in encoding of "+ tmxFile.getAbsolutePath());
 			e.printStackTrace();
 		}
 		return segpairs;
