@@ -157,20 +157,25 @@ public class DedupMD5 {
 		
 		int cents=0;
 		String file_to_delete;
+		List<String> found = new ArrayList<String>();
 		for (int ii=0;ii<files.size();ii++){
 			TextFullAttr t= DedupUtils.getTextFullAttrs(files.get(ii), MIN_TOKEN_LEN, input_type); //file under examination
-			if (t==null)
-				continue;
-			LOGGER.debug(t.filename);
+			//if (t==null)
+			//	continue;
+			//LOGGER.debug(t.filename);
 			fileattrs.add(t);
+			if (t.length==0)
+				found.add(files.get(ii).getName());
 		}
-		List<String> found = new ArrayList<String>();
+
+		boolean found1 = false;
 		for (int ii=0;ii<files.size()-1;ii++){
 			TextFullAttr t1 = fileattrs.get(ii);
 			if (found.contains(t1.filename))
 				continue;
 			String lang1 = t1.lang;
 			Set<String> list1 = t1.textlist;
+			found1 = false;
 			for (int jj=ii+1;jj<files.size();jj++){
 				TextFullAttr t2 = fileattrs.get(jj);
 				if (found.contains(t2.filename))
@@ -188,14 +193,19 @@ public class DedupMD5 {
 						}else{
 							found.add(t1.filename);
 							file_to_delete = FilenameUtils.concat(input.getPath(),t1.filename);
+							found1 = true;
 						}
 						LOGGER.info("(near) duplicates identified: "+ t1.filename+ "\t\t" + t2.filename+ "\tDELETED "+ (new File(file_to_delete)).getName());
-						if (!file_to_delete.isEmpty()){
+						/*if (!file_to_delete.isEmpty()){
 							(new File(file_to_delete)).delete();
 							(new File(file_to_delete.replace(Constants.DOT+input_type,appHTMLext))).delete();
 							(new File(file_to_delete.replace(Constants.DOT+input_type,appXMLHTMLext))).delete();
-						}
+						}*/
 						file_to_delete=Constants.EMPTY_STRING;
+						if (found1){
+							found1=false;
+							break;
+						}
 					}
 				}
 			}
@@ -203,6 +213,12 @@ public class DedupMD5 {
 				cents++;
 				LOGGER.info("Lists for more than "+ cents*1000+" files have been checked.");
 			}
+		}
+		for (int ii=0;ii<found.size();ii++){
+			file_to_delete = FilenameUtils.concat(input.getPath(),found.get(ii));
+			(new File(file_to_delete)).delete();
+			(new File(file_to_delete.replace(Constants.DOT+input_type,appHTMLext))).delete();
+			(new File(file_to_delete.replace(Constants.DOT+input_type,appXMLHTMLext))).delete();
 		}
 				
 		List<File> remFiles = (List<File>) FileUtils.listFiles(input, extensions, false);

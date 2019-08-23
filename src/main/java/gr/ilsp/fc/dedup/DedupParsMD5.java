@@ -162,7 +162,7 @@ public class DedupParsMD5 {
 						}
 					}
 					if (!file_to_delete.isEmpty()){
-						LOGGER.debug(file_key+"\t\t"+ file1_key + "\tDELETED: "+ file_to_delete);
+						LOGGER.info(file_key+"\t\t"+ file1_key + "\tDELETED: "+ file_to_delete);
 						(new File(file_to_delete)).delete();
 						(new File(file_to_delete.replace(Constants.DOT+input_type,appHTMLext))).delete();
 						(new File(file_to_delete.replace(Constants.DOT+input_type,appXMLHTMLext))).delete();
