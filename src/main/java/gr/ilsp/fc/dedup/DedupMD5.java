@@ -234,6 +234,4 @@ public class DedupMD5 {
 		LOGGER.info("Deduplication completed in " + elapsedTime + " milliseconds. "+ remFiles.size() +  " files remained.");
 	}
 	
-	
-	
 }

@@ -247,7 +247,7 @@ public class DedupUtils {
 		LOGGER.debug(text);
 		String string_key="";
 		if (StringUtils.isBlank(text))
-			new TextFullAttr(0,file.getName(), " ", null, "");
+			return new TextFullAttr(0,file.getName(), " ", null, "");
 			//return null;
 		
 		string_key = calculateFullAttrs(text, MIN_TOKEN_LEN); //TODO should text be stemmed?
