@@ -24,7 +24,7 @@ public  class FCStringUtils {
 	private static String CHINESE="zho";
 	private static final Logger LOGGER = Logger.getLogger(FCStringUtils.class);
 
-	
+
 	public static String removeWWW(String host) {
 		if (host.startsWith("www5") | host.startsWith("www2"))
 			host=host.substring(5);
