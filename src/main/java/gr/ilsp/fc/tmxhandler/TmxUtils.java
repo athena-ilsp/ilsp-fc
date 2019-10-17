@@ -74,6 +74,64 @@ public class TmxUtils {
 
 	public static void main(String[] args) throws Exception{  //throws Exception
 
+		List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_2510/validated-1.txt"));
+		List<String> newlines = new ArrayList<String>();
+		for (String line:lines){
+			if (line.isEmpty())
+				continue;
+			if (line.startsWith("\"") | line.startsWith(","))
+				continue;
+			if (line.startsWith("1") |line.startsWith("2") |line.startsWith("3") |line.startsWith("4")| line.startsWith("5")
+					| line.startsWith("6")| line.startsWith("7") | line.startsWith("8") | line.startsWith("9") 
+					|line.startsWith("0"))
+				continue;
+			newlines.add(line);
+		}
+		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_2510/validated-1.txt"), newlines);
+		System.exit(0);
+		
+		/*List<String> a23781 = FileUtils.readLines(new File("C:/Users/vpapa/Downloads/archive_2378/result/eng-hrv_corpus.en"));
+		List<String> a23782 = FileUtils.readLines(new File("C:/Users/vpapa/Downloads/archive_2378/result/eng-hrv_corpus.hr"));
+		
+		List<String> a23761 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Ministarstvo_part1/eng-hrv_corpus.en"));
+		List<String> a23762 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Ministarstvo_part1/eng-hrv_corpus.hr"));
+		List<String> a23791 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Ministarstvo_part2/eng-hrv_corpus.en"));
+		List<String> a23792 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Ministarstvo_part2/eng-hrv_corpus.hr"));		
+		
+		int countq=0;
+		for (int ii=0;ii<a23781.size();ii++){
+			String a = a23781.get(ii);
+			String b = a23782.get(ii);
+			for (int jj=0;jj<a23761.size();jj++){
+				String c = a23761.get(jj);
+				String d = a23762.get(jj);
+				if (a.equals(c) && b.equals(d)){
+					System.out.println(a +b + c+ d);
+					countq++;
+				}
+			}
+			for (int jj=0;jj<a23791.size();jj++){
+				String e = a23791.get(jj);
+				String f = a23792.get(jj);
+				if (a.equals(e) && b.equals(f)){
+					System.out.println(a +b + e+ f);
+					countq++;
+				}
+			}
+			
+			
+		}
+		System.out.println(countq);
+		System.exit(0);*/
+		
+		/*tmx2txts2(new File("C:/Users/vpapa/Downloads/archive_2377/Regionalno EN-HR.tmx"), "en", "hr");
+		tmx2txts2(new File("C:/Users/vpapa/Downloads/archive_2378/Ministarstvo poljoprivrede EN-HR.tmx"), "hr", "en");
+		System.exit(0);*/
+		
+		/*cleanTXTs(new File("C:/Users/vpapa/Downloads/archive_2377/txts"));
+		cleanTXTs(new File("C:/Users/vpapa/Downloads/archive_2378/txts"));
+		System.exit(0);*/
+		
 		/*tmx2txts2(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/Ministarstvo poljoprivrede HR-EN_final.tmx.UTF-8"), "en", "hr");
 		tmx2txts2(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/Regionalno HR-EN_final.tmx.UTF-8"), "hr", "en");
 		System.exit(0);*/
@@ -81,9 +139,9 @@ public class TmxUtils {
 		/*cleanTXTs(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts"));
 		System.exit(0);*/
 		
-		File fffile1 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Regionalno_part2/txt/Regionalno HR-EN_final.tmx.UTF-8.en.cl_2");
-		File fffile2 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Regionalno_part2/txt/Regionalno HR-EN_final.tmx.UTF-8.hr.cl_2");
-		File fffile3 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Regionalno_part2/Regionalno HR-EN_final.tmx.UTF-8.en.cl.p2");
+		File fffile1 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.en.cl");
+		File fffile2 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.hr.cl");
+		File fffile3 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.en-hr.cl");
 		List<SegPair> fpairs = txts2tmx(fffile1, fffile2);
 		List<ILSPAlignment> faalignments = segpair2ILSPAlignment(fpairs);
 		String[] fllangs1 = new String[2]; fllangs1[0] = "en"; fllangs1[1] = "hr";

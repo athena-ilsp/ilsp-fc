@@ -89,7 +89,8 @@ public class DomainUrlFilter extends BaseUrlFilter {
 				//return (!host.endsWith(_domain));
 				for (String s:_domain){
 					if (s!=null)
-						if (host.endsWith(s)) return false;					
+						if (host.endsWith(s))
+							return false;					
 				}
 				return true;
 			} else

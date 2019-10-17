@@ -125,7 +125,10 @@ public class RunOptions {
 	private static String default_aligner="maligna";
 	private File _outputFileTMX, _outputFileHTMLTMX;
 	private String _aligner=null, _dict=null, _dictpath=null;
-
+	
+	//laser params
+	//private boolean laser = false;
+			
 	protected static Matcher skipLineM = Pattern.compile("^(\\s*)||(#.*)$").matcher("");
 
 	private static CompositeConfiguration _configuration;
@@ -180,7 +183,10 @@ public class RunOptions {
 		options.addOption( OptionBuilder.withLongOpt("monomerge")
 				.withDescription( "Construct a monolingual collection by merging the already exported cesDoc files" )				
 				.create("monomerge") );
-
+		/*options.addOption( OptionBuilder.withLongOpt("laser")
+				.withDescription( "prepares data for running laser" )				
+				.create("laser") );*/
+		
 		//linguality
 		options.addOption( OptionBuilder.withLongOpt( "languages" )
 				.withDescription( "Two or three letter ISO code(s) of target language(s), e.g. el (for a monolingual crawl for Greek content) or en;el (for a bilingual crawl)" )

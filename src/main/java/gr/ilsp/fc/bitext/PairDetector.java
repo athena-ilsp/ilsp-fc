@@ -2,6 +2,7 @@ package gr.ilsp.fc.bitext;
 
 import gr.ilsp.fc.utils.FcFileUtils;
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.fc.tmxhandler.LaserPrepro;
 import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
@@ -111,6 +112,9 @@ public class PairDetector {
 		//FcFileUtils.moveZipDeleteFiles(indir,html, Arrays.asList(htmlExt, pdfExt), UNDERSCORE_STR, false);
 		//if (!offlineXSLT)
 		//	FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
+		
+		LaserPrepro.laserprepro(indir, true);
+		
 		if (bitextsALL!=null && !bitextsALL.isEmpty() )
 			return bitextsALL.size(); //LOGGER.info("document pairs in "+lang.substring(1)+"\t"+bitextsALL.size());
 		else
