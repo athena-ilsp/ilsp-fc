@@ -3,6 +3,7 @@ package gr.ilsp.fc.bitext;
 import gr.ilsp.fc.bitext.Bitexts.DocVector;
 import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.Statistics;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,8 +19,6 @@ import org.apache.log4j.Logger;
 
 public class BitextsURLs {
 	private static final Logger LOGGER = Logger.getLogger(BitextsURLs.class);
-	private static final String UNDERSCORE_STR = "_";
-	private static final String HYPHEN = "-";
 	private static final String pair_type_link = "a";
 	private static final String pair_type_URL = "u";
 	private static final int URL_LEVEL=1;
@@ -48,14 +47,14 @@ public class BitextsURLs {
 		Set<String> paired = new HashSet<>();
 		for (Map.Entry<String, String> entry : hreflangIDPairs.entrySet()) {
 			String id1_lang = entry.getKey();
-			int p1 = id1_lang.lastIndexOf(HYPHEN);
+			int p1 = id1_lang.lastIndexOf(Constants.HYPHEN);
 			String lang1 = id1_lang.substring(0, p1);
 			if (!targetlanguages.contains(lang1))
 				continue;
 			String id1 = id1_lang.substring(p1+1);
-
+			
 			String id2_lang = entry.getValue();
-			int p2 = id2_lang.lastIndexOf(HYPHEN);
+			int p2 = id2_lang.lastIndexOf(Constants.HYPHEN);
 			String lang2 = id2_lang.substring(0, p2);
 			if (!targetlanguages.contains(lang2))
 				continue;
@@ -258,7 +257,7 @@ public class BitextsURLs {
 							/Math.max(file_url_file_url.length()-ind, file_url1_file_url1.length()-ind1);
 					LOGGER.debug(file_url1);
 					dist_paired.add(temp_dist);
-					cand_paired.add(key+UNDERSCORE_STR+key1);
+					cand_paired.add(key+Constants.UNDERSCORE+key1);
 					LOGGER.debug(dist_paired.get(dist_paired.size()-1));
 					LOGGER.debug(key+"\t"+key1+"\t"+file_url.length()+"\t"+file_url1.length()+"\t"+temp_dist);
 
@@ -279,7 +278,7 @@ public class BitextsURLs {
 				break;
 			}
 			String  temp_pair=cand_paired.get(ind);
-			String[] temp_files=temp_pair.split(UNDERSCORE_STR);
+			String[] temp_files=temp_pair.split(Constants.UNDERSCORE);
 			if (!paired.contains(temp_files[0]) && !paired.contains(temp_files[1])){
 				String[] pair=new String[6];
 				pair[0]=temp_files[0];
@@ -295,7 +294,7 @@ public class BitextsURLs {
 				System.out.println(temp_files[0]+"_"+temp_files[1]+ " : "+ val);
 				for (int ii=0;ii<cand_paired.size();ii++){
 					temp_pair=cand_paired.get(ii);
-					temp_files=temp_pair.split(UNDERSCORE_STR);
+					temp_files=temp_pair.split(Constants.UNDERSCORE);
 					if (paired.contains(temp_files[0]) | paired.contains(temp_files[1])){
 						dist_paired.set(ii,1000000.0); 
 						val=1000000;

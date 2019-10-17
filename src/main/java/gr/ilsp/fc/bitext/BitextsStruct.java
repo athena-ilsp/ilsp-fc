@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 
 public class BitextsStruct {
 	private static final Logger LOGGER = Logger.getLogger(BitextsStruct.class);
-	private static final String UNDERSCORE_STR = "_";
 	private static final String appXMLTXText = ".xml.txt";
 	private static final double length_thres=0.4;
 	private static final double pars_thres=0.4;
@@ -180,10 +179,10 @@ public class BitextsStruct {
 		for (int i = 0; i < new_temp1.length; i++){
 			new_temp1[i] =Double.parseDouble(pairs.get(i)[2]);
 			editdist[i] =Double.parseDouble(pairs.get(i)[2]);
-			int ind = pairs.get(i)[0].indexOf(UNDERSCORE_STR);
+			int ind = pairs.get(i)[0].indexOf(Constants.UNDERSCORE);
 			pairlist[i][0]=pairs.get(i)[0].substring(0, ind);
 			pairlist[i][1]=pairs.get(i)[0].substring(ind+1);
-			int ind1 = pairs.get(i)[1].indexOf(UNDERSCORE_STR);
+			int ind1 = pairs.get(i)[1].indexOf(Constants.UNDERSCORE);
 			pairlist[i][2]=pairs.get(i)[1].substring(0, ind1);
 			pairlist[i][3]=pairs.get(i)[1].substring(ind1+1);
 			pairlist[i][4]=pairs.get(i)[3];
@@ -245,7 +244,7 @@ public class BitextsStruct {
 		if (methods.contains(h_type)){
 			for (int jj=0;jj<pairs.size();jj++){
 				if (counts[jj][0]==1 & counts[jj][1]==1 & flags[jj]==0){
-					LOGGER.debug(pairs.get(jj)[0]+UNDERSCORE_STR+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
+					LOGGER.debug(pairs.get(jj)[0]+Constants.UNDERSCORE+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
 					bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],h_struct_simil,pairs.get(jj)[5]});
 					flags[jj]=1;
 				}
@@ -266,7 +265,7 @@ public class BitextsStruct {
 						if (ind>-1){
 							dist1 = Double.parseDouble(pairs.get(kk)[4]);
 							if (dist<dist1){
-								LOGGER.debug(pairs.get(jj)[0]+UNDERSCORE_STR+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
+								LOGGER.debug(pairs.get(jj)[0]+Constants.UNDERSCORE+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
 								bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],m_struct_simil,pairs.get(jj)[5]});
 								counts[kk][ind]=0;
 								flags[jj]=2;
@@ -288,7 +287,7 @@ public class BitextsStruct {
 						if (pairs.get(kk)[0].equals(pairs.get(jj)[0]) & kk!=jj){
 							dist1 = Double.parseDouble(pairs.get(kk)[4]);
 							if (dist<dist1){
-								LOGGER.debug(pairs.get(jj)[0]+UNDERSCORE_STR+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
+								LOGGER.debug(pairs.get(jj)[0]+Constants.UNDERSCORE+ pairs.get(jj)[1]+"___"+pairs.get(jj)[5]);
 								bitexts.add(new String[] {pairs.get(jj)[0], pairs.get(jj)[1],pairs.get(jj)[2],pairs.get(jj)[3],m_struct_simil,pairs.get(jj)[5]});
 								counts[kk][0]=0;
 								flags[jj]=2;
@@ -308,8 +307,8 @@ public class BitextsStruct {
 			ArrayList<String[]> new_pairs=new ArrayList<String[]>();
 			for (int ii=0;ii<pairs.size();ii++){
 				if (flags[ii]==0){
-					new_pairs.add(new String[] {pairs.get(ii)[0]+UNDERSCORE_STR+pairs.get(ii)[1],pairs.get(ii)[2]
-							+UNDERSCORE_STR+pairs.get(ii)[3],pairs.get(ii)[4],pairs.get(ii)[5]});
+					new_pairs.add(new String[] {pairs.get(ii)[0]+Constants.UNDERSCORE+pairs.get(ii)[1],pairs.get(ii)[2]
+							+Constants.UNDERSCORE+pairs.get(ii)[3],pairs.get(ii)[4],pairs.get(ii)[5]});
 				}
 			}
 			ArrayList<String[]> new_bitexts=new ArrayList<String[]>();

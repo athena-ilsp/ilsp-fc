@@ -13,11 +13,10 @@ import org.apache.log4j.Logger;
 
 public class PairDetectEvaluator {
 	private static final Logger LOGGER = Logger.getLogger(PairDetectEvaluator.class);
-	private static String UNDERSCORE = "_";
 	private static final String XMLEXT = ".xml";
 
 	public static void main(String[] args) {
-
+		
 		File indir = new File(args[0]);
 		HashMap<String,String> truepairs = BitextUtils.getTruePairs( args[1]);
 		File[] pairs = indir.listFiles();
@@ -25,11 +24,11 @@ public class PairDetectEvaluator {
 		ArrayList<String> checked = new ArrayList<String>(); 
 		for (File file:pairs){
 			String name = file.getName();
-			if (!name.contains(UNDERSCORE))
+			if (!name.contains(Constants.UNDERSCORE))
 				continue;
 			if (!name.endsWith(XMLEXT))
 				continue;
-			String[] parts = FilenameUtils.getBaseName(name).split(UNDERSCORE);
+			String[] parts = FilenameUtils.getBaseName(name).split(Constants.UNDERSCORE);
 			String key1 = parts[0]/*.replaceAll("-el-", "-ell-")*/;
 			String key2 = parts[1]/*.replaceAll("-en-", "-eng-")*/;
 			if (checked.contains(key1)){

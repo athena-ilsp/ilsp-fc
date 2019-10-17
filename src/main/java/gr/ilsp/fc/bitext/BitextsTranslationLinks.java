@@ -4,6 +4,7 @@ import gr.ilsp.fc.crawl.CrawlerDirConfig;
 import gr.ilsp.fc.datums.ExtendedParsedDatum;
 import gr.ilsp.fc.parser.ExtendedOutlink;
 import gr.ilsp.fc.utils.ISOLangCodes;
+import gr.ilsp.nlp.commons.Constants;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,8 +29,7 @@ import cascading.tuple.TupleEntryIterator;
 public class BitextsTranslationLinks {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BitextsTranslationLinks.class);
-	private static final String UNDERSCORE_STR = "_";
-
+	
 	/**
 	 * Scans a directory with results from a crawl and returns a map of
 	 * URL1_L1->URL2_L2, based on translation links from each datum's
@@ -86,8 +86,8 @@ public class BitextsTranslationLinks {
 						if (myUrl.equals(translationOutLink.getToUrl()) || myLang.equals(outLinkLang)) {
 							continue;
 						}
-						urlPairsFromTranslationLinks.put(myUrl + UNDERSCORE_STR + myLang,
-								translationOutLink.getToUrl() + UNDERSCORE_STR
+						urlPairsFromTranslationLinks.put(myUrl + Constants.UNDERSCORE + myLang,
+								translationOutLink.getToUrl() + Constants.UNDERSCORE
 										+ outLinkLang);
 						LOGGER.debug("Adding " + translationOutLink.toString());
 					}
@@ -127,11 +127,11 @@ public class BitextsTranslationLinks {
 
 		for (Map.Entry<String, String> entry : urlPairsFromTranslationLinks.entrySet()) {
 			String url1_lang = entry.getKey();
-			int p1 = url1_lang.lastIndexOf(UNDERSCORE_STR);
+			int p1 = url1_lang.lastIndexOf(Constants.UNDERSCORE);
 			String url1 = url1_lang.substring(0, p1);
 			//String lang1 = url1_lang.substring(p1 + 1);
 			String url2_lang = entry.getValue();
-			int p2 = url2_lang.lastIndexOf(UNDERSCORE_STR);
+			int p2 = url2_lang.lastIndexOf(Constants.UNDERSCORE);
 			String urlVal = url2_lang.substring(0, p2);
 			//String lang2 = url2_lang.substring(p2 + 1);
 			//LOGGER.info(url1_lang+"\t"+url2_lang+"\t");

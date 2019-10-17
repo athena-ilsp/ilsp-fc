@@ -28,8 +28,6 @@ import org.apache.log4j.Logger;
 public class BitextUtils {
 	private static final Logger LOGGER = Logger.getLogger(BitextUtils.class);
 	private static int minnumofpars=3;
-	private static final String UNDERSCORE_STR = "_";
-	private static final String PUNCT = ".";
 	private static final String SLASH = "/";
 	private static String input_type="xml";
 	
@@ -259,8 +257,8 @@ public class BitextUtils {
 		for (Map.Entry<String, String> entry : hreflangIDPairs.entrySet()) {
 			String key = entry.getKey();
 			String value = entry.getValue();
-			String file1 = key.split(UNDERSCORE_STR)[0];
-			String file2 = value.split(UNDERSCORE_STR)[0];
+			String file1 = key.split(Constants.UNDERSCORE)[0];
+			String file2 = value.split(Constants.UNDERSCORE)[0];
 			//System.out.println(file1+" --> "+file2);
 			if (paired.contains(file1)){
 				LOGGER.debug("Skipping already seen file " + file1 +". The docs in its pairs are strong candidates for deduplication" );
@@ -271,8 +269,8 @@ public class BitextUtils {
 				continue;
 			} 
 			//if ((hreflangIDPairs.containsKey(value) &&  hreflangIDPairs.get(value).equals(key) )) {
-			paired.add(file1+PUNCT+input_type);
-			paired.add(file2+PUNCT+input_type);
+			paired.add(file1+Constants.DOT+input_type);
+			paired.add(file2+Constants.DOT+input_type);
 			//}
 		}
 		return paired;
@@ -310,7 +308,7 @@ public class BitextUtils {
 			}			
 			List<File> files = Arrays.asList(parentDir.listFiles());
 			for (File file: files) {
-				if (file.isDirectory() || file.getName().contains(UNDERSCORE_STR)) { // Skip directories and cesAlignFiles
+				if (file.isDirectory() || file.getName().contains(Constants.UNDERSCORE)) { // Skip directories and cesAlignFiles
 					continue;
 				}
 				String basename = FilenameUtils.getBaseName(file.getName()); // Get the basename
