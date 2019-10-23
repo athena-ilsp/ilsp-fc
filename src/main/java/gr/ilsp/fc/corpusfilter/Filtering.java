@@ -63,6 +63,9 @@ public class Filtering {
 		//filterWIiki(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/task3/el-en.csv"), "el", "en");
 		//System.exit(0);
 
+		processEN_EL_paracrawl1(new File("C:/Users/vpapa/Downloads/en-el.bicleaner07/en-el.bicleaner07.txt"));
+		System.exit(0);
+		
 		processEN_EL_paracrawl(new File("C:/Users/vpapa/Downloads/en-el.zipporah0.tmx/en-el.zipporah0.tmx"));
 		System.exit(0);
 
@@ -744,6 +747,36 @@ System.exit(0);*/
 
 		//test_enpl_paracrawl();
 		//System.exit(0);
+	}
+
+
+	private static void processEN_EL_paracrawl1(File file) throws IOException {
+		List<String> lines = FileUtils.readLines(file, Constants.UTF8);
+		Set<String> norms = new HashSet<String>();
+		int counter = 0;
+		System.out.println(lines.size());
+		
+		for (String line:lines){
+			String[] parts = line.split(Constants.TAB);
+			String part1 = parts[0];
+			String part2 = parts[1];
+			
+			part1 = ContentNormalizer.unescapedhtml(part1);
+			part2 = ContentNormalizer.unescapedhtml(part2);
+			String npart1 = ContentNormalizer.normtext(part1);		//npart11 = ContentNormalizer.basiclatin(npart1);
+			String npart2 = ContentNormalizer.normtext(part2); 	//npart22 = ContentNormalizer.basiclatin(npart2);
+			
+			if (npart1.contains(npart2)){
+				counter++;
+				continue;
+			}
+			String temp = npart1 + Constants.TAB + npart2;
+			if (norms.contains(temp)){
+				counter++;
+				continue;
+			}
+		}
+		System.out.println(counter);
 	}
 
 

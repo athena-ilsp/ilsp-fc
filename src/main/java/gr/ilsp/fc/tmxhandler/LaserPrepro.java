@@ -30,7 +30,7 @@ public class LaserPrepro {
 		LOGGER.info("fullpath of input file\n");
 		LOGGER.info("could be 1 (meaning true, default), or 0 (meaning false). If true only identified pairs by pairdetection module will be examined."
 				+ " If false, (besides identified pairs) each candidate pair will be examined.");
-		
+
 		String mode = args[0];
 		File input = new File(args[1]);
 		boolean paired = true;
@@ -71,7 +71,8 @@ public class LaserPrepro {
 			LOGGER.warn("text file with path of xml dirs cannot be written");
 			e.printStackTrace();
 		}
-		
+		LOGGER.info("NUMBER of XML directories is : " + xmldirs.size());
+
 		File pairlist = new File(FilenameUtils.concat(input.getParent(), input.getName()+"_pairlist"));
 		List<String> pairs = new ArrayList<String>();
 		FileOutputStream fos;
@@ -175,33 +176,32 @@ public class LaserPrepro {
 		for (File file:files){
 			String tempname = file.getName();
 			if (tempname.contains(Constants.UNDERSCORE)){
-				LOGGER.info("Processing file " + file.getAbsolutePath());
-				String[] parts = tempname.split(Constants.UNDERSCORE);
-				File f1 = new File(FilenameUtils.concat(file.getParent(), parts[0]));
-				f1 = new File(FilenameUtils.concat(file.getParent(), parts[0]+EXT_XML));
-				File f2 = new File(FilenameUtils.concat(file.getParent(), parts[1]));
-				f2 = new File(FilenameUtils.concat(file.getParent(), parts[1]+EXT_XML));
-				if (donexmls.contains(f1.getName()) || donexmls.contains(f2.getName()))
-					continue;
-				counter++;
-				String text1 =  ReadResources.extractTextfromXML_clean(f1.getAbsolutePath(), P_ELE, ooi_crawlinfo, false);
-				String 	text2 =  ReadResources.extractTextfromXML_clean(f2.getAbsolutePath(), P_ELE, ooi_crawlinfo, false);
-				
-				LOGGER.info("CES file " + f1.getAbsolutePath());
-				LOGGER.info("CES file " + f2.getAbsolutePath());
-				File tf1 = new File(FilenameUtils.concat(txtdir.getAbsolutePath(), f1.getName()+Constants.EXTENSION_TXT));
-				File tf2 = new File(FilenameUtils.concat(txtdir.getAbsolutePath(), f2.getName()+Constants.EXTENSION_TXT));
-				try {
-					FileUtils.writeStringToFile(tf1, text1, Constants.UTF8);
-					FileUtils.writeStringToFile(tf2, text2, Constants.UTF8);
-				} catch (IOException e) {
-					e.printStackTrace();
+				if (tempname.endsWith(".tmx")){
+					LOGGER.info("Processing file " + file.getAbsolutePath());
+					String[] parts = tempname.split(Constants.UNDERSCORE);
+					File f1 = new File(FilenameUtils.concat(file.getParent(), parts[0]));
+					f1 = new File(FilenameUtils.concat(file.getParent(), parts[0]+EXT_XML));
+					File f2 = new File(FilenameUtils.concat(file.getParent(), parts[1]));
+					f2 = new File(FilenameUtils.concat(file.getParent(), parts[1]+EXT_XML));
+					if (donexmls.contains(f1.getName()) || donexmls.contains(f2.getName()))
+						continue;
+					counter++;
+					String text1 =  ReadResources.extractTextfromXML_clean(f1.getAbsolutePath(), P_ELE, ooi_crawlinfo, false);
+					String text2 =  ReadResources.extractTextfromXML_clean(f2.getAbsolutePath(), P_ELE, ooi_crawlinfo, false);
+					//LOGGER.info("CES file " + f1.getAbsolutePath()); LOGGER.info("CES file " + f2.getAbsolutePath());
+					File tf1 = new File(FilenameUtils.concat(txtdir.getAbsolutePath(), f1.getName()+Constants.EXTENSION_TXT));
+					File tf2 = new File(FilenameUtils.concat(txtdir.getAbsolutePath(), f2.getName()+Constants.EXTENSION_TXT));
+					try {
+						FileUtils.writeStringToFile(tf1, text1, Constants.UTF8);
+						FileUtils.writeStringToFile(tf2, text2, Constants.UTF8);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					//LOGGER.info("TXT file" + tf1.getAbsolutePath()); 	LOGGER.info("TXT file " + tf2.getAbsolutePath());
+					txtpairs.add(tf1.getAbsolutePath()+Constants.TAB+tf2.getAbsolutePath());
+					donexmls.add(f1.getName());
+					donexmls.add(f2.getName());
 				}
-				LOGGER.info("TXT file" + tf1.getAbsolutePath());
-				LOGGER.info("TXT file " + tf2.getAbsolutePath());
-				txtpairs.add(tf1.getAbsolutePath()+Constants.TAB+tf2.getAbsolutePath());
-				donexmls.add(f1.getName());
-				donexmls.add(f2.getName());
 			}
 		}
 		try {
@@ -239,7 +239,7 @@ public class LaserPrepro {
 				File tempfile2 = templist.get(jj);
 				String a2 = tempfile2.getName().split(Constants.HYPHEN)[0];
 				if (!a1.equals(a2)){
-					txtpairs.add(tempfile1.getAbsolutePath()+".txt"+Constants.TAB+tempfile2.getAbsolutePath()+".txt");
+					txtpairs.add(tempfile1.getAbsolutePath()+Constants.EXTENSION_TXT+Constants.TAB+tempfile2.getAbsolutePath()+Constants.EXTENSION_TXT);
 				}
 			}
 		}

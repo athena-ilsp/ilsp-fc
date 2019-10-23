@@ -39,7 +39,7 @@ public class MonoMerger {
 	private static MonoMergerOptions options = null;
 	private static File inputFile = null, baseName = null; //, outXMLFile = null;
 	private static final String DEFAULT_M_CONFIG_FILE = "FMC_config.xml";
-	private static final String TXT_EXT = ".txt";
+	private static final String TXT_EXT = Constants.EXTENSION_TXT;
 	//	private static final String ZIP_EXT = ".zip";
 	private static final String XML_EXT = ".xml";
 	private final static String Metadata_EXT = ".md.xml";

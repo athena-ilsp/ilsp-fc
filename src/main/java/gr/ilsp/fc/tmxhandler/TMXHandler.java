@@ -195,10 +195,10 @@ public class TMXHandler {
 	}
 
 	/**
-	 * Gets selected TMXs from the targeted directory and its sub directories a directory and adds selected segments of these TMXs in a new TMX file.
+	 * Gets selected TMXs from the targeted directory and its sub directories, and adds selected segments of these TMXs in a new TMX file.
 	 * The selected TMXs should be extracted from document pairs which have been identified by the methods defined in DocTypes.
 	 * The selected TMXs should include less than X% segment pairs of type "0:1", where X is the threshold provided by the user (default is 15) 
-	 * The selected segments (to be added) should be of type identified in SegTypes. 
+	 * The selected TUs (to be added) should pass the filters (i.e. SegTypes, MinTuLenRatio, MaxTuLenRatio, etc) . 
 	 * 
 	 */
 	public void mergeTMXs() {
