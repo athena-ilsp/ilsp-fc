@@ -134,6 +134,52 @@ public class TempUtils {
 
 	public static void main(String[] args) throws Exception {
 
+		File[] files = new File("C:/Users/vpapa/ELRC/tld/el/crawls/commands/crawl").listFiles();
+		String p = "C:/Users/vpapa/ELRC/tld/el/crawls/commands";
+		for (File file:files){
+			File destFile = new File(FilenameUtils.concat(p, "crawl_"+file.getName()+".sh"));
+			FileUtils.copyFile(file, destFile);
+		}
+		System.exit(0);
+		
+		List<String> hots = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/el/crawls/hot_spots_sites.txt"), Constants.UTF8) ;
+		List<String> hits = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/el/crawls/tld_filelist"), Constants.UTF8) ;
+		List<String> hitsites = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/el/seeds_used.txt"), Constants.UTF8) ;
+		
+		String hot, hotsite;
+		boolean hotfound1 = false, hotfound2 = false;
+		for (String line:hots){
+			if (line.contains("ibooked") || line.contains("carwall") || line.contains("blog")  || line.contains("webemail"))
+				continue;
+			String[] temp = line.split("\t");
+			hot = temp[0];
+			String[] parts  =hot.split("\\.");
+			if (parts[0].equals("www"))
+				hotsite = parts[1];
+			else
+				hotsite = parts[0];
+			hotfound1 =false;
+			for (String hit:hits){
+				if (hit.contains(hotsite)){
+					hotfound1 = true;
+					break;
+				}
+			}
+			hotfound2 =false;
+			for (String hitsite:hitsites){
+				if (hitsite.contains(hotsite)){
+					hotfound2 = true;
+					break;
+				}
+			}
+			if (!hotfound1 && !hotfound2)
+				System.out.println(line);
+			
+		}
+		
+		System.exit(0);
+		
+		
 		//processTLDlist(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1912run_0-01_sites.txt"));
 		List<String> websites1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1912run_0-01_sites.txt_f.txt"), Constants.UTF8) ; 
 		List<String> oldwebsites1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/tld/pl/crawls/1655run_sites.txt_f.txt"), Constants.UTF8) ;
