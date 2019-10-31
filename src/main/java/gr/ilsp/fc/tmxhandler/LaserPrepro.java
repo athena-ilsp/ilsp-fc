@@ -28,8 +28,8 @@ public class LaserPrepro {
 	public static void main(String[] args) {
 		LOGGER.info("1st arg. could be: 0 for all jobs, 1 for laserprepro, 2 for merging lists\n");
 		LOGGER.info("fullpath of input file\n");
-		LOGGER.info("could be 1 (meaning true, default), or 0 (meaning false). If true only identified pairs by pairdetection module will be examined."
-				+ " If false, (besides identified pairs) each candidate pair will be examined.");
+		LOGGER.info("could be 1 (meaning true, default and proposed), or 0 (meaning false). If true, only identified pairs by pairdetection module will be examined."
+				+ " If false, (besides identified pairs) each candidate pair will be examined, and this will take long ...");
 
 		String mode = args[0];
 		File input = new File(args[1]);
@@ -73,7 +73,7 @@ public class LaserPrepro {
 		}
 		LOGGER.info("NUMBER of XML directories is : " + xmldirs.size());
 
-		File pairlist = new File(FilenameUtils.concat(input.getParent(), input.getName()+"_pairlist"));
+		File pairlist = new File(FilenameUtils.concat(input.getParent(), input.getName()+"_pairlist.tsv"));
 		List<String> pairs = new ArrayList<String>();
 		FileOutputStream fos;
 		try {
@@ -158,7 +158,7 @@ public class LaserPrepro {
 	 * a) "txts" directory which contains the txt version of the CesDoc files which "participate" into TMX files
 	 * b) txt file including the full paths of the txt files (a pair per line, tab separated)
 	 * @param indir : the xml directory of ILSP-FC
-	 * @param all : if no, only identified pairs will be processed. If yes, the remaining "pairs" will be generated and examined 
+	 * @param paired : if true, only identified pairs will be processed. If yes, the remaining "pairs" will be generated and examined 
 	 */
 	public static File  laserprepro(File indir, boolean paired) {
 		if (!indir.isDirectory()){

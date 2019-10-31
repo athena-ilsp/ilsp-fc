@@ -272,7 +272,9 @@ public class TMXHandler {
 		List<File> tmxfiles = new ArrayList<File>();
 		if (inputFile.isDirectory()){
 			List<File> tfs = FcFileUtils.listFiles(inputFile, filter,true);
+			LOGGER.info("Total number of TMX files found: "+ tfs.size());
 			tmxfiles = FcFileUtils.selectTypes(tfs, types);
+			LOGGER.info("Total number of TMX files selected: "+ tmxfiles.size());
 		}else{ //it is considered a text file containing a list with full paths of targeted directories (a full path per line)
 			List<String> targetdirs;
 			try {
@@ -280,6 +282,7 @@ public class TMXHandler {
 				for (String targetdir:targetdirs){
 					LOGGER.info("finding files from "+ targetdir);
 					List<File> tfs = FcFileUtils.listFiles(new File(targetdir), filter,true);
+					LOGGER.info("TMX files found: "+ tfs.size());
 					tmxfiles.addAll(FcFileUtils.selectTypes(tfs, types));
 				}
 			} catch (IOException e) {
