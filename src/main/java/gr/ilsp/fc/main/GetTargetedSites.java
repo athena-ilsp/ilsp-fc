@@ -28,7 +28,7 @@ public class GetTargetedSites {
 	private static final String COMMANDS= "commands";
 	private static final String QUOTE= "\"";
 	private static final String FORW=" &> ";
-	private static String destpath="\"/var/www/html/tld/en-sk/";
+	private static String destpath="\"/nfs-elrc/elrc_data/tld/en-el/";
 
 
 	private static final String JAR_ALL = "java -Dlog4j.configuration=file:/opt/ilsp-fc/log4j.xml -jar /opt/ilsp-fc/ilsp-fc-2.2.4-SNAPSHOT-jar-with-dependencies.jar "
@@ -366,7 +366,7 @@ public class GetTargetedSites {
 		String agent = t+"_"+lang1+Constants.HYPHEN+lang2;
 		String filter = "\".*"+t1+".*\"";
 		String dest = " -dest ";
-		String dest1 = "/var/www/html/tld/en-sk/"+lang1+Constants.HYPHEN+lang2+"/";
+		String dest1 = "/nfs-elrc/elrc_data/tld/en-el/"+lang1+Constants.HYPHEN+lang2+"/";
 		String dest2 =  dest1+"output";// dest1+"output_"+agent;
 		String command = JAR_ALL + L + QUOTE+lang1 + Constants.SEMICOLON+ lang2 + QUOTE+ AGENT + agent +FILTER + filter + U +QUOTE+urlSeedFile.getAbsolutePath()+QUOTE +
 				dest+QUOTE+dest1+QUOTE + " -bs " + QUOTE+dest2+QUOTE + FORW +QUOTE+dest1+ "log_"+ agent + QUOTE; 
