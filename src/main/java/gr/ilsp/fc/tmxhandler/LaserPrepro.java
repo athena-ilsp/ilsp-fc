@@ -26,11 +26,13 @@ public class LaserPrepro {
 	private static final String XML = "xml";
 
 	public static void main(String[] args) {
-		LOGGER.info("1st arg. could be: 0 for all jobs, 1 for laserprepro, 2 for merging lists\n");
-		LOGGER.info("fullpath of input file\n");
-		LOGGER.info("could be 1 (meaning true, default and proposed), or 0 (meaning false). If true, only identified pairs by pairdetection module will be examined."
+		LOGGER.info("1st arg. could be: 0 for all jobs, 1 for laserprepro, 2 for merging lists");
+		LOGGER.info("\n");
+		LOGGER.info("fullpath of input directory");
+		LOGGER.info("\n");
+		LOGGER.info("could be 1 (meaning true, default and proposed), or 0 (meaning false). If true, only identified pairs (by pairdetection module) will be examined."
 				+ " If false, (besides identified pairs) each candidate pair will be examined, and this will take long ...");
-
+		LOGGER.info("\n");
 		String mode = args[0];
 		File input = new File(args[1]);
 		boolean paired = true;
@@ -76,6 +78,7 @@ public class LaserPrepro {
 		File pairlist = new File(FilenameUtils.concat(input.getParent(), input.getName()+"_pairlist.tsv"));
 		List<String> pairs = new ArrayList<String>();
 		FileOutputStream fos;
+		int counter = 0;
 		try {
 			fos = new FileOutputStream(pairlist);
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, Constants.UTF8));
@@ -87,7 +90,9 @@ public class LaserPrepro {
 				} catch (IOException e) {
 					LOGGER.error("problem in reading "+ txtlist.getAbsolutePath());
 				}
+				LOGGER.info(temp.getAbsolutePath()+Constants.TAB+pairs.size());
 				for (String pair:pairs){
+					counter++;
 					bw.write(pair+"\n");
 				}
 			}
@@ -99,6 +104,7 @@ public class LaserPrepro {
 			LOGGER.error("problem in writing files.");
 			e.printStackTrace();
 		}
+		LOGGER.info("Total number of document pairs:" +Constants.TAB + counter);
 		LOGGER.info("Results in "+ pairlist.getAbsolutePath());
 	}
 

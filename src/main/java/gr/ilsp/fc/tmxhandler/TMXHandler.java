@@ -613,9 +613,9 @@ public class TMXHandler {
 					}
 					if (info.isEmpty()){	info =  mes2;}		else{	info =  info + " | "+mes2;}	
 				}	
-				String tempseg = segpair.seg1.replaceAll(".", " "); 	 tempseg = tempseg.replaceAll("/", " ");
+				String tempseg = segpair.seg1.replaceAll("\\.", " "); 	 tempseg = tempseg.replaceAll("/", " ");
 				List<String> stokens = FCStringUtils.getTokens(tempseg); //List<String> stokens = FCStringUtils.getTokens(segpair.seg1);
-				tempseg = segpair.seg2.replaceAll(".", " ");			 tempseg = tempseg.replaceAll("/", " ");
+				tempseg = segpair.seg2.replaceAll("\\.", " ");			 tempseg = tempseg.replaceAll("/", " ");
 				List<String> ttokens = FCStringUtils.getTokens(tempseg); //List<String> ttokens = FCStringUtils.getTokens(segpair.seg2);
 				Double[] stokenslen = FCStringUtils.getTokensLength(stokens);
 				Double[] ttokenslen = FCStringUtils.getTokensLength(ttokens);
@@ -650,10 +650,10 @@ public class TMXHandler {
 				String num1=segpair.seg1.replaceAll("\\D+","");
 				String num2=segpair.seg2.replaceAll("\\D+","");
 				if (!num1.equals(num2) && !normS.isEmpty() && !normT.isEmpty()){
-					if (clean){
+					/*if (clean){
 						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
-					}
+					}*/
 					if (ksn){
 						LOGGER.debug(segpair.seg1+"\t"+segpair.seg2);
 						continue;
