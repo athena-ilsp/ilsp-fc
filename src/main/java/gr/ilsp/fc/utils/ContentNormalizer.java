@@ -414,5 +414,30 @@ public class ContentNormalizer {
 		text=text.replaceAll("&gt",">");		text=text.replaceAll("&#",Constants.SPACE);
 		return text;
 	}
+
+	public static String normalizeContent(String text){
+		for (String s:invalidChars.keySet()){
+			text = text.replaceAll(s, invalidChars.get(s));
+		}
+		return text;
+	}
+	
+	public static String normalizeText1(String text){
+		text = surrogatesMatcher.reset(text).replaceAll("");
+		for (String s:invalidChars.keySet()){
+			text = text.replaceAll(s, invalidChars.get(s));
+		}
+		text = text.replaceAll("\t", Constants.SPACE);
+		text = text.replaceAll("(\\s){2,}", Constants.SPACE);
+		text = text.replaceAll("<text> ", "<text>");
+		text = text.replaceAll("<boiler> ", "<boiler>");
+		text = text.replaceAll(" </text>", "</text>");
+		text = text.replaceAll(" </boiler> ", "</boiler>");
+		text = text.replaceAll("<text></text>", "");
+		text = text.replaceAll("<boiler></boiler>", "");
+		text = text.replaceAll("( \n)", "\n");
+		text = text.replaceAll("(\n){2,}","\n");
+		return text;
+	}
 	
 }

@@ -370,4 +370,100 @@ public class Statistics {
 		return result;
 	}
 	
+	public static double getVariance(double[] numarray)	{
+		double mean = getMean(numarray);
+		double temp = 0;
+		for(double a :numarray)
+			temp += (mean-a)*(mean-a);
+		return temp/numarray.length;
+	}
+	
+	
+	public static double getStdDev(double[] numarray){
+		return Math.sqrt(getVariance(numarray));
+	}
+	
+	public static double getMean(double[] numarray){
+		double sum = 0.0;
+		for(double a : numarray)
+			sum += a;
+		return sum/numarray.length;
+	}
+
+	public static double getMax(double[] numarray) {
+		if (numarray.length==0)
+			return 0;
+		double[] new_numarray = new double[numarray.length];
+		for (int ii=0;ii<new_numarray.length;ii++)
+			new_numarray[ii] = numarray[ii];
+		Arrays.sort(new_numarray);
+		return new_numarray[new_numarray.length-1];
+	}
+	
+	public static double[] find_most_commonValue(double[] x_st) {
+		int c=0;
+		double[] result=new double[2];
+		HashMap<Double, Integer> temp = new HashMap<Double, Integer>();
+		for (int ii=0;ii<x_st.length;ii++){
+			if (temp.containsKey(x_st[ii]))
+				temp.put(x_st[ii], temp.get(x_st[ii])+1);
+			else
+				temp.put(x_st[ii], 1);	
+		}
+		Set<Double> keys=temp.keySet();
+		Iterator<Double> it = keys.iterator();
+		int[] temp_counter=new int[keys.size()];
+		double[] values = new double[keys.size()];
+		while (it.hasNext()){
+			double key=it.next();
+			temp_counter[c]=temp.get(key);
+			values[c]=key;
+			c++;
+		}
+		Arrays.sort(temp_counter);
+
+		if (temp_counter[temp_counter.length-1]==1){
+			Arrays.sort(values);
+			result[0]=values[c-1];
+			result[1]=-1;
+			return result;
+		}
+		it = keys.iterator();
+		c=temp_counter[keys.size()-1];
+		result[1]=c;
+		keys=temp.keySet();
+		it = keys.iterator();
+		while (it.hasNext()){
+			result[0]=it.next();
+			if (temp.get(result[0])==c)
+				break;
+		}
+		return result;
+	}
+	
+	public static int[] sortArrayList(ArrayList<Integer> pars) {
+		int[] array=new int[pars.size()];
+		for (int ii=0;ii<pars.size();ii++)
+			array[ii]=pars.get(ii);
+
+		Arrays.sort(array);
+		return array;
+	}
+	
+	public static double getMedian(double[] numarray){
+		if (numarray.length==0)
+			return 0;
+		double[] new_numarray = new double[numarray.length];
+		for (int ii=0;ii<new_numarray.length;ii++)
+			new_numarray[ii] = numarray[ii];
+		Arrays.sort(new_numarray);
+		int middle = new_numarray.length/2;
+		double medianValue = 0; //declare variable 
+		if (numarray.length%2 == 1) 
+			medianValue = new_numarray[middle];
+		else
+			medianValue = (new_numarray[middle-1] + new_numarray[middle]) / 2;
+		return medianValue;
+	}
+	
 }
