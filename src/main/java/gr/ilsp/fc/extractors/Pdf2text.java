@@ -1,10 +1,10 @@
 package gr.ilsp.fc.extractors;
 
+import gr.ilsp.nlp.commons.Constants;
 import gr.ilsp.fc.cleaner.CleanerUtils;
 import gr.ilsp.fc.langdetect.LangDetectUtils;
 import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.fc.utils.Statistics;
-import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,9 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDStream;
 
 public class Pdf2text {
-	private static final Logger LOGGER = Logger.getLogger(Pdf2text.class);
+	private static final Logger logger = Logger.getLogger(Pdf2text.class);
+	private static final String  open_TEXTELE ="<text>";
+	private static final String  close_TEXTELE ="</text>";
 	private static final String TXT_EXT = ".txt";
 	private static final String PDF_EXT = ".pdf";
 	private static final String AUTHOR ="author";
@@ -64,24 +66,34 @@ public class Pdf2text {
 		String file;
 		File[] listOfFiles = new File(args[0]).listFiles();
 		String content="";
-		LangDetectUtils.loadCybozuLangIdentifier();
+		//LangDetectUtils.loadCybozuLangIdentifier();
 		for (int i = 0; i < listOfFiles.length; i++){
 			if (listOfFiles[i].isFile()) {
 				file = listOfFiles[i].getAbsolutePath();
+				String text = "";
 				if (file.toLowerCase().endsWith(PDF_EXT)){
 					File input = new File(file);
-					String filename=input.getName();
-					//LOGGER.info("---------------------------------------FILE:"+ filename);
+					//logger.info("---------------------------------------FILE:"+ filename);
 					docprops.clear();
 					Map<String, String> data = run1(input, sort_sections);
 					content="";
 					content = data.get("content");
-					if (StringUtils.isEmpty(content))
-						LOGGER.info("No valid text from "+ filename);
+					content = content.replaceAll(open_TEXTELE, "");
+					content = content.replaceAll(close_TEXTELE, "");
+					text = "";
+					String[] lines = content.split("\n");
+					for (String line:lines){
+						if (Character.isLowerCase(line.charAt(0)))
+							text = text+" "+line;
+						else
+							text = text+"\n"+line;
+					}
+					if (StringUtils.isEmpty(text))
+						logger.info("No valid text from "+ file);
 					else
-						FileUtils.writeStringToFile(new File(input.getAbsolutePath()+TXT_EXT), content, Constants.UTF8);
+						FileUtils.writeStringToFile(new File(file+TXT_EXT), text.substring(1), Constants.UTF8);
 
-					LOGGER.debug("done");
+					logger.debug("done");
 				}
 			}
 		}		
@@ -103,6 +115,7 @@ public class Pdf2text {
 		try {
 			document = PDDocument.load(input);
 			if (document.isEncrypted()) {
+				logger.warn(input.getAbsolutePath() + " is encrypted");
 				try {
 					document.decrypt("");
 					//} catch (InvalidPasswordException e) {
@@ -128,10 +141,10 @@ public class Pdf2text {
 				if (page.getMediaBox()!=null){
 					pageheight = page.getMediaBox().getHeight();
 					pagewidth = page.getMediaBox().getWidth();
-					LOGGER.debug("Processing page: " + i+" with height " +pageheight 
+					logger.debug("Processing page: " + i+" with height " +pageheight 
 							+ " and width "+ pagewidth);
 				}//else {/*FIXME since pageheight is unknown, it cannot be used for footer/header detection*/
-				//	LOGGER.error("PROBLEM in getMediaBox");
+				//	logger.error("PROBLEM in getMediaBox");
 				//	return null;
 				//}
 				chardata.clear();
@@ -141,8 +154,7 @@ public class Pdf2text {
 				ArrayList<LineAttr> current_linedata = new ArrayList<LineAttr>();
 				if (contents != null) {
 					printer.processStream(page, page.findResources(), page.getContents().getStream());
-					chardata=printer.getchardata();
-					//System.out.println(chardata.size());
+					chardata=printer.getchardata(); 			//System.out.println(chardata.size());
 					if (chardata.size()<1 ){
 						docprops.put(PAGE+i, current_linedata);
 						continue;
@@ -157,7 +169,7 @@ public class Pdf2text {
 							countsymbols++;
 					}
 					if  (countsymbols/(double)chardata.size() >0.5){
-						LOGGER.info(PAGE+i+ " of file "+ input.getName() + " is discarded" );
+						logger.info(PAGE+i+ " of file "+ input.getName() + " is discarded" );
 						docprops.put(PAGE+i, current_linedata);
 						continue;
 					}
@@ -165,24 +177,25 @@ public class Pdf2text {
 				}
 				for (int jj=0;jj<linedata.size();jj++){
 					current_linedata.add(linedata.get(jj));
-					current_linedata.get(jj).chars=Utils.normalizeContent(current_linedata.get(jj).chars);
-					LOGGER.debug(current_linedata.get(jj).p+ Constants.TAB+
+					current_linedata.get(jj).chars=ContentNormalizer.normalizeContent(current_linedata.get(jj).chars);
+					logger.debug(current_linedata.get(jj).p+ Constants.TAB+
 							current_linedata.get(jj).t+ Constants.TAB+
 							current_linedata.get(jj).chars);
 				}
 				docprops.put(PAGE+i, current_linedata);
-				content = content+getAllText(docprops);
+				content = content + getAllText(docprops);
+				content = ContentNormalizer.normalizeText(content);
 				data.put("content", content);
 			}
 		} catch (IOException e) {
 			boolean catched = false;
 			if (e.getMessage().contains(" End-of-File, expected line")){
 				catched = true;
-				LOGGER.error("problem if reading header");
+				logger.error("problem if reading header");
 			}
 			if (e.getMessage().contains(" reading table") || e.getMessage().contains("reading corrupt stream")){
 				catched = true;
-				LOGGER.error("problem if reading pdf file");
+				logger.error("problem if reading pdf file");
 			}
 			if (!catched)
 				e.printStackTrace();
@@ -225,7 +238,7 @@ public class Pdf2text {
 		return valid;
 	}
 
-	public static String getText(HashMap<String, ArrayList<LineAttr>> docprops2) {
+	/*public static String getText(HashMap<String, ArrayList<LineAttr>> docprops2) {
 		String temp_int, temp, content="";
 		boolean found, found1;
 
@@ -320,7 +333,7 @@ public class Pdf2text {
 			}
 		}
 		return content;
-	}
+	}*/
 
 	public static String getAllText(HashMap<String, ArrayList<LineAttr>> docprops2) {
 		String temp_int, temp;
@@ -333,7 +346,7 @@ public class Pdf2text {
 			if  (!docprops.containsKey(temp_int))
 				continue;
 			if (docprops.get(temp_int).size()==1){
-				content = "<text>"+docprops.get(temp_int).get(0).chars+"</text>";
+				content = open_TEXTELE+docprops.get(temp_int).get(0).chars+close_TEXTELE;
 				continue;
 			}else{
 				if (docprops.get(temp_int).size()==0)
@@ -348,7 +361,7 @@ public class Pdf2text {
 					found1 = true;
 				}
 				//content="<text>"+ temp;
-				content="<text>";
+				content=open_TEXTELE;
 			}
 			for (int jj=1;jj<docprops.get(temp_int).size();jj++){
 				//System.out.println("1:\t"+docprops.get(temp_int).get(jj-1).p + "\t" +docprops.get(temp_int).get(jj-1).chars.trim());
@@ -360,7 +373,7 @@ public class Pdf2text {
 					else
 						content = content + temp + Constants.SPACE ;
 				}else{
-					content=content+temp+"</text>\n<text>";
+					content=content+temp+close_TEXTELE+"\n"+open_TEXTELE;
 					/*if (found1){
 						content=content+temp+"</text>\n<text>";
 						//found1=false;
@@ -386,7 +399,7 @@ public class Pdf2text {
 						temp=temp.substring(0, temp.lastIndexOf("-"));						//found=true; 
 					if (temp.endsWith("−"))
 						temp=temp.substring(0, temp.lastIndexOf("−")); 						//found=true;
-					content = content + temp+"</text>\n";   //out.write(temp+"\n");
+					content = content + temp+close_TEXTELE+"\n";   //out.write(temp+"\n");
 					//content = content + Constants.SPACE+temp+"</text>\n<text>";  //out.write(Constants.SPACE+temp+"\n");
 				}
 			}
@@ -397,9 +410,9 @@ public class Pdf2text {
 	}
 
 	private static int layout_analysis(float pageheight, boolean sort_sections) {
-		LOGGER.debug("PUT CHARACTERS INTO TEXT-LINES. Just checks the y-coordinates of successive characters.");
+		logger.debug("PUT CHARACTERS INTO TEXT-LINES. Just checks the y-coordinates of successive characters.");
 		//boolean sort_sections=false;
-		int linecounter =put_chars_in_textlines(pageheight);
+		int linecounter = put_chars_in_textlines(pageheight);
 		if (linecounter==0)
 			return 0;	
 
@@ -414,9 +427,9 @@ public class Pdf2text {
 				chardata.get(ii).fs=Math.round(chardata.get(ii).h);
 				chardata.get(ii).h=Math.round(chardata.get(ii).h);
 			}
-			LOGGER.debug("Analysis will be based on estimated font sizes (i.e. categorization based on text-line heights)");
+			logger.debug("Analysis will be based on estimated font sizes (i.e. categorization based on text-line heights)");
 		}else
-			LOGGER.debug("Analysis will be based on provided font sizes");
+			logger.debug("Analysis will be based on provided font sizes");
 
 		estimate_space_thr_per_line(linecounter,usefonts);
 
@@ -425,7 +438,7 @@ public class Pdf2text {
 		else
 			represent_textline_heights();
 		if (linedata.size()>1000){
-			LOGGER.info("no text");
+			logger.info("no text");
 			return 0;
 		}
 		float x1, x2, y1, y2, x11, x22, y11, y22;
@@ -457,6 +470,11 @@ public class Pdf2text {
 		}
 		for (int ii=0;ii<linedata.size();ii++){
 			String temp=linedata.get(ii).chars.replace(Constants.SPACE, "");
+			temp=temp.replaceAll("[^\\p{L} ]", Constants.SPACE).trim();
+			temp=temp.replaceAll("(\\s){2,}", Constants.SPACE).trim();
+			//temp=temp.toLowerCase();
+			if (temp.isEmpty())
+				continue;
 			if (linedata.get(ii).fs>fontsize_thr & linedata.get(ii).h>fontsize_thr 
 					& !indeces.contains(ii)
 					& !LineTypeGuesser.isDigitsOnlyLine(temp)){
@@ -465,7 +483,7 @@ public class Pdf2text {
 		}
 
 		linedata=linedata_temp;
-		LOGGER.debug("LINES: "+linedata.size());
+		logger.debug("LINES: "+linedata.size());
 
 		//System.out.println("CATEGORIZE TEXTLINES By FontSize, based on a simplification of Chain Map Representation");
 		//maximin();//update type of text-lines in linedata based on fontsize 
@@ -559,8 +577,8 @@ public class Pdf2text {
 		}
 		//check_page_template();
 		for (int ii=0;ii<sectiondata.size();ii++){
-			LOGGER.debug("TYPE:\t"+sectiondata.get(ii).t);
-			LOGGER.debug(sectiondata.get(ii).chars+"\n--------");
+			logger.debug("TYPE:\t"+sectiondata.get(ii).t);
+			logger.debug(sectiondata.get(ii).chars+"\n--------");
 		}
 		if (sort_sections)
 			put_sections_in_order(pageheight);
@@ -580,15 +598,15 @@ public class Pdf2text {
 				selected.add(ii); 
 				sectiondata.get(ii).t=-2; // footer
 				sectiondata_temp.add(sectiondata.get(ii));
-				LOGGER.debug("FOOTER: "+sectiondata.get(ii).chars);
+				logger.debug("FOOTER: "+sectiondata.get(ii).chars);
 			}else{
 				if ((sectiondata.get(ii).y+sectiondata.get(ii).h)<0.1*pageheight){
 					selected.add(ii); 
 					sectiondata.get(ii).t=-1; //header
 					sectiondata_temp.add(sectiondata.get(ii));
-					LOGGER.debug("HEADER: "+sectiondata.get(ii).chars);
+					logger.debug("HEADER: "+sectiondata.get(ii).chars);
 				}else
-					LOGGER.debug("TEXT: "+sectiondata.get(ii).chars);
+					logger.debug("TEXT: "+sectiondata.get(ii).chars);
 			}
 		}
 		int factor=10;
@@ -604,7 +622,7 @@ public class Pdf2text {
 		selected.clear();
 		for (int ii=1;ii<31;ii++){
 			if (sectiondata_temp.size()<1){
-				LOGGER.debug("No text extracted from this page");
+				logger.debug("No text extracted from this page");
 				break;
 			}
 			if (sectiondata_res.size()>0){
@@ -749,12 +767,14 @@ public class Pdf2text {
 				}
 			}
 		}
-		double std_x_st = Utils.getStdDev(x_st);
-		double std_x_en = Utils.getStdDev(x_en);
-		double max_width = Utils.getMax(x_en);
-		double[] cl = Utils.find_most_commonValue(x_st);
-		double[] cr = Utils.find_most_commonValue(x_en);
-		double mr = Utils.getMax(x_en);
+		double std_x_st = Statistics.getStdDev(x_st);
+		double std_x_en = Statistics.getStdDev(x_en);
+		double max_width = Statistics.getMax(x_en);
+		double[] cl = Statistics.find_most_commonValue(x_st);
+		double[] cr = Statistics.find_most_commonValue(x_en);
+		double mr = Statistics.getMax(x_en);
+		
+		
 		if (cr[1]==-1); cr[0]=max_width;
 		int type=0;
 
@@ -872,7 +892,7 @@ public class Pdf2text {
 			for (int ii=0;ii<x_en.length;ii++)
 				linedata.get(ii+sectionAttr.sl).p=sectioncounter+"_"+0;
 		}else{
-			int[] parsB=Utils.sortArrayList(pars);
+			int[] parsB=Statistics.sortArrayList(pars);
 			for (int ii=0;ii<x_en.length;ii++){
 				for (int jj=0; jj<parsB.length;jj++){
 					if (ii+sectionAttr.sl<linedata.size()){
@@ -974,8 +994,8 @@ public class Pdf2text {
 		sectiondata.clear();
 		for (int ii=0;ii<sectiondata_temp.size();ii++){
 			sectiondata.add(sectiondata_temp.get(ii));
-			LOGGER.debug(sectiondata.get(ii).chars);
-			LOGGER.debug("-------------");
+			logger.debug(sectiondata.get(ii).chars);
+			logger.debug("-------------");
 		}
 		linedata.clear();
 		for (int ii=0;ii<linedata_temp.size();ii++)
@@ -1022,7 +1042,7 @@ public class Pdf2text {
 				for (int ii=0;ii<dist.length;ii++){
 					dist[ii] = distances.get(ii);
 				}
-				com_dist=Utils.find_most_commonValue(dist)[0];
+				com_dist=Statistics.find_most_commonValue(dist)[0];
 			}else{
 				com_dist=-1;
 			}
@@ -1096,7 +1116,7 @@ public class Pdf2text {
 
 		for (int ii=1;ii<chardata.size();ii++){
 			if (chardata.get(ii).character.length()>1 && !chardata.get(ii).character.contains(Constants.SPACE)){
-				if ( !chardata.get(ii).character.contains("f"))
+				if ( !(chardata.get(ii).character.contains("f") || chardata.get(ii).character.contains("T")))
 					chardata.get(ii).character=Constants.SPACE;
 			}
 			if (chardata.get(ii).p!=chardata.get(ii-1).p | ii==chardata.size()-1  ){	
@@ -1111,7 +1131,7 @@ public class Pdf2text {
 					LineAttr t = new LineAttr(temp,
 							xst, 
 							Math.min(yst, chardata.get(ii-1).y),
-							(float) Utils.getMedian(fsstArray),
+							(float) Statistics.getMedian(fsstArray),
 							(xsst+chardata.get(ii-1).xs)/(temp.length()),
 							yen-yst,//(hst+chardata.get(ii-1).h)/(temp.length()) ,
 							(sst+chardata.get(ii-1).s)/(temp.length()) ,  
@@ -1186,10 +1206,14 @@ public class Pdf2text {
 		//In these cases the text is removed.
 		for (int ii=0;ii<chardata.size();ii++){
 			if (chardata.get(ii).h>0 | chardata.get(ii).s>0){
+				if (ii>0){ //do not add successive spaces 
+					if (chardata.get(ii).character.equals(Constants.SPACE) && chardata.get(ii-1).character.equals(Constants.SPACE))
+						continue;
+				}
 				chardata_temp.add(chardata.get(ii));
 				ycoord.add(chardata.get(ii).y);
 			}else
-				LOGGER.debug("Discard:"+ chardata.get(ii).character);
+				logger.debug("Discard:"+ chardata.get(ii).character);
 		}
 		if (ycoord.isEmpty())
 			return 0;
@@ -1199,9 +1223,9 @@ public class Pdf2text {
 		Arrays.sort(ycoord_a);
 		//String orientation="";
 		if (ycoord_a[ycoord_a.length-1]>pageheight)
-			LOGGER.debug("probably the orientation of text in page is vertical.");			//orientation="v";
+			logger.debug("probably the orientation of text in page is vertical.");			//orientation="v";
 		else
-			LOGGER.debug("probably the orientation of text in page is horizontal.");	//orientation="h";
+			logger.debug("probably the orientation of text in page is horizontal.");	//orientation="h";
 
 		chardata.clear();
 		chardata=chardata_temp;
@@ -1210,11 +1234,14 @@ public class Pdf2text {
 		float previous_line_vertical_end=-10000000;
 		for (int ii=1;ii<chardata.size();ii++){
 			character = chardata.get(ii).character;
-			character = ContentNormalizer.normalizeText(character);
+			character = ContentNormalizer.normalizeText1(character);
 			boolean found=false;
 			if (character.equals(Constants.SPACE) 
 					& (chardata.get(ii-1).character.equals("fi")
-							| chardata.get(ii-1).character.equals("ff") 
+							| chardata.get(ii-1).character.equals("ff")
+							| chardata.get(ii-1).character.equals("ffi")
+							| chardata.get(ii-1).character.equals("ft")
+							| chardata.get(ii-1).character.equals("Th")
 							| chardata.get(ii-1).character.equals("fl")) ){
 				found=true;
 			}
@@ -1443,7 +1470,6 @@ public class Pdf2text {
 		//System.out.println("LINE:"+linecounter);
 		ArrayList<Double> candidate_spaces=new ArrayList<Double>();
 		ArrayList<Double> char_widths=new ArrayList<Double>();
-		//String temp="";
 		for (int ii=1;ii<chardata.size();ii++){
 			x1=chardata.get(ii-1).x;  
 			x2=chardata.get(ii).x;   
@@ -1467,15 +1493,14 @@ public class Pdf2text {
 				//System.out.println();
 				//System.out.println(temp);
 				if (usefonts)
-					thr_spaces_per_line[linecounter]=(float) Math.min((float) Utils.otsu(candidate_spaces,0),
+					thr_spaces_per_line[linecounter]=(float) Math.min((float) Statistics.otsu(candidate_spaces,0),
 							chardata.get(ii-1).fs/5);
 				else{
-					thr_spaces_per_line[linecounter]=(float) Utils.otsu(candidate_spaces,0.4*Statistics.getMean(char_widths.toArray(new Double[char_widths.size()])));	
+					thr_spaces_per_line[linecounter]=(float) Statistics.otsu(candidate_spaces,0.4*Statistics.getMean(char_widths.toArray(new Double[char_widths.size()])));	
 				}
 				linecounter++;
 				candidate_spaces.clear();
 				char_widths.clear();
-				//temp="";
 			}
 		}
 		if (!candidate_spaces.isEmpty()){ //last textline
