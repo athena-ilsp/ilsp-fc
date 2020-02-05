@@ -18,19 +18,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 
-public class Wikipedia {
-	private static final Logger LOGGER = Logger.getLogger(Wikipedia.class);
+public class Booking {
+	private static final Logger LOGGER = Logger.getLogger(Booking.class);
 	//private static final String header = "en\tbg\tcs\tda\tde\tel\tet\tes\tfi\tfr\tga\thr\thu\tit\tis\tlt\tlv\tmt\tnl\tno\tpl\tpt\tro\tsk\tsl\tsv";
-	private static final String header = "bg\tcs\tda\tde\tel\tes\tet\tfi\tfr\tga\thr\thu\tit\tis\tlt\tlv\tmt\tnl\tno\tpl\tpt\tro\tsk\tsl\tsv";
+	private static final String header = "bg\tcs\tda\tde\tel\tes\tet\tfi\tfr\tga\thr\thu\tis\tit\tlt\tlv\tmt\tnl\tno\tpl\tpt\tro\tsk\tsl\tsv";
 
 
 
 	public static void main(String[] args) throws IOException {
 
-		System.out.println("---------------------FILT--------------------------------");
+		System.out.println("---------------------MERGE--------------------------------");
+		System.out.println("1st argument could be : \"merge\" for merging laser files of the same language pair");
+		System.out.println("2nd argument is a directory containing the files ");
+		System.out.println("returns a directory (*_merge) with a file per language pair");
+
+		System.out.println("---------------------FILTER--------------------------------");
 		System.out.println("1st argument could be : \"filt\" for filtering out pairs with score lower than a specific threshold");
 		System.out.println("2nd argument is a specific threshold, it is recommended to be higher than 0.9");
 		System.out.println("3rd argument is is the fullpath of infile");
@@ -38,9 +45,9 @@ public class Wikipedia {
 
 		System.out.println("---------------------ADD--------------------------------");
 		System.out.println("1st argument could be : \"add\" for adding column with lang");
-		System.out.println("2nd argument is the fullpath of infile (downloaded from paracrawl)");
+		System.out.println("2nd argument is the fullpath of infile (the result of merging or filtering)");
 		System.out.println("3rd argument is the language to be added");
-		System.out.println("returns *.lang");
+		System.out.println("returns *.lang , score and non-en part are removed. It containt the en part and the id of the line" );
 
 		System.out.println("---------------------NORM--------------------------------");
 		System.out.println("1st argument could be : \"norm\" for normalizing the EN part");
@@ -63,9 +70,20 @@ public class Wikipedia {
 		System.out.println("3rd argument could be : targeted languages separated by ;");
 		System.out.println("returns *.(targeted languages)");
 
+		System.out.println("---------------------GETMULTI--------------------------------");
+		System.out.println("1st argument could be : \"getmulti\" for generating multilingual corpus based on idmulti file");
+		System.out.println("2nd argument is the fullpath of infile (the idmulti file)");
+		System.out.println("returns *.corpus");
+
+
 		String mode = args[0];
 		File f1, f2=null;
-		
+
+		if (mode.equals("merge")){
+			f1 = new File(args[1]);
+			f2 = merge(f1);
+		}
+
 		if (mode.equals("filt")){
 			f1 = new File(args[1]);
 			double thr = Double.parseDouble(args[2]); 
@@ -102,11 +120,158 @@ public class Wikipedia {
 			f2 = resultMultilinguality(f1, langs);
 		}
 
+		if (mode.equals("getmulti")){
+			f1 = new File(args[1]);
+			f2 = getMultilinguality(f1);
+		}
+
 		LOGGER.info("RESULT IN "+ f2.getAbsolutePath());
 
 
 
 
+	}
+
+
+	private static File getMultilinguality(File f11) throws IOException {
+		File f1 = f11.getAbsoluteFile();
+		LOGGER.info(f1.getAbsolutePath());
+		String basePath = f1.getParent();
+		LOGGER.info(basePath);
+
+		List<String> ids = FileUtils.readLines(f1, Constants.UTF8);
+		LOGGER.info(ids.get(0));
+		String[] heads = ids.get(0).split(Constants.TAB);
+		for (int ii=0;ii<heads.length;ii++)
+			LOGGER.info(heads[ii]);
+		String temp = "";
+
+		Map<String, List<String>> tuples = new HashMap<String, List<String>>();
+		for (int ii=0;ii<heads.length;ii++){
+			LOGGER.info("Getting en-" +heads[ii] + " ...");
+			temp = FilenameUtils.concat(basePath, "en"+Constants.HYPHEN+heads[ii]);
+
+			LOGGER.info("Reading "+ temp);
+			List<String> templist = FileUtils.readLines(new File(temp));
+			List<String> newtemplist = new ArrayList<String>();
+			for (int jj=1;jj<ids.size();jj++){
+				int id = Integer.parseInt(ids.get(jj).split(Constants.TAB)[ii]);
+				//System.out.println(id +"\t:\t"+templist.get(id-1));
+				newtemplist.add(templist.get(id-1));
+			}
+			templist = null;
+			List<String> line= new ArrayList<String>();
+			List<String> en= new ArrayList<String>();
+			List<String> cur= new ArrayList<String>();
+			for (int jj=0;jj<newtemplist.size();jj++){
+				line = Arrays.asList(newtemplist.get(jj).split(Constants.TAB));
+				en.add(line.get(1));
+				cur.add(line.get(2));
+			}
+			tuples.put("en-"+heads[ii], en);
+			LOGGER.info("en-"+heads[ii]+":\t"+en.size());
+			tuples.put(heads[ii], cur);
+			LOGGER.info(heads[ii]+":\t"+cur.size());
+			newtemplist = null;
+		}
+		File f2 = new File(f1.getAbsolutePath()+".corpus");
+		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2.getAbsolutePath()),Constants.UTF8));
+		String headline = "";
+		for (String head:heads)
+			headline = headline+Constants.TAB+head;
+		out.write("en"+ Constants.TAB+headline.trim()+"\n");
+
+		//Set<String> keys = tuples.keySet();
+		int tuplen = tuples.get(heads[0]).size();
+		for (int ii=0;ii<heads.length;ii++){
+			if (tuples.get(heads[ii]).size()!=tuplen)
+				LOGGER.error("Some sentences missing");
+			if (tuples.get("en-"+heads[ii]).size()!=tuplen)
+				LOGGER.error("Some sentences missing");
+		}
+		String currentEN="", currentline="";
+		int counter=0;
+		for (int jj=0;jj<tuplen;jj++){
+			for (int ii=0;ii<heads.length;ii++){
+				temp = tuples.get("en-"+heads[ii]).get(jj);
+				if (currentEN.isEmpty())
+					currentEN=temp;
+				else{
+					if (!currentEN.equals(temp)){
+						LOGGER.info("en-"+heads[0]+":\t"+currentEN);
+						LOGGER.info("en-"+heads[ii]+":\t"+temp);
+					}
+				}
+				currentline =  currentline+Constants.TAB + tuples.get(heads[ii]).get(jj);
+			}
+			counter++;
+			currentline = currentEN+currentline;
+			out.write(currentline.trim()+"\n");
+			currentline="";
+			currentEN="";
+		}
+		out.close();
+		LOGGER.info("Total multiples IDs = "+ (ids.size()-1));
+		LOGGER.info("Total multiples segments = "+ counter);
+		return f2;
+	}
+
+
+	private static File merge(File f1) {
+		String temp = f1.getAbsolutePath();
+		File f2 = new File(temp+"_merge");
+		List<File> files = Arrays.asList(f1.listFiles());
+		List<String> pairs = new ArrayList<String>();
+		for (File file:files){
+			temp = file.getName();
+			if (!temp.endsWith(".laser")){
+				System.out.println("Skip file "+ temp);
+				continue;
+			}
+			temp = temp.substring(0, temp.lastIndexOf("."));
+			temp = temp.substring(temp.lastIndexOf(".")+1);
+			if (pairs.contains(temp))
+				continue;
+			pairs.add(temp);
+		}
+		if (!pairs.isEmpty())
+			f2.mkdirs();
+		int counter = 0, counter1=0;
+		for (String pair:pairs){
+			File pairfile = new File(FilenameUtils.concat(f2.getAbsolutePath(), pair));
+			List<String> sents = new ArrayList<String>();
+			List<String> tempsents = new ArrayList<String>();
+			counter = 0;
+			counter1=0;
+			for (File file:files){
+				temp = file.getName();
+				if (!temp.endsWith(pair+".laser")){
+					counter1++;
+					continue;
+				}try {
+					tempsents = FileUtils.readLines(file, Constants.UTF8);
+					sents.addAll(tempsents);
+					counter++;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			System.out.println(pair);
+			System.out.println(counter);
+			System.out.println(counter1);
+			System.out.println(sents.size());
+
+			try {
+				FileUtils.writeLines(pairfile, Constants.UTF8, sents, "\n");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("-----------");
+		}
+
+		return f2;
 	}
 
 
@@ -211,7 +376,7 @@ public class Wikipedia {
 		double score;
 		while ((inputLine = in.readLine()) != null) {
 			String[] parts = inputLine.split(Constants.TAB);
-			if (parts.length!=5){
+			if (parts.length!=3){
 				LOGGER.warn("CUT\t" +inputLine);
 				continue;
 			}
@@ -354,7 +519,7 @@ public class Wikipedia {
 			//LOGGER.info(inputLine);
 			String[] parts = inputLine.split(Constants.TAB);
 
-			line = parts[2] + Constants.TAB + lang + Constants.TAB + counter;
+			line = parts[1] + Constants.TAB + lang + Constants.TAB + counter;
 			out.write(line.trim()+"\n");
 		}
 		System.out.println(counter);
@@ -386,7 +551,7 @@ public class Wikipedia {
 
 
 
-/*	private static File findCommInSorted(File f1, int range1) throws IOException {
+	/*	private static File findCommInSorted(File f1, int range1) throws IOException {
 		File f2 = new File(f1.getAbsolutePath()+".comm");
 		BufferedReader in = new BufferedReader(new FileReader(f1));
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2.getAbsolutePath()),Constants.UTF8));
@@ -438,8 +603,8 @@ public class Wikipedia {
 		public String ro, sk, sl, sv;
 
 		public LangObject(String bg, String cs, String da, String de, String el,
-				String et, String es, String fi, String fr, String ga, String hr,
-				String hu, String it, String is, String lt, String lv, String mt,
+				String es, String et, String fi, String fr, String ga, String hr,
+				String hu, String is, String it, String lt, String lv, String mt,
 				String nl, String no, String pl, String pt, String ro, String sk,
 				String sl, String sv) {
 			super();
@@ -448,15 +613,15 @@ public class Wikipedia {
 			this.da = da;
 			this.de = de;
 			this.el = el;
-			this.et = et;
 			this.es = es;
+			this.et = et;
 			this.fi = fi;
 			this.fr = fr;
 			this.ga = ga;
 			this.hr = hr;
 			this.hu = hu;
-			this.it = it;
 			this.is = is;
+			this.it = it;
 			this.lt = lt;
 			this.lv = lv;
 			this.mt = mt;

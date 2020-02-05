@@ -1,5 +1,7 @@
 package gr.ilsp.fc.utils;
 
+import gr.ilsp.fc.extractors.MSO2text;
+import gr.ilsp.fc.extractors.Pdf2text;
 import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
@@ -12,23 +14,83 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 
-public class Wikipedia {
-	private static final Logger LOGGER = Logger.getLogger(Wikipedia.class);
+public class Emea {
+	private static final Logger LOGGER = Logger.getLogger(Emea.class);
 	//private static final String header = "en\tbg\tcs\tda\tde\tel\tet\tes\tfi\tfr\tga\thr\thu\tit\tis\tlt\tlv\tmt\tnl\tno\tpl\tpt\tro\tsk\tsl\tsv";
 	private static final String header = "bg\tcs\tda\tde\tel\tes\tet\tfi\tfr\tga\thr\thu\tit\tis\tlt\tlv\tmt\tnl\tno\tpl\tpt\tro\tsk\tsl\tsv";
-
-
-
+	private static final String text_tag = "<text>";
+	private static final String text_tag_en = "</text>";
+	private static final String PDF_EXT = ".pdf";
+	private static final String DOC_EXT = ".doc";
+	private static final String DOCX_EXT = ".docx";
+	private static final String TXT_EXT = ".txt";
+	private static final String CONTENT = "content";
+	
 	public static void main(String[] args) throws IOException {
+
+	
+		System.out.println("---------------------PARSE SITEMAP--------------------------------");
+		System.out.println("1st argument could be : \"parsesitemap\" for parsing the sitemap xml files ");
+		System.out.println("2nd argument is the fullpath of the directory containing the sitemap xml files");
+		System.out.println("returns *_seeds, a text file (.sh) including the urls of the sitemap files");
+
+		//WGET -W 1 seeds, to download the webpages
+
+		System.out.println("---------------------PARSE PAGES--------------------------------");
+		System.out.println("1st argument could be : \"parsepages\" for parsing downloaded webpages, to find translation links");
+		System.out.println("2nd argument is the fullpath of the directory containing the webpages");
+		System.out.println("returns *_pages, a text file (.sh) including the links to files that are available in many languages");
+
+		System.out.println("---------------------TEXT EXTRACTION--------------------------------");
+		System.out.println("1st argument could be : \"textextract\" for text extraction from the downloaded files (pdf, doc, docx");
+		System.out.println("2nd argument is the fullpath of the directory containing the files");
+		System.out.println("returns *_text, a direcroty containign the text files");
+
+		System.out.println("---------------------PAIR LIST--------------------------------");
+		System.out.println("1st argument could be : \"pairlist\" for text extraction from the downloaded files (pdf, doc, docx");
+		System.out.println("2nd argument is the fullpath of the directory containing the files");
+		System.out.println("returns *_text, a direcroty containign the text files");
+		String mode = args[0];
+		File f1, f2=null;
+
+		if (mode.equals("parsesitemap")){
+			f1 = new File(args[1]);
+			f2 = parseSiteMap(f1);
+		}
+		if (mode.equals("parsepages")){
+			f1 = new File(args[1]);
+			f2 = parsePages(f1);
+		}
+
+		//WGET -W 1 pages, to download the pdf/doc/docx files
+
+		//TEXT EXTRACTION
+		if (mode.equals("textextract")){
+			f1 = new File(args[1]);
+			f2 = textextract(f1);
+		}
+		//GENERATE LIST OF DOCUMENT PAIRS PER EN_X LANGUAGE PAIR
+		if (mode.equals("pairlist")){
+			f1 = new File(args[1]);
+			f2 = pairlist(f1);
+		}
+
+		System.exit(0);
+
+
 
 		System.out.println("---------------------FILT--------------------------------");
 		System.out.println("1st argument could be : \"filt\" for filtering out pairs with score lower than a specific threshold");
@@ -63,9 +125,7 @@ public class Wikipedia {
 		System.out.println("3rd argument could be : targeted languages separated by ;");
 		System.out.println("returns *.(targeted languages)");
 
-		String mode = args[0];
-		File f1, f2=null;
-		
+
 		if (mode.equals("filt")){
 			f1 = new File(args[1]);
 			double thr = Double.parseDouble(args[2]); 
@@ -101,12 +161,284 @@ public class Wikipedia {
 			String[] langs = args[2].split(Constants.SEMICOLON);
 			f2 = resultMultilinguality(f1, langs);
 		}
-
 		LOGGER.info("RESULT IN "+ f2.getAbsolutePath());
+	}
 
 
+	private static File pairlist(File f1) throws IOException {
+		String[] langs = header.split("\t");
+		File res = new File(f1.getAbsolutePath()+"_pairs");
+		List<File> files =  Arrays.asList(f1.listFiles());
+		List<String> names =  new ArrayList<String>();
+		List<String> ennames =  new ArrayList<String>();
+		Set<String> checklist = new HashSet<String>();
+		String name ="", temp="";
+		int ind=0, ind1=0;
+		for (File file:files){
+			name = file.getName();
+			ind = name.lastIndexOf("_");
+			temp = name.substring(ind);
+			if (temp.contains("en"))
+				ennames.add(file.getName());
+			names.add(name);
+		}
+		
+		names = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/emea/pages_urls"), Constants.UTF8);
+		ennames = new ArrayList<String>();
+		for (String name1:names){
+			ind = name1.lastIndexOf("_");
+			temp = name1.substring(ind);
+			if (temp.contains("en"))
+				ennames.add(name1);
+		}
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		for (String lang:langs)
+			map.put("en-"+lang, new ArrayList<String>());
+		
+		String temp1 = "", temp2="", temp3="", temp11;
+		boolean found = false;
+		int counter =0;
+		for (String enname:ennames){
+			counter=0;
+			for (String lang:langs){
+				found = false;
+				ind = enname.lastIndexOf("_");
+				temp = enname.substring(0, ind);
+				temp1 = enname.substring(ind+1); 
+				temp3 = temp1.replaceAll("en", lang);
+				temp2 = temp+"_"+temp3;
+				if (names.contains(temp2)){
+					List<String> templist1 = map.get("en-"+lang);
+					templist1.add(enname+"\t"+temp2);
+					map.put("en-"+lang, templist1);
+					checklist.add(temp2);
+					checklist.add(enname);
+					found = true;
+					counter++;
+				}
+				if (!found){
+					ind = enname.lastIndexOf("_");
+					temp = enname.substring(0, ind);
+					temp1 = enname.substring(ind+1);
+					ind1 = temp1.indexOf(".");
+					temp11 = "-0"+temp1.substring(ind1);
+					temp1 = temp1.substring(0, 2)+temp11;
+					temp3 = temp1.replaceAll("en", lang);
+					temp2 = temp+"_"+temp3;
+					if (names.contains(temp2)){
+						List<String> templist1 = map.get("en-"+lang);
+						templist1.add(enname+"\t"+temp2);
+						map.put("en-"+lang, templist1);
+						checklist.add(temp2);
+						checklist.add(enname);
+						found = true;
+						counter++;
+					}
+				}
+				if (!found){
+					ind = enname.lastIndexOf("_");
+					temp = enname.substring(0, ind);
+					temp1 = enname.substring(ind+1);
+					ind1 = temp1.indexOf(".");
+					temp11 = "-1"+temp1.substring(ind1);
+					temp1 = temp1.substring(0, 2)+temp11;
+					temp3 = temp1.replaceAll("en", lang);
+					temp2 = temp+"_"+temp3;
+					if (names.contains(temp2)){
+						List<String> templist1 = map.get("en-"+lang);
+						templist1.add(enname+"\t"+temp2);
+						map.put("en-"+lang, templist1);
+						checklist.add(temp2);
+						checklist.add(enname);
+						counter++;
+					}
+				}
+			}
+			if (!checklist.contains(enname))
+				System.out.println("OOOOOOOOOPPPPP\t" +enname);
+			if (counter==0)
+				System.out.println("EEEEEEEEEPPPPP\t" +enname);
+		}
+		for (String name1:names){
+			if (!checklist.contains(name1)){
+				ind = name1.lastIndexOf("_");
+				temp = name1.substring(0, ind);
+				temp1 = name1.substring(ind+1);
+				temp1 = temp1.replaceAll("-0", "");
+				temp1 = temp1.replaceAll("-1", "");
+				temp = temp+"_"+temp1;
+				if (!checklist.contains(temp)){
+					System.out.println(name1);
+				}
+			}
+		}
+		
+		Set<String> keys = map.keySet();
+		Iterator<String> keys_it = keys.iterator();
+		String key="";
+		counter = ennames.size();
+		while (keys_it.hasNext()){									
+			key = keys_it.next();
+			List<String> templist1 = map.get(key);
+			counter = counter + templist1.size();
+			try {
+				FileUtils.writeLines(new File(FilenameUtils.concat(res.getAbsolutePath(), key)), Constants.UTF8, templist1, "\n");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println(counter);
+		return res;
+	}
 
 
+	private static File textextract(File f1) {
+		File res = new File(f1.getAbsolutePath()+"_text");
+		List<File> files =  Arrays.asList(f1.listFiles());
+		String name ="", text="", cleanText="", temp="";
+		Map<String, String> data = new HashMap<String, String>();
+		int ind = 0;
+		for (File file:files){
+			name = file.getName();
+			if (name.toLowerCase().endsWith(PDF_EXT))	
+				data = Pdf2text.run1(file, false);
+			if (name.toLowerCase().endsWith(DOC_EXT) || name.toLowerCase().endsWith(DOCX_EXT))	
+				data = MSO2text.run1(file);
+			text = data.get(CONTENT);
+			cleanText = ContentNormalizer.normalizeText(text);
+			cleanText = cleanText.replaceAll(text_tag, "");
+			cleanText = cleanText.replaceAll(text_tag_en, "");
+			text = "";
+			String[] lines = cleanText.split("\n");
+			for (String line:lines){
+				line=line.trim();
+				if (Character.isLowerCase(line.charAt(0)) && Character.isLowerCase(text.charAt(text.length()-1)))
+					text = text+" "+line;
+				else
+					text = text+"\n"+line;
+			}
+			text = text.substring(1);
+			ind = name.lastIndexOf(Constants.UNDERSCORE);
+			temp = name.substring(ind);
+			if (temp.contains("_cz"))
+				temp = temp.replaceAll("_cz", "_cs");
+			if (temp.contains("_se"))
+				temp = temp.replaceAll("_se", "_sv");
+			if (temp.contains("_dk"))
+				temp = temp.replaceAll("_dh", "_da");
+			if (temp.contains("_si"))
+				temp = temp.replaceAll("_si", "_sl");
+			if (temp.contains("_ee"))
+				temp = temp.replaceAll("_ee", "_et");
+			name  = name.substring(0, ind)+temp+ TXT_EXT;
+			file = new File(FilenameUtils.concat(res.getAbsolutePath(), name));
+			try {
+				FileUtils.write(file, text, Constants.UTF8);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return res;
+	}
+
+
+	private static File parsePages(File f1) {
+		File res = new File(f1.getAbsolutePath()+"_urls");
+		File[] maps = f1.listFiles();
+		List<String> urls = new ArrayList<String>();
+		int ind = 0;
+		List<String> lines = new ArrayList<String>();
+		String line="", url="";
+		for (File map:maps){
+			try {
+				lines = FileUtils.readLines(map, Constants.UTF8);
+				for (int ii=0;ii<lines.size();ii++){
+					line = lines.get(ii);
+					if (line.contains("ecl-file__translations-metadata")){
+						ii++;
+						line = lines.get(ii).trim();
+						if (line.startsWith("<a href=")){
+							line = line.substring(9);
+							ind = line.indexOf(" ");
+							url = line.substring(0, ind-1);
+							if (!url.endsWith("pdf") && !url.endsWith("doc") && !url.endsWith("docx") ){
+								System.out.println(line);
+								continue;
+							}
+							url = "wget -w 1 " +url;
+							if (urls.contains(url))
+								continue;
+							urls.add(url);
+						}
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println(urls.size());
+		List<String> lines1 = new ArrayList<String>();
+		String t1 = "";
+		for (String t:urls){
+			ind = t.lastIndexOf("_");
+			t1 = t.substring(0, ind);
+			line = t.substring(t.lastIndexOf("."));
+			t = t1+"_en" + line; //en.pdf";
+			if (lines1.contains(t))
+				continue;
+			lines1.add(t);
+		}
+		urls.addAll(lines1);
+		Collections.sort(urls);
+		
+		for (String u:urls){
+			ind = u.lastIndexOf("_");
+			url = u.substring(0, ind);
+			t1 =u.substring(ind);
+			if (t1.contains("-0")){
+				t1 = t1.substring(2);
+				url = url+"_"+t1;
+			}
+		}
+		
+		
+		try {
+			FileUtils.writeLines(res, Constants.UTF8, urls, "\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+
+	private static File parseSiteMap(File f1) {
+		File res = new File(f1.getAbsolutePath()+"_seeds");
+		File[] maps = f1.listFiles();
+		List<String> urls = new ArrayList<String>();
+		int ind = 0;
+		List<String> lines = new ArrayList<String>();
+		for (File map:maps){
+			if (map.getName().contains("sitemap")){
+				try {
+					lines = FileUtils.readLines(map, Constants.UTF8);
+					for (String line:lines){
+						if (line.startsWith("<url><loc>")){
+							line = line.replaceAll("<url><loc>", "");
+							ind = line.indexOf("</loc>");
+							urls.add("wget -w 1 " + line.substring(0, ind));
+						}
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		try {
+			FileUtils.writeLines(res, Constants.UTF8, urls, "\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return res;
 	}
 
 
@@ -386,7 +718,7 @@ public class Wikipedia {
 
 
 
-/*	private static File findCommInSorted(File f1, int range1) throws IOException {
+	/*	private static File findCommInSorted(File f1, int range1) throws IOException {
 		File f2 = new File(f1.getAbsolutePath()+".comm");
 		BufferedReader in = new BufferedReader(new FileReader(f1));
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2.getAbsolutePath()),Constants.UTF8));

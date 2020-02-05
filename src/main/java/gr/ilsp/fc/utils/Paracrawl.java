@@ -30,23 +30,75 @@ import org.apache.log4j.Logger;
 public class Paracrawl {
 	private static final Logger LOGGER = Logger.getLogger(Paracrawl.class);
 	//private static final String header = "en\tbg\tcs\tda\tde\tel\tet\tes\tfi\tfr\tga\thr\thu\tit\tis\tlt\tlv\tmt\tnl\tno\tpl\tpt\tro\tsk\tsl\tsv";
-	private static final String header = "bg\tcs\tda\tde\tel\tes\tet\tfi\tfr\tga\thr\thu\tit\tis\tlt\tlv\tmt\tnl\tno\tpl\tpt\tro\tsk\tsl\tsv";
+	private static final String header = "bg\tcs\tda\tde\tel\tes\tet\tfi\tfr\tga\thr\thu\tis\tit\tlt\tlv\tmt\tnl\tno\tpl\tpt\tro\tsk\tsl\tsv";
 
 
 
 	public static void main(String[] args) throws IOException {
 
+	/*	List<String> ennos = FileUtils.readLines(new File("C:/Users/vpapa/Downloads/opus/Ubuntu/en_parts/Ubuntu.en-nb.en"));
+		List<String> endes = FileUtils.readLines(new File("C:/Users/vpapa/Downloads/opus/Ubuntu/en_parts/Ubuntu.de-en.en"));
+		List<String> enfrs = FileUtils.readLines(new File("C:/Users/vpapa/Downloads/opus/Ubuntu/en_parts/Ubuntu.en-fr.en"));
+		int counter = 0;
+		for (String enno:ennos){
+			if (enfrs.contains(enno) && endes.contains(enno)){
+				System.out.println(enno);
+				counter++;
+			}
+		}
+		System.out.println(counter);*/
+		/*List<String> pl_lines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/paracrawl_v5/pl-ro.txt/MultiParaCrawl.pl-ro.pl"), Constants.UTF8);
+		List<String> ro_lines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/paracrawl_v5/pl-ro.txt/MultiParaCrawl.pl-ro.ro"), Constants.UTF8);
+		List<String> plro_lines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/paracrawl_v5/en-ALL.bicleaner07.lang.norm.sort.multi.idmulti.pl-ro.corpus"), Constants.UTF8);
+		//List<String> pl_lines1 = new ArrayList<String>();
+		//List<String> ro_lines1 = new ArrayList<String>();
+		
+		System.out.println(pl_lines.size());
+		System.out.println(ro_lines.size());
+		System.out.println(plro_lines.size());
+		for (String line:plro_lines){
+			String[] temp = line.split("\t");
+			pl_lines1.add(temp[1]);
+			ro_lines1.add(temp[2]);
+		}
+		System.out.println(pl_lines1.size());
+		System.out.println(ro_lines1.size());
+		
+		String pl="", ro="", temp="";
+		boolean found=false;
+		int counter = 0;
+		for (int ii=0;ii<pl_lines.size();ii++){
+			pl = pl_lines.get(ii);
+			ro = ro_lines.get(ii);
+			found = false;
+			for (int jj=0;jj<plro_lines.size();jj++){
+				temp = plro_lines.get(jj);
+				if (temp.contains(pl) && temp.contains(ro)){
+					found = true;
+					break;
+				}
+			}
+			if (!found){
+				System.out.println(pl + "\t"+ ro);
+			}else
+				counter++;
+		}*/
+		
+		
+		
 		System.out.println("---------------------ADD--------------------------------");
-		System.out.println("1st argument could be : \"add\" for adding column with lang");
+		System.out.println("1st argument could be : \"add\" for adding columns with lang and id");
 		System.out.println("2nd argument is the fullpath of infile (downloaded from paracrawl)");
 		System.out.println("3rd argument is the language to be added");
+		System.out.println("returns *.lang ");
 
 		System.out.println("---------------------NORM--------------------------------");
 		System.out.println("1st argument could be : \"norm\" for normalize the 1st column (i.e. the EN column) ");
-		System.out.println("2nd argument is the fullpath of infile (downloaded from paracrawl AND 3rd column with LANG added)");
+		System.out.println("2nd argument is the fullpath of infile (i.e. .lang)");
+		System.out.println("returns *.norm ");
 
 		System.out.println("---------------------KEEPMULTI--------------------------------");
-		System.out.println("1st argument could be : \"keepmulti\" for keeping only multilingual pairs");
+		System.out.println("1st argument could be : \"keepmulti3\" or \"keepmulti4\" (if the infile has 3 or 4 columns) for keeping only multilingual pairs");
 		System.out.println("2nd argument is the fullpath of infile, (file after CAT all normalized datasets and SORT");
 		System.out.println("returns *.multi");
 
@@ -57,12 +109,12 @@ public class Paracrawl {
 
 		System.out.println("---------------------RESULTMULTI--------------------------------");
 		System.out.println("1st argument could be : \"resultmulti\" for multilingual pairs in specific languages");
-		System.out.println("2nd argument is the fullpath of infile");
+		System.out.println("2nd argument is the fullpath of infile (the sparse idmulti file)");
 		System.out.println("3rd argument could be : targeted languages separated by ;");
 		System.out.println("returns *.(targeted languages)");
 
 		System.out.println("---------------------GETMULTI--------------------------------");
-		System.out.println("1st argument could be : \"getmulti\" for generating multilingual corpus based on idmulti file");
+		System.out.println("1st argument could be : \"getmultiP\" (paracrawl) or \"getmultiU\" (Ubuntu) for generating multilingual corpus based on idmulti file");
 		System.out.println("2nd argument is the fullpath of infile (the idmulti file)");
 		System.out.println("returns *.corpus");
 
@@ -71,6 +123,7 @@ public class Paracrawl {
 		System.out.println("2nd argument is the fullpath of infile (it should be like en-X.)");
 		System.out.println("returns many files .(clean, noletters, identicalTUVs, ratioTUVs, shortTUVs, addrs, cases, dupTUs, wronglang)");
 		
+		System.out.println("\n\n");
 		/*System.out.println("-------------------DENORMALIZE----------------------------------");
 		System.out.println("1st argument could be : \"denorm\" for finding common EN parts");
 		System.out.println("2nd argument is the fullpath of normalized infile");
@@ -94,10 +147,13 @@ public class Paracrawl {
 			f1 = new File(args[1]);
 			f2 = normalizeContent(f1);
 		}
-
-		if (mode.equals("keepmulti")){
+		if (mode.equals("keepmulti3")){
 			f1 = new File(args[1]);
-			f2 = keepMultilinguality(f1);
+			f2 = keepMultilinguality3(f1);
+		}
+		if (mode.equals("keepmulti4")){
+			f1 = new File(args[1]);
+			f2 = keepMultilinguality4(f1);
 		}
 		if (mode.equals("processmulti")){
 			f1 = new File(args[1]);
@@ -108,9 +164,13 @@ public class Paracrawl {
 			String[] langs = args[2].split(Constants.SEMICOLON);
 			f2 = resultMultilinguality(f1, langs);
 		}
-		if (mode.equals("getmulti")){
+		if (mode.equals("getmultiP")){
 			f1 = new File(args[1]);
-			f2 = getMultilinguality(f1);
+			f2 = getMultilingualityP(f1);
+		}
+		if (mode.equals("getmultiU")){
+			f1 = new File(args[1]);
+			f2 = getMultilingualityU(f1);
 		}
 		
 		if (mode.equals("filter")){
@@ -145,7 +205,7 @@ public class Paracrawl {
 		}
 	}
 
-	private static File getMultilinguality(File f11) throws IOException {
+	private static File getMultilingualityP(File f11) throws IOException {
 		File f1 = f11.getAbsoluteFile();
 		LOGGER.info(f1.getAbsolutePath());
 		String basePath = f1.getParent();
@@ -191,15 +251,15 @@ public class Paracrawl {
 		String headline = "";
 		for (String head:heads)
 			headline = headline+Constants.TAB+head;
-		out.write(headline.trim()+"\n");
+		out.write("en"+ Constants.TAB+headline.trim()+"\n");
 		
 		//Set<String> keys = tuples.keySet();
 		int tuplen = tuples.get(heads[0]).size();
 		for (int ii=0;ii<heads.length;ii++){
 			if (tuples.get(heads[ii]).size()!=tuplen)
-				LOGGER.error("Some sentences missins");
+				LOGGER.error("Some sentences missing");
 			if (tuples.get("en-"+heads[ii]).size()!=tuplen)
-				LOGGER.error("Some sentences missins");
+				LOGGER.error("Some sentences missing");
 		}
 		String currentEN="", currentline="";
 		int counter=0;
@@ -228,6 +288,104 @@ public class Paracrawl {
 		return f2;
 	}
 
+	
+	private static File getMultilingualityU(File f11) throws IOException {
+		File f1 = f11.getAbsoluteFile();
+		LOGGER.info(f1.getAbsolutePath());
+		String basePath = f1.getParentFile().getParent();
+		LOGGER.info(basePath);
+		
+		
+		List<String> ids = FileUtils.readLines(f11, Constants.UTF8);
+		LOGGER.info(ids.get(0));
+		String[] heads = ids.get(0).split(Constants.TAB);
+		for (int ii=0;ii<heads.length;ii++)
+			LOGGER.info(heads[ii]);
+		String temp1 = "", temp2= "", tmp="", temp="";
+		File tempfile;
+		Map<String, List<String>> tuples = new HashMap<String, List<String>>();
+		for (int ii=0;ii<heads.length;ii++){
+			LOGGER.info("Getting en-" +heads[ii] + " ...");
+			tmp="";
+			if (heads[ii].compareTo("en")>0)
+				tmp = "en-"+heads[ii];
+			else
+				tmp = heads[ii]+"-en";
+			tempfile = new File(FilenameUtils.concat(basePath,tmp+".txt"));
+			temp1 = FilenameUtils.concat(tempfile.getAbsolutePath(), "Ubuntu." + tmp+ ".en");
+			temp2 = FilenameUtils.concat(tempfile.getAbsolutePath(), "Ubuntu." + tmp+ "."+heads[ii]);
+			
+			LOGGER.info("Reading "+ temp1);
+			List<String> templist1 = FileUtils.readLines(new File(temp1));
+			LOGGER.info("Reading "+ temp1);
+			List<String> templist2 = FileUtils.readLines(new File(temp2));
+			
+			List<String> newtemplist = new ArrayList<String>();
+			for (int jj=1;jj<ids.size();jj++){
+				int id = Integer.parseInt(ids.get(jj).split(Constants.TAB)[ii]);
+				//System.out.println(id +"\t:\t"+templist.get(id-1));
+				newtemplist.add(templist1.get(id-1)+ Constants.TAB + templist2.get(id-1));
+			}
+			templist1 = null;
+			List<String> line= new ArrayList<String>();
+			List<String> en= new ArrayList<String>();
+			List<String> cur= new ArrayList<String>();
+			for (int jj=0;jj<newtemplist.size();jj++){
+				line = Arrays.asList(newtemplist.get(jj).split(Constants.TAB));
+				en.add(line.get(0));
+				cur.add(line.get(1));
+			}
+			tuples.put("en-"+heads[ii], en);
+			LOGGER.info("en-"+heads[ii]+":\t"+en.size());
+			tuples.put(heads[ii], cur);
+			LOGGER.info(heads[ii]+":\t"+cur.size());
+			newtemplist = null;
+		}
+		File f2 = new File(f1.getAbsolutePath()+".corpus");
+		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2.getAbsolutePath()),Constants.UTF8));
+		String headline = "";
+		for (String head:heads)
+			headline = headline+Constants.TAB+head;
+		out.write("en"+ Constants.TAB+headline.trim()+"\n");
+		
+		//Set<String> keys = tuples.keySet();
+		int tuplen = tuples.get(heads[0]).size();
+		for (int ii=0;ii<heads.length;ii++){
+			if (tuples.get(heads[ii]).size()!=tuplen)
+				LOGGER.error("Some sentences missing");
+			if (tuples.get("en-"+heads[ii]).size()!=tuplen)
+				LOGGER.error("Some sentences missing");
+		}
+		String currentEN="", currentline="";
+		int counter=0;
+		for (int jj=0;jj<tuplen;jj++){
+			for (int ii=0;ii<heads.length;ii++){
+				temp = tuples.get("en-"+heads[ii]).get(jj);
+				if (currentEN.isEmpty())
+					currentEN=temp;
+				else{
+					if (!currentEN.equals(temp)){
+						LOGGER.info("en-"+heads[0]+":\t"+currentEN);
+						LOGGER.info("en-"+heads[ii]+":\t"+temp);
+					}
+				}
+				currentline =  currentline+Constants.TAB + tuples.get(heads[ii]).get(jj);
+			}
+			counter++;
+			currentline = currentEN+currentline;
+			out.write(currentline.trim()+"\n");
+			currentline="";
+			currentEN="";
+		}
+		out.close();
+		LOGGER.info("Total multiples IDs = "+ (ids.size()-1));
+		LOGGER.info("Total multiples segments = "+ counter);
+		return f2;
+	}
+	
+	
+	
+	
 /*	private static File getMultilinguality_(File f1) throws IOException {
 		List<String> ids = FileUtils.readLines(f1, Constants.UTF8);
 		String[] heads = ids.get(0).split(Constants.TAB);
@@ -354,7 +512,7 @@ public class Paracrawl {
 		return f2;
 	}
 
-	private static File keepMultilinguality(File f1)  throws IOException {
+	private static File keepMultilinguality4(File f1)  throws IOException {
 		File f2 = new File(f1.getAbsolutePath()+".multi");
 		BufferedReader in = new BufferedReader(new FileReader(f1));
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2.getAbsolutePath()),Constants.UTF8));
@@ -385,6 +543,38 @@ public class Paracrawl {
 		return f2;
 	}
 
+	private static File keepMultilinguality3(File f1)  throws IOException {
+		File f2 = new File(f1.getAbsolutePath()+".multi");
+		BufferedReader in = new BufferedReader(new FileReader(f1));
+		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2.getAbsolutePath()),Constants.UTF8));
+		String inputLine, key="", previouskey="";
+		List<String> list = new ArrayList<String>();
+		while ((inputLine = in.readLine()) != null) {
+			String[] parts = inputLine.split(Constants.TAB);
+			if (parts.length!=3){
+				LOGGER.warn("CUT\t" +inputLine);
+				continue;
+			}
+			key = parts[0];
+			if (!key.equals(previouskey)){
+				if (list.size()>1){
+					for (int ii=0;ii<list.size();ii++){
+						out.write(list.get(ii)+"\n");
+					}
+				}
+				list.clear();
+				list.add(key+"\t"+parts[1]+"\t"+parts[2]);
+				previouskey=key;
+			}else{
+				list.add(key+"\t"+parts[1]+"\t"+parts[2]);
+			}
+		}
+		in.close();
+		out.close();
+		return f2;
+	}
+	
+	
 	private static File processMultilinguality(File f1) throws IOException {
 		File f2 = new File(f1.getAbsolutePath()+".idmulti");
 		BufferedReader in = new BufferedReader(new FileReader(f1));
@@ -504,7 +694,7 @@ public class Paracrawl {
 		while ((inputLine = in.readLine()) != null) {
 			counter++;
 			//LOGGER.info(inputLine);
-			line = inputLine + Constants.TAB+ lang;
+			line = inputLine + Constants.TAB+ lang + Constants.TAB + counter;
 			out.write(line.trim()+"\n");
 		}
 		System.out.println(counter);
@@ -529,7 +719,7 @@ public class Paracrawl {
 			for (int ii=0;ii<parts.length;ii++){
 				line = line + Constants.TAB + parts[ii];
 			}
-			line = line.trim() + Constants.TAB + counter;
+			//line = line.trim() + Constants.TAB + counter;
 			out.write(line.trim()+"\n");
 		}
 		LOGGER.info(counter + " TUs");
@@ -588,8 +778,8 @@ public class Paracrawl {
 		public String ro, sk, sl, sv;
 
 		public LangObject(String bg, String cs, String da, String de, String el,
-				String et, String es, String fi, String fr, String ga, String hr,
-				String hu, String it, String is, String lt, String lv, String mt,
+				String es, String et, String fi, String fr, String ga, String hr,
+				String hu, String is, String it, String lt, String lv, String mt,
 				String nl, String no, String pl, String pt, String ro, String sk,
 				String sl, String sv) {
 			super();
