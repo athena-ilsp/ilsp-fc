@@ -38,6 +38,8 @@ public class Pdf2text {
 	private static final String TITLE = "title"; 
 	private static final String PUBLISHER = "publisher"; 
 	private static final String  KEYWORDS = "keywords";
+	private static final String  CONTENT ="content";
+	private static final String  PAGESNUM ="pagesnum";
 	private static final String  PAGE = "page";
 	private static final List<String> FORBIDLIST = Arrays.asList( "πξ", "ξπ", "νξ", "ξν", "ζξ", "ξζ","νλ", "σξ" );
 	private static ArrayList<PrintTextLocations.CharAttr> chardata=new ArrayList<PrintTextLocations.CharAttr>();
@@ -132,7 +134,8 @@ public class Pdf2text {
 			data.put(TITLE, ContentNormalizer.normalizeText(pdDocInfo.getTitle()));
 			data.put(PUBLISHER, ContentNormalizer.normalizeText(pdDocInfo.getProducer()));
 			data.put(KEYWORDS,  pdDocInfo.getKeywords());
-
+			data.put(CONTENT, "");
+			data.put(PAGESNUM, String.valueOf("0"));
 			PrintTextLocations printer = new PrintTextLocations();
 			List<PDPage> allPages = document.getDocumentCatalog().getAllPages();
 			float pageheight=0, pagewidth=0;
@@ -185,17 +188,18 @@ public class Pdf2text {
 				docprops.put(PAGE+i, current_linedata);
 				content = content + getAllText(docprops);
 				content = ContentNormalizer.normalizeText(content);
-				data.put("content", content);
+				data.put(CONTENT, content);
+				data.put(PAGESNUM, String.valueOf(allPages.size()));
 			}
 		} catch (IOException e) {
 			boolean catched = false;
 			if (e.getMessage().contains(" End-of-File, expected line")){
 				catched = true;
-				logger.error("problem if reading header");
+				logger.error("problem in reading header");
 			}
 			if (e.getMessage().contains(" reading table") || e.getMessage().contains("reading corrupt stream")){
 				catched = true;
-				logger.error("problem if reading pdf file");
+				logger.error("problem in reading pdf file");
 			}
 			if (!catched)
 				e.printStackTrace();
@@ -421,6 +425,7 @@ public class Pdf2text {
 		ArrayList<Double> uniquefontsizes=findFontSizes();
 		//FIXME REMOVE TEXTLINES WITH FONTSIZES <0.5
 		boolean usefonts=true;
+		//boolean usefonts=false;
 		if (uniquefontsizes.size()<2){
 			usefonts=false;
 			for (int ii=0;ii<chardata.size();ii++){
@@ -479,6 +484,7 @@ public class Pdf2text {
 					& !indeces.contains(ii)
 					& !LineTypeGuesser.isDigitsOnlyLine(temp)){
 				linedata_temp.add(linedata.get(ii));
+				//System.out.println(linedata.get(ii).chars);
 			}
 		}
 
@@ -556,6 +562,12 @@ public class Pdf2text {
 					linedata.get(sectiondata.get(ii).sl+jj).p=ii+"_"+0;
 			}
 		}
+
+
+
+
+
+
 		//updates the coordinates of the sections
 		for (int ii=0;ii<sectiondata.size();ii++){
 			float[] st_topdist = new float[sectiondata.get(ii).num];
@@ -773,8 +785,8 @@ public class Pdf2text {
 		double[] cl = Statistics.find_most_commonValue(x_st);
 		double[] cr = Statistics.find_most_commonValue(x_en);
 		double mr = Statistics.getMax(x_en);
-		
-		
+
+
 		if (cr[1]==-1); cr[0]=max_width;
 		int type=0;
 
@@ -875,19 +887,14 @@ public class Pdf2text {
 					& !pars.contains(ii))
 				pars.add(ii);
 		}
+
 		/*if (( (float)caps / (float)sectionAttr.num)>caps_thr){
-			for (int ii=1;ii<x_en.length;ii++){
-				if (cap[ii]==1 & (!pars.contains(ii)))
-					pars.add(ii);
-			}
-		}*/
-		if (( (float)caps / (float)sectionAttr.num)>caps_thr){
 			for (int ii=1;ii<x_en.length;ii++){
 				if (cap[ii]==1 & (!pars.contains(ii)) 
 						&&(!linedata.get(ii-1).chars.trim().endsWith(",") && !linedata.get(ii-1).chars.trim().endsWith("-"))	)
 					pars.add(ii);
 			}
-		}
+		}*/
 		if (pars.isEmpty()){
 			for (int ii=0;ii<x_en.length;ii++)
 				linedata.get(ii+sectionAttr.sl).p=sectioncounter+"_"+0;
@@ -1005,7 +1012,6 @@ public class Pdf2text {
 			sectiondata.get(ii).x=Math.round(sectiondata.get(ii).x);
 			sectiondata.get(ii).y=Math.round(sectiondata.get(ii).y+1);
 		}
-
 	}
 
 	private static boolean vert_overlap(LineAttr lineAttr1, LineAttr lineAttr2) {
@@ -1023,12 +1029,10 @@ public class Pdf2text {
 		//int[] heights = new int[sectionAttr.num-1];
 		float real_height_1=0;
 		for (int jj=sectionAttr.sl;jj<sectionAttr.el;jj++){
-			if (usefonts){
+			if (usefonts)
 				real_height_1 = linedata.get(jj).fs;
-			}
-			else{
+			else
 				real_height_1 = linedata.get(jj).fs; //real_height_1 = linedata.get(jj).h;
-			}
 			//FIXME Most common Y-COORD of chars in a text-line should be taken into account. 
 			distances.add((double) Math.round((Math.abs(linedata.get(jj).y +
 					real_height_1 -linedata.get(jj+1).y)*10))/10);
