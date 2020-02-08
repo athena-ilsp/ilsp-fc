@@ -8,6 +8,7 @@ import java.net.URL;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -233,4 +234,59 @@ public  class FCStringUtils {
 		}
 		return string_key;
 	}
+	
+	public static String removeduplines(String cleanText, int thr) {
+		String res = "";
+		String[] lines = cleanText.split("\n");
+		String[] lines1 = new String[lines.length];
+		for (int ii=0;ii<lines.length;ii++){
+			lines1[ii] = ContentNormalizer.normtext(lines[ii]);
+		}
+		Map<String, Integer> freqs = new HashMap<String,Integer>();
+		int temp;
+		for (String line:lines1){
+			temp=1;
+			if (freqs.containsKey(line))
+				temp = freqs.get(line)+1;
+			freqs.put(line, temp);
+		}
+		for (int ii=0;ii<lines.length;ii++){
+			temp = freqs.get(lines1[ii]); 
+			if (!(temp>=thr))
+				res = res+"\n"+lines[ii];
+			else{
+				System.out.println(lines[ii]);
+				//System.out.println("------");
+			}
+		}
+		return res;
+	}
+	
+	public static String removeduplines(String cleanText, int pagesnum2, int thr) {
+		String res = "";
+		String[] lines = cleanText.split("\n");
+		String[] lines1 = new String[lines.length];
+		for (int ii=0;ii<lines.length;ii++){
+			lines1[ii] = ContentNormalizer.normtext(lines[ii]);
+		}
+		Map<String, Integer> freqs = new HashMap<String,Integer>();
+		int temp;
+		for (String line:lines1){
+			temp=1;
+			if (freqs.containsKey(line))
+				temp = freqs.get(line)+1;
+			freqs.put(line, temp);
+		}
+		for (int ii=0;ii<lines.length;ii++){
+			temp = freqs.get(lines1[ii]); 
+			if (!(temp>=thr && temp >= (pagesnum2-thr)))
+				res = res+"\n"+lines[ii];
+			else{
+				System.out.println(lines[ii]);
+				//System.out.println("------");
+			}
+		}
+		return res;
+	}
+	
 }
