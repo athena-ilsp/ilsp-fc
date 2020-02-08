@@ -207,6 +207,7 @@ public class ContentNormalizer {
 	//	text=text.replaceAll("&amp;",Constants.SPACE);		text=text.replaceAll("&lt",Constants.SPACE);
 	//	text=text.replaceAll("&gt",Constants.SPACE);		text=text.replaceAll("&#",Constants.SPACE);
 		
+		text = text.replaceAll("\r", "");
 		text = text.replaceAll("\t", Constants.SPACE);
 		text = text.replaceAll("(\\s){2,}", Constants.SPACE);
 		text = text.replaceAll("\r\n", "\n");
