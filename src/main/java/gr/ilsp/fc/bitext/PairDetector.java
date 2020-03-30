@@ -86,12 +86,11 @@ public class PairDetector {
 		}
 		String langpair = languages[0]+Constants.HYPHEN+languages[1];
 		LOGGER.info("------------Detection of pairs of parallel documents for "+ langpair+"------------");
-		langpair = Constants.UNDERSCORE+langpair;
 		ArrayList<String[]> bitextsALL = Bitexts.findPairsUIDS(indir, methods, languages, excludeSetFiles 
 				, outdir.getAbsolutePath(), urlReplaces, offlineXSLT, useImagePath, groundTruth);
-		outTextList = new File(outBaseName.getAbsolutePath()+langpair+XMLlist);
+		outTextList = new File(outBaseName.getAbsolutePath()+Constants.UNDERSCORE+langpair+XMLlist);
 		if (offlineXSLT)
-			outHTMLList = new File(outBaseName.getAbsolutePath()+langpair+XMLHTMLlist);
+			outHTMLList = new File(outBaseName.getAbsolutePath()+Constants.UNDERSCORE+langpair+XMLHTMLlist);
 		if (bitextsALL!=null && !bitextsALL.isEmpty() ){
 			LOGGER.info("Total pairs found: "+ bitextsALL.size());
 			WriteBitexts.writeOutList(outdir,outTextList,outHTMLList,bitextsALL);
@@ -113,7 +112,8 @@ public class PairDetector {
 		//if (!offlineXSLT)
 		//	FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
 		
-		LaserPrepro.laserprepro(indir, true);
+		//LaserPrepro.laserprepro(indir, langpair,true);
+		LaserPrepro.laserprepro(indir, langpair,false);
 		
 		if (bitextsALL!=null && !bitextsALL.isEmpty() )
 			return bitextsALL.size(); //LOGGER.info("document pairs in "+lang.substring(1)+"\t"+bitextsALL.size());
