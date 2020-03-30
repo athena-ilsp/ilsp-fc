@@ -188,6 +188,7 @@ public class BitextsURLs {
 				if (match_found || checkUrsPatterns(file_url1.toLowerCase(), file_url2.toLowerCase(), lang1, lang2)){
 					LOGGER.debug(file_url1);
 					LOGGER.debug(file_url2);
+					LOGGER.debug("------------");
 					pair[0]=key1;					pair[1]=key2;
 					pair[2]=lang1;					pair[3]=lang2;
 					pair[4]=pair_type_URL;
@@ -363,6 +364,34 @@ public class BitextsURLs {
 			return true;
 		if (checkUrslangPatterns(temp1,temp2))
 			return true;
+		
+		//-----additions checks------------------------------
+		String lang11="", lang22 = "";
+		
+		if (lang1.equals("en"))
+			lang11 = lang1+Constants.HYPHEN+"us";
+		else
+			lang11 = lang1+Constants.HYPHEN+lang1;
+		if (lang2.equals("en"))
+			lang22 = lang2+Constants.HYPHEN+"us";
+		else
+			lang22 = lang2+Constants.HYPHEN+lang2;
+		if (checkUrsCommonPatterns(lang11, lang22,url1,url2))
+			return true;
+
+		if (lang1.equals("en"))
+			lang11 = lang1+Constants.UNDERSCORE+"us";
+		else
+			lang11 = lang1+Constants.UNDERSCORE+lang1;
+		if (lang2.equals("en"))
+			lang22 = lang2+Constants.UNDERSCORE+"us";
+		else
+			lang22 = lang2+Constants.UNDERSCORE+lang2;
+		if (checkUrsCommonPatterns(lang11, lang22,url1,url2))
+			return true;
+		//------------------------------------------------
+		
+		
 		
 		return found;
 	}
