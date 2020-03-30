@@ -88,6 +88,12 @@ public class BitextsImages {
 			Iterator<String> files2_it = files.iterator();
 			while (files2_it.hasNext()){
 				key2 = files2_it.next();
+				if (paired.contains(key2))
+					continue;
+				if (features.get(key2)==null){
+					paired.add(key2);//even it is not paired, we do not need to examine it 
+					continue;
+				}
 				lang2=features.get(key2).codeLang;
 				if (lang1.equals(lang2))
 					continue;
