@@ -208,6 +208,8 @@ public class Pdf2text {
 				try {
 					document.close();
 					String t = CleanerUtils.cleanContent(content);
+					if (t.isEmpty())
+						return null;
 					String lang = LangDetectUtils.detectLanguage(t);
 					if (checkValidity(t,lang)) 	
 						data.put("language", lang);
