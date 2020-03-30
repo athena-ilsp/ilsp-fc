@@ -317,6 +317,7 @@ public class TMXHandler {
 		String domainEurovocId = StringUtils.join(domainEurovocIds, ',');
 
 		HashMap<String, List<File>> tmxTypeFiles =FcFileUtils.clusterfiles(tmxfiles,doctypes);
+		totalcounter=0;
 		for (int ii=0;ii<doctypes.length();ii++){
 			String m= Character.toString(doctypes.charAt(ii));
 			alignmentList = addTMXs(tmxTypeFiles.get(m),alignmentList,m, keepem, keepiden, keepdup, keepneardup, keepsn, clean, samesymb, cc,targ_sites, maxSize);
@@ -621,7 +622,7 @@ public class TMXHandler {
 				Double[] ttokenslen = FCStringUtils.getTokensLength(ttokens);
 
 				if (Statistics.getMax(stokenslen)>max_word_length || Statistics.getMax(ttokenslen)>max_word_length){
-					LOGGER.info("discarded TU, very large word (due to bad text extraction from pdf):"+ segpair.seg1 +"\t"+ segpair.seg2);
+					LOGGER.info("discarded TU, very large word (maybe due to bad text extraction from pdf):"+ segpair.seg1 +"\t"+ segpair.seg2);
 					continue;
 				}else{
 					if (Statistics.getMedian(stokenslen)>=median_word_length || Statistics.getMedian(ttokenslen)>=median_word_length){

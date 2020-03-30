@@ -73,7 +73,46 @@ public class TmxUtils {
 
 
 	public static void main(String[] args) throws Exception{  //throws Exception
-
+		File innfile  = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/2606/source");
+		File[] xlifs = innfile.listFiles();
+		List<String> l21 = new ArrayList<String>();
+		List<String> l22 = new ArrayList<String>();
+		for (int ii=0;ii<xlifs.length;ii++){
+			List<String> lines = FileUtils.readLines(xlifs[ii]);
+			for (String line:lines){
+				line = line.trim();
+				if (line.startsWith("<source>"))
+					l21.add(line.substring(8, line.length()-9));
+				if (line.startsWith("<target>"))
+					l22.add(line.substring(8, line.length()-9));
+			}
+		}
+		System.out.println(l21.size());
+		System.out.println(l22.size());
+		List<String> l12 = new ArrayList<String>();
+		for (int ii=0;ii<l21.size();ii++){
+			l12.add(l21.get(ii)+Constants.TAB+l22.get(ii));
+		}
+		File result = new File(innfile.getAbsolutePath()+".en-pl");
+		FileUtils.writeLines(result, Constants.UTF8, l12, "\n");
+		List<SegPair> fpairs1 = txt2tmx(result, Constants.TAB);
+		List<ILSPAlignment> faalignments1 = segpair2ILSPAlignment(fpairs1);
+		String[] fllangs11 = new String[2]; fllangs11[0] = "en"; fllangs11[1] = "pl";
+		generateCorpus(faalignments1, fllangs11, "", new File(result.getAbsolutePath()+ "_u.tmx"),"", "", "");
+		
+		System.exit(0);
+		
+		
+		File fffile1 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_1801-1819/source/Al Nashiri impotriva Romaniei.tmx.en");
+		File fffile2 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_1801-1819/source/Al Nashiri impotriva Romaniei.tmx.ro");
+		File fffile3 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_1801-1819/source/Al Nashiri impotriva Romaniei.tmx.en-ro");
+		List<SegPair> fpairs = txts2tmx(fffile1, fffile2);
+		List<ILSPAlignment> faalignments = segpair2ILSPAlignment(fpairs);
+		String[] fllangs1 = new String[2]; fllangs1[0] = "en"; fllangs1[1] = "ro";
+		generateCorpus(faalignments, fllangs1, "", new File(fffile3.getAbsolutePath()+ "_u.tmx"),"", "", "");
+		System.exit(0);
+		
+		
 		List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_2510/validated-1.txt"));
 		List<String> newlines = new ArrayList<String>();
 		for (String line:lines){
@@ -139,12 +178,12 @@ public class TmxUtils {
 		/*cleanTXTs(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts"));
 		System.exit(0);*/
 		
-		File fffile1 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.en.cl");
-		File fffile2 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.hr.cl");
-		File fffile3 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.en-hr.cl");
-		List<SegPair> fpairs = txts2tmx(fffile1, fffile2);
-		List<ILSPAlignment> faalignments = segpair2ILSPAlignment(fpairs);
-		String[] fllangs1 = new String[2]; fllangs1[0] = "en"; fllangs1[1] = "hr";
+		fffile1 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.en.cl");
+		fffile2 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.hr.cl");
+		fffile3 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.en-hr.cl");
+		fpairs = txts2tmx(fffile1, fffile2);
+		faalignments = segpair2ILSPAlignment(fpairs);
+		fllangs1 = new String[2]; fllangs1[0] = "en"; fllangs1[1] = "hr";
 		generateCorpus(faalignments, fllangs1, "", new File(fffile3.getAbsolutePath()+ "_u.tmx"),"", "", "");
 		System.exit(0);
 		
@@ -1358,7 +1397,9 @@ public class TmxUtils {
 			if (seg1.equals("∅") || seg2.equals("∅") || seg1.isEmpty() || seg2.isEmpty()) 
 				continue;
 			double ratio = (double)seg1.length() / (double)seg2.length();
-			SegPair s = new SegPair(seg1, seg2, Double.parseDouble(temp[2].trim()),
+			//SegPair s = new SegPair(seg1, seg2, Double.parseDouble(temp[2].trim()),
+			//		"", "","", "", "", "", ratio,"");
+			SegPair s = new SegPair(seg1, seg2, 0.0,
 					"", "","", "", "", "", ratio,"");
 			segpairslist.add(s);
 		}
