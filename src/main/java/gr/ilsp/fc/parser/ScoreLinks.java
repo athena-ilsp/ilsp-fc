@@ -106,7 +106,7 @@ public class ScoreLinks extends BaseOperation<NullContext> implements Function<N
 					//	linkScore = linkScore+100000;
 					//}
 				}
-				LOGGER.debug(linkScore);
+				LOGGER.debug(linkScore + "\t"+url);
 				if (url==null) continue;
 				url = url.replaceAll("[\n\r]", "");         
 				resultDatum = new ExtendedUrlDatum(url);                    

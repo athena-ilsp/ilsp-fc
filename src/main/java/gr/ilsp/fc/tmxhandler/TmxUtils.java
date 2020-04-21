@@ -194,7 +194,6 @@ public class TmxUtils {
 
 		File ffile = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/si.program-podezelja/en-sl.clean1.15.tsv");
 		String llang1 = "en", llang2 = "sl";
-		laserout2txts(ffile, llang1, llang2);
 		File file1 = new File(ffile.getAbsolutePath()+"."+llang1);
 		File file2 = new File(ffile.getAbsolutePath()+"."+llang2);
 		List<SegPair> pairs = txts2tmx(file1, file2);
