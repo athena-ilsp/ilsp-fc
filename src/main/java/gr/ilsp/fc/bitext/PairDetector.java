@@ -112,8 +112,8 @@ public class PairDetector {
 		//if (!offlineXSLT)
 		//	FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
 		
-		//LaserPrepro.laserprepro(indir, langpair,true);
-		LaserPrepro.laserprepro(indir, langpair,false);
+		LaserPrepro.laserprepro(indir, langpair,true);
+		//LaserPrepro.laserprepro(indir, langpair,false);
 		
 		if (bitextsALL!=null && !bitextsALL.isEmpty() )
 			return bitextsALL.size(); //LOGGER.info("document pairs in "+lang.substring(1)+"\t"+bitextsALL.size());

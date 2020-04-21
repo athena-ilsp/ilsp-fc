@@ -358,12 +358,12 @@ public class BitextsURLs {
 
 		if (checkUrslangPatterns(url1,url2))
 			return true;
-		String temp1 = FilenameUtils.removeExtension(new File(url1).getName());
-		String temp2 = FilenameUtils.removeExtension(new File(url2).getName());
-		if (checkUrsCommonPatterns(lang1, lang2,temp1,temp2))
-			return true;
-		if (checkUrslangPatterns(temp1,temp2))
-			return true;
+		//String temp1 = FilenameUtils.removeExtension(new File(url1).getName());
+		//String temp2 = FilenameUtils.removeExtension(new File(url2).getName());
+		//if (checkUrsCommonPatterns(lang1, lang2,temp1,temp2))
+		//	return true;
+		//if (checkUrslangPatterns(temp1,temp2))
+		//	return true;
 		
 		//-----additions checks------------------------------
 		String lang11="", lang22 = "";
