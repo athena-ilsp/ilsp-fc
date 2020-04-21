@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import gr.ilsp.fc.utils.ContentNormalizer;
 import gr.ilsp.nlp.commons.Constants;
 
 import org.apache.commons.io.FileUtils;
@@ -53,6 +55,7 @@ public class MSO2text {
 	public static Map<String, String> run1(File infile) {
 		Map<String, String> docdata =new HashMap<String, String>();
 		InputStream in;
+		boolean catched = false;
 		try {
 			in = new FileInputStream(infile);
 			POITextExtractor poitex = ExtractorFactory.createExtractor(in);
@@ -64,28 +67,42 @@ public class MSO2text {
 			docdata = processDocMetadataData(metadataString, content);
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
+			catched = true;
 			e1.printStackTrace();
 		} catch (InvalidFormatException e) {
 			// TODO Auto-generated catch block
+			catched = true;
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			catched = true;
 			e.printStackTrace();
 		} catch (OpenXML4JException e) {
 			// TODO Auto-generated catch block
+			catched = true;
 			e.printStackTrace();
 		} catch (XmlException e) {
 			// TODO Auto-generated catch block
+			catched = true;
 			e.printStackTrace();
 		}catch (IllegalArgumentException e){
+			catched = true;
 			e.printStackTrace();
-		}catch (Exception e){
+		}
+		catch (Exception e){
+			catched = true;
 			e.printStackTrace();
+		}
+		finally{
+			if (catched)
+				return null;
 		}
 		return docdata;
 	}
 
 	private static Map<String, String> processDocMetadataData(String metadataString, String content) {
+		if (content.isEmpty())
+			return null;
 		Map<String, String> docdata = new HashMap<String, String>();
 		docdata.put("author", "");
 		docdata.put("title", "");
@@ -99,6 +116,8 @@ public class MSO2text {
 				continue;
 			cleancontent = cleancontent+text_tag+par+text_tag_en+"\n";
 		}
+		if (cleancontent.isEmpty())
+			return null;
 		docdata.put("content", cleancontent);
 		String[] metalines = metadataString.split("\n");
 		Map<String, String> meta = new HashMap<String, String>();
@@ -113,7 +132,7 @@ public class MSO2text {
 		if (meta.containsKey(creator))
 			authors = meta.get(creator).trim(); //docdata.put("author", meta.get(creator));
 		if (meta.containsKey(title))
-			docdata.put("title", meta.get(title));
+			docdata.put("title", ContentNormalizer.normalizeText(meta.get(title)));
 		if (meta.containsKey(subject))
 			docdata.put("subject", meta.get(subject));
 		if (meta.containsKey(keywords))
@@ -123,14 +142,14 @@ public class MSO2text {
 		if (meta.containsKey(subjectp))
 			docdata.put("subject", meta.get(subjectp));
 		if (meta.containsKey(titlep))
-			docdata.put("title", meta.get(titlep));
+			docdata.put("title", ContentNormalizer.normalizeText(meta.get(titlep)));
 		if (meta.containsKey(author1))
-			authors =  meta.get(author1);
+			authors =  ContentNormalizer.normalizeText(meta.get(author1));
 		if (meta.containsKey(author2)){
 			if (authors.isEmpty())
-				authors =  meta.get(author2);
+				authors =  ContentNormalizer.normalizeText(meta.get(author2));
 			else
-				authors= authors+","+meta.get(author2);
+				authors= authors+","+ContentNormalizer.normalizeText(meta.get(author2));
 		}
 		docdata.put("author", authors);
 		if (meta.containsKey(publisher))
