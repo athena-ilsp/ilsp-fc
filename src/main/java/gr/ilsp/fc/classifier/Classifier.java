@@ -48,9 +48,13 @@ public class Classifier implements Serializable{
 	private static double _relthres;
 	private static int _min_uniq_terms;
 	private boolean _keepBoiler = false;
-
 	private int _max_depth;
-
+	public static final String covidterms = "covid;corona;κορων;κορον;korona;kóróna;koroona;sars;"
+			+ "pandem;πανδημ;világjárvány;pandém;epidem;coróin;víreas;"
+			+ "lockdown;καραντ;confinamento;emergenc;confinement;lezárás;απαγόρευσ;ausgangssperre;járvány;misure di blocco;"
+			+ "kоронавирус;пандемията;choróinvíris;paindéim;كوفيد;大流行疫情";
+	
+	//public static final String covidterms = "parnassus;παρνασ";
 	public Classifier(String[] langKeys, String[] targetlanguages, String[] classes, 
 			ArrayList<String[]> topic, double abs_thres, double rel_thres, boolean keepBoiler, 
 			int min_uniq_terms, int max_depth, int minTokensNumber, String storeFilter){
@@ -106,7 +110,22 @@ public class Classifier implements Serializable{
 			LOGGER.debug("LEN_tCUT:\t"+parsedDatum.getUrl()+ "\tlength_in_tok/"+_minTokensNumber);
 			return null;
 		}
-	
+		/*String content1 = content.toLowerCase();
+		String[] covid = covidterms.split(";");
+		boolean found = false;
+		for (String term:covid){
+			if (content1.contains(term)){
+				found = true;
+				break;
+			}
+		}
+		if (found)
+			LOGGER.info("Virus:\t"+url);
+		else{
+			LOGGER.info("CUT COVID:\t"+url);
+			return null;
+		}*/
+		
 		String title = parsedDatum.getTitle();
 		String keywords = "", meta= "";
 		//if (url.contains("wikipedia"))
@@ -128,6 +147,8 @@ public class Classifier implements Serializable{
 		LOGGER.debug("stored:\t"+ url);
 		if (_topic==null)	
 			return new ClassifierDatum(url, new String[0],new Double[0][0], 0.0, 0.0,length_in_tok);
+		
+		//LOGGER.info(url);
 		if (title==null) title = "";
 		ClassifierDatum result=classifyText(title,keywords,meta,content,identifiedlanguage, url, length_in_tok);
 		return result;
@@ -449,6 +470,12 @@ public class Classifier implements Serializable{
 	 */
 	public double rankLinkNotopic(String url, String hreflang, String linktext, String anchortext, String pagelang, double vv) {
 		double score = 0;
+		/*if (linktext.toLowerCase().contains("covid") || linktext.toLowerCase().contains("corona") || linktext.toLowerCase().contains("korona")
+				|| linktext.toLowerCase().contains("koroon")
+				|| url.toLowerCase().contains("covid") || url.toLowerCase().contains("corona") || url.toLowerCase().contains("koron")
+				|| url.toLowerCase().contains("koroon")	)	
+			score = score+1000;*/
+		
 		if (url.contains(LANGSTRING_IND))
 			score+=2;
 		if (hreflang.equals(pagelang))
