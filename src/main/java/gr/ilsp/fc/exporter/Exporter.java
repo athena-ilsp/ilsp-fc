@@ -220,6 +220,12 @@ public class Exporter {
 
 	private static Map<String, Integer> langnumMap = new HashMap<String, Integer>(); 
 
+	public static final String covidterms = "covid;corona;κορων;κορον;korona;kóróna;koroona;sars;"
+			+ "pandem;πανδημ;világjárvány;pandém;epidem;coróin;víreas;"
+			+ "lockdown;καραντ;confinamento;emergenc;confinement;lezárás;απαγόρευσ;ausgangssperre;járvány;misure di blocco;"
+			+ "kоронавирус;пандемията;choróinvíris;paindéim;كوفيد;大流行疫情";
+	
+	//public static final String covidterms = "parnassus;παρνασ";
 	/*	private static void processCrawlDb(JobConf conf, Path curDirPath, boolean exportDb) throws IOException {
 		//TupleEntryIterator iter;
 		int totalEntries;
@@ -625,6 +631,18 @@ public class Exporter {
 			if (langnumMap.containsKey(identifiedlanguage))
 				langnumMap.put(identifiedlanguage, langnumMap.get(identifiedlanguage)+1);
 
+			/*String content1 = ContentNormalizer.cleanContent(cleanText).toLowerCase();
+			String[] covid = covidterms.split(";");
+			boolean found = false;
+			for (String term:covid){
+				if (content1.contains(term)){
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				continue;*/
+			
 			if (XMLExporter(outputDirPath,format, title, url, targetlanguages, identifiedlanguage, htmlText, cleanText,id, "", author,
 					publisher, targeteddomain, subdomains, terms, topic, neg_words, licenseURL, genre,relscore, extfilename)){
 				urlsToIds.put(datum.getUrl(), identifiedlanguage+Constants.HYPHEN+id);
@@ -669,6 +687,10 @@ public class Exporter {
 			LOGGER.info("text extraction from "+ format);
 			data = Pdf2text.run1(new File(extfilename), _sort_type);
 		}
+		if (data==null){
+			LOGGER.info("Text Conversion failed." + extfilename);
+			return false;
+		}
 		if (data.isEmpty()){
 			LOGGER.info("Text Conversion failed." + extfilename);
 			return false;
@@ -678,6 +700,19 @@ public class Exporter {
 			LOGGER.info("Text Conversion failed." + extfilename);
 			return false;
 		}
+		
+		/*String content1 = ContentNormalizer.cleanContent(cleanText).toLowerCase();
+		String[] covid = covidterms.split(";");
+		boolean found = false;
+		for (String term:covid){
+			if (content1.contains(term)){
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			return false;*/
+		
 		cleanText = ContentNormalizer.normalizeText(cleanText);
 		String maincontent = cleanText;
 		maincontent = maincontent.replaceAll(text_tag, "");
