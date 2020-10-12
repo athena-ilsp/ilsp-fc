@@ -40,6 +40,7 @@ public class PairDetector {
 	private static boolean offlineXSLT=false;
 	private static String[][] urlReplaces;
 	private static Map<String, String> excludeSetFiles =null;
+	private static List<String> excludeListFiles =null;
 	private static final String tempFileExt = ".xml.txt";
 	private static final String XMLlist = ".xmllist.txt";
 	private static final String XMLHTMLlist = ".xmllist.html";
@@ -86,8 +87,13 @@ public class PairDetector {
 		}
 		String langpair = languages[0]+Constants.HYPHEN+languages[1];
 		LOGGER.info("------------Detection of pairs of parallel documents for "+ langpair+"------------");
-		ArrayList<String[]> bitextsALL = Bitexts.findPairsUIDS(indir, methods, languages, excludeSetFiles 
+		//ArrayList<String[]> bitextsALL_original = Bitexts.findPairsUIDS(indir, methods, languages, excludeSetFiles 
+		//		, outdir.getAbsolutePath(), urlReplaces, offlineXSLT, useImagePath, groundTruth);
+		
+		ArrayList<String[]> bitextsALL = Bitexts.findPairsUIDSList(indir, methods, languages, excludeListFiles 
 				, outdir.getAbsolutePath(), urlReplaces, offlineXSLT, useImagePath, groundTruth);
+		
+		
 		outTextList = new File(outBaseName.getAbsolutePath()+Constants.UNDERSCORE+langpair+XMLlist);
 		if (offlineXSLT)
 			outHTMLList = new File(outBaseName.getAbsolutePath()+Constants.UNDERSCORE+langpair+XMLHTMLlist);
@@ -111,10 +117,10 @@ public class PairDetector {
 		//FcFileUtils.moveZipDeleteFiles(indir,html, Arrays.asList(htmlExt, pdfExt), UNDERSCORE_STR, false);
 		//if (!offlineXSLT)
 		//	FcFileUtils.moveZipDeleteFiles(indir,transCes, Arrays.asList(transCesExt), UNDERSCORE_STR, true);
-		
-		LaserPrepro.laserprepro(indir, langpair,true);
-		//LaserPrepro.laserprepro(indir, langpair,false);
-		
+		if (bitextsALL!=null && !bitextsALL.isEmpty() ){
+			LaserPrepro.laserprepro(indir, langpair,true);
+			//LaserPrepro.laserprepro(indir, langpair,false);
+		}
 		if (bitextsALL!=null && !bitextsALL.isEmpty() )
 			return bitextsALL.size(); //LOGGER.info("document pairs in "+lang.substring(1)+"\t"+bitextsALL.size());
 		else
@@ -146,6 +152,11 @@ public class PairDetector {
 	public void  setExcludeSetFiles(Map<String, String> excludeSetFiles){
 		PairDetector.excludeSetFiles = excludeSetFiles;
 	}
+	public void  setExcludeListFiles(List<String> excludeListFiles){
+		PairDetector.excludeListFiles = excludeListFiles;
+	}
+	
+	
 	/**
 	 * if true, full paths of images in HTML are extracted
 	 * if false (default), filenames of images in HTML are extracted 

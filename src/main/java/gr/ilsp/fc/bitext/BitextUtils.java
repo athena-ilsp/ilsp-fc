@@ -355,10 +355,18 @@ public class BitextUtils {
 		return res;
 	}
 
-	
-	
-	
-	
+	public static Set<String> getDocsinPairsList(	List<String> idPairsFromTranslationLinksList) {
+		
+		Set<String> paired = new HashSet<String>();
+		
+		for (String pair:idPairsFromTranslationLinksList){
+			String[] pairs = pair.split(Constants.TAB);
+			paired.add(pairs[0]+Constants.DOT+input_type);
+			paired.add(pairs[1]+Constants.DOT+input_type);
+		}
+		
+		return paired;
+	}
 	
 	/**
 	 * identifies pairs based on common digits

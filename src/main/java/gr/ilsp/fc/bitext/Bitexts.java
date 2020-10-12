@@ -113,6 +113,23 @@ public class Bitexts {
 		boolean skip;
 		if (files==null || files.length==0)
 			return res;
+		int counter1 = 0, counter2 = 0;
+		for (String file:files){
+			String temp= new File(file).getName(); 
+			if (temp.startsWith(langs.get(0)))
+				counter1++;
+			if (temp.startsWith(langs.get(1)))
+				counter2++;
+		}
+		if (counter1==0){
+			LOGGER.info(" no documents for "+ langs.get(0));
+			return res;
+		}
+		if (counter2==0){
+			LOGGER.info(" no documents for "+ langs.get(1));
+			return res;
+		}
+		
 		for (int ii=0; ii<files.length ; ii++){
 			skip=false;
 			fileFinger =  files[ii]+appTXText;
@@ -522,5 +539,201 @@ public class Bitexts {
 			this.symbolList = listofSymbols;
 			this.fileFinger = fileFinger;
 		}
+	}
+
+	/**
+	 * Extracts features of each cesDoc and identifies pairs by several methods (links, URLS, images, digits, structure). 
+	 * It generates cesAlign files for each detected pair, their xslt transformation if asked, and text file(s) with a list of paths of generated cesAlign ( with a list of links pointing to transformed cesAlign)  
+	 * @param xmldir	: the directory with the cesDoc files
+	 * @param methods	: the methods to be applied for pair detection
+	 * @param langs		: targeted languages
+	 * @param hreflangIDPairs
+	 * @param outputDirName
+	 * @param urlRepls		: url patterns to be checked.
+	 * @param offlineXSLTT	: if true creates transformed cesAlign files.
+	 * @param keepimpath	: Used for image filename detection/storing. If true, uses the whole image path, else only the image filename.
+	 * @param groundTruth 
+	 * @return
+	 */
+	public static ArrayList<String[]> findPairsUIDSList(File xmldir, String methods, String[] langs,  List<String> hreflangIDPairs,
+			String outputDirName, String[][] urlRepls, boolean offlineXSLT, boolean keepimpath, File groundTruth) {
+		
+		List<String> targetlanguages = Arrays.asList(langs);
+		ArrayList<String[]> bitextsALL=new ArrayList<String[]>();
+		LOGGER.info("Feature extraction from generated cesDoc and corresponding HTML/msoffice/pdf files");
+		//extracts features and images of docs
+		features = Bitexts.extractXML_Features(xmldir, Arrays.asList(langs));
+		//Are there enough docs for identification of pairs?
+		int[] langfiles=BitextUtils.check_crawl_stats(langs, features);
+		if (langfiles==null)
+			return bitextsALL;
+		int minlangfiles=Collections.min(Arrays.asList((ArrayUtils.toObject(langfiles))));
+		LOGGER.info("document pairing for "+ langs[0]+Constants.HYPHEN+langs[1]);
+		if (methods.contains(im_type)|| methods.contains(imdi_type)){
+			imagesInHTML=ImageExtractor.findImages(xmldir,keepimpath, minlangfiles*2);
+			LOGGER.info( imagesInHTML.size() + " files contain at least one image");
+		}
+		//keeps features of docs that have been considered pairs
+		features_paired = new HashMap<String, DocVector>();
+
+		ArrayList<String[]> bitexts= new ArrayList<String[]>();
+
+		// Store pairs based on hreflangs (have been detected during crawl)
+		//generates cesAlign based on this method, updates list with bitexts, calculates tokens for this method
+		if (methods.contains(a_type)){
+			if (hreflangIDPairs!=null){
+				bitexts=BitextsURLs.findpairsHRefLangList(hreflangIDPairs, features,targetlanguages);
+				if (bitexts.size()>0){
+					LOGGER.info(bitexts.size()+ " pairs found (based on links).");
+					WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
+					moveFilesinPairs(bitexts,features, features_paired,imagesInHTML);
+					for (int ii=0;ii<bitexts.size();ii++)
+						bitextsALL.add(bitexts.get(ii));
+					BitextUtils.calcToksperLang(features_paired,bitexts,a_type);
+					LOGGER.info(features.size()+ " files still remained for pair detection.");
+				}else{
+					LOGGER.info("No pairs found (based on links)");
+				}
+			}else{
+				LOGGER.info("No pairs found (based on links)");
+			}
+		}
+		//Find URLs of docs and pairs based on URLs
+		if (methods.contains(u_type)){
+			if (features.size()>1){
+				//Find pairs based on URLs
+				bitexts=BitextsURLs.findpairsURLs(features,urlRepls,targetlanguages);
+				if (bitexts.size()>0){
+					LOGGER.info(bitexts.size()+ " pairs found (based on URLs).");
+					WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
+					moveFilesinPairs(bitexts,features, features_paired,imagesInHTML);
+					for (int ii=0;ii<bitexts.size();ii++)
+						bitextsALL.add(bitexts.get(ii));
+					BitextUtils.calcToksperLang(features_paired,bitexts,u_type);
+					LOGGER.info(features.size()+ " files still remained for pair detection.");
+				}else{
+					LOGGER.info("No pairs found (based on URLs)");
+				}
+			}
+		}
+		//Find pairs based on common images and digits
+
+		if (methods.contains(imdi_type)){
+			if (features.size()>1){
+				bitexts=new ArrayList<String[]>();
+				if (imagesInHTML.size()>1){
+					bitexts=BitextsImages.findpairsIMDI(imagesInHTML,features, targetlanguages);
+					//bitexts=BitextsImages.findpairsIMDI__(imagesInHTML,features, langs);
+					if (bitexts.size()>0){
+						LOGGER.info(bitexts.size()+ " pairs found (based on images and digits).");
+						WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
+						moveFilesinPairs(bitexts,features, features_paired,imagesInHTML);
+						for (int ii=0;ii<bitexts.size();ii++)
+							bitextsALL.add(bitexts.get(ii));
+						BitextUtils.calcToksperLang(features_paired,bitexts,imdi_type);
+						LOGGER.info(features.size()+ " files still remained for pair detection.");
+					}else
+						LOGGER.info("No pairs found (based on combination of images and digits)");
+				}else{
+					LOGGER.info("No pairs found (based on combination of images and digits), no images are available");
+				}
+			}
+		}
+		//Find pairs based on common digits
+		if (methods.contains(d_type)){
+			if (features.size()>1){
+				//bitexts = BitextsDigits.findpairsDig__(features, langs);
+				bitexts = BitextsDigits.findpairsDig(features, targetlanguages);
+				if (bitexts.size()>0){
+					LOGGER.info(bitexts.size()+ " pairs found (based on digits).");
+					WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
+					moveFilesinPairs(bitexts,features, features_paired,imagesInHTML);
+					for (int ii=0;ii<bitexts.size();ii++)
+						bitextsALL.add(bitexts.get(ii));
+					BitextUtils.calcToksperLang(features_paired,bitexts,d_type);
+					LOGGER.info(features.size()+ " files still remained for pair detection.");
+				}else
+					LOGGER.info("No pairs found (based on common digits)");
+			}
+		}
+		//Find pairs based on common images
+		if (methods.contains(im_type)){
+			if (features.size()>1){
+				bitexts=new ArrayList<String[]>();
+				if (imagesInHTML.size()>1){
+					bitexts=BitextsImages.findpairsIM(imagesInHTML,features, targetlanguages);
+					//bitexts=BitextsImages.findpairsIM__(imagesInHTML,features,langs);
+					if (bitexts.size()>0){
+						LOGGER.info(bitexts.size()+ " pairs found (based on images).");
+						WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
+						moveFilesinPairs(bitexts,features, features_paired,imagesInHTML);
+						for (int ii=0;ii<bitexts.size();ii++)
+							bitextsALL.add(bitexts.get(ii));
+						BitextUtils.calcToksperLang(features_paired,bitexts,im_type);
+						LOGGER.info(features.size()+ " files still remained for pair detection.");
+					}else
+						LOGGER.info("No pairs found (based on images)");
+				}else
+					LOGGER.info("No pairs found (based on images) since no images are available.");	
+			}
+		}
+		//Find pairs based on similar structures
+		if (methods.contains(h_type) || methods.contains(m_type) || methods.contains(l_type)){
+			if (features.size()>1){
+				//bitexts  = BitextsStruct.findpairsXML_SVM_NEW__(xmldir,features, langs);
+				bitexts  = BitextsStruct.findpairsXML_SVM_NEW(xmldir,features);
+				LOGGER.info("Candidate multi-pairs (based on structure) are : "+bitexts.size());
+				ArrayList<String[]> bitextsSTRUCT = BitextsStruct.findBestPairs_SVM_NEW(bitexts,methods);
+				if (bitextsSTRUCT.size()>0){
+					int[] counters = BitextsStruct.getPairProps(bitextsSTRUCT);
+					WriteBitexts.writeXMLs(outputDirName,bitextsSTRUCT,offlineXSLT);
+					LOGGER.info("Pairs found (based on structure) : "+bitextsSTRUCT.size());
+					LOGGER.info("(with high similarity) : " + counters[0]);
+					if (counters[0]>0)
+						BitextUtils.calcToksperLang(features,bitextsSTRUCT,h_struct_simil);
+					if (methods.contains(m_type)){
+						LOGGER.info("(with medium similarity) : " + counters[1]);
+						if (counters[1]>0)
+							BitextUtils.calcToksperLang(features,bitextsSTRUCT,m_struct_simil);
+					}
+					if (methods.contains(l_type)){
+						LOGGER.info("(with low similarity) :  "+ counters[2]);
+						if (counters[2]>0)
+							BitextUtils.calcToksperLang(features,bitextsSTRUCT,l_struct_simil);
+					}
+					moveFilesinPairs(bitextsSTRUCT,features, features_paired,imagesInHTML);
+					for (int ii=0;ii<bitextsSTRUCT.size();ii++)
+						bitextsALL.add(bitextsSTRUCT.get(ii));
+				}else
+					LOGGER.info("No pairs found (based on structure)");
+			}
+		}
+		//Find pairs based on common symbols
+		/*if (methods.contains(s_type)){	
+				if (features.size()>1){
+					bitexts = BitextsDigits.findpairsSym(features);
+					if (bitexts.size()>0){
+						LOGGER.info(bitexts.size()+ " pairs found (based on symbols).");
+						WriteBitexts.writeXMLs(outputDirName,bitexts,offlineXSLT);
+						moveFilesinPairs(bitexts,features, features_paired);
+						for (int ii=0;ii<bitexts.size();ii++)
+							bitextsALL.add(bitexts.get(ii));
+						BitextUtils.calcToksperLang(features_paired,bitexts,d_type);
+						LOGGER.info(features.size()+ " files still remained for pair detection.");
+					}else
+						LOGGER.info("No pairs found (based on common digits)");
+				}
+			}*/
+		//Total results on document level
+		if (bitextsALL.size()>0){
+			bitextsALL = BitextUtils.sortbyLength(bitextsALL);
+			BitextUtils.calcToksperLang(features_paired,bitextsALL,"");
+			if (groundTruth!=null){
+				evalPairingMethod(bitextsALL, groundTruth);
+			}
+		}else{
+			LOGGER.info("No pairs found");
+		}
+		return bitextsALL;
 	}
 }

@@ -5,7 +5,6 @@ import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.fc.utils.Statistics;
 import gr.ilsp.nlp.commons.Constants;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 public class BitextsURLs {
@@ -97,6 +95,81 @@ public class BitextsURLs {
 		return pairs;
 	}
 
+	/**
+	 * get pairs have been detected as pairs during crawl
+	 * @param hreflangIDPairs holds id of file and its lang and id of paired file and its lang as value (ids and langs are seperated by "-") 
+	 * @param features holds filename as key and its features in DocVector as value
+	 * @return list of pairs (id1, id2, lang1, lang2, type="a", total num of tokens)
+	 */	
+	public static ArrayList<String[]> findpairsHRefLangList(List<String> hreflangIDPairs, HashMap<String, DocVector> features, List<String> targetlanguages) {
+		LOGGER.info("Examining pages based on links");
+		ArrayList<String[]> pairs = new ArrayList<String[]>();
+		if (hreflangIDPairs==null){
+			LOGGER.info("no links have been identified");
+			return pairs;
+		}
+		if (features==null){
+			LOGGER.info("no feauters have been extracted");
+			return pairs;
+		}
+		LOGGER.info("Examining pages based on links");
+		
+		Set<String> paired = new HashSet<>();
+		
+		for (String pair:hreflangIDPairs){
+			String[] items = pair.split(Constants.TAB);
+			int p1 = items[0].lastIndexOf(Constants.HYPHEN);
+			String lang1 = items[0].substring(0, p1);
+			if (!targetlanguages.contains(lang1))
+				continue;
+			String id1 = items[0].substring(p1+1);
+			
+			int p2 = items[1].lastIndexOf(Constants.HYPHEN);
+			String lang2 = items[1].substring(0, p2);
+			if (!targetlanguages.contains(lang2))
+				continue;
+			String id2 = items[1].substring(p2+1);
+			
+			if (lang1.equals(lang2))
+				continue;
+			if (paired.contains(id1) && paired.contains(id2)) // Do not add the other pair direction. 
+				continue;
+			//FIXME multiple matches should be examined
+			if (paired.contains(items[0])){ // if multiple matches are found, keep only the first  
+				System.out.println("Multiple matches :" + items[0]);
+				continue;
+			}
+			if (paired.contains(items[1])){// if multiple matches are found, keep only the first. 
+				System.out.println("Multiple matches :" + items[1]);
+				continue;
+			}
+			DocVector dv1  = features.get(items[0]);
+			if (dv1==null){
+				System.out.println("no docvector for doc in " + items[0]);
+				continue;
+			}
+			DocVector dv2  = features.get(items[1]);
+			if (dv2==null){
+				System.out.println("no docvector for doc in " + items[1]);
+				continue;
+			}
+			
+			String temp[] = {items[0], items[1], lang1,lang2, pair_type_link, Double.toString(dv1.numToksnoOOI+dv2.numToksnoOOI)};
+			if (items[0].compareTo(items[1])>0){
+				temp[0] = items[1];
+				temp[1] = items[0];
+				temp[2] = lang2;
+				temp[3] = lang1;
+			}
+			pairs.add(temp);
+			paired.add(items[0]);
+			paired.add(items[1]);
+		}
+		return pairs;
+	}
+	
+	
+	
 	/**
 	 * Detect pairs of documents based on special patterns detected in URLs. 
 	 * Returns detected pairs: pair[0]=filename1, pair[1]=filename2, pair[2]=lang1, pair[3]=lang2, pair[4]="u" (method)

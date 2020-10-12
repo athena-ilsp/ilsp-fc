@@ -7,6 +7,7 @@ import gr.ilsp.fc.utils.ISOLangCodes;
 import gr.ilsp.nlp.commons.Constants;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,7 +30,7 @@ import cascading.tuple.TupleEntryIterator;
 public class BitextsTranslationLinks {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BitextsTranslationLinks.class);
-	
+
 	/**
 	 * Scans a directory with results from a crawl and returns a map of
 	 * URL1_L1->URL2_L2, based on translation links from each datum's
@@ -76,6 +77,7 @@ public class BitextsTranslationLinks {
 				TupleEntry entry = iter.next();
 				ExtendedParsedDatum datum = new ExtendedParsedDatum(entry);
 				String myUrl = datum.getUrl();
+				System.out.println(myUrl);
 				String myLang = datum.getLanguage();
 				ExtendedOutlink[] translationOutLinks = datum
 						.getTranslationOutlinks();
@@ -88,7 +90,7 @@ public class BitextsTranslationLinks {
 						}
 						urlPairsFromTranslationLinks.put(myUrl + Constants.UNDERSCORE + myLang,
 								translationOutLink.getToUrl() + Constants.UNDERSCORE
-										+ outLinkLang);
+								+ outLinkLang);
 						LOGGER.debug("Adding " + translationOutLink.toString());
 					}
 				}
@@ -121,7 +123,7 @@ public class BitextsTranslationLinks {
 
 		urlPairsFromTranslationLinks = normalizeUrlPairs(urlPairsFromTranslationLinks);
 		urlsToIds = normalizeUrlPairs(urlsToIds);
-			
+
 		Map<String, String> idPairsFromTranslationLinks = new HashMap<>();
 		Set<String> paired = new HashSet<>();
 
@@ -169,5 +171,125 @@ public class BitextsTranslationLinks {
 		}
 		return res;
 	}
+
+
+	/**
+	 * Scans a directory with results from a crawl and returns a map of
+	 * URL1_L1->URL2_L2, based on translation links from each datum's
+	 * datum.getTranslationOutlinks(). These translation links were collected
+	 * during the crawl by checking HTML pages a) for links with the hreflang
+	 * attribute in links; and b) for other translation links, discovered with
+	 * heuristics.
+	 * 
+	 * @param conf
+	 * @param langs
+	 * @param crawlDirName
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<String> getURLPairsFromTranslationLinksList(JobConf conf,
+			List<String> langs, String crawlDirName) throws IOException {
+
+		List<String> urlPairsFromTranslationLinks = new ArrayList<String>();
+		Path crawlDirPath = new Path(crawlDirName);
+		FileSystem fs = crawlDirPath.getFileSystem(conf);
+
+		if (!fs.exists(crawlDirPath)) {
+			LOGGER.error("Prior crawl output directory does not exist: " + crawlDirName);
+			LOGGER.error("Returning an empty map of URL pairs");
+			return urlPairsFromTranslationLinks;
+		}
+
+		// FIXME: Should the following be -1 as in the exportXML step or 0?
+		int prevLoop = -1;
+		Path curDirPath = null;
+
+		while ((curDirPath = CrawlDirUtils.findNextLoopDir(fs, crawlDirPath,
+				prevLoop)) != null) {
+
+			Path parseDbPath = new Path(curDirPath,
+					CrawlerDirConfig.PARSE_SUBDIR_NAME);
+			Tap parseDbTap = new Hfs(new SequenceFile(
+					ExtendedParsedDatum.FIELDS), parseDbPath.toUri().toString());
+			LOGGER.debug("Examining " + parseDbPath.toUri().toString());
+			TupleEntryIterator iter = parseDbTap.openForRead(conf);
+
+
+			while (iter.hasNext()) {
+				TupleEntry entry = iter.next();
+				ExtendedParsedDatum datum = new ExtendedParsedDatum(entry);
+				String myUrl = datum.getUrl();
+				System.out.println(myUrl);
+				String myLang = datum.getLanguage();
+				ExtendedOutlink[] translationOutLinks = datum
+						.getTranslationOutlinks();
+				for (ExtendedOutlink translationOutLink : translationOutLinks) {
+					String outLinkLang = ISOLangCodes.get3LetterCode(translationOutLink.getHrefLang());
+					if (langs.contains(outLinkLang)) {			
+						// Check for pages wrongly pointing to themselves. Seems to be an issue for certain sites .
+						if (myUrl.equals(translationOutLink.getToUrl()) || myLang.equals(outLinkLang)) {
+							continue;
+						}
+						urlPairsFromTranslationLinks.add(myUrl + Constants.UNDERSCORE + myLang +Constants.TAB+
+								translationOutLink.getToUrl() + Constants.UNDERSCORE
+								+ outLinkLang);
+						LOGGER.info("Adding " + translationOutLink.toString());
+					}
+				}
+			}
+
+			int curLoop = CrawlDirUtils.extractLoopNumber(curDirPath);
+			if (curLoop != prevLoop + 1) {
+				LOGGER.warn(String.format(
+						"Missing directories between %d and %d", prevLoop,
+						curLoop));
+			}
+			prevLoop = curLoop;
+		}
+		// all pairs based on links (birectional or not) are considered
+		return urlPairsFromTranslationLinks;
+	}
+
+
+	/**
+	 * Converts a list of urlPairsFromTranslationLinks to a list of
+	 * idPairsFromTranslationLinks, using a map of urlsToIds, generated during
+	 * exporting.
+	 * 
+	 * @param urlPairsFromTranslationLinksList URL1 \t URL2
+	 * @param urlsToIds URL1-->File1
+	 * @return List File1 \t File2
+	 */
+	public static List<String> getIdPairsFromTranslationLinksList (
+			List<String> urlPairsFromTranslationLinksList,
+			Map<String, String> urlsToIds) {
+
+		urlsToIds = normalizeUrlPairs(urlsToIds);
+
+		List<String> idPairsFromTranslationLinksList = new ArrayList<String>();
+		for (String entry:urlPairsFromTranslationLinksList){
+			String[] temp = entry.split(Constants.TAB);
+			int p1 = temp[0].lastIndexOf(Constants.UNDERSCORE);
+			String url1 = temp[0].substring(0, p1);
+			url1 = url1.replaceAll("https://", "");
+			url1 = url1.replaceAll("http://", "");
+			int p2 = temp[1].lastIndexOf(Constants.UNDERSCORE);
+			String url2 = temp[1].substring(0, p2);
+			url2 = url2.replaceAll("https://", "");
+			url2 = url2.replaceAll("http://", "");
+			if (urlsToIds.containsKey(url1) && (urlsToIds.containsKey(url2))){
+				String id1 = urlsToIds.get(url1);
+				String id2 = urlsToIds.get(url2);
+				String newpair = "";
+				if (id1.compareTo(id2)<0)
+					newpair = id1+Constants.TAB+id2;
+				else
+					newpair = id2+Constants.TAB+id1;
+				if (!idPairsFromTranslationLinksList.contains(newpair))
+					idPairsFromTranslationLinksList.add(newpair);
+			}
+		}
+		return idPairsFromTranslationLinksList;
+	} 
 
 }
