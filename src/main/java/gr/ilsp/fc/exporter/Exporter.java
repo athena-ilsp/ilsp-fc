@@ -220,10 +220,10 @@ public class Exporter {
 
 	private static Map<String, Integer> langnumMap = new HashMap<String, Integer>(); 
 
-	public static final String covidterms = "covid;corona;κορων;κορον;korona;kóróna;koroona;sars;"
+	/*public static final String covidterms = "covid;corona;κορων;κορον;korona;kóróna;koroona;sars;"
 			+ "pandem;πανδημ;világjárvány;pandém;epidem;coróin;víreas;"
 			+ "lockdown;καραντ;confinamento;emergenc;confinement;lezárás;απαγόρευσ;ausgangssperre;járvány;misure di blocco;"
-			+ "kоронавирус;пандемията;choróinvíris;paindéim;كوفيد;大流行疫情";
+			+ "kоронавирус;пандемията;choróinvíris;paindéim;كوفيد;大流行疫情";*/
 	
 	//public static final String covidterms = "parnassus;παρνασ";
 	/*	private static void processCrawlDb(JobConf conf, Path curDirPath, boolean exportDb) throws IOException {
