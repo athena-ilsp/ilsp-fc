@@ -18,12 +18,14 @@ import gr.ilsp.nlp.commons.Constants;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 //import java.util.UUID;
+
 
 
 import org.apache.commons.configuration.CompositeConfiguration;
@@ -63,8 +65,10 @@ public class Run {
 
 		CrawlerO cro=new CrawlerO();
 		Map<String, String> uRLPairsFromTranslationLinks = new HashMap<String, String>();	//URL pairs identified by translation links
+		List<String> uRLPairsFromTranslationLinksList = new ArrayList<String>();	//URL pairs identified by translation links
 		Map<String, String> idPairsFromTranslationLinks = new HashMap<String, String>();	//ids of files participated into document pairs due to translation links  
-
+		List<String> idPairsFromTranslationLinksList = new ArrayList<String>(); //ids of files participated into document pairs due to translation links
+		
 		Exporter exp = new Exporter();
 		Map<String,Integer> numInLangMap = new HashMap<String,Integer>();		//number of documents in each language
 		Map<String,Integer> numInLangPairMap = new HashMap<String,Integer>();	//number of document pairs in each language pair
@@ -88,6 +92,7 @@ public class Run {
 			CrawlerOptions cr_options = getCrawlerOptions(run_options);
 			cro=Crawler.crawl(cr_options);
 			uRLPairsFromTranslationLinks = cro.getURLPairsFromTranslationLinks();
+			uRLPairsFromTranslationLinksList = cro.getURLPairsFromTranslationLinksList();
 			crawl=true;
 		}
 
@@ -129,7 +134,9 @@ public class Run {
 			numInLangMap = exp.export(false);
 			urlsToIds = exp.getUrlsToIds();
 			idPairsFromTranslationLinks = BitextsTranslationLinks.getIdPairsFromTranslationLinks(uRLPairsFromTranslationLinks, urlsToIds);
-			filesinPairs = BitextUtils.getDocsinPairs(idPairsFromTranslationLinks);
+			idPairsFromTranslationLinksList = BitextsTranslationLinks.getIdPairsFromTranslationLinksList(uRLPairsFromTranslationLinksList, urlsToIds);
+			//filesinPairs = BitextUtils.getDocsinPairs(idPairsFromTranslationLinks);
+			filesinPairs = BitextUtils.getDocsinPairsList(idPairsFromTranslationLinksList);
 			export=true;
 		}
 
@@ -163,16 +170,28 @@ public class Run {
 			LOGGER.info("---------------------------------------------------");
 			LOGGER.info("---------------Running PairDetector----------------");
 			LOGGER.info("---------------------------------------------------");
-			List<String> langpairs = run_options.getLangPairs();
-			for (String langpair:langpairs){
-				if (export){ //then there is information about number of available documents in each targeted language //FIXME it is probable that numbers have been changed due to (near)deduplication
-					boolean stop = noDocsForLangPair(numInLangMap, langpair.split(Constants.SEMICOLON));
-					if (stop){
-						numInLangPairMap.put(langpair,0);
-						LOGGER.info("No pairs for "+ langpair.replaceAll(Constants.SEMICOLON, Constants.HYPHEN));
-						continue;
-					}
+			List<String> alllangpairs = run_options.getLangPairs();
+			List<String> langpairs = new ArrayList<String>();
+			for (String langpair:alllangpairs){
+				String[] tmp = langpair.split(Constants.SEMICOLON);
+				if (numInLangMap.get(tmp[0])==0 || numInLangMap.get(tmp[1])==0){
+					numInLangPairMap.put(langpair,0);
+					continue;
 				}
+				langpairs.add(langpair);
+			}
+			LOGGER.info("Language pairs to be examined are: "+langpairs.size());
+			
+			
+			for (String langpair:langpairs){
+				//if (export){ //then there is information about number of available documents in each targeted language //FIXME it is probable that numbers have been changed due to (near)deduplication
+					//boolean stop = noDocsForLangPair(numInLangMap, langpair.split(Constants.SEMICOLON));
+					//if (stop){
+					//	numInLangPairMap.put(langpair,0);
+					//	LOGGER.info("No pairs for "+ langpair.replaceAll(Constants.SEMICOLON, Constants.HYPHEN));
+					//	continue;
+					//}
+				//}
 				pd.setLanguage(langpair);
 				//source and target directories are the same (i.e. cesAlign files are stored next to the cesDoc files)
 				if (export){
@@ -200,10 +219,13 @@ public class Run {
 					}
 				}
 				pd.setBaseName(run_options.getBaseName());
-				if (crawl && export)
-					pd.setExcludeSetFiles(idPairsFromTranslationLinks);
-				else	
+				if (crawl && export){
+					//pd.setExcludeSetFiles(idPairsFromTranslationLinks);
+					pd.setExcludeListFiles(idPairsFromTranslationLinksList);
+				}else{	
 					pd.setExcludeSetFiles(null);
+					pd.setExcludeListFiles(null);
+				}
 				pd.setUseImagepath(run_options.getImpath());
 				pd.setApplyXSLT(run_options.isOfflineXSLT());
 				pd.setURL_REPL(run_options.getUrlReplaces());
@@ -391,7 +413,7 @@ public class Run {
 	 * @param numInLangMap
 	 * @param langs
 	 * @return
-	 */
+	 *//*
 	private static boolean noDocsForLangPair(Map<String, Integer> numInLangMap,	String[] langs) {
 		for (String lang:langs){
 			if (numInLangMap.get(lang)==0){
@@ -400,7 +422,7 @@ public class Run {
 			}
 		}
 		return false;
-	}
+	}*/
 
 	/**
 	 * keeps the subset of RunOptions that concern CrawlerOptions 
