@@ -372,8 +372,21 @@ public class Crawler {
 				e.printStackTrace();
 			}
 		}
-		////////////////////////////////////////////////////////////////////////////////////////////////////////
 		cr.setURLPairsFromTranslationLinks(urlPairsFromTranslationLinks);
+		
+		List<String> urlPairsFromTranslationLinksList = new ArrayList<String>();
+		if (cr.type.equals(p_type)){
+			try {
+				urlPairsFromTranslationLinksList = BitextsTranslationLinks.getURLPairsFromTranslationLinksList(cr.jobconf, 
+						ISOLangCodes.get3LetterCodes(cr.targetlangs), cr.outputDir.getAbsolutePath());
+			} catch (IOException e) {
+				LOGGER.warn("problem in defining pairs based on links");
+				e.printStackTrace();
+			}
+		}
+		cr.setURLPairsFromTranslationLinksList(urlPairsFromTranslationLinksList);
+		////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		System.out.println();
 		LOGGER.info("Crawler ended");
 		/*} catch (PlannerException e) {

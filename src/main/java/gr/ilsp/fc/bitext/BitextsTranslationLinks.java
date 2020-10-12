@@ -77,7 +77,7 @@ public class BitextsTranslationLinks {
 				TupleEntry entry = iter.next();
 				ExtendedParsedDatum datum = new ExtendedParsedDatum(entry);
 				String myUrl = datum.getUrl();
-				System.out.println(myUrl);
+				LOGGER.debug(myUrl);
 				String myLang = datum.getLanguage();
 				ExtendedOutlink[] translationOutLinks = datum
 						.getTranslationOutlinks();

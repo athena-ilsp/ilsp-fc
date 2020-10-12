@@ -73,7 +73,8 @@ public class CrawlerO{
 	protected HashMap<String, String> mapLangs;
 	protected String[] langKeys;
 	protected Map<String, String> uRLPairsFromTranslationLinks;
-
+	protected List<String> uRLPairsFromTranslationLinksList;
+	
 	protected int maxTunnelingDepth;
 	protected List<String[]> linkAttrs;
 	protected File topicFile;
@@ -106,6 +107,25 @@ public class CrawlerO{
 			Map<String, String> uRLPairsFromTranslationLinks) {
 		this.uRLPairsFromTranslationLinks = uRLPairsFromTranslationLinks;
 	}
+	
+	/**
+	 * @return the urlPairsFromTranslationLinksList, the pairs of URLs detected during crawling as translation links
+	 */
+	public List<String> getURLPairsFromTranslationLinksList() {
+		return uRLPairsFromTranslationLinksList;
+	}
+	
+	
+	/**
+	 * @param uRLPairsFromTranslationLinksList 
+	 * @param urlPairsFromTranslationLinksList (the URL pairs found during crawling as translation links) 
+	 */
+	public void setURLPairsFromTranslationLinksList(
+			 List<String> uRLPairsFromTranslationLinksList) {
+		this.uRLPairsFromTranslationLinksList = uRLPairsFromTranslationLinksList;
+	}
+	
+	
 	/**
 	 * @return the jobconf
 	 */
