@@ -220,11 +220,15 @@ public class Exporter {
 
 	private static Map<String, Integer> langnumMap = new HashMap<String, Integer>(); 
 
-	/*public static final String covidterms = "covid;corona;κορων;κορον;korona;kóróna;koroona;sars;"
+	public static final String covidterms1 = "covid;corona;κορων;κορον;korona;kóróna;koroona;sars;"
 			+ "pandem;πανδημ;világjárvány;pandém;epidem;coróin;víreas;"
 			+ "lockdown;καραντ;confinamento;emergenc;confinement;lezárás;απαγόρευσ;ausgangssperre;járvány;misure di blocco;"
-			+ "kоронавирус;пандемията;choróinvíris;paindéim;كوفيد;大流行疫情";*/
-	
+			+ "kоронавирус;корона;пандемията;choróinvíris;paindéim;كوفيد;大流行疫情;karantina;"
+			+ "εμβολι;εμβολί;vaccin;vaksinim;vaccin;تلقيح;ваксинация;ваксиниране;Impfung;Schutzimpfung;Vakzination;"
+			+ "vaktsineerimine;vaktsinatsioon;vacsaíniú;bólusetning;vacunación;vacuna;cijepljenje;vakcinacija"
+			+ "vaccinaz;vakcinācija;skiepijimas;vakcinavimas;tilqim;vaċċinazzjoni;vaksinasjon;oltás;szczepionka;"
+			+ "wakcynacja;vacinação;вакцинация;прививка;вакцинација;očkovanie;cepljenje;aşılama"
+			+ "očkování;rokotus;فيروس كورونا";
 	//public static final String covidterms = "parnassus;παρνασ";
 	/*	private static void processCrawlDb(JobConf conf, Path curDirPath, boolean exportDb) throws IOException {
 		//TupleEntryIterator iter;
