@@ -225,6 +225,9 @@ public class TikaCallableParser implements Callable<ExtendedParsedDatum> {
 				}
 				outlinks = filterOutLinks(outlinks, _urlfilterstr);
 			}
+			/*for (ExtendedOutlink tt:outlinks){
+				System.out.println(tt.getToUrl());
+			}*/
 			LOGGER.debug(outlinks.length+"\t"+_metadata.get(Metadata.CONTENT_LOCATION));
 			LOGGER.debug(_metadata.get(Metadata.CONTENT_LOCATION) + _metadata.get(Metadata.LICENSE_URL));
 			return new ExtendedParsedDatum(_metadata.get(Metadata.RESOURCE_NAME_KEY), null, content, lang,

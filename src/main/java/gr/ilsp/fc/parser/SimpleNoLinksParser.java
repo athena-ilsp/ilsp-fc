@@ -159,7 +159,7 @@ public class SimpleNoLinksParser implements Serializable, Callable<ExtendedParse
 			URL baseUrl = getContentLocation(fetchedDatum);
 			LOGGER.debug(baseUrl +"\t"+ metadata.get("Content-Type"));
 			metadata.add(Metadata.CONTENT_LOCATION, baseUrl.toExternalForm());
-			Callable<ExtendedParsedDatum> callable;
+			Callable<ExtendedParsedDatum> callable = null;
 			if (metadata.get("Content-Type").contains(pdfmime)){	
 				_parser=null; 
 				LOGGER.debug("pdf reached");
