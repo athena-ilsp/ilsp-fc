@@ -29,3 +29,5 @@ slk>slk,sk,Slovak,slovenčina,slovenský jazyk,Slovensky,slo
 est>est,et,estonian,eesti
 srp>srp,sr,Serbian,српски језик,Srpski
 mlt>mlt,Maltese,Malti,mt
+mkd>mkd,mk,Macedonian,македонски,makedonski
+sqi>sqi,sq,Albanian,Shqip,alb,al

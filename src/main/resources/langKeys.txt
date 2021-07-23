@@ -33,7 +33,6 @@ lav>lav,lv,Latviešu,Latviski,latviešu valoda,Latviešu
 lit>lit,lt,Lithuanian,lietuvių kalba,Lietuviškai
 mal>mal
 mar>mar
-mkd>mkd
 mlt>mlt,Maltese,Malti,mt
 nep>nep
 nld>nld,nl,Dutch,dutch,Nederlands,Vlaams,dut
@@ -49,7 +48,8 @@ slk>slk,sk,Slovak,slovenčina,slovenský jazyk,Slovensky,slo
 slv>slv,sl,Slovene,sl,slovenski jezik,slovenščina,Slovensko
 som>som
 spa>spa,ES,es,Spanish,español,(es),Español [es],[es],Español,Spain,España (ES)
-sqi>sqi
+mkd>mkd,mk,Macedonian,македонски,makedonski
+sqi>sqi,sq,Albanian,Shqip,alb,al
 srp>srp,sr,Serbian,српски језик,Srpski
 swa>swa
 swe>swe,sv,Swedish,swedish,(sv),[sv],svenska
