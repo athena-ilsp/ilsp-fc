@@ -294,8 +294,8 @@ public class TMXHandlerUtils {
 		List<SegPair> segpairs = new ArrayList<SegPair>();
 		Tmx tmx;
 		try {
-			//tmx = TmxMarshallerUnmarshaller.getInstance().unmarshal(new FileReader(tmxFile));
-			tmx = TmxMarshallerUnmarshaller.getInstance().unmarshal(new InputStreamReader(new FileInputStream(tmxFile.getAbsolutePath()), Constants.UTF8));
+			tmx = TmxMarshallerUnmarshaller.getInstance().unmarshal(new FileReader(tmxFile));
+			//tmx = TmxMarshallerUnmarshaller.getInstance().unmarshal(new InputStreamReader(new FileInputStream(tmxFile.getAbsolutePath()), Constants.UTF8));
 			int alignments = 0;
 			int sourceSegments = 0;
 			int targetSegments = 0;
@@ -359,10 +359,10 @@ public class TMXHandlerUtils {
 		} catch (FileNotFoundException e) {
 			LOGGER.warn("Problem in reading "+ tmxFile.getAbsolutePath());
 			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			LOGGER.warn("Problem in encoding of "+ tmxFile.getAbsolutePath());
-			e.printStackTrace();
-		}
+		} //catch (UnsupportedEncodingException e) {
+		//	LOGGER.warn("Problem in encoding of "+ tmxFile.getAbsolutePath());
+		//	e.printStackTrace();
+		//}
 		return segpairs;
 	}
 

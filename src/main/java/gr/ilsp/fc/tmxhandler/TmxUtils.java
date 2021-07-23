@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
+//import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -17,11 +17,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.loomchild.maligna.coretypes.Alignment;
+import net.loomchild.maligna.util.bind.tmx.Prop;
+import net.loomchild.maligna.util.bind.tmx.Tu;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -66,13 +70,275 @@ public class TmxUtils {
 	private final static String mes7 = "duplicate";
 	private final static String mes8 = "e-mail address";
 	private final static String mes9 = "url";
-
+	private static final String header = "bg\tcs\tda\tde\tel\ten\tes\tet\tfi\tfr\tga\thr\thu\tis\tit\tlt\tlv\tmt\tnl\tno\tpl\tpt\tro\tsk\tsl\tsv\tru\ttr";
 	//private static int MIN_TOKEN_LEN=3;	//tokens with less than MIN_TOKEN_LEN are excluded
 	//private static float QUANT_RATE= (float) 0.01;
 	//private static int QAUNT_DEFAULT=1; // quantization interval 
 
 
-	public static void main(String[] args) throws Exception{  //throws Exception
+	public static void main(String[] args) throws Exception{  
+		
+		//process403();
+		//System.exit(0);
+		//correctantibiotic(new File("C:/Users/vpapa/ELRC/ELRC_3192_antibiotic-ecdc/last_tsv"));
+		//System.exit(0);
+		
+		//File[] tmxfiles = new File("C:/Users/vpapa/ELRC/kenneth/2389_2390_2542/2542").listFiles();
+		/*File[] tmxfiles = new File("C:/Users/vpapa/ELRC/kenneth/403/tmx").listFiles();
+		for (File tmxfile:tmxfiles){
+			if (tmxfile.getName().endsWith(".tmx")){
+				//List<String> aaa = FileUtils.readLines(tmxfile, Constants.UTF8);
+				//String lang1= tmxfile.getName().substring(7, 9);
+				//String lang2= tmxfile.getName().substring(10, 12);
+				//tmx2tsv1(tmxfile, new File(tmxfile.getAbsolutePath()+".tsv"), lang1, lang2);
+
+				String lang1= tmxfile.getName().substring(0, 2);
+				String lang2= tmxfile.getName().substring(3, 5);
+				//String lang1= tmxfile.getName().substring(4, 6);
+				//String lang2= tmxfile.getName().substring(7, 9);
+				//tmx2txts(tmxfile,lang1, lang2);
+				System.out.println(lang1 + " - " + lang2);
+				tmx2lasertsv(tmxfile, new File(tmxfile.getAbsolutePath()+".tsv"), lang1, lang2);
+			}
+		}
+		
+		System.exit(0);*/
+		
+		
+		String mode = args[0];
+		if (mode.equals("tsvs2tmxs")){
+			String basepath =args[1];
+			String thr = args[2];
+			tsvs2tmxs(basepath, thr);
+			File[] files  = (new File(basepath)).listFiles();
+			for (File file:files){
+				if (file.getName().contains("_1.tmx"))
+					file.delete();
+			}
+		}
+		if (mode.equals("tsvs2moses")){
+			String basepath =args[1];
+			String thr = args[2];
+			tsvs2moses(basepath, thr);
+		}
+		int rawcount=0, filtcount=0, rawtuvs=0;
+		if (mode.equals("stats1")){
+			String[] langs = header.split("\t");
+			String basepath =args[1];
+			String thr = args[2];
+			File indir = new File(basepath);
+			int[][] rawnums = new int[langs.length+2][langs.length];
+			int[][] filternums = new int[langs.length+2][langs.length];
+			for (int ii=0;ii<langs.length;ii++){
+				for (int jj=0;jj<langs.length;jj++){
+					rawnums[ii][jj] = 0;
+					filternums[ii][jj] = 0;
+				}
+			}
+			String[] ext = new String[1]; ext[0]="txt";
+			List<File> statfiles = (List<File>) FileUtils.listFiles(indir, ext, true);
+			int index1 = -1, index2 = -1;
+			for (File statfile:statfiles){
+				if (statfile.getName().equals("stats_"+thr+".txt")){
+					List<String> stats = FileUtils.readLines(statfile, Constants.UTF8);
+					for (String stat:stats){
+						String[] statitems = stat.split("\t");
+						if (statitems[0].length()>2){
+							String lang1 = statitems[0].substring(0, 2);
+							String lang2 = statitems[0].substring(3, 5);
+							//System.out.println(lang1);
+							//System.out.println(lang2);
+							index1=-1; index2 = -1;
+							for (int ii=0;ii<langs.length;ii++){
+								if (langs[ii].equals(lang1))
+									index1 = ii;
+								if (langs[ii].equals(lang2))
+									index2 = ii;
+							}
+							if (index1>-1 && index2>-1 && index1!=index2){
+								if (index2>index1)
+									rawnums[index2][index1] = rawnums[index2][index1] + Integer.parseInt(statitems[1]);
+								else
+									rawnums[index1][index2] = rawnums[index1][index2] + Integer.parseInt(statitems[1]);
+								if (index2<index1)
+									filternums[index2][index1] = filternums[index2][index1] + Integer.parseInt(statitems[3]);
+								else
+									filternums[index1][index2] = filternums[index1][index2] + Integer.parseInt(statitems[3]);
+							}
+						}
+						if (statitems[0].equals("total TUs")){
+							rawnums[langs.length][0] = rawnums[langs.length][0] + Integer.parseInt(statitems[1]);
+							filternums[langs.length][0] = filternums[langs.length][0] + Integer.parseInt(statitems[3]);
+						}
+						if (statitems[0].equals("unique raw TUVs")){
+							rawnums[langs.length+1][0] = rawnums[langs.length+1][0] + Integer.parseInt(statitems[1]);
+							filternums[langs.length+1][0] = filternums[langs.length+1][0] + Integer.parseInt(statitems[3]);
+						}
+					}
+				}
+			}
+			System.out.println("done");
+			List<String> lines = new ArrayList<String>();
+			String line = "\t";
+			for (int ii=0;ii<langs.length;ii++)
+				line = line+langs[ii]+"\t";
+			//System.out.println(line);
+			lines.add(line);
+			for (int ii=0;ii<langs.length;ii++){
+				line = langs[ii]+"\t";
+				for (int jj=0;jj<langs.length;jj++)
+					line = line+rawnums[ii][jj]+"\t";
+				System.out.println(line);
+				lines.add(line);
+			} 
+			line = "total TUs\t"+rawnums[langs.length][0];
+			lines.add(line);
+			line = "total Unique TUVs\t"+rawnums[langs.length+1][0];
+			lines.add(line);
+			FileUtils.writeLines(new File(FilenameUtils.concat(indir.getAbsolutePath(),"rawstats_"+thr+".txt")), Constants.UTF8, lines, "\n");
+			
+			lines = new ArrayList<String>();
+			line = "\t";
+			for (int ii=0;ii<langs.length;ii++)
+				line = line+langs[ii]+"\t";
+			//System.out.println(line);
+			lines.add(line);
+			for (int ii=0;ii<langs.length;ii++){
+				line = langs[ii]+"\t";
+				for (int jj=0;jj<langs.length;jj++)
+					line = line+filternums[ii][jj]+"\t";
+				System.out.println(line);
+				lines.add(line);
+			} 
+			line = "total TUs\t"+filternums[langs.length][0];
+			lines.add(line);
+			line = "total Unique TUVs\t"+filternums[langs.length+1][0];
+			lines.add(line);
+			FileUtils.writeLines(new File(FilenameUtils.concat(indir.getAbsolutePath(),"filterstats_"+thr+".txt")), Constants.UTF8, lines, "\n");
+		}
+		if (mode.equals("stats")){
+			String basepath =args[1];
+			File indir = new File(basepath);
+			String thr = args[2];
+			String[] ext = new String[1]; ext[0]="tsv";
+			List<File> tsvfiles = (List<File>) FileUtils.listFiles(indir, ext, true);
+			Map<String, String> stats = new HashMap<String, String>();
+			Set<String> tuvs = new HashSet<String>();
+			for (File tsvfile:tsvfiles){
+				List<String> tus = FileUtils.readLines(tsvfile,Constants.UTF8);
+				if (tus.size()==0)
+					continue;
+				String temp = tsvfile.getName().substring(0, 5);
+				//System.out.println(tsvfile.getAbsolutePath()+"\t"+tus.size()+"\t"+"tus");
+				//if (stats.containsKey(temp)){
+				//	
+				//}else{
+				stats.put(temp, tus.size()+"\traw tus");
+				//}
+				rawcount = rawcount + tus.size();
+				for (String tu:tus){
+					String[] linetuvs = tu.split("\t");
+					if (!tuvs.contains(linetuvs[1]))
+						tuvs.add(linetuvs[1]);
+					if (!tuvs.contains(linetuvs[2]))
+						tuvs.add(linetuvs[2]);
+				}	
+			}
+			rawtuvs = tuvs.size();
+			List<File> filtfiles = (List<File>) FileUtils.listFiles(new File(basepath), null, true);
+			tuvs = new HashSet<String>();
+			List<String> t1 = new ArrayList<String>();
+			List<String> t2 = new ArrayList<String>();
+			File lang1file= null;
+			File lang2file= null;
+			for (File filtfile:filtfiles){
+				if (filtfile.getName().contains(thr) && filtfile.getName().endsWith("filt")){
+					List<String> tus = FileUtils.readLines(filtfile,Constants.UTF8);
+					//System.out.println(filtfile.getAbsolutePath()+"\t"+tus.size()+"\t"+"tus");
+					if (tus.size()==0)
+						continue;
+					String temp = filtfile.getName().substring(0, 5);
+					String lang1 = temp.substring(0,2);
+					String lang2 = temp.substring(3,5);
+					String res = stats.get(temp);
+					res = res + "\t"+tus.size() + "\tfiltered tus";
+					stats.put(temp, res);
+					filtcount = filtcount + tus.size();
+					lang1file = new File(filtfile.getAbsolutePath()+"."+lang1);
+					lang2file = new File(filtfile.getAbsolutePath()+"."+lang2);
+					t1 = new ArrayList<String>();
+					t2 = new ArrayList<String>();
+					for (String tu:tus){
+						String[] linetuvs = tu.split("\t");
+						if (!tuvs.contains(linetuvs[1]))
+							tuvs.add(linetuvs[1]);
+						if (!tuvs.contains(linetuvs[2]))
+							tuvs.add(linetuvs[2]);
+						t1.add(linetuvs[1]);
+						t2.add(linetuvs[2]);
+					}
+					FileUtils.writeLines(lang1file, Constants.UTF8, t1, "\n");
+					FileUtils.writeLines(lang2file, Constants.UTF8, t2, "\n");
+				}
+			}
+			File resfile = new File(FilenameUtils.concat(indir.getAbsolutePath(), "stats"+"_"+thr+".txt"));
+			Set<String> langpairs = stats.keySet();
+			List<String> results = new ArrayList<String>();
+			for (String langpair:langpairs){
+				results.add(langpair+"\t"+stats.get(langpair));
+			}
+			results.add("total TUs\t"+rawcount+"\t \t"+filtcount);
+			results.add("unique raw TUVs\t"+ rawtuvs+"\tunique filt TUVs\t"+ tuvs.size());
+			//System.out.println("unique TUVs\t"+ tuvs.size());
+			FileUtils.writeLines(resfile, Constants.UTF8, results, "\n");
+		}
+		
+		if (mode.equals("plaintsv2tmx")){
+			String basepath =args[1];
+			plaintsv2tmx(basepath);
+			File[] files  = (new File(basepath)).listFiles();
+			for (File file:files){
+				if (file.getName().contains("_1.tmx"))
+					file.delete();
+			}
+		}
+		
+		System.exit(0);			
+		
+
+		
+
+		System.exit(0);
+
+		String pp = "C:/Users/vpapa/ELRC/multisites/eupresscorner/all/html";
+		File in1 = new File(pp);
+		File[] in1files = in1.listFiles();
+		for (File in1file:in1files){
+			if (!in1file.getName().endsWith("html"))
+				continue;
+			int ind = in1file.getName().lastIndexOf("_");
+			String lang = in1file.getName().substring(ind+1,ind+3);
+			File ppp = new File(FilenameUtils.concat(pp, lang));
+			if (!ppp.exists()){
+				System.out.println(in1file.getName());
+				ppp.mkdir();
+			}
+			File ttt = new File(FilenameUtils.concat(ppp.getAbsolutePath(), in1file.getName()));
+			FileUtils.moveFile(in1file, ttt);
+		}
+		System.exit(0);
+
+		//tmx2txts(new File("C:/Users/vpapa/ELRC/multisites/crawl_covid_25/to_update/aaaaaaaaaaa/tmx/en-sk.tmx"), "en", "sk");
+		//List<String> a1 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/multisites/crawl_covid_25/to_update/aaaaaaaaaaa/tmx/en-hu.tmx.en.txt"), Constants.UTF8);
+		//List<String> a2 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/multisites/crawl_covid_25/to_update/aaaaaaaaaaa/tmx/en-hu.tmx.hu.txt"), Constants.UTF8);
+		//List<String> a3 = new ArrayList<String>();
+		//for (int ii=0;ii<a1.size();ii++){
+		//	a3.add("1.051\t"+a1.get(ii)+"\t"+a2.get(ii)+"\t1\t1");
+		//}
+		//FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/multisites/crawl_covid_25/to_update/aaaaaaaaaaa/tmx/en-hu.tsv"), Constants.UTF8, a3, "\n");
+		//System.exit(0);
+
+
 		File innfile  = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/2606/source");
 		File[] xlifs = innfile.listFiles();
 		List<String> l21 = new ArrayList<String>();
@@ -99,10 +365,10 @@ public class TmxUtils {
 		List<ILSPAlignment> faalignments1 = segpair2ILSPAlignment(fpairs1);
 		String[] fllangs11 = new String[2]; fllangs11[0] = "en"; fllangs11[1] = "pl";
 		generateCorpus(faalignments1, fllangs11, "", new File(result.getAbsolutePath()+ "_u.tmx"),"", "", "");
-		
+
 		System.exit(0);
-		
-		
+
+
 		File fffile1 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_1801-1819/source/Al Nashiri impotriva Romaniei.tmx.en");
 		File fffile2 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_1801-1819/source/Al Nashiri impotriva Romaniei.tmx.ro");
 		File fffile3 = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/_1801-1819/source/Al Nashiri impotriva Romaniei.tmx.en-ro");
@@ -111,8 +377,8 @@ public class TmxUtils {
 		String[] fllangs1 = new String[2]; fllangs1[0] = "en"; fllangs1[1] = "ro";
 		generateCorpus(faalignments, fllangs1, "", new File(fffile3.getAbsolutePath()+ "_u.tmx"),"", "", "");
 		System.exit(0);
-		
-		
+
+
 		List<String> lines = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_2510/validated-1.txt"));
 		List<String> newlines = new ArrayList<String>();
 		for (String line:lines){
@@ -128,15 +394,15 @@ public class TmxUtils {
 		}
 		FileUtils.writeLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/_2510/validated-1.txt"), newlines);
 		System.exit(0);
-		
+
 		/*List<String> a23781 = FileUtils.readLines(new File("C:/Users/vpapa/Downloads/archive_2378/result/eng-hrv_corpus.en"));
 		List<String> a23782 = FileUtils.readLines(new File("C:/Users/vpapa/Downloads/archive_2378/result/eng-hrv_corpus.hr"));
-		
+
 		List<String> a23761 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Ministarstvo_part1/eng-hrv_corpus.en"));
 		List<String> a23762 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Ministarstvo_part1/eng-hrv_corpus.hr"));
 		List<String> a23791 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Ministarstvo_part2/eng-hrv_corpus.en"));
 		List<String> a23792 = FileUtils.readLines(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts/Ministarstvo_part2/eng-hrv_corpus.hr"));		
-		
+
 		int countq=0;
 		for (int ii=0;ii<a23781.size();ii++){
 			String a = a23781.get(ii);
@@ -157,27 +423,27 @@ public class TmxUtils {
 					countq++;
 				}
 			}
-			
-			
+
+
 		}
 		System.out.println(countq);
 		System.exit(0);*/
-		
+
 		/*tmx2txts2(new File("C:/Users/vpapa/Downloads/archive_2377/Regionalno EN-HR.tmx"), "en", "hr");
 		tmx2txts2(new File("C:/Users/vpapa/Downloads/archive_2378/Ministarstvo poljoprivrede EN-HR.tmx"), "hr", "en");
 		System.exit(0);*/
-		
+
 		/*cleanTXTs(new File("C:/Users/vpapa/Downloads/archive_2377/txts"));
 		cleanTXTs(new File("C:/Users/vpapa/Downloads/archive_2378/txts"));
 		System.exit(0);*/
-		
+
 		/*tmx2txts2(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/Ministarstvo poljoprivrede HR-EN_final.tmx.UTF-8"), "en", "hr");
 		tmx2txts2(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/Regionalno HR-EN_final.tmx.UTF-8"), "hr", "en");
 		System.exit(0);*/
-		
+
 		/*cleanTXTs(new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/new_version/Ciklopea_HR-EN_TMs/txts"));
 		System.exit(0);*/
-		
+
 		fffile1 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.en.cl");
 		fffile2 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.hr.cl");
 		fffile3 = new File("C:/Users/vpapa/Downloads/archive_2377/txts/Regionalno EN-HR.tmx.en-hr.cl");
@@ -186,11 +452,11 @@ public class TmxUtils {
 		fllangs1 = new String[2]; fllangs1[0] = "en"; fllangs1[1] = "hr";
 		generateCorpus(faalignments, fllangs1, "", new File(fffile3.getAbsolutePath()+ "_u.tmx"),"", "", "");
 		System.exit(0);
-		
-		
-	
-		
-		
+
+
+
+
+
 
 		File ffile = new File("C:/Users/vpapa/ELRC/ELRC-1_to_LOT3/toD3-4-2/si.program-podezelja/en-sl.clean1.15.tsv");
 		String llang1 = "en", llang2 = "sl";
@@ -381,7 +647,8 @@ public class TmxUtils {
 
 		String line2;
 		int countergov=0;
-		BufferedReader bufferreader = new BufferedReader(new FileReader("C:/Users/vpapa/ELRC/tld/pl/tld_en-pl_tld_en-pl_eng-pol.tmx"));
+		//BufferedReader bufferreader = new BufferedReader(new FileReader("C:/Users/vpapa/ELRC/tld/pl/tld_en-pl_tld_en-pl_eng-pol.tmx"));
+		BufferedReader  bufferreader = new BufferedReader(new InputStreamReader(new FileInputStream("C:/Users/vpapa/ELRC/tld/pl/tld_en-pl_tld_en-pl_eng-pol.tmx"), Constants.UTF8));
 		line2 = bufferreader.readLine();
 		while (line2 != null) {     
 			if (line2.contains("l1-url") && line2.contains(".gov.")){
@@ -457,8 +724,9 @@ public class TmxUtils {
 		int email_counter=0, url_counter=0;
 		int mix_counter=0;
 
-
-		BufferedReader br = new BufferedReader(new FileReader(tmxFile));
+		//BufferedReader br = new BufferedReader(new FileReader(tmxFile));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(tmxFile.getAbsolutePath()), Constants.UTF8));
+		
 		String line1;
 		while ((line1 = br.readLine()) != null) {
 			if (line1.contains("type=\"info\">")){
@@ -703,13 +971,98 @@ public class TmxUtils {
 	}
 
 
+	private static void process403() throws IOException {
+		File[] files = (new File("C:/Users/vpapa/ELRC/kenneth/403/tsv/ro")).listFiles();
+		File tfile = new File("C:/Users/vpapa/ELRC/kenneth/403/tsv/ro.txt");
+		List<String> lines = new ArrayList<String>();
+		for (File file:files){
+			List<String> temp = FileUtils.readLines(file, Constants.UTF8);
+			lines.addAll(temp);
+		}
+		FileUtils.writeLines(tfile, Constants.UTF8, lines, "\n");
+		
+	}
+
+
+	private static void correctantibiotic(File indir) throws IOException {
+		File newdir = new File(indir.getAbsolutePath()+"_new");
+		File[] files = indir.listFiles();
+		for (File file:files){
+			//if (!file.getName().contains("1.05"))
+			//	continue;
+			List<String> lines = FileUtils.readLines(file, Constants.UTF8);
+			List<String> newlines = new ArrayList<String>();
+			String lang1 = file.getName().substring(0, 2);
+			String lang2 = file.getName().substring(3, 5);
+			System.out.println(lang1+"\t"+lang2);
+			String newline="";
+			if (lang1.compareTo(lang2)<0){
+				for (String line:lines){
+					String[] parts = line.split("\t");
+					newline = parts[0]+"\t"+parts[2]+"\t"+parts[1]+"\t"+parts[3]+"\t"+parts[4];
+					newlines.add(newline);					
+				}
+			}else
+				newlines=lines;
+			
+			File newfile = new File(FilenameUtils.concat(newdir.getAbsolutePath(), file.getName()));
+			FileUtils.writeLines(newfile, Constants.UTF8, newlines, "\n");		
+		}
+		
+	}
+
+
+	private static void tsvs2moses(String basepath, String thr) throws IOException {
+		//thr="";
+		File[] infiles = new File(basepath).listFiles();
+		Set<String> tuvs = new HashSet<String>();
+		for (File infile:infiles){
+			if (!infile.getName().endsWith(thr+".filt"))
+			//if (!infile.getName().endsWith(".tsv"))	
+			//if (!infile.getName().endsWith(".sort"))		
+				continue;
+			String temp = infile.getName(); //.split("_")[1];
+			System.out.println(temp);
+			temp = temp.replaceAll("2019-12-31_laser_", "");
+			System.out.println(temp.substring(0, 2));
+			System.out.println(temp.substring(3, 5));
+			String lang1 = ISOLangCodes.get2LetterCode(temp.substring(0, 2));
+			String lang2 = ISOLangCodes.get2LetterCode(temp.substring(3, 5));
+			//String lang1 = ISOLangCodes.get2LetterCode(temp.substring(4, 6));
+			//String lang2 = ISOLangCodes.get2LetterCode(temp.substring(7, 9));
+			
+			List<String> lines = FileUtils.readLines(infile, Constants.UTF8);
+			System.out.println(lines.size());
+			List<String> lines1 = new ArrayList<String>();
+			List<String> lines2 = new ArrayList<String>();
+			List<String> lines12 = new ArrayList<String>();
+			for (String line:lines){
+				String[] lineparts = line.split("\t");
+				lines1.add(lineparts[1]);
+				lines2.add(lineparts[2]);
+				lines12.add(lineparts[1]+"\t"+lineparts[2]);
+				if (!tuvs.contains(lineparts[1]))
+					tuvs.add(lineparts[1]);
+				if (!tuvs.contains(lineparts[2]))
+					tuvs.add(lineparts[2]);
+			}
+			FileUtils.writeLines(new File(infile.getAbsolutePath()+".tsv"), Constants.UTF8, lines12, "\n");
+			FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+lang1), Constants.UTF8, lines1, "\n");
+			FileUtils.writeLines(new File(infile.getAbsolutePath()+"."+lang2), Constants.UTF8, lines2, "\n");
+			System.out.println("unique TUVs:\t" + tuvs.size());
+		}
+		System.out.println("unique TUVs:\t" + tuvs.size());
+	}
+	
+
+
 	private static void cleanTXTs(File indir) throws IOException {
 
 		String a = "<bpt", b = "</bpt>", c = "<ept", d = "</ept>", e="&lt;JUMP&gt;", f ="<ph", g = "</ph>" ;
 		File[] files = indir.listFiles();
 		for (File file:files){
 			List<String> lines = FileUtils.readLines(file);
-			
+
 			List<String> newlines = new ArrayList<String>();
 			String text="";
 			int ind1, ind2, jj=-1;
@@ -723,7 +1076,7 @@ public class TmxUtils {
 					if (ind1<ind2 && ind1>=0 &&ind2>=0){
 						temp = temp.substring(0, ind1)+ temp.substring(ind2+b.length());
 						temp = temp.trim();
-					
+
 					}else{
 						break;
 					}
@@ -1386,6 +1739,23 @@ public class TmxUtils {
 		return segpairslist;
 	}
 
+	private static List<SegPair> laser2tmx(File infile) throws Exception{
+		List<String> segpairs = FileUtils.readLines(infile, Constants.UTF8);
+		List<SegPair> segpairslist = new ArrayList<SegPair>();
+		for (String segpair:segpairs){
+			String[] temp = segpair.split(Constants.TAB);
+			String seg1 = temp[1];
+			String seg2 = temp[2];
+			double ratio = (double)seg1.length() / (double)seg2.length();
+			SegPair s = new SegPair(seg1, seg2, 0.0,
+					"", "","", "", "", "", ratio,"");
+			segpairslist.add(s);
+		}
+		return segpairslist;
+	}
+
+
+
 	private static List<SegPair> txt2tmx(File infile, String sep) throws Exception{
 		List<String> segpairs = FileUtils.readLines(infile, Constants.UTF8);
 		List<SegPair> segpairslist = new ArrayList<SegPair>();
@@ -1780,7 +2150,7 @@ public class TmxUtils {
 		}
 	};
 
-	/**
+	/*/**
 	 * parses a tmxfile, get segments in l1 and l2, and writes these segments in two text files (1 for each language)
 	 * @param tmxFile
 	 * @param l1
@@ -1804,13 +2174,13 @@ public class TmxUtils {
 	}*/
 
 
-	/*	public static void tmx2Tsv(File tmxFile, File evalFile, String l1, String l2) throws IOException  {
+	public static void tmx2tsv(File tmxFile, File evalFile, String l1, String l2) throws IOException  {
 		List<Tu> tus = TMXHandlerUtils.getTUs(tmxFile);
 		List<String> outLines = new ArrayList<String>();
 		int i = 1;
 		for (Tu tu : tus) {
-			String l1Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l1), SPACE_STR);
-			String l2Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l2), SPACE_STR);
+			String l1Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l1), " ");
+			String l2Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l2), " ");
 			List<Object> tuProps = tu.getNoteOrProp();
 			String type="NULL";
 			String score = "NULL";
@@ -1818,23 +2188,87 @@ public class TmxUtils {
 			String info = "NULL";
 			for (Object obProp : tuProps) {
 				Prop prop = (Prop) obProp;
-				if (prop.getType().equals(SCORE)) {
+				if (prop.getType().equals("score")) {
 					score = prop.getContent().get(0);
-				} else if (prop.getType().equals(SEGMENTTYPE)) {
+				} else if (prop.getType().equals("type")) {
 					type = prop.getContent().get(0);
-				} else if (prop.getType().equals(LENGTHRATIO)) {
+				} else if (prop.getType().equals("lengthRatio")) {
 					lengthratio = prop.getContent().get(0);
-				} else if (prop.getType().equals(INFO) && (!prop.getContent().isEmpty())) {
+				} else if (prop.getType().equals("info") && (!prop.getContent().isEmpty())) {
 					info = prop.getContent().get(0);
 				}
 			}
-			outLines.add(StringUtils.join(new String[] {String.valueOf(i), l1Text, l2Text, String.valueOf(score), lengthratio, info }, TAB_STR));
+			//outLines.add(StringUtils.join(new String[] {String.valueOf(i), l1Text, l2Text, String.valueOf(score), lengthratio, info }, Constants.TAB));
+			outLines.add(StringUtils.join(new String[] { l1Text, l2Text  }, Constants.TAB));
 			i++;
 		}
 		LOGGER.info("Writing file "+ evalFile.getAbsolutePath() + " with all results and information.");
-		FileUtils.write (evalFile, StringUtils.join(new String[] {"id", l1, l2, "alignerScore", "lengthRatio", "info" }, TAB_STR)+NEWLINE_STR, false);
+		//FileUtils.write (evalFile, StringUtils.join(new String[] {"id", l1, l2, "alignerScore", "lengthRatio", "info" }, Constants.TAB)+"\n", false);
 		FileUtils.writeLines(evalFile, Constants.UTF8, outLines, "\n",true);
-	}*/
+	}
+
+
+	public static void tmx2lasertsv(File tmxFile, File evalFile, String l1, String l2) throws IOException  {
+		List<Tu> tus = TMXHandlerUtils.getTUs(tmxFile);
+		List<String> outLines = new ArrayList<String>();
+		int i = 1;
+		for (Tu tu : tus) {
+			String l1Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l1), " ");
+			String l2Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l2), " ");
+			List<Object> tuProps = tu.getNoteOrProp();
+			String type="NULL";
+			String score = "NULL";
+			String lengthratio = "NULL";
+			String info = "NULL";
+			for (Object obProp : tuProps) {
+				Prop prop = (Prop) obProp;
+				if (prop.getType().equals("score")) {
+					score = prop.getContent().get(0);
+				} else if (prop.getType().equals("type")) {
+					type = prop.getContent().get(0);
+				} else if (prop.getType().equals("lengthRatio")) {
+					lengthratio = prop.getContent().get(0);
+				} else if (prop.getType().equals("info") && (!prop.getContent().isEmpty())) {
+					info = prop.getContent().get(0);
+				}
+			}
+			//outLines.add(StringUtils.join(new String[] {String.valueOf(i), l1Text, l2Text, String.valueOf(score), lengthratio, info }, Constants.TAB));
+			outLines.add(StringUtils.join(new String[] { l1Text, l2Text  }, Constants.TAB));
+			i++;
+		}
+		for (int ii=0;ii<outLines.size();ii++){
+			String outLine = outLines.get(ii);
+			outLine = "1.1\t"+outLine+"\tX\tX";
+			outLines.set(ii, outLine);
+		}
+		LOGGER.info("Writing file "+ evalFile.getAbsolutePath() + " with all results and information.");
+		//FileUtils.write (evalFile, StringUtils.join(new String[] {"id", l1, l2, "alignerScore", "lengthRatio", "info" }, Constants.TAB)+"\n", false);
+		FileUtils.writeLines(evalFile, Constants.UTF8, outLines, "\n",true);
+	}
+	
+	
+	public static void tmx2tsv1(File tmxFile, File evalFile, String l1, String l2) throws IOException  {
+		List<Tu> tus = TMXHandlerUtils.getTUs(tmxFile);
+		List<String> outLines = new ArrayList<String>();
+		List<String> l1list = new ArrayList<String>();
+		List<String> l2list = new ArrayList<String>();
+		int i = 1;
+		for (Tu tu : tus) {
+			String l1Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l1), " ");
+			String l2Text = StringUtils.join(TMXHandlerUtils.createSegmentList(tu, l2), " ");
+
+			outLines.add(StringUtils.join(new String[] { l1Text, l2Text  }, Constants.TAB));
+
+			l1list.add(l1Text);
+			l2list.add(l2Text);
+			i++;
+		}
+		LOGGER.info("Writing file "+ evalFile.getAbsolutePath() + " with all results and information.");
+		//FileUtils.write (evalFile, StringUtils.join(new String[] {"id", l1, l2, "alignerScore", "lengthRatio", "info" }, Constants.TAB)+"\n", false);
+		FileUtils.writeLines(new File(tmxFile.getAbsolutePath()+"."+l1), Constants.UTF8, l1list, "\n");
+		FileUtils.writeLines(new File(tmxFile.getAbsolutePath()+"."+l2), Constants.UTF8, l2list, "\n");
+	}
+
 
 
 	/*	*//**
@@ -1899,4 +2333,156 @@ public class TmxUtils {
 	}
 
 
+	public static void tsvs2tmxs(String basepath, String thr) throws Exception{
+
+		File[] infiles = new File(basepath).listFiles();
+		for (File infile:infiles){
+			if (!infile.getName().endsWith(thr+".filt"))
+				continue;
+			//if (!infile.getName().endsWith("tsv"))
+			//	continue;
+			//if (!infile.getName().endsWith("sort"))
+			//	continue;
+			String temp = infile.getName();//.split("_")[1];
+			//temp = temp.replaceAll("2019-12-31_laser_", "");
+			System.out.println(temp.substring(0, 2));
+			System.out.println(temp.substring(3, 5));
+			String lang1 = ISOLangCodes.get2LetterCode(temp.substring(0, 2));
+			String lang2 = ISOLangCodes.get2LetterCode(temp.substring(3, 5));
+			//String lang1 = ISOLangCodes.get2LetterCode(temp.substring(4, 6));
+			//String lang2 = ISOLangCodes.get2LetterCode(temp.substring(7, 9));
+			
+			List<SegPair> fpairs1 = laser2tmx(infile);
+			System.out.println(fpairs1.size());
+			File resfile1 = new File(FilenameUtils.concat(basepath, lang1+"-"+lang2+"_1.tmx"));
+			String[] langs = new String[2]; langs[0] = lang1; langs[1] = lang2;
+			List<ILSPAlignment> faligns = segpair2ILSPAlignment(fpairs1);
+			System.out.println(faligns.size());
+			generateCorpus(faligns, langs, "", resfile1,"", "", "");
+			fpairs1 = null;
+			faligns = null;
+			List<String> lines;
+			try {
+				lines = FileUtils.readLines(resfile1, Constants.UTF8);
+			} catch (IOException e) {
+				LOGGER.error("problem in reading file "+ resfile1.getAbsolutePath() );
+				e.printStackTrace();
+				continue;
+			}
+			List<String> newlines = new ArrayList<String>();
+			for (String line:lines){
+				if (line.contains("<prop type=\"info\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"score\">0.0</prop>"))
+					continue;
+				if (line.contains("<prop type=\"type\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"l1-url\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"l2-url\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"loc\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"license\">Under review</prop>"))
+					continue;
+				if (line.contains("<prop type=\"availability\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"mean aligner's score\">0.0</prop>"))
+					continue;
+				if (line.contains("<prop type=\"std aligner's score\">0.0</prop>"))
+					continue;
+				if (line.contains(" creationtool=\"mALIGNa\" creationtoolversion=\"2\""))
+					line = line.replaceAll(" creationtool=\"mALIGNa\" creationtoolversion=\"2\"", " creationtool=\"\" creationtoolversion=\"\"");
+				if (line.contains("Maligna aligner was used"))
+					line = line.replaceAll("Maligna aligner was used", "Multilingual embeddings (LASER) were used");
+
+				newlines.add(line);
+			}
+			File resfile = new File(FilenameUtils.concat(basepath, lang1+"-"+lang2+".tmx"));
+			FileUtils.writeLines(resfile, Constants.UTF8, newlines, "\n");
+		}
+	}
+	
+	public static void plaintsv2tmx(String basepath) throws Exception{
+
+		File[] infiles = new File(basepath).listFiles();
+		for (File infile:infiles){
+			if (!infile.getName().endsWith(".tsv"))
+				continue;
+			String temp = infile.getName();//.split("_")[1];
+			//temp = temp.replaceAll("2019-12-31_laser_", "");
+			System.out.println(temp.substring(0, 2));
+			System.out.println(temp.substring(3, 5));
+			String lang1 = ISOLangCodes.get2LetterCode(temp.substring(0, 2));
+			String lang2 = ISOLangCodes.get2LetterCode(temp.substring(3, 5));
+			List<SegPair> fpairs1 = tsv2tmx(infile);
+			System.out.println(fpairs1.size());
+			File resfile1 = new File(FilenameUtils.concat(basepath, lang1+"-"+lang2+"_1.tmx"));
+			String[] langs = new String[2]; langs[0] = lang1; langs[1] = lang2;
+			List<ILSPAlignment> faligns = segpair2ILSPAlignment(fpairs1);
+			System.out.println(faligns.size());
+			generateCorpus(faligns, langs, "", resfile1,"", "", "");
+			fpairs1 = null;
+			faligns = null;
+			List<String> lines;
+			try {
+				lines = FileUtils.readLines(resfile1, Constants.UTF8);
+			} catch (IOException e) {
+				LOGGER.error("problem in reading file "+ resfile1.getAbsolutePath() );
+				e.printStackTrace();
+				continue;
+			}
+			List<String> newlines = new ArrayList<String>();
+			for (String line:lines){
+				if (line.contains("<prop type=\"info\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"score\">0.0</prop>"))
+					continue;
+				if (line.contains("<prop type=\"type\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"l1-url\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"l2-url\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"loc\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"license\">Under review</prop>"))
+					continue;
+				if (line.contains("<prop type=\"availability\"></prop>"))
+					continue;
+				if (line.contains("<prop type=\"mean aligner's score\">0.0</prop>"))
+					continue;
+				if (line.contains("<prop type=\"std aligner's score\">0.0</prop>"))
+					continue;
+				if (line.contains(" creationtool=\"mALIGNa\" creationtoolversion=\"2\""))
+					line = line.replaceAll(" creationtool=\"mALIGNa\" creationtoolversion=\"2\"", " creationtool=\"\" creationtoolversion=\"\"");
+				if (line.contains("Maligna aligner was used"))
+					line = line.replaceAll("Maligna aligner was used", "Multilingual embeddings (LASER) were used");
+
+				newlines.add(line);
+			}
+			File resfile = new File(FilenameUtils.concat(basepath, lang1+"-"+lang2+".tmx"));
+			FileUtils.writeLines(resfile, Constants.UTF8, newlines, "\n");
+		}
+		File[] files  = (new File(basepath)).listFiles();
+		for (File file:files){
+			if (file.getName().contains("_1.tmx"))
+				file.delete();
+		}
+	}
+	
+	private static List<SegPair> tsv2tmx(File infile) throws Exception{
+		List<String> segpairs = FileUtils.readLines(infile, Constants.UTF8);
+		List<SegPair> segpairslist = new ArrayList<SegPair>();
+		for (String segpair:segpairs){
+			String[] temp = segpair.split(Constants.TAB);
+			String seg1 = temp[0];
+			String seg2 = temp[1];
+			double ratio = (double)seg1.length() / (double)seg2.length();
+			SegPair s = new SegPair(seg1, seg2, 0.0,
+					"", "","", "", "", "", ratio,"");
+			segpairslist.add(s);
+		}
+		return segpairslist;
+	}
 }
