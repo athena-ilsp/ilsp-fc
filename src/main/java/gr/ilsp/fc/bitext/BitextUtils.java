@@ -7,7 +7,8 @@ import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+//import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -77,7 +78,8 @@ public class BitextUtils {
 		ArrayList<String> patterns1 = new ArrayList<String>();
 		int kk=0;
 		try {
-			BufferedReader in = new BufferedReader(new FileReader(f));
+			//BufferedReader in = new BufferedReader(new FileReader(f));
+			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f.getAbsolutePath()), Constants.UTF8));
 			while ((str = in.readLine()) != null) {
 				patterns1.add(str);
 				kk++;
