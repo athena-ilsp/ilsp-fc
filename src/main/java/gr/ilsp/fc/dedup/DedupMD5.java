@@ -157,7 +157,7 @@ public class DedupMD5 {
 		
 		int cents=0;
 		String file_to_delete;
-		List<String> found = new ArrayList<String>();
+		Set<String> foundset = new HashSet<String>();
 		for (int ii=0;ii<files.size();ii++){
 			TextFullAttr t= DedupUtils.getTextFullAttrs(files.get(ii), MIN_TOKEN_LEN, input_type); //file under examination
 			//if (t==null)
@@ -165,20 +165,20 @@ public class DedupMD5 {
 			//LOGGER.debug(t.filename);
 			fileattrs.add(t);
 			if (t.length==0)
-				found.add(files.get(ii).getName());
+				foundset.add(files.get(ii).getName());
 		}
 
 		boolean found1 = false;
 		for (int ii=0;ii<files.size()-1;ii++){
 			TextFullAttr t1 = fileattrs.get(ii);
-			if (found.contains(t1.filename))
+			if (foundset.contains(t1.filename))
 				continue;
 			String lang1 = t1.lang;
 			Set<String> list1 = t1.textlist;
 			found1 = false;
 			for (int jj=ii+1;jj<files.size();jj++){
 				TextFullAttr t2 = fileattrs.get(jj);
-				if (found.contains(t2.filename))
+				if (foundset.contains(t2.filename))
 					continue;
 				String lang2 = t2.lang;
 				Set<String> list2 = t2.textlist;
@@ -188,10 +188,10 @@ public class DedupMD5 {
 					double ratio = (double)intersection.size()  / (double)Math.min(list2.size(),list1.size()) ;
 					if (ratio>0.8){
 						if (t1.length>t2.length){
-							found.add(t2.filename);
+							foundset.add(t2.filename);
 							file_to_delete = FilenameUtils.concat(input.getPath(),t2.filename);
 						}else{
-							found.add(t1.filename);
+							foundset.add(t1.filename);
 							file_to_delete = FilenameUtils.concat(input.getPath(),t1.filename);
 							found1 = true;
 						}
@@ -214,6 +214,8 @@ public class DedupMD5 {
 				LOGGER.info("Lists for more than "+ cents*1000+" files have been checked.");
 			}
 		}
+		List<String> found = new ArrayList<String>();
+		found.addAll(foundset);
 		for (int ii=0;ii<found.size();ii++){
 			file_to_delete = FilenameUtils.concat(input.getPath(),found.get(ii));
 			(new File(file_to_delete)).delete();
