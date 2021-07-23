@@ -49,11 +49,15 @@ public class Classifier implements Serializable{
 	private static int _min_uniq_terms;
 	private boolean _keepBoiler = false;
 	private int _max_depth;
-	/*public static final String covidterms = "covid;corona;κορων;κορον;korona;kóróna;koroona;sars;"
+	public static final String covidterms1 = "covid;corona;κορων;κορον;korona;kóróna;koroona;sars;"
 			+ "pandem;πανδημ;világjárvány;pandém;epidem;coróin;víreas;"
 			+ "lockdown;καραντ;confinamento;emergenc;confinement;lezárás;απαγόρευσ;ausgangssperre;járvány;misure di blocco;"
-			+ "kоронавирус;пандемията;choróinvíris;paindéim;كوفيد;大流行疫情";*/
-	
+			+ "kоронавирус;корона;пандемията;choróinvíris;paindéim;كوفيد;大流行疫情;karantina;"
+			+ "εμβολι;εμβολί;vaccin;vaksinim;vaccin;تلقيح;ваксинация;ваксиниране;Impfung;Schutzimpfung;Vakzination;"
+			+ "vaktsineerimine;vaktsinatsioon;vacsaíniú;bólusetning;vacunación;vacuna;cijepljenje;vakcinacija"
+			+ "vaccinaz;vakcinācija;skiepijimas;vakcinavimas;tilqim;vaċċinazzjoni;vaksinasjon;oltás;szczepionka;"
+			+ "wakcynacja;vacinação;вакцинация;прививка;вакцинација;očkovanie;cepljenje;aşılama"
+			+ "očkování;rokotus;فيروس كورونا";
 	//public static final String covidterms = "parnassus;παρνασ";
 	public Classifier(String[] langKeys, String[] targetlanguages, String[] classes, 
 			ArrayList<String[]> topic, double abs_thres, double rel_thres, boolean keepBoiler, 
