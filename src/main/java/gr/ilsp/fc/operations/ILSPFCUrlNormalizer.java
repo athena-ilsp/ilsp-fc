@@ -55,13 +55,18 @@ public class ILSPFCUrlNormalizer extends SimpleUrlNormalizer {
     
     // Match against default pages such as /index.html, etc. 
     //private static final Pattern DEFAULT_PAGE_PATTERN = Pattern.compile("/((?i)index|default)\\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?htm[l]?|php[3456]?)(\\?|&|#|$)");
-    private static final Pattern DEFAULT_PAGE_PATTERN = Pattern.compile("/((?i)default)\\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?htm[l]?|php[3456]?)(\\?|&|#|$)");
+    //private static final Pattern DEFAULT_PAGE_PATTERN = Pattern.compile("/((?i)default)\\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?htm[l]?|php[3456]?)(\\?|&|#|$)");
+    //private static final Pattern DEFAULT_PAGE_PATTERN = Pattern.compile("/((?i)default)\\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?|php[3456]?)(\\?|&|#|$)");
+    //private static final Pattern DEFAULT_PAGE_PATTERN = Pattern.compile("/((?i)default|Default)\\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?|php[3456]?)(\\?|&|#|$)");
+    private static final Pattern DEFAULT_PAGE_PATTERN = Pattern.compile("/((?i)nothing)\\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?|php[3456]?)(\\?|&|#|$)");
     
     // Remove things that look like the (invalid) jsession ids prefixing or suffixing the query portion of a URL.
     private static final Pattern JSESSION_ID_PATTERN = Pattern.compile("(?:;jsessionid=.*?)(\\?|&|#|$)");
     
     // Remove things that look like session ids from the query portion of a URL.
-    private static final Pattern SESSION_ID_PATTERN = Pattern.compile("(\\?|&)(?:(?i)sid|phpsessid|sessionid|session_id|bv_sessionid|jsessionid|-session|session|session_key)=.*?(&|#|$)");
+    //private static final Pattern SESSION_ID_PATTERN = Pattern.compile("(\\?|&)(?:(?i)sid|phpsessid|sessionid|session_id|bv_sessionid|jsessionid|-session|session|session_key)=.*?(&|#|$)");
+    private static final Pattern SESSION_ID_PATTERN = Pattern.compile("(\\?|&)(?:(?i)sid|t_id|t_ref|phpsessid|sessionid|session_id|bv_sessionid|jsessionid|-session|session|session_key)=.*?(&|#|$)");
+    
     
     // Remove other common unwanted parameters from the query portion of a URL.
     private static final Pattern OTHER_IGNORED_QUERY_PARAMETERS_PATTERN = Pattern.compile("(\\?|&)(?:(?i)width|format|country|height|src|user|username|uname|return_url|returnurl|sort|sort_by|sortby|sort_direction|sort_key|order_by|orderby|sortorder|collate|nn|sendto|printpreview|set_special_view)=.*?(&|#|$)");
