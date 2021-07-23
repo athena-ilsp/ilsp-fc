@@ -2,7 +2,6 @@ package gr.ilsp.fc.cleaner;
 
 import gr.ilsp.fc.readwrite.ReadResources;
 import gr.ilsp.fc.utils.ContentNormalizer;
-
 import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
@@ -325,7 +324,29 @@ List<TextBlock> blocks =textDocument.getTextBlocks();
 		return result;
 	}
 
-
+	/**
+	 * Removes special patterns (structural info) added during cleaning 
+	 * @param content
+	 * @return
+	 */
+	public static String cleanContentPars(String content){
+		String result = "";
+		String REGEX = "<text.*>.*</text>";
+		String REPLACE = Constants.SPACE;
+		Pattern p = Pattern.compile(REGEX);
+		Matcher m = p.matcher(content);
+		String text = "";
+		while (m.find()){
+			text = m.group();
+			text = text.replaceAll(" type='listelem'","");
+			text = text.replaceAll(" type='title'","");
+			text = text.replaceAll(" type='heading'","");
+			text = text.replaceAll("</?text>", REPLACE);
+			result = result +"\n"+text.trim();
+		}
+		return result;
+	}
+	
 	/**
 	 * holds filenames of files in which the paragraph occur, and ids of this paragraph in each file
 	 * @author vpapa
