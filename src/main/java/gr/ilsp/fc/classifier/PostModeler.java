@@ -6,8 +6,10 @@ import gr.ilsp.nlp.commons.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+//import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +50,8 @@ public class PostModeler implements Serializable{
 		int counter_none=0, counter_multi=0;
 		int linecounter=0;
 		Map<Integer,List<String>> cluster_groups = new HashMap<Integer,List<String>>();
-		BufferedReader br = new BufferedReader(new FileReader(compositionfile));
+		//BufferedReader br = new BufferedReader(new FileReader(compositionfile));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(compositionfile.getAbsolutePath()), Constants.UTF8));
 		String line;
 		boolean found = false;
 		while ((line = br.readLine()) != null) {
@@ -99,7 +102,8 @@ public class PostModeler implements Serializable{
 		String basePath = compositionfile.getParent();
 		Map<Integer,List<String>> cluster_groups = new HashMap<Integer,List<String>>();
 		int linecounter=0, counter=0;
-		BufferedReader br = new BufferedReader(new FileReader(compositionfile));
+		//BufferedReader br = new BufferedReader(new FileReader(compositionfile));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(compositionfile.getAbsolutePath()), Constants.UTF8));
 		String line;
 		while ((line = br.readLine()) != null) {
 			linecounter++;
