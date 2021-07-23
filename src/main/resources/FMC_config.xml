@@ -14,14 +14,14 @@
 	</fundingProject>
 	<classifier>
 		<min_content_terms>
-			<value>4</value>
+			<value>2</value>
 			<description>Minimum number of terms that must exist in clean
 				content of each web page in order to be stored.This number
 				is multiplied with the median value of the terms'weights and
 				the result is the threshold for the absolute relevance score.</description>
 		</min_content_terms>
 		<min_unique_content_terms>
-			<value>4</value>
+			<value>2</value>
 			<description>Minimum unique terms that must exist in clean content</description>
 		</min_unique_content_terms>
 		<relative_relevance_threshold>
