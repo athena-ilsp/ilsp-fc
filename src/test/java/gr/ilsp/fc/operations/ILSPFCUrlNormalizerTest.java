@@ -286,24 +286,24 @@ public class ILSPFCUrlNormalizerTest {
         normalizeTest(  "http://www.foo.com/index.php3",
                         "http://www.foo.com/",
                         "Remove default page");*/
-        normalizeTest(  "http://www.foo.com/default.html",
-                        "http://www.foo.com/",
-                        "Remove default page");
-        normalizeTest(  "http://www.foo.com/default.htm",
-                        "http://www.foo.com/",
-                        "Remove default page");
-        normalizeTest(  "http://www.foo.com/default.asp",
-                        "http://www.foo.com/",
-                        "Remove default page");
-        normalizeTest(  "http://www.foo.com/default.aspx",
-                        "http://www.foo.com/",
-                        "Remove default page");
-        normalizeTest(  "http://www.foo.com/default.php",
-                        "http://www.foo.com/",
-                        "Remove default page");
-        normalizeTest(  "http://www.foo.com/default.php3",
-                        "http://www.foo.com/",
-                        "Remove default page");
+        //normalizeTest(  "http://www.foo.com/default.html",
+        //                "http://www.foo.com/",
+        //               "Remove default page");
+        //normalizeTest(  "http://www.foo.com/default.htm",
+        //                "http://www.foo.com/",
+        //                "Remove default page");
+        //normalizeTest(  "http://www.foo.com/default.asp",
+        //               "http://www.foo.com/",
+        //                "Remove default page");
+        //normalizeTest(  "http://www.foo.com/default.aspx",
+        //                "http://www.foo.com/",
+        //                "Remove default page");
+        //ormalizeTest(  "http://www.foo.com/default.php",
+        //                "http://www.foo.com/",
+        //                "Remove default page");
+        //normalizeTest(  "http://www.foo.com/default.php3",
+        //                "http://www.foo.com/",
+        //                "Remove default page");
         normalizeTest(  "http://www.foo.com/something.php3",
                         "http://www.foo.com/something.php3",
                         "Remove default page");
@@ -358,24 +358,24 @@ public class ILSPFCUrlNormalizerTest {
         normalizeTest(  "http://www.foo.com/index.PhP4",
                         "http://www.foo.com/",
                         "Remove default page");*/
-        normalizeTest(  "http://www.foo.com/default.HTml",
-                        "http://www.foo.com/",
-                        "Remove default page");
-        normalizeTest(  "http://www.foo.com/default.HTm",
-                        "http://www.foo.com/",
-                        "Remove default page");
-        normalizeTest(  "http://www.foo.com/default.ASp",
-                        "http://www.foo.com/",
-                        "Remove default page");
-        normalizeTest(  "http://www.foo.com/default.AspX",
-                        "http://www.foo.com/",
-                        "Remove default page");
-        normalizeTest(  "http://www.foo.com/default.PHP",
-                        "http://www.foo.com/",
-                        "Remove default page");
-        normalizeTest(  "http://www.foo.com/default.PHP3",
-                        "http://www.foo.com/",
-                        "Remove default page");
+        //normalizeTest(  "http://www.foo.com/default.HTml",
+        //                "http://www.foo.com/",
+        //                "Remove default page");
+        //normalizeTest(  "http://www.foo.com/default.HTm",
+        //                "http://www.foo.com/",
+        //                "Remove default page");
+        //normalizeTest(  "http://www.foo.com/default.ASp",
+        //                "http://www.foo.com/",
+        //                "Remove default page");
+        //normalizeTest(  "http://www.foo.com/default.AspX",
+        //                "http://www.foo.com/",
+        //                "Remove default page");
+        //normalizeTest(  "http://www.foo.com/default.PHP",
+        //                "http://www.foo.com/",
+        //                "Remove default page");
+       // normalizeTest(  "http://www.foo.com/default.PHP3",
+       //                 "http://www.foo.com/",
+       //                 "Remove default page");
        /* normalizeTest(  "http://www.foo.com/index.phtml",
                         "http://www.foo.com/",
                         "Remove default page");
