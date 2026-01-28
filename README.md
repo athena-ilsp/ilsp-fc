@@ -15,7 +15,7 @@ Full documentation is available in the `docs` directory:
 - **[Developer Setup](docs/ilsp-fc/Developer_Setup.md)**
 
 ## Project Status
-This is an archived project. It is not actively maintained.
+This is an archived project.
 
 ## License
 ILSP-FC is licensed under the GNU GPL, v. 3.0.
