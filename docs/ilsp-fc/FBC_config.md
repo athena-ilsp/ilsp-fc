@@ -1,0 +1,122 @@
+# FBC config
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<agent>
+		<email>yourmail@mail.com</email>
+		<web_address>www.youraddress.com</web_address>
+	</agent>
+	<resourceCreator>
+		<organization>ILSP</organization>
+		<organizationURL>http://www.ilsp.gr</organizationURL>
+	</resourceCreator>
+	<fundingProject>
+		<projectId>Project</projectId>
+		<projectURL>http://projectUrl.eu/</projectURL>
+	</fundingProject>
+	<classifier>
+		<min_content_terms>
+			<value>2</value>
+			<description>Minimum number of terms that must exist in clean
+				content of each web page in order to be stored.This number
+				is multiplied with the median value of the terms' weights and
+				the result is the threshold for the absolute relevance score.</description>
+		</min_content_terms>
+		<min_unique_content_terms>
+			<value>2</value>
+			<description>Minimum unique terms that must exist in clean content</description>
+		</min_unique_content_terms>
+		<relative_relevance_threshold>
+			<value>0.2</value>
+			<description>The absolute relevance score is divided by the length
+			(in terms of tokens) of the clean content of a document and the
+			calculated relative relevance score is compared with this value</description>
+		</relative_relevance_threshold>
+		<max_depth>
+			<value>20</value>
+			<description>Maximum depth to crawl before abandoning a specific path. Depth
+			is increased every time a link is extracted from a non-relevant web page.</description>
+		</max_depth>
+	</classifier>
+	<aligner>
+		<win_align_path>
+			<value>hunalign-1.2-windows64/hunalign.exe</value>
+			<description>relative path to executable of hunalign for windows.
+			The main hugnalign directory is supposed to be next to the crawler's jar</description>
+		</win_align_path>
+		<lin_align_path>
+			<value>hunalign/src/hunalign/hunalign</value>
+			<description>relative path to executable of hunalign for linux.
+			The main hugnalign directory is supposed to be next to the crawler's jar</description>
+		</lin_align_path>
+		<align_dict>
+			<value>hunalign/data</value>
+			<description>relative path to the dictionaries of hunalign.
+			The main hugnalign directory is supposed to be next to the crawler's jar</description>
+		</align_dict>
+	</aligner>
+	<fetcher>
+		<fetch_buffer_size>
+			<description>Max number of urls to fetch per run</description>
+			<value>1024</value>
+		</fetch_buffer_size>
+		<socket_timeout>
+			<value>10000</value>
+			<description>Socket timeout in milliseconds(per URL)</description>
+		</socket_timeout>
+		<connection_timeout>
+			<value>10000</value>
+			<description>Connection timeout in milliseconds(per URL)</description>
+		</connection_timeout>
+		<max_retry_count>
+			<value>2</value>
+			<description>Max number of attempts to fetch a Web page before giving up</description>
+		</max_retry_count>
+		<min_response_rate>
+			<value>0</value>
+			<description>Min bytes-per-seconds for fetching a web page</description>
+		</min_response_rate>
+		<valid_mime_types>
+			<mime_type value="text/html" />
+			<mime_type value="text/plain" />
+			<mime_type value="application/xhtml+xml" />
+			<mime_type value="application/pdf" />
+			<mime_type value="application/x-pdf" /> 
+			<description>Accepted mime types</description>
+		</valid_mime_types>
+		<crawl_delay>
+			<value>1000</value>
+			<description>delay in milliseconds between requests</description>
+		</crawl_delay>
+		<max_content_size>
+			<value>531072</value>
+			<description>Max content size (bytes) for downloading a web page</description>
+		</max_content_size>
+		<max_requests_per_run>
+			<value>1024</value>
+			<description>Max fetch set size per run (Sets are made by URLs from the same host)</description>
+		</max_requests_per_run>
+		<max_requests_per_host_per_run>
+			<value>1024</value>
+			<description>Max URLs from a specific host per run</description>
+		</max_requests_per_host_per_run>
+		<max_connections_per_host>
+			<value>100</value>
+			<description>Max number of fetching threads for each host</description>
+		</max_connections_per_host>		
+		<max_fetched_per_host>
+			<value>10000000</value>
+			<description>Max web pages to fetch per host</description>
+		</max_fetched_per_host>
+		<max_redirects>
+			<value>5</value>
+			<descriptions>Max number of redirects</descriptions>
+		</max_redirects>
+		<request_timeout>
+			<!--<value>6000000</value> -->
+			<value>600000</value>
+			<description>Max time to wait for Fetcher to get all URLs in a run</description>
+		</request_timeout>
+	</fetcher>	
+</configuration>
+```

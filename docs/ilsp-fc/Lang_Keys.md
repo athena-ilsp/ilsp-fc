@@ -1,0 +1,30 @@
+```
+eng>eng,EN,en,English,ENGLISH,(en),English [en],[en],english,United Kingdom,English Edition,english (en),Eng,Switch to English,In English,in English,english version,engs
+fra>fra,FR,fr,French,français,(fr),Français [fr],[fr],Français,français,langue française,fras 
+ell>ell,EL,el,Greek,ελληνικά,(el),[el],Ελληνική,Ελληνικά,Επιλογή γλώσσας,Greece, Greek Edition, ελληνικά (el),Greek (modern),gre
+grc>ell,EL,el,Greek,ελληνικά,(el),[el],Ελληνική,Ελληνικά,Επιλογή γλώσσας,Greece, Greek Edition, ελληνικά (el)
+deu>deu,DE,de,German,Deutsch,DEUTSH,(de),Deutsch [de],[de],Germany,Deutsch (de),Wechsel zu Deutsch,ger,deus 
+ita>ita,IT,it,Italian,italiano,(it),[it],Italy,itas
+spa>spa,ES,es,Spanish,español,(es),Español [es],[es],Español,Spain,España (ES)
+por>por,PT,pt,Portuguese,Português,português,português [pt],português (pt)
+hrv>HR,hrv,hrvatski,Cro,Croatian,hrvatski jezik
+jpn>jpn,JA,ja,JP,jp,Japanese,ja,日本語 (にほんご),Japonic
+gle>gle,GA,ga,Irish,Gaelic,Gaeilge
+fin>fin,Fi,fi,finnish,Finnish,suomi,Suomi,suomi (fi),suomi [fi],suomeksi,Suomeksi,suomen kieli
+hun>hun,HU,hu,hungarian,Hungarian,MAGYAR,(hu),Magyar,magyar
+pol>pol,PL,polski,(pl),polska wersja,język polski,polszczyzna,pols
+lav>lv,Latviešu,Latviski,latviešu valoda
+slv>slv,sl,Slovene,sl,slovenski jezik,slovenščina
+lit>lit,lt,Lithuanian,lietuvių kalba
+ron>ron,rum,ro,Romanian,romanian,limba română
+nor>nor,no,norwegian,Norwegian,Norsk,norsk,Bokmål,Nynorsk,Norsk nynorsk,Norsk bokmål
+nld>nld,nl,Dutch,dutch,Nederlands,Vlaams,dut
+gl>glg,gl,Galician,galician,galego
+ces>ces,cz,Czech,czech,čeština,český jazyk
+dan>dan,da,Danish,danish,dansk
+bul>bul,bg,Bulgarian,bulgarian,Български,български език
+rus>rus,ru,Russian,russian,Русский
+swe>swe,sv,Swedish,swedish,(sv),[sv],svenska
+slk>slk,sk,Slovak,slovenčina,slovenský jazyk 
+ja>JA,ja,JP,jp,Japanese
+```

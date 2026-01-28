@@ -1,0 +1,142 @@
+# Log4j.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<appender name="fileAppender" class="gr.ilsp.fc.utils.CustodianDailyRollingFileAppender">
+		<param name="File" value="${java.io.tmpdir}/ilsp-can.log" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd" />
+		<param name="Append" value="true" />
+		<param name="MaxNumberOfDays" value="14" />
+		<param name="Threshold" value="ERROR" />
+		<param name="CompressBackups" value="true" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p %d{HH:mm:ss} - %m (%c %F:%L)%n" />
+		</layout>
+	</appender>
+
+	<appender name="out" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p %d{HH:mm:ss} - %m (%F:%L)%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="INFO" />
+			<param name="LevelMax" value="INFO" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+	</appender>
+
+	<appender name="err" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.err" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p %d{HH:mm:ss} - %m (%c [%t] %F:%L)%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="WARN" />
+			<param name="LevelMax" value="FATAL" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+	</appender>
+
+
+	<logger name="cascading.util.Util">
+		<level value="ERROR" />
+	</logger>
+	<logger name="org.apache.hadoop.mapred.JobClient">
+		<level value="ERROR" />
+	</logger>
+	<logger name="cascading.pipe.cogroup.CoGroupClosure">
+		<level value="ERROR" />
+	</logger>
+	<logger name="com.bixolabs.cascading.LoggingFlowProcess">
+		<level value="ERROR" />
+	</logger>
+	<logger name="bixo.operations.FetchBuffer">
+		<level value="ERROR" />
+	</logger>
+
+	<!-- Cascade -->
+	<!-- FileInputFormat -->
+	<!-- FileOutputCommitter -->
+	<!-- Flow -->
+	<!-- FlowStep -->
+	<!-- Hadoop18TapUtil -->
+	<!-- JvmMetrics -->
+	<!-- LocalJobRunner -->
+	<!-- MapTask -->
+	<!-- Merger -->
+	<!-- MultiInputSplit -->
+	<!-- MultiMapReducePlanner -->
+	<!-- [pool-1-thread-1] Configuration -->
+	<!-- [pool-1-thread-1] FlowStep -->
+	<!-- SimpleCrawlHFS -->
+	<!-- TapCollector -->
+	<!-- Task -->
+
+
+
+
+	<logger name="cascading.tap.hadoop.TapCollector">
+		<level value="ERROR" />
+	</logger>
+	<logger name="cascading.flow.MultiMapReducePlanner">
+		<level value="ERROR" />
+	</logger>
+	<logger name="org.apache.hadoop.conf.Configuration">
+		<level value="ERROR" />
+	</logger>
+	<logger name="cascading.tap.hadoop.MultiInputSplit">
+		<level value="ERROR" />
+	</logger>
+	<logger name="org.apache.hadoop.metrics.jvm.JvmMetrics">
+		<level value="ERROR" />
+	</logger>
+	<logger name="cascading.cascade.Cascade">
+		<level value="ERROR" />
+	</logger>
+	<logger name="org.apache.hadoop.mapred.Merger">
+		<level value="ERROR" />
+	</logger>
+	<logger name="org.apache.hadoop.mapred.FileInputFormat">
+		<level value="ERROR" />
+	</logger>
+
+	<logger name="org.apache.hadoop.mapred.MapTask">
+		<level value="ERROR" />
+	</logger>
+	<logger name="org.apache.hadoop.mapred.LocalJobRunner">
+		<level value="ERROR" />
+	</logger>
+	<logger name="org.apache.hadoop.mapred.FileOutputCommitter">
+		<level value="ERROR" />
+	</logger>
+	<logger name="org.apache.hadoop.mapred.TaskRunner">
+		<level value="ERROR" />
+	</logger>
+	<logger name="cascading.flow.Flow">
+		<level value="ERROR" />
+	</logger>
+	<logger name="cascading.flow.FlowStep">
+		<level value="ERROR" />
+	</logger>
+
+	<logger name="cascading.tap.hadoop.Hadoop18TapUtil">
+		<level value="ERROR" />
+	</logger>
+	<logger name="flow.FlowStep">
+		<level value="ERROR" />
+	</logger>
+
+
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="err" />
+		<appender-ref ref="out" />
+		<appender-ref ref="fileAppender" />
+	</root>
+
+</log4j:configuration>
+```
